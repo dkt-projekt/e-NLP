@@ -1,0 +1,1 @@
+This is a test with some nasty chçåèëracters, a date (January) and a location (Thüringen).
