@@ -2,22 +2,18 @@ package de.dkt.eservices.ecorenlp.modules;
 
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreAnnotations.SpanAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.naturalli.NaturalLogicAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.PropertiesUtils;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -28,18 +24,17 @@ import java.util.Properties;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import de.dkt.common.niftools.DFKINIF;
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.niftools.NIFWriter;
-import de.dkt.eservices.eopennlp.modules.NameFinder;
 
 
 public class RelationExtractor {
 	
-	public static StanfordCoreNLP initPipeline(){
+	static StanfordCoreNLP pipeline;
+	
+	public static void initPipeline(){
 		//note that this does the full analysis, from (again) tokenizing, sentencesplitting, tagging, lemmatizing, parsing, etc. Can possibly be sped up by feeding it a(n already tokenize) list of tokens rather than a raw string. Also, doesn't ensure identical tokenization (e.g. the SimpleTokenizer from openNLP that is used everywhere else may tokenize things in a different way)
 		Properties props = PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma,depparse,natlog,openie"); // possibly I can also use just parse rather than depparse. Seems to go faster, but check if it means lower quality output (which is then probably the case...)
-		return new StanfordCoreNLP(props);
+		pipeline = new StanfordCoreNLP(props);
 	}
 	
 	
@@ -65,7 +60,7 @@ public class RelationExtractor {
 	}
 	
 	//public static ArrayList<RelationTriple> extractRelationTriples(StanfordCoreNLP pipeline, Model nifModel){
-	public static ArrayList<ArrayList<String>> extractRelationTriples(StanfordCoreNLP pipeline, Model nifModel){
+	public static ArrayList<ArrayList<String>> extractRelationTriples(Model nifModel){
 		
 		String isstr = NIFReader.extractIsString(nifModel);
 		//ArrayList<RelationTriple> tripleList = new ArrayList<RelationTriple>();
@@ -99,13 +94,12 @@ public class RelationExtractor {
 					candidateList.set(2,  objectTaIdentRef);
 					objectReplaced = true;
 				}
-				if (subjectReplaced){
+				if (subjectReplaced || objectReplaced){
 					tripleList.add(candidateList);
 				}
 				//tripleList.add(triple);
 			}
 		}
-		
 		return tripleList;
 	}
 	
@@ -154,7 +148,7 @@ public class RelationExtractor {
 		*/
 		
 		Date d1 = new Date();
-		StanfordCoreNLP pipeline = initPipeline();
+		RelationExtractor.initPipeline();
 		Date d2 = new Date();
 		long initTime = (d2.getTime()-d1.getTime())/1000;
 		System.out.println("Done initializing. Took " + initTime + " seconds.\n");
@@ -270,7 +264,7 @@ public class RelationExtractor {
 						"";
 		
 		//ArrayList<RelationTriple> relationTriples = extractRelationTriples(pipeline, NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
-		ArrayList<ArrayList<String>> relationTriples = extractRelationTriples(pipeline, NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
+		ArrayList<ArrayList<String>> relationTriples = extractRelationTriples(NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
 		System.out.println("relationTruples:" + relationTriples);
 		Date d3 = new Date();
 		long passOne = (d3.getTime()-d2.getTime())/1000;

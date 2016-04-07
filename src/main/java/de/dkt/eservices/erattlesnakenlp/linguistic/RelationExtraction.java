@@ -1,13 +1,13 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -15,6 +15,8 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
+import de.dkt.eservices.ecorenlp.modules.Tagger;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.ExternalServiceFailedException;
@@ -30,69 +32,120 @@ public class RelationExtraction {
 		return extractRelationsNIF(nifModel);
 	}
 
-	public static Model extractRelationsNIF(Model nifModel) throws ExternalServiceFailedException, IOException {
+	public static Model extractRelationsNIF(Model nifModel) throws Exception {
 
 		// Extract all the entities in the NIF and put them into a structure.
-//		List<Entity> entities = extractEntitiesList(nifModel);
-//		
-//		// Detect sentences or paragraphs.
-//		//Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
-////		List<SpanText> texts = new LinkedList<SpanText>();
-////		texts.add(new SpanText(text));
-//		String text = NIFReader.extractIsString(nifModel);
-//		List<LinguisticUnit> units = TextSplitter.splitText(text,0);
+		List<Entity> entities = extractEntitiesList(nifModel);
+		
+		// Detect sentences or paragraphs.
+		//Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
 //		List<SpanText> texts = new LinkedList<SpanText>();
-//		for (LinguisticUnit lu : units) {
-//			texts.add((SpanText) lu);
-//		}
-//		
-//		MaxentTagger tagger = Tagger.initTagger("en");
-//		Tagger.tagNIF(tagger, nifModel, "turtle", "de-sent.bin");
-//
-		System.out.println(NIFReader.model2String(nifModel, "TTL"));
-//		//Detect relations between entities inside the same: sentence, paragraph, window.
-//		List<SpanRelation> relations = new LinkedList<SpanRelation>();
-//		/**
-//		 * For every text, look for entities that are inside the text, and then establish a relation between them.
-//		 */
-//		for (SpanText st : texts) {
-//			for (int i = 0; i < entities.size(); i++) {
-//				Entity e1 = entities.get(i);
-//				if(e1.startSpan>=st.startSpan && e1.endSpan<=st.endSpan){
-//					for (int j = 0; j < entities.size(); j++) {
-//						if(i!=j){
-//							Entity e2 = entities.get(j);
-//							if(e2.startSpan>=st.startSpan && e2.endSpan<=st.endSpan){
-//								relations.add(new SpanRelation(e1,e2,null));
-//							}
-//						}
-//					}					
-//				}
-//			}
-//		}
-//		/**
-//		 * Cleaning for not having duplicates
-//		 */
-//		for (int i = 0; i < relations.size(); i++) {
-//			SpanRelation sr = relations.get(i);
-//			for (int j = i+1; j < relations.size(); j++) {
-//				SpanRelation sr2 = relations.get(j);
-//				if(sr.startSpan==sr2.startSpan && sr.endSpan==sr2.endSpan){
-//					
-//					if( (sr.subject.equals(sr2.subject) && sr.object.equals(sr2.object)) ||
-//							(sr.subject.equals(sr2.object) && sr.object.equals(sr2.subject))
-//							){
-//						relations.remove(j);
-//						j--;
-//					}
-//					
-//				}
-//			}
-//		}
-//		for (SpanRelation r : relations) {
-//			NIFWriter.addAnnotationRelation(nifModel, r.startSpan, r.endSpan, "", r.getSubject(), r.getAction(), r.getObject());			
-//		}
+//		texts.add(new SpanText(text));
+		String text = NIFReader.extractIsString(nifModel);
+		List<LinguisticUnit> units = TextSplitter.splitText(text,0);
+		List<SpanText> texts = new LinkedList<SpanText>();
+		for (LinguisticUnit lu : units) {
+			texts.add((SpanText) lu);
+		}
+
+		String nifString = NIFReader.model2String(nifModel, "TTL");
+		Model m2 = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+		
+		MaxentTagger tagger = Tagger.initTagger("en");
+		Tagger.tagNIF(tagger, m2, "turtle", "de-sent.bin");
+
+//		System.out.println(NIFReader.model2String(m2, "TTL"));
+		List<SpanWord> verbs = extractSpanVerbsFromNIF(m2);
+		//Detect relations between entities inside the same: sentence, paragraph, window.
+		List<SpanRelation> relations = new LinkedList<SpanRelation>();
+		/**
+		 * For every text, look for entities that are inside the text, and then establish a relation between them.
+		 */
+		for (SpanText st : texts) {
+			for (int i = 0; i < entities.size(); i++) {
+				Entity e1 = entities.get(i);
+				if(e1.startSpan>=st.startSpan && e1.endSpan<=st.endSpan){
+					for (int j = 0; j < entities.size(); j++) {
+						if(i!=j){
+							Entity e2 = entities.get(j);
+							if(e2.startSpan>=st.startSpan && e2.endSpan<=st.endSpan){
+								
+								for (SpanWord sp : verbs) {
+									if(sp.startSpan>=st.startSpan && sp.endSpan<=st.endSpan){
+										System.out.println(e1.text+" --> "+sp.text+" --> "+e2.text);
+									}
+								}
+								relations.add(new SpanRelation(e1,e2,null));
+							}
+						}
+					}					
+				}
+			}
+		}
+		/**
+		 * Cleaning for not having duplicates
+		 */
+		for (int i = 0; i < relations.size(); i++) {
+			SpanRelation sr = relations.get(i);
+			for (int j = i+1; j < relations.size(); j++) {
+				SpanRelation sr2 = relations.get(j);
+				if(sr.startSpan==sr2.startSpan && sr.endSpan==sr2.endSpan){
+					
+					if( (sr.subject.equals(sr2.subject) && sr.object.equals(sr2.object)) ||
+							(sr.subject.equals(sr2.object) && sr.object.equals(sr2.subject))
+							){
+						relations.remove(j);
+						j--;
+					}
+					
+				}
+			}
+		}
+		for (SpanRelation r : relations) {
+			NIFWriter.addAnnotationRelation(nifModel, r.startSpan, r.endSpan, "", r.getSubject(), r.getAction(), r.getObject());			
+		}
 		return nifModel;
+	}
+
+	private static List<SpanWord> extractSpanVerbsFromNIF(Model nifModel) {
+		List<SpanWord> verbs = new LinkedList<SpanWord>();
+		ResIterator iterEntities = nifModel.listSubjectsWithProperty(NIF.posTag);
+//		System.out.println("DEBUG: SIZE OF VERBS: "+iterEntities.hasNext());
+        while (iterEntities.hasNext()) {
+            Resource r = iterEntities.nextResource();
+            String entityURI = r.getURI();
+            String posTag = "";
+            int startSpan = 0;
+            int endSpan = 0;
+            StmtIterator iter2 = r.listProperties();
+//    		System.out.println("DEBUG: SIZE OF PROPERTIES OF "+entityURI+": "+iterEntities.hasNext());
+            while (iter2.hasNext()) {
+				Statement st2 = iter2.next();
+				String predicate =st2.getPredicate().getURI();
+				if(predicate.equalsIgnoreCase(NIF.beginIndex.getURI())){
+					String object = st2.getObject().asLiteral().getString();
+					startSpan = Integer.parseInt(object);
+				}
+				else if(predicate.equalsIgnoreCase(NIF.endIndex.getURI())){
+					String object = st2.getObject().asLiteral().getString();
+					endSpan = Integer.parseInt(object);
+				}
+				else if(predicate.equalsIgnoreCase(NIF.posTag.getURI())){
+					posTag = st2.getObject().asLiteral().getString();
+				}
+				else{
+				}
+			}
+            if(posTag.startsWith("V")){
+            	SpanWord sw = new SpanWord(entityURI, startSpan, endSpan);
+                verbs.add(sw);
+				System.out.println(posTag);
+            }
+        }
+        if(verbs.isEmpty()){
+        	return null;
+        }
+        return verbs;
 	}
 
 	public static List<Entity> extractEntitiesList(Model nifModel){
@@ -270,8 +323,8 @@ public class RelationExtraction {
 						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Emilio_Mola> .\n" +
 						"";
-//		Model m = RelationExtraction.extractRelationsNIFString(s);
+		Model m = RelationExtraction.extractRelationsNIFString(s);
 //		System.out.println(NIFReader.model2String(m, "TTL"));
-		System.out.println(s);
+//		System.out.println(s);
 	}
 }
