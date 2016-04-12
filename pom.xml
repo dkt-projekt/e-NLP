@@ -12,7 +12,7 @@
  	<parent>
 		<groupId>eu.freme.e-services</groupId>
 		<artifactId>e-service-parent</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -20,11 +20,6 @@
 			<groupId>eu.freme.bservices</groupId>
 			<artifactId>test-helper</artifactId>
 			<version>0.2-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>eu.freme</groupId>
-			<artifactId>common2</artifactId>
-			<version>0.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>eu.freme.e-services</groupId>
