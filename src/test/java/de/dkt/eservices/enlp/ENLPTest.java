@@ -1,21 +1,24 @@
-package de.dkt.eservices.eopennlp;
+package de.dkt.eservices.enlp;
 
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
+import de.dkt.eservices.enlp.TestConstants;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
@@ -25,32 +28,33 @@ import junit.framework.Assert;
  * @author 
  */
 
-public class EOpenNLPTest {
+public class ENLPTest {
 
 	TestHelper testHelper;
 	ValidationHelper validationHelper;
-	
+	ApplicationContext context;
+
 	@Before
 	public void setup() {
-		ApplicationContext context = IntegrationTestSetup
-				.getContext(TestConstants.pathToPackage);
+		//ApplicationContext context = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
+		context = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
 		testHelper = context.getBean(TestHelper.class);
 		validationHelper = context.getBean(ValidationHelper.class);
-		
+ 
 	}
 	
-	private HttpRequestWithBody baseRequest() {
+	private HttpRequestWithBody baseOpennlpRequest() {
 		String url = testHelper.getAPIBaseUrl() + "/e-opennlp/testURL";
 		return Unirest.post(url);
 	}
 	
-	private HttpRequestWithBody analyzeRequest() {
+	private HttpRequestWithBody analyzeOpennlpRequest() {
 		String url = testHelper.getAPIBaseUrl() + "/e-nlp/namedEntityRecognition";
 		Unirest.setTimeouts(10000, 10000000);
 		return Unirest.post(url);
 	}
 	
-	private HttpRequestWithBody trainModel() {
+	private HttpRequestWithBody trainOpennlpModel() {
 		String url = testHelper.getAPIBaseUrl() + "/e-nlp/trainModel";
 		Unirest.setTimeouts(10000, 900000000); // this will take a while, so adjust timeouts
 		return Unirest.post(url);
@@ -61,12 +65,31 @@ public class EOpenNLPTest {
 		return Unirest.post(url);
 	}
 	
+	private HttpRequestWithBody baseCorenlpRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-corenlp/testURL";
+		return Unirest.post(url);
+	}
+	
+	private HttpRequestWithBody baseRattlesnakeRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-rattlesnakenlp/testURL";
+		return Unirest.post(url);
+	}
+	
+	private HttpRequestWithBody tagRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-nlp/partOfSpeechTagging";
+		//Unirest.setTimeouts(10000, 10000000);
+		return Unirest.post(url);
+	}
+	
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+	
 	@Test
-	public void sanityCheck() throws UnirestException, IOException,
+	public void sanityCheckOpennlp() throws UnirestException, IOException,
 			Exception {
 
 		// sanity check
-		HttpResponse<String> response = baseRequest()
+		HttpResponse<String> response = baseOpennlpRequest()
 				.queryString("informat", "text")
 				.queryString("input", "hello world")
 				.queryString("outformat", "turtle").asString();
@@ -81,7 +104,7 @@ public class EOpenNLPTest {
 			Exception {
 
 		// plain text as input, turtle as output
-		HttpResponse<String> response2 = analyzeRequest()
+		HttpResponse<String> response2 = analyzeOpennlpRequest()
 				.queryString("input", "Welcome to Berlin in 2016.")
 				.queryString("analysis", "ner")
 				.queryString("language", "en")
@@ -90,7 +113,7 @@ public class EOpenNLPTest {
 				.queryString("outformat", "turtle")
 				.asString();
 		
-		Assert.assertEquals(TestConstants.expectedResponse2, response2.getBody());
+		Assert.assertEquals(TestConstants.expectedResponse22, response2.getBody());
 		assertTrue(response2.getStatus() == 200);
 		assertTrue(response2.getBody().length() > 0);
 		
@@ -101,7 +124,7 @@ public class EOpenNLPTest {
 			Exception {
 
 		// plain text as input, turtle as output
-		HttpResponse<String> response37 = analyzeRequest()
+		HttpResponse<String> response37 = analyzeOpennlpRequest()
 				.queryString("input", "Wilkommen in Berlin.")
 				.queryString("analysis", "ner")
 				.queryString("language", "de")
@@ -123,7 +146,7 @@ public class EOpenNLPTest {
 			Exception {
 
 		// plain text as input, turtle as output
-		HttpResponse<String> response2 = analyzeRequest()
+		HttpResponse<String> response2 = analyzeOpennlpRequest()
 				.queryString("input", "Welcome to Berlin in 2016.")
 				.queryString("analysis", "temp")
 				.queryString("language", "en")
@@ -145,7 +168,7 @@ public class EOpenNLPTest {
 			Exception {
 
 		// turtle as input (in body), rdf/xml as output
-		HttpResponse<String> response3 = analyzeRequest()
+		HttpResponse<String> response3 = analyzeOpennlpRequest()
 				//.queryString("input", TestConstants.turtleInput3)
 				.queryString("analysis", "ner")
 				.queryString("language", "en")
@@ -169,7 +192,7 @@ public class EOpenNLPTest {
 
 		
 		// Train a model by submitting training stuff in body (TODO: fix uploading of training files to server) 
-		HttpResponse<String> response9 = trainModel()
+		HttpResponse<String> response9 = trainOpennlpModel()
 				.queryString("analysis", "ner")
 				.queryString("language", "en")
 				.queryString("modelName", "testDummy")
@@ -206,7 +229,7 @@ public class EOpenNLPTest {
 
 		
 		// test for something containing multiple entity types
-		HttpResponse<String> response5 = analyzeRequest()
+		HttpResponse<String> response5 = analyzeOpennlpRequest()
 				.queryString("analysis", "ner")
 				.queryString("language", "en")
 				.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_PER;ner-wikinerEn_ORG")
@@ -229,7 +252,7 @@ public class EOpenNLPTest {
 
 		
 		//upload dictionary by submitting tsv in postBody
-		HttpResponse<String> response8 = trainModel()
+		HttpResponse<String> response8 = trainOpennlpModel()
 				.queryString("analysis", "dict")
 				.queryString("language", "en")
 				.queryString("modelName", "testDummyDict_PER")
@@ -241,7 +264,7 @@ public class EOpenNLPTest {
 		System.out.println(response8.getBody());
 		
 		// dictionary name finding with dictionary uploaded above
-		HttpResponse<String> response6 = analyzeRequest()
+		HttpResponse<String> response6 = analyzeOpennlpRequest()
 				.queryString("analysis", "dict")
 				.queryString("language", "de")
 				.queryString("models", "testDummyDict_PER")
@@ -380,18 +403,84 @@ public class EOpenNLPTest {
 		
 	//}	 
 	
-		/*
-		//File fDebug = FileFactory.generateFileInstance("rdftest/debug.txt");
-		HttpResponse<String> response6 = listModelsRequest()
-				.queryString("analysis", "ner")
-				.asString();
-		assertTrue(response6.getStatus() == 200);
-		assertTrue(response6.getBody().length() > 0);
-		Assert.assertEquals("", response6.getBody());
-		*/
-		
+	@Test
+	public void sanityCheck() throws UnirestException, IOException, Exception {
 
+		HttpResponse<String> response = baseCorenlpRequest()
+				.queryString("informat", "text")
+				.queryString("input", "hello world")
+				.queryString("outformat", "turtle").asString();
+
+		System.out.println("BODY: "+response.getBody());
+		System.out.println("STATUS:" + response.getStatus());
+
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+	}
+	
+	
+	@Test
+	public void enTest() throws UnirestException, IOException, Exception {
+		HttpResponse<String> response2 = tagRequest()
+				.queryString("input", "If you like to gamble, I tell you I'm your man.      You win some, lose some, all the same to me.")
+				.queryString("language", "en")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse, response2.getBody());
+		assertTrue(response2.getStatus() == 200);
+		assertTrue(response2.getBody().length() > 0);
+		
+	}
+	
+	
+	@Test
+	public void deTest() throws UnirestException, IOException, Exception {
+	
+		HttpResponse<String> response3 = tagRequest()
+				//.queryString("input", "Halb Sechs, meine Augen brennen. Tret' auf 'nen Typen, der zwischen toten Tauben pennt.")
+				.queryString("language", "de")
+				.queryString("informat", "turtle")
+				.queryString("outformat", "turtle")
+				.body(TestConstants.turtleInput2)
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse2, response3.getBody());
+		assertTrue(response3.getStatus() == 200);
+		assertTrue(response3.getBody().length() > 0);
+		
+	}
+	
+		//NL test:
+		// TODO: not really working. Check for the correct exception thrown
+		/*
+		//exception.expect(eu.freme.common.exception.BadRequestException.class);
+		HttpResponse<String> response4 = tagRequest()
+				.queryString("inputText", "Mozes in een mandje, yeah, ik chill 'm in de Nijl.")
+				.queryString("language", "nl")
+				.asString();
+		
+		//Assert.assertEquals(TestConstants.expectedResponse3, response4.getBody());
+		
+		assertTrue(response4.getStatus() == 400);
+		assertTrue(response4.getBody().length() > 0);
+		System.out.println("STATUS3:" + response4.getStatus());
+		*/
 	
 	
 	
+	@Test
+	public void testERattlesnakeNLPBasic() throws UnirestException, IOException,
+			Exception {
+
+		HttpResponse<String> response = baseRattlesnakeRequest()
+				.queryString("informat", "text")
+				.queryString("input", "hello world")
+				.queryString("outformat", "turtle").asString();
+
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+	}
 }
