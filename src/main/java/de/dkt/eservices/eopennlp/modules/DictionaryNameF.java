@@ -34,7 +34,7 @@ import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
-import de.dkt.eservices.esesame.modules.SesameStorage;
+//import de.dkt.eservices.esesame.modules.SesameStorage;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 import opennlp.tools.dictionary.Dictionary;
@@ -117,35 +117,35 @@ public class DictionaryNameF {
 						 * This part is just for temporary purposes (paper ACL). Improve this!
 						 */
 						
-						if (dictionary.equals("clean_mendelsohn_LOC")){
-							if (!(uri == null)){
-								String geoId = uri.substring(uri.lastIndexOf("/")+1);
-								String sparqlQuery = 
-									"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
-									//"PREFIX sws: <http://sws.geonames.org/>\n" +
-									"SELECT ?lat ?long WHERE { \n" +
-									"?geoNameId geo:lat ?lat . \n" +
-									"?geoNameId geo:long ?long . \n" +
-									"FILTER (?geoNameId = <http://sws.geonames.org/" + geoId + "/>) \n" +
-									"}";	
-								SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
-								List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
-								
-								String lat = null;
-								String lon = null;
-								for (BindingSet bs : sets) {
-									lat = bs.getValue("lat").toString().replaceAll("\"", "");
-									lon = bs.getValue("long").toString().replaceAll("\"", "");
-								}
-								if (!(lat == null) && !(lon == null)){
-									Sparqler.latitudes.add(Double.parseDouble(lat));
-									Sparqler.longitudes.add(Double.parseDouble(lon));
-									NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
-									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lat, GEO.latitude, XSDDatatype.XSDdouble);
-									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lon, GEO.longitude, XSDDatatype.XSDdouble);
-								}
-							}
-						}
+//						if (dictionary.equals("clean_mendelsohn_LOC")){
+//							if (!(uri == null)){
+//								String geoId = uri.substring(uri.lastIndexOf("/")+1);
+//								String sparqlQuery = 
+//									"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
+//									//"PREFIX sws: <http://sws.geonames.org/>\n" +
+//									"SELECT ?lat ?long WHERE { \n" +
+//									"?geoNameId geo:lat ?lat . \n" +
+//									"?geoNameId geo:long ?long . \n" +
+//									"FILTER (?geoNameId = <http://sws.geonames.org/" + geoId + "/>) \n" +
+//									"}";	
+//								SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
+//								List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
+//								
+//								String lat = null;
+//								String lon = null;
+//								for (BindingSet bs : sets) {
+//									lat = bs.getValue("lat").toString().replaceAll("\"", "");
+//									lon = bs.getValue("long").toString().replaceAll("\"", "");
+//								}
+//								if (!(lat == null) && !(lon == null)){
+//									Sparqler.latitudes.add(Double.parseDouble(lat));
+//									Sparqler.longitudes.add(Double.parseDouble(lon));
+//									NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
+//									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lat, GEO.latitude, XSDDatatype.XSDdouble);
+//									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lon, GEO.longitude, XSDDatatype.XSDdouble);
+//								}
+//							}
+//						}
 						
 
 						

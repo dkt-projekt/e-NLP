@@ -15,12 +15,11 @@ import opennlp.tools.util.Span;
 
 public class Tagger {
 
+	public static MaxentTagger tagger;
 	
-	
-	public static MaxentTagger initTagger(String language){
+	public static void initTagger(String language){
 
 		String taggersDirectory = "taggers" + File.separator;
-		MaxentTagger tagger = null;
 		if (language.equalsIgnoreCase("en")){
 			tagger = new MaxentTagger(taggersDirectory + "english-left3words-distsim.tagger");
 		}
@@ -30,10 +29,10 @@ public class Tagger {
 		else {
 			throw new BadRequestException("Unsupported language: "+ language);
 		}
-		return tagger;		
+				
 	}
 	
-	public static Model tagNIF(MaxentTagger tagger, Model nifModel, String informat, String sentenceModel){
+	public static Model tagNIF(Model nifModel, String informat, String sentenceModel){
 		
 		String text = NIFReader.extractIsString(nifModel);
     	// this may seem a bit verbose, but first get spans, then reconstruct sentence to have words and their proper indices, then tag and assign char indices in nif annotations
@@ -82,7 +81,7 @@ public class Tagger {
 		
 		
 //		
-		MaxentTagger tagger = initTagger("en");
+		initTagger("en");
 		String sentence = "This isn't this is a test sentence.";
 		Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
 		//String taggedSentence = tagger.tagTokenizedString(tokenString);

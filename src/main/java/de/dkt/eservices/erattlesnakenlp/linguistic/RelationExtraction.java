@@ -51,8 +51,8 @@ public class RelationExtraction {
 		String nifString = NIFReader.model2String(nifModel, "TTL");
 		Model m2 = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
 		
-		MaxentTagger tagger = Tagger.initTagger("en");
-		Tagger.tagNIF(tagger, m2, "turtle", "de-sent.bin");
+		Tagger.initTagger("en");
+		Tagger.tagNIF(m2, "turtle", "de-sent.bin");
 
 //		System.out.println(NIFReader.model2String(m2, "TTL"));
 		List<SpanWord> verbs = extractSpanVerbsFromNIF(m2);

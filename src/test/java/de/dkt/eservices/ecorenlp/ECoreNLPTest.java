@@ -4,21 +4,18 @@ package de.dkt.eservices.ecorenlp;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
-import de.dkt.common.tools.FileReadUtilities;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
@@ -32,13 +29,15 @@ public class ECoreNLPTest {
 
 	TestHelper testHelper;
 	ValidationHelper validationHelper;
+	ApplicationContext context;
 
 	@Before
 	public void setup() {
-		ApplicationContext context = IntegrationTestSetup
-				.getContext(TestConstants.pathToPackage);
+		//ApplicationContext context = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
+		context = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
 		testHelper = context.getBean(TestHelper.class);
 		validationHelper = context.getBean(ValidationHelper.class);
+ 
 	}
 	
 	private HttpRequestWithBody baseRequest() {
@@ -121,6 +120,12 @@ public class ECoreNLPTest {
 		*/
 
 	
+	@After
+	public void shutDown(){
+		if (context != null) {
+			((AnnotationConfigApplicationContext) context).close();
+	    }
+	}
 	
 	
 }

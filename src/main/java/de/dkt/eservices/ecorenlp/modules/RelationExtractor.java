@@ -12,8 +12,10 @@ import edu.stanford.nlp.util.PropertiesUtils;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -24,7 +26,10 @@ import java.util.Properties;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
+import de.dkt.common.niftools.DFKINIF;
 import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
+import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
 
 
 public class RelationExtractor {
@@ -59,12 +64,10 @@ public class RelationExtractor {
 		return entityTriples;
 	}
 	
-	//public static ArrayList<RelationTriple> extractRelationTriples(StanfordCoreNLP pipeline, Model nifModel){
-	public static ArrayList<ArrayList<String>> extractRelationTriples(Model nifModel){
+	public static ArrayList<EntityRelationTriple> extractRelationTriples(Model nifModel){
 		
 		String isstr = NIFReader.extractIsString(nifModel);
-		//ArrayList<RelationTriple> tripleList = new ArrayList<RelationTriple>();
-		ArrayList<ArrayList<String>> tripleList = new ArrayList<ArrayList<String>>();
+		ArrayList<EntityRelationTriple> tripleList = new ArrayList<EntityRelationTriple>();
 		Annotation ann = new Annotation(isstr);
 		pipeline.annotate(ann);
 		for (CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -74,16 +77,16 @@ public class RelationExtractor {
 			for (RelationTriple triple : triples) {
 				boolean subjectReplaced = false;
 				boolean objectReplaced = false; // may want to use this as threshold too at some point
-				ArrayList<String> candidateList = new ArrayList<String>();
-				candidateList.add(triple.subjectGloss());
-				candidateList.add(triple.relationGloss());
-				candidateList.add(triple.objectGloss());
+				EntityRelationTriple ert = new EntityRelationTriple();
+				ert.setSubject(triple.subjectGloss());
+				ert.setRelation(triple.relationLemmaGloss());
+				ert.setObject(triple.objectGloss());
 				int subjectStart = tokens.get(triple.subjectTokenSpan().first()).beginPosition(); // TODO: debug why this doesn't always get the correct index
 				int subjectEnd = subjectStart + triple.subjectGloss().length();
 				String subjectEntityURI = NIFReader.extractDocumentURI(nifModel) + "#char=" + subjectStart + "," + subjectEnd;
 				String subjectTaIdentRef = NIFReader.extractTaIdentRefWithEntityURI(nifModel, subjectEntityURI);
 				if (!(subjectTaIdentRef == null)){
-					candidateList.set(0,  subjectTaIdentRef);
+					ert.setSubject(subjectTaIdentRef);
 					subjectReplaced = true;
 				}
 				int objectStart = tokens.get(triple.objectTokenSpan().first()).beginPosition(); // TODO: debug why this doesn't always get the correct index
@@ -91,13 +94,14 @@ public class RelationExtractor {
 				String objectEntityURI = NIFReader.extractDocumentURI(nifModel) + "#char=" + objectStart + "," + objectEnd;
 				String objectTaIdentRef = NIFReader.extractTaIdentRefWithEntityURI(nifModel, objectEntityURI);
 				if (!(objectTaIdentRef == null)){
-					candidateList.set(2,  objectTaIdentRef);
+					ert.setObject(objectTaIdentRef);
 					objectReplaced = true;
 				}
 				if (subjectReplaced || objectReplaced){
-					tripleList.add(candidateList);
+					tripleList.add(ert);
+					
 				}
-				//tripleList.add(triple);
+
 			}
 		}
 		return tripleList;
@@ -113,25 +117,39 @@ public class RelationExtractor {
 	public static void main(String[] args) throws Exception {
 
 		
-		/*
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
+		
+		Date d1 = new Date();
+		
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
 		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
 		File df = new File(docFolder);
-		ArrayList<RelationTriple> masterList = new ArrayList<RelationTriple>();
-		StanfordCoreNLP pipeline = initPipeline();
+		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
+		initPipeline();
+		Date d3 = new Date();
+		int c = 0;
 		for (File f : df.listFiles()){
+			c += 1;
 			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 			Model nifModel = NIFWriter.initializeOutputModel();
 			NIFWriter.addInitialString(nifModel, fileContent, DFKINIF.getDefaultPrefix());
-			ArrayList<RelationTriple> singleList = extractRelationTriples(pipeline, nifModel);
-			for (RelationTriple rt : singleList){
+			ArrayList<EntityRelationTriple> singleList = extractRelationTriples(nifModel);
+			for (EntityRelationTriple rt : singleList){
 				masterList.add(rt);
 			}
 			// loop through nifModel to extract entities and make frequency hash dict of entities
 		}
-		*/
+		
 		// then extract most frequent ones, and get relation triples for these
 		// make frequency dict out of date to get to some sort of summarization based on the entities. That's the idea :)
+		
+		for (EntityRelationTriple ert : masterList){
+			System.out.println("Relation:" + ert.getSubject() + "," + ert.getRelation() + "," + ert.getObject());
+		}
+
+		Date d2 = new Date();
+		long i = (d2.getTime()-d1.getTime())/1000;
+		System.out.println("Initialization took " + (d3.getTime()-d1.getTime())/1000 + " seconds.\n");
+		System.out.println("Processed " + c + " documents in " + i + " seconds.\n");
 		
 		
 		
@@ -147,12 +165,13 @@ public class RelationExtractor {
 		}
 		*/
 		
+		/*
 		Date d1 = new Date();
 		RelationExtractor.initPipeline();
 		Date d2 = new Date();
 		long initTime = (d2.getTime()-d1.getTime())/1000;
 		System.out.println("Done initializing. Took " + initTime + " seconds.\n");
-		
+		*/
 		String nietzscheNIF = 
 				"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
@@ -264,11 +283,11 @@ public class RelationExtractor {
 						"";
 		
 		//ArrayList<RelationTriple> relationTriples = extractRelationTriples(pipeline, NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
-		ArrayList<ArrayList<String>> relationTriples = extractRelationTriples(NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
-		System.out.println("relationTruples:" + relationTriples);
-		Date d3 = new Date();
-		long passOne = (d3.getTime()-d2.getTime())/1000;
-		System.out.println("Done getting relations. Took " + passOne+ " seconds.\n");
+		//ArrayList<ArrayList<String>> relationTriples = extractRelationTriples(NIFReader.extractModelFromFormatString(nietzscheNIF, RDFSerialization.TURTLE));
+		//System.out.println("relationTruples:" + relationTriples);
+		//Date d3 = new Date();
+		//long passOne = (d3.getTime()-d2.getTime())/1000;
+		//System.out.println("Done getting relations. Took " + passOne+ " seconds.\n");
 		
 		/*
 		ArrayList<String> entitySubjectTriples = getTriplesForEntity(relationTriples, "Nietzsche" , "subject");

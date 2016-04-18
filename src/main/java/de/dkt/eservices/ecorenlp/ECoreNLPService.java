@@ -75,8 +75,8 @@ public class ECoreNLPService {
     		else{
     			throw new BadRequestException("No sentence model available for language:"+languageParam);
     		}
-    		MaxentTagger tagger = Tagger.initTagger(languageParam);
-    		nifModel = Tagger.tagNIF(tagger, nifModel, inFormat.toString(), sentModel);
+    		Tagger.initTagger(languageParam);
+    		nifModel = Tagger.tagNIF(nifModel, inFormat.toString(), sentModel);
         	return nifModel;//tagger.tagString(text);
         } catch (Exception e) {
             throw new ExternalServiceFailedException(e.getMessage());
