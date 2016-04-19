@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +59,30 @@ public class NameFinder {
 	//static ApplicationContext localContext = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
 	//static TestHelper testHelper = localContext.getBean(TestHelper.class);
 	Logger logger = Logger.getLogger(NameFinder.class);
+
+	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
+	
+	
+	public static void initializeModels() {
+
+		try {
+			ClassPathResource nerModelsFolder = new ClassPathResource(modelsDirectory);
+			String nerAbsPath = Paths.get(ClassLoader.getSystemResource(nerModelsFolder.getPath()).toURI()).toString();
+			File df = new File(nerAbsPath);
+			for (File f : df.listFiles()) {
+				InputStream tnfNERModel = new FileInputStream(f);
+				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+				NameFinderME nameFinder = new NameFinderME(tnfModel);
+				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
+
+			}
+		} catch (IOException | URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	
 	public static String[] readLines(String filename) throws IOException {
         FileReader fileReader = new FileReader(filename);
@@ -196,50 +222,109 @@ public class NameFinder {
 
 	public static HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
 		
-		try {
-			ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
-			InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
-			TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-			NameFinderME nameFinder = new NameFinderME(tnfModel);
-			for (Span sentenceSpan : sentenceSpans){
+		//Date d1 = new Date();
+		//ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
+		//InputStream tnfNERModel;
+		//try {
+			//Date d4 = new Date();
+			//tnfNERModel = new FileInputStream(cprNERModel.getFile());
+
+			//TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+			//NameFinderME nameFinder = new NameFinderME(tnfModel);
+			if (!nameFinderPreLoadedModels.containsKey(nerModel)){
+			 throw new BadRequestException("Model " + nerModel.substring(0,nerModel.lastIndexOf('.')) + " not found in pre-initialized map.");
+			}
+			NameFinderME nameFinder = (NameFinderME)nameFinderPreLoadedModels.get(nerModel);
+			
+			//Date d3 = new Date();
+			//System.out.println("Time for initiating model:" + (d3.getTime()-d4.getTime()));
+			for (Span sentenceSpan : sentenceSpans) {
 				String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
 				Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
 				String tokens[] = Span.spansToStrings(tokenSpans, sentence);
 				Span nameSpans[] = nameFinder.find(tokens);
-				for (Span s : nameSpans){
+				for (Span s : nameSpans) {
 					int nameStartIndex = 0;
 					int nameEndIndex = 0;
-					for (int i = 0; i <= tokenSpans.length ; i++){
-						if (i == s.getStart()){
+					for (int i = 0; i <= tokenSpans.length; i++) {
+						if (i == s.getStart()) {
 							nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-						}
-						else if (i == s.getEnd()){
-							nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
+						} else if (i == s.getEnd()) {
+							nameEndIndex = tokenSpans[i - 1].getEnd() + sentenceSpan.getStart();
 						}
 					}
 					ArrayList<Integer> se = new ArrayList<Integer>();
 					se.add(nameStartIndex);
 					se.add(nameEndIndex);
-					// if there was another enitity of this type found at this token-span, this will not be null
+					// if there was another enitity of this type found at this
+					// token-span, this will not be null
 					HashMap<String, Double> spanMap = entityMap.get(se);
-					//otherwise:
-					if (spanMap == null){
+					// otherwise:
+					if (spanMap == null) {
 						spanMap = new HashMap<String, Double>();
 					}
 					spanMap.put(s.getType(), s.getProb());
-					//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
+					// spanMap.put("LOC", 0.5); // hacking in entity of another
+					// type for testing disambiguation
 					entityMap.put(se, spanMap);
 				}
 			}
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
+		
+		//} catch (IOException e) {
+			 //TODO Auto-generated catch block
+			//e.printStackTrace();
+		//}
+		//Date d2 = new Date();
+		//long seconds = (d2.getTime()-d1.getTime());
+		//System.out.println("Total time for detectEntitiesWithModel:" + seconds);
+		//System.out.println("Time for getting nameFinder:" + (d3.getTime()-d1.getTime()));
 		//System.out.println("DEBUGGING entityMap:" + entityMap);
 		return entityMap;
 	}
+	
+//	try {
+//		ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
+//		InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
+//		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+//		NameFinderME nameFinder = new NameFinderME(tnfModel);
+//		for (Span sentenceSpan : sentenceSpans){
+//			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+//			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+//			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+//			Span nameSpans[] = nameFinder.find(tokens);
+//			for (Span s : nameSpans){
+//				int nameStartIndex = 0;
+//				int nameEndIndex = 0;
+//				for (int i = 0; i <= tokenSpans.length ; i++){
+//					if (i == s.getStart()){
+//						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
+//					}
+//					else if (i == s.getEnd()){
+//						nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
+//					}
+//				}
+//				ArrayList<Integer> se = new ArrayList<Integer>();
+//				se.add(nameStartIndex);
+//				se.add(nameEndIndex);
+//				// if there was another enitity of this type found at this token-span, this will not be null
+//				HashMap<String, Double> spanMap = entityMap.get(se);
+//				//otherwise:
+//				if (spanMap == null){
+//					spanMap = new HashMap<String, Double>();
+//				}
+//				spanMap.put(s.getType(), s.getProb());
+//				//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
+//				entityMap.put(se, spanMap);
+//			}
+//		}
+//	}
+//	catch(IOException e) {
+//		e.printStackTrace();
+//	}
+//	//System.out.println("DEBUGGING entityMap:" + entityMap);
+//	return entityMap;
+//}
 
-			
 
 	/**
 	 * 

@@ -32,6 +32,10 @@ import eu.freme.common.exception.ExternalServiceFailedException;
 public class EOpenNLPService {
 
 	Logger logger = Logger.getLogger(EOpenNLPService.class);
+	
+	public EOpenNLPService(){
+		NameFinder.initializeModels();
+	}
 
 	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String link) throws ExternalServiceFailedException, BadRequestException,
 					IOException, Exception {
