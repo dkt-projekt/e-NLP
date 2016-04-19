@@ -29,11 +29,14 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Lemmatizer;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+import de.dkt.eservices.eopennlp.modules.NameFinder;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 
 @Component
 public class ECoreNLPService {
+	
+
     
     public String callLemmatizer(String text, String languageParam)
             throws ExternalServiceFailedException, BadRequestException {
