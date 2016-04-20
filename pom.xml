@@ -12,14 +12,14 @@
  	<parent>
 		<groupId>eu.freme.e-services</groupId>
 		<artifactId>e-service-parent</artifactId>
-		<version>0.2-SNAPSHOT</version>
+		<version>0.1</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>eu.freme.bservices</groupId>
 			<artifactId>test-helper</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jena</groupId>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 <!-- 		<dependency>
 	        <groupId>ch.qos.logback</groupId>
