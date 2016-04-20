@@ -70,13 +70,7 @@ public class NameFinder {
 	
 
 		try {
-//			ClassPathResource nerModelsFolder = new ClassPathResource(modelsDirectory);
-//			//String nerAbsPath = Paths.get(ClassLoader.getSystemResource(nerModelsFolder.getPath()).toURI()).toString();
-			//InputStream nerAbsPath = ClassLoader.getResourceAsStream(modelsDirectory);
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
-			System.out.println("path debug here!!!!!!!!!!!!!!!!!!!!: " + df.getAbsolutePath());
-			//InputStream np = ClassLoader.getResourceAsStream(modelsDirectory);
-			//File df = new File(nerAbsPath);
 			for (File f : df.listFiles()) {
 				InputStream tnfNERModel = new FileInputStream(f);
 				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
@@ -85,9 +79,7 @@ public class NameFinder {
 
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
-			//e.printStackTrace();
 		}
 		
 	
