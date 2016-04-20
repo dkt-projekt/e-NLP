@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dkt</groupId>
 	<artifactId>e-NLP</artifactId>
-	<version>0.1</version>
+	<version>0.1-SNAPSHOT</version>
 	<properties>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -110,4 +110,11 @@
 			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+        <scm>
+                <connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
+                <url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
+                <developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
+                <tag>HEAD</tag>
+        </scm>
+
 </project>
