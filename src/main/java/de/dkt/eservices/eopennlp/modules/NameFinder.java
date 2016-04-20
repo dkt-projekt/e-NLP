@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +57,8 @@ import opennlp.tools.util.TrainingParameters;
  */
 public class NameFinder {
 
-	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
+	public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
+	//public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 	static Logger logger = Logger.getLogger(NameFinder.class);
 
 	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
@@ -79,6 +81,8 @@ public class NameFinder {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
 			//e.printStackTrace();
 		}
+		
+	
 
 	}
 	
