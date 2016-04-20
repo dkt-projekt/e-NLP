@@ -25,6 +25,8 @@ import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationReg
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import com.hp.hpl.jena.rdf.model.Model;
+import de.dkt.common.filemanagement.FileFactory;
+
 import de.dkt.common.niftools.DBO;
 import de.dkt.common.niftools.DFKINIF;
 import de.dkt.common.niftools.GEO;
@@ -57,8 +59,8 @@ import opennlp.tools.util.TrainingParameters;
  */
 public class NameFinder {
 
-	public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
-	//public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
+	//public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
+	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 	static Logger logger = Logger.getLogger(NameFinder.class);
 
 	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
@@ -67,9 +69,12 @@ public class NameFinder {
 	public static void initializeModels() {
 
 		try {
-			ClassPathResource nerModelsFolder = new ClassPathResource(modelsDirectory);
-			String nerAbsPath = Paths.get(ClassLoader.getSystemResource(nerModelsFolder.getPath()).toURI()).toString();
-			File df = new File(nerAbsPath);
+//			ClassPathResource nerModelsFolder = new ClassPathResource(modelsDirectory);
+//			//String nerAbsPath = Paths.get(ClassLoader.getSystemResource(nerModelsFolder.getPath()).toURI()).toString();
+//			String nerAbsPath = Paths.get(ClassLoader.getResourceAsStream(modelsDirectory));
+			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
+			//InputStream np = ClassLoader.getResourceAsStream(modelsDirectory);
+			//File df = new File(nerAbsPath);
 			for (File f : df.listFiles()) {
 				InputStream tnfNERModel = new FileInputStream(f);
 				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
@@ -77,7 +82,7 @@ public class NameFinder {
 				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
 
 			}
-		} catch (IOException | URISyntaxException e) {
+		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
 			//e.printStackTrace();
 		}
