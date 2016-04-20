@@ -44,6 +44,7 @@ public class TextSplitter {
 		int offset=initialOffset;
 		for (String p : words) {
 			list.add(new SpanWord(p,offset,offset+p.length()));
+			offset = offset + p.length()+1;
 		}
 		return list;
 	}

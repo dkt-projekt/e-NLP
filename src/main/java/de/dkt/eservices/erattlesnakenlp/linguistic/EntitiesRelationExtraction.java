@@ -26,27 +26,27 @@ import eu.freme.common.exception.ExternalServiceFailedException;
  * @author Julian Moreno Schneider julian.moreno_schneider@dfki.de, Peter Bourgonje peter.bourgonje@dfki.de
  *
  */
-public class RelationExtraction {
+public class EntitiesRelationExtraction {
 
-	public static Model extractRelationsNIFString(String nif) throws Exception {
+	public static Model extractRelationsNIFString(String nif,int windowsSize) throws Exception {
 		Model nifModel = NIFReader.extractModelFromFormatString(nif, RDFSerialization.TURTLE);
-		return extractRelationsNIF(nifModel);
+		return extractRelationsNIF(nifModel,windowsSize);
 	}
 
-	public static List<SpanRelation> extractRelationsListNIFString(String nif) throws Exception {
+	public static List<SpanRelation> extractRelationsListNIFString(String nif,int windowsSize) throws Exception {
 		Model nifModel = NIFReader.extractModelFromFormatString(nif, RDFSerialization.TURTLE);
-		return extractRelationsListNIF(nifModel);
+		return extractRelationsListNIF(nifModel,windowsSize);
 	}
 
-	public static Model extractRelationsNIF(Model nifModel) throws Exception {
-		List<SpanRelation> relations = extractRelationsListNIF(nifModel);
+	public static Model extractRelationsNIF(Model nifModel,int windowsSize) throws Exception {
+		List<SpanRelation> relations = extractRelationsListNIF(nifModel,windowsSize);
 		for (SpanRelation r : relations) {
 			NIFWriter.addAnnotationRelation(nifModel, r.startSpan, r.endSpan, "", r.getSubject(), r.getAction(), r.getObject());			
 		}
 		return nifModel;
 	}
 
-	public static List<SpanRelation> extractRelationsListNIF(Model nifModel) throws Exception {
+	public static List<SpanRelation> extractRelationsListNIF(Model nifModel,int windowsSize) throws Exception {
 
 		// Extract all the entities in the NIF and put them into a structure.
 		List<Entity> entities = extractEntitiesList(nifModel);
@@ -56,54 +56,36 @@ public class RelationExtraction {
 //		List<SpanText> texts = new LinkedList<SpanText>();
 //		texts.add(new SpanText(text));
 		String text = NIFReader.extractIsString(nifModel);
-		List<LinguisticUnit> units = TextSplitter.splitText(text,0);
-		List<SpanText> texts = new LinkedList<SpanText>();
+		List<LinguisticUnit> units = TextSplitter.splitSentences(text,0);
+		List<SpanWord> texts = new LinkedList<SpanWord>();
 		for (LinguisticUnit lu : units) {
-			SpanText spt = (SpanText)lu;
-			for (LinguisticUnit lu2 : spt.getChilds()) {
-				texts.add((SpanText) lu2);
-			}
+			texts.add((SpanWord) lu);
 		}
 
 		String nifString = NIFReader.model2String(nifModel, "TTL");
 		Model m2 = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
 		
-		Tagger.initTagger("en");
-		Tagger.tagNIF(m2, "turtle", "de-sent.bin");
+//		Tagger.initTagger("en");
+//		Tagger.tagNIF(m2, "turtle", "de-sent.bin");
+//		List<SpanWord> verbs = extractSpanVerbsFromNIF(m2);
 
-//		System.out.println(NIFReader.model2String(m2, "TTL"));
-		List<SpanWord> verbs = extractSpanVerbsFromNIF(m2);
 		//Detect relations between entities inside the same: sentence, paragraph, window.
 		List<SpanRelation> relations = new LinkedList<SpanRelation>();
-		HashMap<String,SpanRelation> relations2 = new HashMap<String,SpanRelation>();
 		/**
 		 * For every text, look for entities that are inside the text, and then establish a relation between them.
 		 */
-		System.out.println("TEXTS: "+texts.size());
-		for (SpanText st : texts) {
-//			st.indentedPrintToScreen(" ");
+		for (int k = 0; k < texts.size()-windowsSize; k++) {
+			int startSpan = texts.get(k).getStartSpan();
+			int endSpan = texts.get(k+windowsSize).getEndSpan();
+//			System.out.println(startSpan + "  " + endSpan);
 			for (int i = 0; i < entities.size(); i++) {
 				Entity e1 = entities.get(i);
-				if(e1.startSpan>=st.startSpan && e1.endSpan<=st.endSpan){
+				if(e1.startSpan>=startSpan && e1.endSpan<=endSpan){
 					for (int j = 0; j < entities.size(); j++) {
 						if(i!=j){
 							Entity e2 = entities.get(j);
-							if(e2.startSpan>=st.startSpan && e2.endSpan<=st.endSpan){
-								
-								for (SpanWord sp : verbs) {
-									if(sp.startSpan>=st.startSpan && sp.endSpan<=st.endSpan){
-//										System.out.println(e1.text+" --> "+sp.text+" --> "+e2.text);
-										relations.add(new SpanRelation(e1,e2,new Action(sp.text,sp.text)));
-//										System.out.println(e1.text+"-"+sp.text+"-"+e2.text);
-//										if(!relations2.containsKey(e1.text+"-"+sp.text+"-"+e2.text)){
-//											relations2.put(e1.text+"-"+sp.text+"-"+e2.text, new SpanRelation(e1,e2,new Action(sp.text,sp.text)));
-//										}
-//										if(!relations2.containsKey(e2.text+"-"+sp.text+"-"+e1.text)){
-//											relations2.put(e2.text+"-"+sp.text+"-"+e1.text, new SpanRelation(e1,e2,new Action(sp.text,sp.text)));
-//										}
-									}
-								}
-								
+							if(e2.startSpan>=startSpan && e2.endSpan<=endSpan){
+								relations.add(new SpanRelation(e1,e2,null));
 							}
 						}
 					}					
@@ -123,7 +105,7 @@ public class RelationExtraction {
 					
 					if( ((sr.subject.equals(sr2.subject) && sr.object.equals(sr2.object)) ||
 							(sr.subject.equals(sr2.object) && sr.object.equals(sr2.subject)))
-							&& sr.action.equals(sr2.action) 
+//							&& sr.action.equals(sr2.action) 
 							){
 						relations.remove(j);
 						j--;
@@ -133,52 +115,6 @@ public class RelationExtraction {
 			}
 		}
 		return relations;
-	}
-
-	private static List<SpanWord> extractSpanVerbsFromNIF(Model nifModel) {
-		List<SpanWord> verbs = new LinkedList<SpanWord>();
-		ResIterator iterEntities = nifModel.listSubjectsWithProperty(NIF.posTag);
-//		System.out.println("DEBUG: SIZE OF VERBS: "+iterEntities.hasNext());
-        while (iterEntities.hasNext()) {
-            Resource r = iterEntities.nextResource();
-            String entityURI = r.getURI();
-            String posTag = "";
-            String text = "";
-            int startSpan = 0;
-            int endSpan = 0;
-            StmtIterator iter2 = r.listProperties();
-//    		System.out.println("DEBUG: SIZE OF PROPERTIES OF "+entityURI+": "+iterEntities.hasNext());
-            while (iter2.hasNext()) {
-				Statement st2 = iter2.next();
-				String predicate =st2.getPredicate().getURI();
-				if(predicate.equalsIgnoreCase(NIF.beginIndex.getURI())){
-					String object = st2.getObject().asLiteral().getString();
-					startSpan = Integer.parseInt(object);
-				}
-				else if(predicate.equalsIgnoreCase(NIF.endIndex.getURI())){
-					String object = st2.getObject().asLiteral().getString();
-					endSpan = Integer.parseInt(object);
-				}
-				else if(predicate.equalsIgnoreCase(NIF.posTag.getURI())){
-					posTag = st2.getObject().asLiteral().getString();
-				}
-				else if(predicate.equalsIgnoreCase(NIF.anchorOf.getURI())){
-					text = st2.getObject().asLiteral().getString();
-				}
-				else{
-				}
-			}
-            if(posTag.startsWith("V")){
-            	SpanWord sw = new SpanWord(text+"("+entityURI+")", startSpan, endSpan);
-                verbs.add(sw);
-//                System.out.println(text+"("+entityURI+")");
-//				System.out.println(posTag);
-            }
-        }
-        if(verbs.isEmpty()){
-        	return null;
-        }
-        return verbs;
 	}
 
 	public static List<Entity> extractEntitiesList(Model nifModel){
@@ -223,7 +159,7 @@ public class RelationExtraction {
         }
 		return list;
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		String s = 
 				"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
@@ -356,8 +292,8 @@ public class RelationExtraction {
 						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Emilio_Mola> .\n" +
 						"";
-		Model m = RelationExtraction.extractRelationsNIFString(s);
-//		System.out.println(NIFReader.model2String(m, "TTL"));
+		Model m = EntitiesRelationExtraction.extractRelationsNIFString(s,5);
+		System.out.println(NIFReader.model2String(m, "TTL"));
 //		System.out.println(s);
 	}
 }

@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>eu.freme.bservices</groupId>
 			<artifactId>test-helper</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>eu.freme.e-services</groupId>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 <!-- 		<dependency>
 	        <groupId>ch.qos.logback</groupId>

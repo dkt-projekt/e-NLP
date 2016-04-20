@@ -3,7 +3,6 @@ package de.dkt.eservices.erattlesnakenlp.linguistic;
 public class Word implements LinguisticUnit {
 
 	protected String text;
-
 	
 	public Word(String text) {
 		super();
