@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -56,9 +57,7 @@ import opennlp.tools.util.TrainingParameters;
 public class NameFinder {
 
 	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
-	//static ApplicationContext localContext = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
-	//static TestHelper testHelper = localContext.getBean(TestHelper.class);
-	Logger logger = Logger.getLogger(NameFinder.class);
+	static Logger logger = Logger.getLogger(NameFinder.class);
 
 	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
 	
@@ -77,8 +76,8 @@ public class NameFinder {
 
 			}
 		} catch (IOException | URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
+			//e.printStackTrace();
 		}
 
 	}
@@ -222,63 +221,60 @@ public class NameFinder {
 
 	public static HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
 		
-		//Date d1 = new Date();
-		//ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
-		//InputStream tnfNERModel;
-		//try {
-			//Date d4 = new Date();
-			//tnfNERModel = new FileInputStream(cprNERModel.getFile());
-
-			//TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-			//NameFinderME nameFinder = new NameFinderME(tnfModel);
-			if (!nameFinderPreLoadedModels.containsKey(nerModel)){
-			 throw new BadRequestException("Model " + nerModel.substring(0,nerModel.lastIndexOf('.')) + " not found in pre-initialized map.");
+		NameFinderME nameFinder = null;
+		// first check preLoadedModels 
+		if (nameFinderPreLoadedModels.containsKey(nerModel)){
+			nameFinder = (NameFinderME) nameFinderPreLoadedModels.get(nerModel);
+		}
+		else{
+			// First try to load it again, perhaps it was trained in the mean time.
+			// if not, throw exception
+			// (this if prevents the need to restart the broker after training a new model)
+			try {
+				ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
+				InputStream tnfNERModel;
+				tnfNERModel = new FileInputStream(cprNERModel.getFile());
+				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+				nameFinder = new NameFinderME(tnfModel);
+			} catch (Exception e ) {
+				//e.printStackTrace();
+				logger.error("Could not find model:" + nerModel + " in modelsDirectory:" + modelsDirectory);
+				throw new BadRequestException("Model " + nerModel.substring(0, nerModel.lastIndexOf('.')) + " not found in pre-initialized map or modelsDirectory.");
 			}
-			NameFinderME nameFinder = (NameFinderME)nameFinderPreLoadedModels.get(nerModel);
 			
-			//Date d3 = new Date();
-			//System.out.println("Time for initiating model:" + (d3.getTime()-d4.getTime()));
-			for (Span sentenceSpan : sentenceSpans) {
-				String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-				Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-				String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-				Span nameSpans[] = nameFinder.find(tokens);
-				for (Span s : nameSpans) {
-					int nameStartIndex = 0;
-					int nameEndIndex = 0;
-					for (int i = 0; i <= tokenSpans.length; i++) {
-						if (i == s.getStart()) {
-							nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-						} else if (i == s.getEnd()) {
-							nameEndIndex = tokenSpans[i - 1].getEnd() + sentenceSpan.getStart();
-						}
-					}
-					ArrayList<Integer> se = new ArrayList<Integer>();
-					se.add(nameStartIndex);
-					se.add(nameEndIndex);
-					// if there was another enitity of this type found at this
-					// token-span, this will not be null
-					HashMap<String, Double> spanMap = entityMap.get(se);
-					// otherwise:
-					if (spanMap == null) {
-						spanMap = new HashMap<String, Double>();
-					}
-					spanMap.put(s.getType(), s.getProb());
-					// spanMap.put("LOC", 0.5); // hacking in entity of another
-					// type for testing disambiguation
-					entityMap.put(se, spanMap);
-				}
-			}
+		}
 		
-		//} catch (IOException e) {
-			 //TODO Auto-generated catch block
-			//e.printStackTrace();
-		//}
-		//Date d2 = new Date();
-		//long seconds = (d2.getTime()-d1.getTime());
-		//System.out.println("Total time for detectEntitiesWithModel:" + seconds);
-		//System.out.println("Time for getting nameFinder:" + (d3.getTime()-d1.getTime()));
-		//System.out.println("DEBUGGING entityMap:" + entityMap);
+		for (Span sentenceSpan : sentenceSpans) {
+			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+			Span nameSpans[] = nameFinder.find(tokens);
+			for (Span s : nameSpans) {
+				int nameStartIndex = 0;
+				int nameEndIndex = 0;
+				for (int i = 0; i <= tokenSpans.length; i++) {
+					if (i == s.getStart()) {
+						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
+					} else if (i == s.getEnd()) {
+						nameEndIndex = tokenSpans[i - 1].getEnd() + sentenceSpan.getStart();
+					}
+				}
+				ArrayList<Integer> se = new ArrayList<Integer>();
+				se.add(nameStartIndex);
+				se.add(nameEndIndex);
+				// if there was another enitity of this type found at this
+				// token-span, this will not be null
+				HashMap<String, Double> spanMap = entityMap.get(se);
+				// otherwise:
+				if (spanMap == null) {
+					spanMap = new HashMap<String, Double>();
+				}
+				spanMap.put(s.getType(), s.getProb());
+				// spanMap.put("LOC", 0.5); // hacking in entity of another
+				// type for testing disambiguation
+				entityMap.put(se, spanMap);
+			}
+		}
 		return entityMap;
 	}
 	
