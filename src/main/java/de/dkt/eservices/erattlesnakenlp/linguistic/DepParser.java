@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -19,18 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.hp.hpl.jena.rdf.model.Model;
+//import com.hp.hpl.jena.tdb.base.file.FileFactory;
 
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+//import de.dkt.eservices.ecorenlp.modules.Tagger;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.nndep.DependencyParser;
 import edu.stanford.nlp.process.DocumentPreprocessor;
-import edu.stanford.nlp.simple.Document;
-import edu.stanford.nlp.simple.Sentence;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -72,9 +72,32 @@ public class DepParser {
 		 * Biggest TODO: parse a lot of sentences, make inventory of the kind of relations that are in there, and filter on reln a bit more (now I'm only using nsubj and then taking all dependencies. Will probably want to filter to get only the useful ones
 		 */
 		
+//		String isstr2 = "Mendelsohn has designed the Einstein Tower";
+//		
+//			
+//			DocumentPreprocessor tokenizer2 = new DocumentPreprocessor(new StringReader(isstr2));
+//
+//			for (List<HasWord> sentence2 : tokenizer2) {
+//				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence2);
+//				GrammaticalStructure gs = parser.predict(tagged);
+//				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
+//				// System.out.println(sentence);
+//				// System.out.println("all:" + gs.typedDependencies());
+//				for (TypedDependency td : gs.typedDependencies()) {
+//					System.out.println(td);
+//				}
+//			}
+//		
+		
 		String isstr = NIFReader.extractIsString(nifModel);
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+		
+		List<String> subjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
+		
+		List<String> objectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod"));
+		List<String> indirectObjectRelationTypes = new ArrayList<>(Arrays.asList("case"));
+		
 		if (!(entityMap == null)){
 			
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
@@ -83,6 +106,12 @@ public class DepParser {
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = parser.predict(tagged);
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
+				IndexedWord subject = null;
+				IndexedWord connectingElement = null;
+				IndexedWord object = null;
+//				System.out.println("sentence:" + sentence);
+//				System.out.println("DEBUGGING gs:" + gs);
+//				System.out.println("\n");
 				// System.out.println(sentence);
 				// System.out.println("all:" + gs.typedDependencies());
 				for (TypedDependency td : gs.typedDependencies()) {
@@ -97,22 +126,76 @@ public class DepParser {
 															// names here!
 						IndexedWordTuple t = new IndexedWordTuple();
 						t.setFirst(td.dep());
-						relMap.put(td.gov(), t);
-						//word2lemma.put(td.gov().word(), td.gov().lemma()); // TODO: check is lemmatisation is context-sensitive
-					//}
+						if (subjectRelationTypes.contains(td.reln().toString())){
+							connectingElement = td.gov();
+							subject = td.dep();
+							///////relMap.put(td.gov(), t);
+						}
 				}
 
 				// now do another loop to find object of the main verb/root
 				// thing. This may also appear before the subject was
 				// encountered, hence the need for two loops.
-				for (TypedDependency td : gs.typedDependencies()) {
-					if (relMap.containsKey(td.gov()) && !(relMap.get(td.gov()).getFirst() == td.dep())) {
-						IndexedWordTuple t = relMap.get(td.gov());
-						t.setSecond(td.dep());
-						relMap.put(td.gov(), t);
+				if (!(connectingElement == null)){
+					for (TypedDependency td : gs.typedDependencies()) {
+						if (objectRelationTypes.contains(td.reln().toString())) {
+							if (td.gov().beginPosition() == connectingElement.beginPosition()
+									&& td.gov().endPosition() == connectingElement.endPosition()) {
+								object = td.dep();
+								
+							}
+						}
+						else if (indirectObjectRelationTypes.contains(td.reln().toString())){
+							object = td.gov(); // NOTE: bit tricky; taking case (usually indirect object) relation as object here if nothing founr for object. Could be interesting...
+						}
 					}
+//					if (relMap.containsKey(td.gov()) && !(relMap.get(td.gov()).getFirst() == td.dep())) {
+//						IndexedWordTuple t = relMap.get(td.gov());
+//						t.setSecond(td.dep());
+//						if (td.reln().toString() == "dobj"){
+//						
+//						///////relMap.put(td.gov(), t);
+//						}
+//					}
 				}
+//				System.out.println("Subject:" + subject);
+//				System.out.println("relation:" + connectingElement);
+//				System.out.println("object:" + object);
+//				System.out.println("\n");
+				
+//TODO: change I for Erich Mendelsohn
+				
+				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
+					String subjectURI = null;
+					String objectURI = null;
+					for (String[] l : entityMap){
+						System.out.println("subject;" + subject);
+						System.out.println("subjectWord:" + subject.word());
+						System.out.println("beingPos:" + subject.beginPosition());
+						System.out.println("endpos:" + subject.endPosition());
+						System.out.println("entity:" + isstr.substring(Integer.parseInt(l[3], Integer.parseInt(l[4]))));
+						System.out.println("indices:" + l[3] + "," + l[4]);
+						if (subject.beginPosition() >= Integer.parseInt(l[3]) && subject.endPosition() <= Integer.parseInt(l[4])){
+							System.out.println("GETTIN GG HERE!!!!!!!!!!!!!!!!!!!!!!!!!"); // TODO: get here!
+							subjectURI = l[0];
+						}
+						if (object.beginPosition() >= Integer.parseInt(l[3]) && object.endPosition() <= Integer.parseInt(l[4])){
+							objectURI = l[0];
+						}
+						if (subject.word().equalsIgnoreCase("I")){
+							subjectURI = "http://d-nb.info/gnd/11858071X"; // replacing I for Erich URI
+						}
+						if(object.word().equalsIgnoreCase("you")){
+							objectURI = "http://d-nb.info/gnd/128830751"; // replacing you for Luise URI
+						}
+					}
+					if (!(subjectURI == null)){//  && !(objectURI == null)){
+						//System.out.println("Relation:" + subjectURI + " === " + connectingElement + " === " + objectURI);
+						System.out.println("Relation:" + subjectURI + " === " + connectingElement + " === " + object);
+					}
+					
 
+				}
 				// this feels quite elaborate (lot of looping), think about a
 				// better way
 				for (String[] l : entityMap) {
@@ -123,10 +206,15 @@ public class DepParser {
 							//if (!(tagged.get(s.index()) == null)){
 							EntityRelationTriple t = new EntityRelationTriple();
 							boolean subjectReplaced = false;
+							boolean relationIsVerb = false;
 							t.setSubject(relMap.get(w).getFirst().word());
+							//if (w.tag().startsWith("V") && relMap.get(w).getFirst().tag().startsWith("N") && relMap.get(w).getSecond().tag().startsWith("N")){
+//								relationIsVerb = true;
+//							}
 							t.setRelation(w.word());
 							//t.setRelation(word2lemma.get(w.word()));
 							t.setObject(relMap.get(w).getSecond().word());
+							//ert.add(t);
 							if (!(s == null)){
 								if (Integer.parseInt(l[3]) <= tagged.get(f.index() - 1).beginPosition()
 										&& Integer.parseInt(l[4]) >= tagged.get(f.index() - 1).endPosition()) {
@@ -134,18 +222,21 @@ public class DepParser {
 									subjectReplaced = true;
 									//System.out.println("NEW TUPLE:" + replacedSubject + "|" + w.word() + "|" + relMap.get(w).getSecond().word());
 									t.setSubject(replacedSubject);
+									//t.setSubject(t.getSubject() + "|" + replacedSubject);
 								} else if (Integer.parseInt(l[3]) <= tagged.get(s.index() - 1).beginPosition()
 										&& Integer.parseInt(l[4]) >= tagged.get(s.index() - 1).endPosition()) {
 									String replacedObject = l[0];
 									//System.out.println("NEW TUPLE Obj:" + relMap.get(w).getFirst().word() + "|" + w.word() + "|" + replacedObject);
 									t.setObject(replacedObject);
+									//t.setSubject(t.getObject() + "|" + replacedObject);
 								}
 							}
 							//if (!(t.getSubject() == null)){// && !(t.getObject() == null)){ // having both replaced may be too strict
-							if (subjectReplaced){
-								
+							//if (subjectReplaced){
+							//if (relationIsVerb){
 								ert.add(t);
-							}
+							//}
+							//}
 						}
 					}
 
@@ -171,193 +262,26 @@ public class DepParser {
 		
 		Tagger.initTagger("en");
 		initParser("en");
-		
-		
-//		String text = "This is a sample sentence. Eric Mendelsohn did design the Einstein tower.";
-//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(text));
-//	    for (List<HasWord> sentence : tokenizer) {
-//	      List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
-//	      System.out.println("Sentence:" + sentence);
-//	      GrammaticalStructure gs = parser.predict(tagged);
-//
-//	      // Print typed dependencies
-//	      System.out.println("OUT:" + gs);
-//	      
-//	      for (TypedDependency td : gs.typedDependencies()){
-//	    	  IndexedWord dep = td.dep();
-//	    	  if (td.reln().toString() == "nsubj"){
-//	    		  System.out.println("SUBJECT FOUND!");
-//	    		  int IndexOfHighestNodeInSubject = td.dep().index();
-//	    		  //gs.getGrammaticalRelation(td.gov().index(), td.dep().index());
-//	    		  td.gov();
-//	    		  //System.out.println(gs.getGrammaticalRelation(td.gov().index(), td.dep().index()));
-//	    		  //System.out.println(gs.getGrammaticalRelation(td.gov().index(), td.dep().index()).getParent());
-//	    	  }
-//	    	  
-//	    	  
-//	    	  int depStart = tagged.get(td.dep().index()-1).beginPosition();
-//	    	  int depEnd = tagged.get(td.dep().index()-1).endPosition();
-//	    	  // NOTE that this approach only works for single-word entities, which is a serious drawback. Use NP subject phrase to fix multi-word entities?
-//	    	  
-//	    	  //String subjectEntityURI = NIFReader.extractDocumentURI(nifModel) + "#char=" + depStart + "," + depEnd;
-//	    	  //String taIdentRef = extractTaIdentRefWithEntityURI(nifModel, subjectEntityURI);
-//	    	  
-//	    	  System.out.println("DEBUG td;" + td);
-//	    	  System.out.println("dep:" + td.dep());
-//	    	  System.out.println(td.dep().index());//TODO: get index of element in string, so that I can trace it back to possible entityURI, and do the whole thing...
-//	    	  String word = tagged.get(td.dep().index()-1).word();
-//	    	  System.out.println(tagged.get(td.dep().index()-1).beginPosition());
-//	    	  System.out.println(tagged.get(td.dep().index()-1).endPosition());
-//	    	  System.out.println("Word at index of dep:" + word);
-//	    	  
-//	    	  System.out.println("reln:" + td.reln());
-//	    	  
-//	    	  System.out.println("gov:" + td.gov());
-//	    	  System.out.println(td.gov().index());//TODO: get index of element in string, so that I can trace it back to possible entityURI, and do the whole thing...
-//	    	  System.out.println("\n");
-//	    	  
-//	      }
-//	      
-	      String testNIF = 
-	    		  "@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
-	    				  "@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
-	    				  "@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
-	    				  "@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
-	    				  "@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
-	    				  "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=136,150>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Edward Seymour\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"136\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"150\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Edward_Seymour> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=0,5>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Henry\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"5\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Henry> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=651,657>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Alfred\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"651\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"657\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Alfred> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=912,921>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Mary Rose\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"912\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"921\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Mary_Rose> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=1491,1501>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Henry VIII\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"1491\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"1501\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Henry_VIII> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=52,58>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Edward\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"52\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"58\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Edward> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=946,961>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"HMNB Portsmouth\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"946\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"961\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#organization> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/HMNB_Portsmouth> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=744,754>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Royal Navy\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"744\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"754\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#organization> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Royal_Navy> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=1259,1264>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Henry\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"1259\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"1264\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Henry> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=685,690>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Henry\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"685\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"690\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Henry> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=546,551>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Henry\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"546\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"551\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> ;\n" +
-	    				  "        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Henry> .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=0,1519>\n" +
-	    				  "        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
-	    				  "        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex    \"1519\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:isString    \"Henry 's decision to entrust the regency of his son Edward 's minor years to a decidedly reform-oriented regency council , dominated by Edward Seymour , most likely for the simple tactical reason that Seymour seemed likely to provide the strongest leadership for the kingdom , ensured that the English Reformation would be consolidated and even furthered during his son 's reign .During the reign of Henry VIII , as many as 72,000 people are estimated to have been executed .The power of the state was magnified , yet so too ( at least after Henry 's death ) were demands for increased political participation by the middle class .Together with Alfred the Great and Charles II , Henry is traditionally cited as one of the founders of the Royal Navy .His reign featured some naval warfare and , more significantly , large royal investment in shipbuilding ( including a few spectacular great ships such as Mary Rose ) , dockyards ( such as HMNB Portsmouth ) and naval innovations ( such as the use of cannon on board ship -- although archers were still deployed on medieval-style forecastles and bowcastles as the ship 's primary armament on large ships , or co-armament where cannons were used ) .However , in some ways this is a misconception since Henry did not bequeath to his immediate successors a navy in the sense of a formalised organisation with structures , ranks , and formalised munitioning structures but only in the sense of a set of ships .These were also known as Henry VIII 's Device Forts .\"^^xsd:string .\n" +
-	    				  "\n" +
-	    				  "<http://dkt.dfki.de/documents/#char=672,682>\n" +
-	    				  "        a                     nif:RFC5147String , nif:String ;\n" +
-	    				  "        nif:anchorOf          \"Charles II\"^^xsd:string ;\n" +
-	    				  "        nif:beginIndex        \"672\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:endIndex          \"682\"^^xsd:nonNegativeInteger ;\n" +
-	    				  "        nif:entity            <http://dkt.dfki.de/ontologies/nif#person> ;\n" +
-	    				  "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,1519> .\n" +
-	    				  "";	      
 
-	      //Model nifModel2 = NIFWriter.initializeOutputModel();
-	      
-//	      Model nifModel2;
-//		try {
-//			nifModel2 = NIFReader.extractModelFromFormatString(testNIF, RDFSerialization.TURTLE);
-//			System.out.println("RESULT entities:" + NIFReader.extractEntityIndices(nifModel2));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		
 	      
 		Date d1 = new Date();
 
 		HashMap<String,Integer> subjectCount = new HashMap<String,Integer>();
 		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
 		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
+		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		BufferedWriter brDebug = null;
+		try {
+			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		// String outputFolder =
 		// "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
+		
 		File df = new File(docFolder);
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
 		Date d3 = new Date();
@@ -369,10 +293,12 @@ public class DepParser {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-				System.out.println("FileName:" + f.getName());
-				System.out.println("DEBUGGINg result:");
+				//System.out.println("FileName:" + f.getName());
+				brDebug.write("FileName:" + f.getName());
+				//System.out.println("DEBUGGINg result:");
 				for (EntityRelationTriple t : ert) {
-					System.out.println("subject---relation---object: " + t.getSubject() + "---" + t.getRelation() + "---" + t.getObject());
+					//System.out.println("subject---relation---object: " + t.getSubject() + "---" + t.getRelation() + "---" + t.getObject());
+					brDebug.write("subject---relation---object: " + t.getSubject() + "---" + t.getRelation() + "---" + t.getObject() + "\n");
 					int currentSubjectCount = 1;
 					if (subjectCount.containsKey(t.getSubject())){
 						currentSubjectCount += subjectCount.get(t.getSubject());
@@ -392,7 +318,10 @@ public class DepParser {
 					subject2RelationCount.put(t.getSubject(), innerMap);
 					
 				}
-				System.out.println("\n");
+				//System.out.println("\n");
+				brDebug.write("\n");
+				
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -417,7 +346,12 @@ public class DepParser {
 		
 		System.out.println("Done."); 
 			
-	      
+	    try {
+			brDebug.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	    
 
 		

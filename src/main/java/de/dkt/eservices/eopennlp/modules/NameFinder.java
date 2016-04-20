@@ -11,6 +11,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +21,12 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import com.hp.hpl.jena.rdf.model.Model;
+import de.dkt.common.filemanagement.FileFactory;
+
 import de.dkt.common.niftools.DBO;
 import de.dkt.common.niftools.DFKINIF;
 import de.dkt.common.niftools.GEO;
@@ -53,10 +59,33 @@ import opennlp.tools.util.TrainingParameters;
  */
 public class NameFinder {
 
+	//public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
 	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
-	//static ApplicationContext localContext = IntegrationTestSetup.getContext(TestConstants.pathToPackage);
-	//static TestHelper testHelper = localContext.getBean(TestHelper.class);
-	Logger logger = Logger.getLogger(NameFinder.class);
+	static Logger logger = Logger.getLogger(NameFinder.class);
+
+	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
+	
+	
+	public static void initializeModels() {
+	
+
+		try {
+			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
+			for (File f : df.listFiles()) {
+				InputStream tnfNERModel = new FileInputStream(f);
+				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+				NameFinderME nameFinder = new NameFinderME(tnfModel);
+				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
+
+			}
+		} catch (IOException e) {
+			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
+		}
+		
+	
+
+	}
+	
 	
 	public static String[] readLines(String filename) throws IOException {
         FileReader fileReader = new FileReader(filename);
@@ -196,50 +225,106 @@ public class NameFinder {
 
 	public static HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
 		
-		try {
-			ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
-			InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
-			TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-			NameFinderME nameFinder = new NameFinderME(tnfModel);
-			for (Span sentenceSpan : sentenceSpans){
-				String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-				Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-				String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-				Span nameSpans[] = nameFinder.find(tokens);
-				for (Span s : nameSpans){
-					int nameStartIndex = 0;
-					int nameEndIndex = 0;
-					for (int i = 0; i <= tokenSpans.length ; i++){
-						if (i == s.getStart()){
-							nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-						}
-						else if (i == s.getEnd()){
-							nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
-						}
+		NameFinderME nameFinder = null;
+		// first check preLoadedModels 
+		if (nameFinderPreLoadedModels.containsKey(nerModel)){
+			nameFinder = (NameFinderME) nameFinderPreLoadedModels.get(nerModel);
+		}
+		else{
+			// First try to load it again, perhaps it was trained in the mean time.
+			// if not, throw exception
+			// (this if prevents the need to restart the broker after training a new model)
+			try {
+				ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
+				InputStream tnfNERModel;
+				tnfNERModel = new FileInputStream(cprNERModel.getFile());
+				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+				nameFinder = new NameFinderME(tnfModel);
+			} catch (Exception e ) {
+				//e.printStackTrace();
+				logger.error("Could not find model:" + nerModel + " in modelsDirectory:" + modelsDirectory);
+				throw new BadRequestException("Model " + nerModel.substring(0, nerModel.lastIndexOf('.')) + " not found in pre-initialized map or modelsDirectory.");
+			}
+			
+		}
+		
+		for (Span sentenceSpan : sentenceSpans) {
+			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+			Span nameSpans[] = nameFinder.find(tokens);
+			for (Span s : nameSpans) {
+				int nameStartIndex = 0;
+				int nameEndIndex = 0;
+				for (int i = 0; i <= tokenSpans.length; i++) {
+					if (i == s.getStart()) {
+						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
+					} else if (i == s.getEnd()) {
+						nameEndIndex = tokenSpans[i - 1].getEnd() + sentenceSpan.getStart();
 					}
-					ArrayList<Integer> se = new ArrayList<Integer>();
-					se.add(nameStartIndex);
-					se.add(nameEndIndex);
-					// if there was another enitity of this type found at this token-span, this will not be null
-					HashMap<String, Double> spanMap = entityMap.get(se);
-					//otherwise:
-					if (spanMap == null){
-						spanMap = new HashMap<String, Double>();
-					}
-					spanMap.put(s.getType(), s.getProb());
-					//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
-					entityMap.put(se, spanMap);
 				}
+				ArrayList<Integer> se = new ArrayList<Integer>();
+				se.add(nameStartIndex);
+				se.add(nameEndIndex);
+				// if there was another enitity of this type found at this
+				// token-span, this will not be null
+				HashMap<String, Double> spanMap = entityMap.get(se);
+				// otherwise:
+				if (spanMap == null) {
+					spanMap = new HashMap<String, Double>();
+				}
+				spanMap.put(s.getType(), s.getProb());
+				// spanMap.put("LOC", 0.5); // hacking in entity of another
+				// type for testing disambiguation
+				entityMap.put(se, spanMap);
 			}
 		}
-		catch(IOException e) {
-			e.printStackTrace();
-		}
-		//System.out.println("DEBUGGING entityMap:" + entityMap);
 		return entityMap;
 	}
+	
+//	try {
+//		ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
+//		InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
+//		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+//		NameFinderME nameFinder = new NameFinderME(tnfModel);
+//		for (Span sentenceSpan : sentenceSpans){
+//			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+//			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+//			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+//			Span nameSpans[] = nameFinder.find(tokens);
+//			for (Span s : nameSpans){
+//				int nameStartIndex = 0;
+//				int nameEndIndex = 0;
+//				for (int i = 0; i <= tokenSpans.length ; i++){
+//					if (i == s.getStart()){
+//						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
+//					}
+//					else if (i == s.getEnd()){
+//						nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
+//					}
+//				}
+//				ArrayList<Integer> se = new ArrayList<Integer>();
+//				se.add(nameStartIndex);
+//				se.add(nameEndIndex);
+//				// if there was another enitity of this type found at this token-span, this will not be null
+//				HashMap<String, Double> spanMap = entityMap.get(se);
+//				//otherwise:
+//				if (spanMap == null){
+//					spanMap = new HashMap<String, Double>();
+//				}
+//				spanMap.put(s.getType(), s.getProb());
+//				//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
+//				entityMap.put(se, spanMap);
+//			}
+//		}
+//	}
+//	catch(IOException e) {
+//		e.printStackTrace();
+//	}
+//	//System.out.println("DEBUGGING entityMap:" + entityMap);
+//	return entityMap;
+//}
 
-			
 
 	/**
 	 * 

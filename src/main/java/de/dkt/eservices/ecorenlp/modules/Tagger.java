@@ -15,16 +15,21 @@ import opennlp.tools.util.Span;
 
 public class Tagger {
 
+	
+	
 	public static MaxentTagger tagger;
+	
 	
 	public static void initTagger(String language){
 
 		String taggersDirectory = "taggers" + File.separator;
 		if (language.equalsIgnoreCase("en")){
 			tagger = new MaxentTagger(taggersDirectory + "english-left3words-distsim.tagger");
+			
 		}
 		else if (language.equalsIgnoreCase("de")){
-			tagger = new MaxentTagger(taggersDirectory + "german-hgc.tagger");
+			tagger = new MaxentTagger(taggersDirectory + "german-fast.tagger");
+			
 		}
 		else {
 			throw new BadRequestException("Unsupported language: "+ language);
@@ -81,26 +86,26 @@ public class Tagger {
 		
 		
 //		
-		initTagger("en");
-		String sentence = "This isn't this is a test sentence.";
-		Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-		//String taggedSentence = tagger.tagTokenizedString(tokenString);
-		
-		String taggedSentence = tagger.tagString(sentence);
-		System.out.println("DEBUGGINg tokenSpans here:" + Arrays.toString(tokenSpans));		
-		System.out.println("DEBUGGING taggedSentence:" + taggedSentence);
-
-		//String taggedSentence = tagger.tagTokenizedString(sentence);
-		int counter=0;
-		String taggedTokens[] = taggedSentence.split(" ");
-		for (String t : taggedTokens){
-			String parts[] = t.split("_");
-			int aux = sentence.indexOf(parts[0], counter);
-			counter = aux + parts[0].length();
-			System.out.println(parts[0]+"  "+aux+"  "+counter );
-			int start = aux;
-			int end = counter;
-		}
+//		initTagger("en");
+//		String sentence = "This isn't this is a test sentence.";
+//		Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+//		//String taggedSentence = tagger.tagTokenizedString(tokenString);
+//		
+//		String taggedSentence = tagger.tagString(sentence);
+//		System.out.println("DEBUGGINg tokenSpans here:" + Arrays.toString(tokenSpans));		
+//		System.out.println("DEBUGGING taggedSentence:" + taggedSentence);
+//
+//		//String taggedSentence = tagger.tagTokenizedString(sentence);
+//		int counter=0;
+//		String taggedTokens[] = taggedSentence.split(" ");
+//		for (String t : taggedTokens){
+//			String parts[] = t.split("_");
+//			int aux = sentence.indexOf(parts[0], counter);
+//			counter = aux + parts[0].length();
+//			System.out.println(parts[0]+"  "+aux+"  "+counter );
+//			int start = aux;
+//			int end = counter;
+//		}
 
 	//MaxentTagger nlTagger = initTagger("nl");
 	

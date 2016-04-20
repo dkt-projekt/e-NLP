@@ -340,7 +340,7 @@ public class TestConstants {
 					"        nif:anchorOf          \"Tret\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"33\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"37\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:posTag            \"NN\"^^xsd:string ;\n" +
+					"        nif:posTag            \"NE\"^^xsd:string ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,87> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=5,10>\n" +
