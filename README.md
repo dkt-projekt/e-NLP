@@ -1,5 +1,4 @@
 # e-NLP
-Natural Language Processing projects
 
 
 The e-NLP module performs Named Entity Recognition. Given either a trained model, a dictionary file or a temporal expression model, new input can be analyzed and annotated for entities and additional information (like DBpedia URI) in NIF format.
