@@ -16,10 +16,14 @@ http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
-In addition to the input, informat and outformat parameters, the following parameters have to be set to perform Named Entity Recognition on the input:
+In addition to the input, informat and outformat parameters, the following parameters have to be set to perform Named Entity Recognition on the input:  
+  
 `language`: the language of the input text. For now, only German (`de`) and English (`en`) are supported.  
+  
 `analysis`: The type of analysis to perform. Specify `ner` for performing NER based on a trained model. Specify `dict` to perform NER based on an uploaded dictionary. Specify `temp` to perform NER for temporal expressions.  
+  
 `models`: Specify the name of the models to be used for performing the analysis. This model has to be trained first. Current list of available models for `ner` analysis:  
+  
 `ner-de_aij-wikinerTrain_LOC`  
 `ner-de_aij-wikinerTrain_ORG`  
 `ner-de_aij-wikinerTrain_PER`  
