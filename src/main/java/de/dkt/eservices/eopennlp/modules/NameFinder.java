@@ -15,6 +15,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -37,6 +39,7 @@ import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 import opennlp.tools.namefind.NameFinderME;
@@ -72,11 +75,14 @@ public class NameFinder {
 		try {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
 			for (File f : df.listFiles()) {
+				Date start = new Date();
 				InputStream tnfNERModel = new FileInputStream(f);
 				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
 				NameFinderME nameFinder = new NameFinderME(tnfModel);
 				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
-
+				Date end = new Date();
+				long seconds = (end.getTime()-start.getTime()) / 1000;
+				logger.info("Initializing " + f.getName() + " took " + seconds + " seconds.");
 			}
 		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
@@ -172,6 +178,7 @@ public class NameFinder {
 		    	NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
 		    	
 		    }
+		    //TODO: currently every single entity is looked up. TODO: implement the modes (like in FREME), then do first spotting, then do lookup only on unique entities. As long as we have no means of disambiguation, this is a lot better and faster
 		    
 			
 		 // collect and add type-specific information from DBpedia:
@@ -222,6 +229,124 @@ public class NameFinder {
 		return nifModel;
 		
 	}
+	
+public static Model linkEntitiesNIF(Model nifModel, String language){
+	
+	// first loop through to make a list of unique entities, so the slow part (DBPedia lookup) has to be done only once for each entity. If at a later point we use a more sophisticated way of doing disambiguation (e.g. depending on context), this will not be applicable anymore. But for not it should significantly increase response times.
+	List<String[]> nifEntities = NIFReader.extractEntityIndices(nifModel);
+	ArrayList<String> uniqueEntities = new ArrayList<String>();
+	for (String[] e : nifEntities){
+		if ((!uniqueEntities.contains(e[1]))){
+			if (!(e[2].equals(DFKINIF.date.toString()))){
+				uniqueEntities.add(e[1]);	
+			}
+		}
+	}
+	String sparqlService = null;
+    String defaultGraph = null;
+    if (language.equalsIgnoreCase("en")){
+    	sparqlService = "http://dbpedia.org/sparql";
+    	defaultGraph = "http://dbpedia.org";
+    }
+    else if (language.equalsIgnoreCase("de")){
+    	sparqlService = "http://de.dbpedia.org/sparql";
+    	defaultGraph = "http://de.dbpedia.org";
+    }
+    else{
+    	//add more languages here
+    }
+    
+    String documentURI = NIFReader.extractDocumentURI(nifModel);
+    
+    HashMap<String, String> entity2DBPediaURI = new HashMap<String, String>();
+    for (String ent : uniqueEntities){
+    	String entURI = Sparqler.getDBPediaURI(ent, language, sparqlService, defaultGraph);
+    	if(!(entURI == null)){
+    		entity2DBPediaURI.put(ent, entURI);
+    	}
+    }
+    
+    for (String[] e : nifEntities){
+    	String anchor = e[1];
+    	if (entity2DBPediaURI.containsKey(anchor)){
+    		String entURI = entity2DBPediaURI.get(anchor);
+    		int nameStart = Integer.parseInt(e[3]);
+    		int nameEnd = Integer.parseInt(e[4]);
+    		NIFWriter.addEntityURI(nifModel, nameStart, nameEnd, documentURI, entURI);
+    		
+    		if (e[2].equals(DFKINIF.location.toString())){
+				NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
+				// NOTE: the name in our outModel suggests that this is using the w3.org lat and long ones, but it's not. 
+				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService);
+				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService);
+			}
+			else if (e[2].equals(DFKINIF.person.toString())){
+				NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
+				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
+				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
+			}
+			else if (e[2].equals(DFKINIF.organization.toString())){
+				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
+			}
+    		
+    	}
+    }
+    
+    // add doc level stats
+    if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
+		Sparqler.addGeoStats(nifModel, NIFReader.extractIsString(nifModel), documentURI);
+	}
+	
+	
+	return nifModel;
+}
+	
+public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException {
+		
+		String docURI = NIFReader.extractDocumentURI(nifModel);
+		HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
+		String content = NIFReader.extractIsString(nifModel);
+		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
+		for (String nerModel : nerModels){
+			entityMap = detectEntitiesWithModel(entityMap, content, sentenceSpans, nerModel);
+		}
+		// filter hashmap for duplicates and keep the one with highest probability
+		for (Entry<ArrayList, HashMap<String, Double>> outerMap : entityMap.entrySet()) {
+		    ArrayList<Integer> spanList = outerMap.getKey();
+		    HashMap<String, Double> spanMap = outerMap.getValue();
+		    Double highestProb = 0.0;
+		    String finalType = null;
+		    for (HashMap.Entry<String, Double> innerMap : spanMap.entrySet()) {
+		        String type = innerMap.getKey();
+		        Double prob = innerMap.getValue();
+		        if (prob > highestProb){
+		        	finalType = type;
+		        	highestProb = prob;
+		        }
+		    }
+		    // finalType is now the type with the highest probability, so get DBpedia URI and add to the nifModel
+		    int nameStart = spanList.get(0);
+		    int nameEnd = spanList.get(1);
+		    String foundName = content.substring(nameStart, nameEnd);
+		    String nerType = null;
+		    if (finalType.equals("LOC")){
+				nerType = DFKINIF.location.toString();
+			}
+			else if (finalType.equals("PER")){
+				nerType = DFKINIF.person.toString();
+			}
+			else if (finalType.equals("ORG")){
+				nerType = DFKINIF.organization.toString();
+			}
+		    
+		    NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
+		}		    
+		
+		return nifModel;
+		
+	}
+
+	
 
 	public static HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
 		
@@ -390,6 +515,65 @@ public class NameFinder {
 	}
 	
 	public static void main(String[] args) {
+		
+		String nifString = 
+				"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
+						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
+						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+						"@prefix dfkinif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=565,578>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"Arctic Circle\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"565\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"578\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:entity            dfkinif:location ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=172,176>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"Asia\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"172\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"176\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:entity            dfkinif:location ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> ;\n" +
+						"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Asia> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=149,153>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Iran\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"149\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"153\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:entity            dfkinif:location ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> ;\n" +
+						"        geo:lat               \"32.49611111111111\"^^xsd:double ;\n" +
+						"        geo:long              \"54.295\"^^xsd:double ;\n" +
+						"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Iran> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=0,977>\n" +
+						"        a                         nif:Context , nif:String , nif:RFC5147String ;\n" +
+						"        dfkinif:averageLatitude   \"32.49611111111111\"^^xsd:double ;\n" +
+						"        dfkinif:averageLongitude  \"54.295\"^^xsd:double ;\n" +
+						"        dfkinif:standardDeviationLatitude\n" +
+						"                \"0.0\"^^xsd:double ;\n" +
+						"        dfkinif:standardDeviationLongitude\n" +
+						"                \"0.0\"^^xsd:double ;\n" +
+						"        nif:beginIndex            \"0\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex              \"977\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:isString              \"Myths of Creation\\r\\n\\r\\nAlthough the Aryan inhabitants of Northern Europe are supposed by some\\r\\nauthorities to have come originally from the plateau of Iran, in the\\r\\nheart of Asia, the climate and scenery of the countries where they\\r\\nfinally settled had great influence in shaping their early religious\\r\\nbeliefs, as well as in ordering their mode of living.\\r\\n\\r\\nThe grand and rugged landscapes of Northern Europe, the midnight\\r\\nsun, the flashing rays of the aurora borealis, the ocean continually\\r\\nlashing itself into fury against the great cliffs and icebergs of\\r\\nthe Arctic Circle, could not but impress the people as vividly as\\r\\nthe almost miraculous vegetation, the perpetual light, and the blue\\r\\nseas and skies of their brief summer season. It is no great wonder,\\r\\ntherefore, that the Icelanders, for instance, to whom we owe the most\\r\\nperfect records of this belief, fancied in looking about them that the\\r\\nworld was originally created from a strange mixture of fire and ice.\"^^xsd:string .\n" +
+						"";
+		
+		try {
+			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+			linkEntitiesNIF(nifModel, "en");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	

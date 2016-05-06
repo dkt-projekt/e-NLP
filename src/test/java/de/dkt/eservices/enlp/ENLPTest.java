@@ -3,25 +3,35 @@ package de.dkt.eservices.enlp;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.jena.riot.SysRIOT;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
+
+import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
 import de.dkt.eservices.enlp.TestConstants;
+import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
+import eu.freme.common.conversion.rdf.RDFConstants;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import junit.framework.Assert;
 
 /**
@@ -111,6 +121,7 @@ public class ENLPTest {
 				.queryString("models", "ner-wikinerEn_LOC")
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
+				.queryString("mode", "spot;link")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse22, response2.getBody());
@@ -131,6 +142,7 @@ public class ENLPTest {
 				.queryString("models", "ner-de_aij-wikinerTrainLOC")
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
+				.queryString("mode", "spot;link")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse37, response37.getBody());
@@ -175,6 +187,7 @@ public class ENLPTest {
 				.queryString("models", "ner-wikinerEn_LOC")
 				.queryString("informat", "text/turtle")
 				.queryString("outformat", "rdf-xml")
+				.queryString("mode", "spot;link")
 				.body(TestConstants.turtleInput3)
 				.asString();
 		
@@ -196,6 +209,7 @@ public class ENLPTest {
 				.queryString("analysis", "ner")
 				.queryString("language", "en")
 				.queryString("modelName", "testDummy")
+				.queryString("mode", "spot;link")
 				.body(TestConstants.nerTrainingData)
 				.asString();
 		
@@ -235,6 +249,7 @@ public class ENLPTest {
 				.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_PER;ner-wikinerEn_ORG")
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
+				.queryString("mode", "spot;link")
 				.body(TestConstants.bodyInput5)
 				.asString();
 		
@@ -331,77 +346,60 @@ public class ENLPTest {
 	}
 	
 	 
+	*/
 	
 	
-	/*
-	@Test
-	public void debugTest() throws UnirestException, IOException,
-			Exception {
-
-		Date start = new Date();
-		for (int i=0; i<10; i++){
-			HttpResponse<String> eLinkingTest = analyzeRequest()
-					.queryString("analysis", "ner")
-					.queryString("language", "en")
-					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_PER;ner-wikinerEn_ORG")
-					.queryString("informat", "text")
-					.queryString("outformat", "turtle")
-					.queryString("link", "no")
-					.body(TestConstants.bodyInput5)
-					.asString();
-			
-			assertTrue(eLinkingTest.getStatus() == 200);
-			assertTrue(eLinkingTest.getBody().length() > 0);
-			System.out.println("RESULT:\n"+eLinkingTest.getBody());
-
-		}
-		Date end = new Date();
-		long seconds = (end.getTime()-start.getTime())/1000;
-		System.out.println("Average duration in seconds over 10 executions: " + seconds / 10);
-		
-		//Assert.assertEquals(TestConstants.expectedResponse5, eLinkingTest.getBody());
-		*/
-		
-		/*
-		LanguageIdentificator.initializeNgramMaps(); // currently only for ACL paper!
-		System.out.println("Done initializing language models");
-		
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
-		String outputFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
-		File df = new File(docFolder);
-		for (File f : df.listFiles()){
-			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-			
-			HttpResponse<String> debugResponse = analyzeRequest()
-					.queryString("analysis", "dict")
-					.queryString("language", "de")
-					.queryString("models", "clean_mendelsohn_LOC;clean_mendelsohn_ORG;clean_mendelsohn_PER")
-					.queryString("informat", "text")
-					.queryString("outformat", "turtle")
-					//.queryString("input", fileContent)
-					.body(fileContent)
-					.asString();
-			String turtleModel = debugResponse.getBody();
-			
-			
-			HttpResponse<String> debugResponse2 = analyzeRequest()
-					.queryString("analysis", "temp")
-					.queryString("language", "de")
-					.queryString("models", "germanDates")
-					.queryString("informat", "turtle")
-					.queryString("outformat", "turtle")
-					//.queryString("input", turtleModel)
-					.body(turtleModel)
-					.asString();
-			
-			
-			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
-			out.println(debugResponse2.getBody());
-			out.close();
-		}
-		*/
-		
-	//}	 
+//	@Test
+//	public void debugTest() throws UnirestException, IOException,
+//			Exception {
+//
+//		LanguageIdentificator.initializeNgramMaps();
+//		System.out.println("Done initializing language models");
+//		
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\in";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
+//		
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out";
+//		File df = new File(docFolder);
+//		for (File f : df.listFiles()){
+//			//System.out.println("Trying to read file:" + f.getAbsolutePath());
+//			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//
+//			//Model nifModel = identifyInputLanguage(fileContent, RDFSerialization.PLAINTEXT);
+//			
+//			
+//			
+////			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
+////					.queryString("analysis", "ner")
+////					.queryString("language", "en")
+////					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+////					.queryString("informat", "text")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", fileContent)
+////					.body(fileContent)
+////					.asString();
+////			String turtleModel = debugResponse.getBody();
+////			
+////			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
+////					.queryString("analysis", "temp")
+////					.queryString("language", "en")
+////					.queryString("models", "englishDates")
+////					.queryString("informat", "turtle")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", turtleModel)
+////					.body(turtleModel)
+////					.asString();
+////			
+////			
+////			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
+////			out.println(debugResponse2.getBody());
+////			out.close();
+//		}
+//		
+//		
+//	}	 
 	
 	@Test
 	public void sanityCheck() throws UnirestException, IOException, Exception {

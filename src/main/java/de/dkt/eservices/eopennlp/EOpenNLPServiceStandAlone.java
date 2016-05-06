@@ -1,6 +1,7 @@
 package de.dkt.eservices.eopennlp;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -156,7 +157,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 			@RequestParam(value = "f", required = false) String f,
 			@RequestParam(value = "outformat", required = false) String outformat,
 			@RequestParam(value = "o", required = false) String o,
-			@RequestParam(value = "link", required = false) String link, //TODO: think about this some more; e.g. do it in the same way as freme-ner, with a list of modes?
+			@RequestParam(value = "mode", required = false) String mode,
 			@RequestParam(value = "prefix", required = false) String prefix,
 			@RequestParam(value = "p", required = false) String p,
 			@RequestHeader(value = "Accept", required = false) String acceptHeader,
@@ -166,14 +167,50 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
 		// Check the language parameter.
 		ParameterChecker.checkInList(language, "en;de", "language", logger);
-		//TODO: redo (see comment about link above)
-		if (link == null){
-			link = "yes";
+
+		ArrayList<String> rMode = new ArrayList<>();
+
+		if (mode != null) {
+			String[] modes = mode.split(";");
+			for (String m : modes) {
+				if (m.equals("spot") || m.equals("link") || m.equals("all")) {
+					rMode.add(m);
+				} else {
+					throw new BadRequestException("Unsupported mode: " + m);
+				}
+			}
+
+			if (rMode.contains("link") && (!rMode.contains("spot") && informat == "text")) {
+				throw new BadRequestException(
+						"Unsupported mode combination: Either provide NIF input or use link in combination with spot.");
+			}
+
+			if (rMode.contains("all")) {
+				rMode.clear();
+				rMode.add("all");
+			}
+
+		} else { // if none specified, default is to do all
+			rMode.add("all");
 		}
 
-		// Check the document or directory parameter.
+		if (rMode.contains("all") || (rMode.contains("spot") && rMode.contains("link"))) {
+			mode = "all";
+		} else if (rMode.contains("spot") && !(rMode.contains("link"))) {
+			mode = "spot";
+		} else if (rMode.contains("link") && !(rMode.contains("spot"))) { // redundant check; just else would also do, but find this more readable
+			mode = "link";
+		}
+
         if(analysis == null) {
-       		throw new BadRequestException("Unspecified document/directory path.");
+       		throw new BadRequestException("Unspecified analysis type.");
+        }
+        else if (analysis.equalsIgnoreCase("dict") || analysis.equalsIgnoreCase("temp")){
+        	// mode in combination with dict or temp analysis makes no sense. Possibly may want to tell this to the user here... (But now mode is set to all by default, so this will always be triggered, also when user did not specify mode
+        	//if (mode != null){
+        		//throw new BadRequestException("Analysis type " + analysis + " in combination with mode " + mode + " not supported.");
+        	//}
+        	
         }
 
         if(allParams.get("input")==null){
@@ -210,7 +247,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
         try {
         	//ResponseEntity<String> result = service.analyze(textForProcessing, language, analysis, models, informat, nifParameters.getOutformat().toString());
-        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), link);
+        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode);
             //Model outModel = getRdfConversionService().unserializeRDF(result.getBody(), nifParameters.getOutformat());
         	//outModel.read(new ByteArrayInputStream(result.getBody().getBytes()), null, informat);
             outModel.add(inModel);

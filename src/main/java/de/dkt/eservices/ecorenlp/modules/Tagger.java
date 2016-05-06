@@ -28,6 +28,7 @@ public class Tagger {
 			
 		}
 		else if (language.equalsIgnoreCase("de")){
+			//tagger = new MaxentTagger(taggersDirectory + "german-hgc.tagger");
 			tagger = new MaxentTagger(taggersDirectory + "german-fast.tagger");
 			
 		}

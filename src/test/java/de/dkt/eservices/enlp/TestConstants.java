@@ -591,12 +591,12 @@ public class TestConstants {
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,805>\n" +
 					"        a                         nif:String , nif:Context , nif:RFC5147String ;\n" +
-					"        dfkinif:averageLatitude   \"41.85285625\"^^xsd:double ;\n" +
+					"        dfkinif:averageLatitude   \"41.852856249999995\"^^xsd:double ;\n" +
 					"        dfkinif:averageLongitude  \"-3.0322722222222223\"^^xsd:double ;\n" +
 					"        dfkinif:standardDeviationLatitude\n" +
 					"                \"1.4449139905737536\"^^xsd:double ;\n" +
 					"        dfkinif:standardDeviationLongitude\n" +
-					"                \"0.7861709280932567\"^^xsd:double ;\n" +
+					"                \"0.7861709280932566\"^^xsd:double ;\n" +
 					"        nif:beginIndex            \"0\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex              \"805\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:isString              \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +

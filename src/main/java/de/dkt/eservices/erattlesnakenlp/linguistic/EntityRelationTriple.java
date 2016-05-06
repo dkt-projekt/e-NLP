@@ -1,5 +1,7 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import edu.stanford.nlp.ling.IndexedWord;
+
 public class EntityRelationTriple {
 	
 	private String subject;
@@ -28,8 +30,8 @@ public class EntityRelationTriple {
 		return relation;
 	}
 
-	public void setRelation(String relation) {
-		this.relation = relation;
+	public void setRelation(String connectingElement) {
+		this.relation = connectingElement;
 	}
 	
 	public String getObject() {

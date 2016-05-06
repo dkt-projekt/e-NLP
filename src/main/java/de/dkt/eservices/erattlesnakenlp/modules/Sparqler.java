@@ -2,6 +2,9 @@ package de.dkt.eservices.erattlesnakenlp.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
@@ -20,12 +23,14 @@ import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
+import de.dkt.eservices.eopennlp.modules.NameFinder;
 
 public class Sparqler {
 	/*
 	 * Guess I could rename this class now, since it not only does the sparql stuff, but also handles some more NIF things (e.g. putting in/calculating means etc.)
 	 */
 
+	static Logger logger = Logger.getLogger(Sparqler.class);
 	//public static List<String> georssPoints = new ArrayList<String>();
 	public static List<Double> longitudes = new ArrayList<Double>();
 	public static List<Double> latitudes = new ArrayList<Double>();
@@ -42,25 +47,36 @@ public class Sparqler {
 				"}"
 				);
 		sQuery.setLiteral("label", label);
+
+		ResultSet res = null;
 		
 		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery(), defaultGraph);
-		ResultSet res = exec.execSelect();
-		
-		ArrayList<String> resList = new ArrayList<String>();
-		while (res.hasNext()){
-			QuerySolution qs = res.next();
-			RDFNode uri = qs.get("uri");
-			resList.add(uri.toString());
-		}
-		// this is a really very naive way of disambiguating uri based on the idea that the shortest URL is the most popular/general. When we get to the point where we want to disambiguate intelligently, this is (currently) the place to do it...
-		if (resList.size() > 0){
-			URI = resList.get(0);
-			for (String uri: resList){
-				if (uri.length() < URI.length()){
-					URI = uri;
+		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+		try{
+			res = exec.execSelect();
+			ArrayList<String> resList = new ArrayList<String>();
+			while (res.hasNext()) {
+				QuerySolution qs = res.next();
+				RDFNode uri = qs.get("uri");
+				resList.add(uri.toString());
+			}
+			// this is a really very naive way of disambiguating uri based on
+			// the idea that the shortest URL is the most popular/general. When
+			// we get to the point where we want to disambiguate intelligently,
+			// this is (currently) the place to do it...
+			if (resList.size() > 0) {
+				URI = resList.get(0);
+				for (String uri : resList) {
+					if (uri.length() < URI.length()) {
+						URI = uri;
+					}
 				}
 			}
+
+		}catch(Exception e){
+			logger.info("Unable to retrieve DBPedia URI for: " + label + ". Skipping.");
 		}
+
 		return URI;
 	}
 	/*
@@ -138,50 +154,55 @@ public class Sparqler {
 			sQuery.setIri("infoURL", infoURL);
 			QueryExecution exec = QueryExecutionFactory.sparqlService(sparqlService, sQuery.asQuery());
 			//System.out.println("DEBUGGING final sparql query:" + sQuery.toString());
-			ResultSet res = exec.execSelect();
-			while (res.hasNext()){
-				QuerySolution qs = res.next();
-				RDFNode n = qs.get("info");
-				// this is where some content-specific stuff comes in, because of format differences. And because of possible average lists (georssPoints for ex.)
-				String infoToAdd = null;
-				XSDDatatype dataType = null;
-				if (nifProp == GEO.latitude){
-					String[] p = n.toString().split("\\^\\^");
-					infoToAdd = p[0].split("\\s")[0];
-					//infoToAdd = p[0];
-					//dataType = XSDDatatype.XSDstring;
-					dataType = XSDDatatype.XSDdouble;
-					//georssPoints.add(infoToAdd);
-					latitudes.add(Double.parseDouble(infoToAdd));
-				}
-				else if (nifProp == GEO.longitude){
-					String[] p = n.toString().split("\\^\\^");
-					//infoToAdd = p[0];
-					//infoToAdd = p[1].replaceAll("\\s", "_");
-					infoToAdd = p[0].split("\\s")[1];
-					dataType = XSDDatatype.XSDdouble;
-					longitudes.add(Double.parseDouble(infoToAdd));
-				}
-				else if (nifProp == DBO.birthDate || nifProp == DBO.deathDate){
-					String[] p = n.toString().split("\\^\\^");
-					infoToAdd = p[0];
-					dataType = XSDDatatype.XSDdate;
-				}
-				else if(nifProp == NIF.orgType){
-					String[] p = n.toString().split("\\^\\^");
-					infoToAdd = p[0];
-					dataType = XSDDatatype.XSDstring;
-				}
-				if (infoToAdd != null){
-					// this feels really ugly, must be a better way of getting indices
-					int beginIndex = Integer.parseInt(r.getProperty(NIF.beginIndex).getObject().toString().split("\\^\\^")[0]);
-					int endIndex = Integer.parseInt(r.getProperty(NIF.endIndex).getObject().toString().split("\\^\\^")[0]);
-					docURI = NIFReader.extractDocumentURI(nifModel);
-					NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
-					NIFWriter.addEntityProperty(nifModel, beginIndex, endIndex, docURI, infoToAdd, nifProp, dataType);
-				}
-				break; // just taking the first result here, not caring about any others in case of multiple results
+			exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+			try{
+				ResultSet res = exec.execSelect();
+				while (res.hasNext()){
+					QuerySolution qs = res.next();
+					RDFNode n = qs.get("info");
+					// this is where some content-specific stuff comes in, because of format differences. And because of possible average lists (georssPoints for ex.)
+					String infoToAdd = null;
+					XSDDatatype dataType = null;
+					if (nifProp == GEO.latitude){
+						String[] p = n.toString().split("\\^\\^");
+						infoToAdd = p[0].split("\\s")[0];
+						//infoToAdd = p[0];
+						//dataType = XSDDatatype.XSDstring;
+						dataType = XSDDatatype.XSDdouble;
+						//georssPoints.add(infoToAdd);
+						latitudes.add(Double.parseDouble(infoToAdd));
+					}
+					else if (nifProp == GEO.longitude){
+						String[] p = n.toString().split("\\^\\^");
+						//infoToAdd = p[0];
+						//infoToAdd = p[1].replaceAll("\\s", "_");
+						infoToAdd = p[0].split("\\s")[1];
+						dataType = XSDDatatype.XSDdouble;
+						longitudes.add(Double.parseDouble(infoToAdd));
+					}
+					else if (nifProp == DBO.birthDate || nifProp == DBO.deathDate){
+						String[] p = n.toString().split("\\^\\^");
+						infoToAdd = p[0];
+						dataType = XSDDatatype.XSDdate;
+					}
+					else if(nifProp == NIF.orgType){
+						String[] p = n.toString().split("\\^\\^");
+						infoToAdd = p[0];
+						dataType = XSDDatatype.XSDstring;
+					}
+					if (infoToAdd != null){
+						// this feels really ugly, must be a better way of getting indices
+						int beginIndex = Integer.parseInt(r.getProperty(NIF.beginIndex).getObject().toString().split("\\^\\^")[0]);
+						int endIndex = Integer.parseInt(r.getProperty(NIF.endIndex).getObject().toString().split("\\^\\^")[0]);
+						docURI = NIFReader.extractDocumentURI(nifModel);
+						NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
+						NIFWriter.addEntityProperty(nifModel, beginIndex, endIndex, docURI, infoToAdd, nifProp, dataType);
+					}
+					break; // just taking the first result here, not caring about any others in case of multiple results
 
+				}
+			}catch(Exception e){
+				logger.info("Unable to retrieve " + infoURL + " for: " + dbPediaURI+ ". Skipping.");
 			}
 		}
 	}
@@ -224,8 +245,10 @@ public class Sparqler {
 
 	public static void main(String[] args) throws Exception {
 
-		getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");		
-		getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+		String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+		System.out.println("uri:" + uri);
+		uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+		System.out.println("uri:" + uri);
 	}
 
 }

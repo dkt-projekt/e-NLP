@@ -37,7 +37,7 @@ public class EOpenNLPService {
 		NameFinder.initializeModels();
 	}
 
-	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String link) throws ExternalServiceFailedException, BadRequestException,
+	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) throws ExternalServiceFailedException, BadRequestException,
 					IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 		ParameterChecker.checkNotNullOrEmpty(analysisType, "analysis type", logger);
@@ -65,22 +65,49 @@ public class EOpenNLPService {
     		
         	if(analysisType.equalsIgnoreCase("ner")){
         		
-        		ArrayList<String> statModels = new ArrayList<String>();
-        		for (String nerModel : nerModels){
-        			//if (nerModel.equalsIgnoreCase("germanDates") || nerModel.equalsIgnoreCase("englishDates")){
-        			//	nifModel = RegexFinder.detectEntitiesNIF(nifModel, sentModel, languageParam, null);
-        			//}
-        			//else {
-        			//String storedModel = languageParam + "-" + nerModel + ".bin";
-        			String storedModel = nerModel + ".bin";
-        			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
-        			if (!cprNERModel.exists()){
-            			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
+        		if (mode == "spot"){
+        			ArrayList<String> statModels = new ArrayList<String>();
+            		for (String nerModel : nerModels){
+            			String storedModel = nerModel + ".bin";
+            			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
+            			if (!cprNERModel.exists()){
+                			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
+                		}
+            			statModels.add(storedModel);
             		}
-        			statModels.add(storedModel);
-        			//}
+            		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
+        			
         		}
-        		nifModel = NameFinder.detectEntitiesNIF(nifModel, statModels, sentModel, languageParam, link);
+        		else if (mode == "link"){
+        			nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
+        		}
+        		else if (mode == "all"){
+        			ArrayList<String> statModels = new ArrayList<String>();
+            		for (String nerModel : nerModels){
+            			String storedModel = nerModel + ".bin";
+            			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
+            			if (!cprNERModel.exists()){
+                			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
+                		}
+            			statModels.add(storedModel);
+            		}
+            		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
+            		nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
+        		}
+        		else{
+        			throw new BadRequestException("Unsupported mode: " + mode);
+        		}
+        		
+//        		ArrayList<String> statModels = new ArrayList<String>();
+//        		for (String nerModel : nerModels){
+//        			String storedModel = nerModel + ".bin";
+//        			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
+//        			if (!cprNERModel.exists()){
+//            			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
+//            		}
+//        			statModels.add(storedModel);
+//        		}
+//        		nifModel = NameFinder.detectEntitiesNIF(nifModel, statModels, sentModel, languageParam, link);
         		
         		return nifModel;
         	}
