@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
@@ -131,7 +131,7 @@ public class RelationExtractor {
 			c += 1;
 			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 			Model nifModel = NIFWriter.initializeOutputModel();
-			NIFWriter.addInitialString(nifModel, fileContent, DFKINIF.getDefaultPrefix());
+			NIFWriter.addInitialString(nifModel, fileContent, DKTNIF.getDefaultPrefix());
 			ArrayList<EntityRelationTriple> singleList = extractRelationTriples(nifModel);
 			for (EntityRelationTriple rt : singleList){
 				masterList.add(rt);

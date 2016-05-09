@@ -1,6 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp;
 
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.FileReadUtilities;
@@ -36,7 +36,7 @@ public class ERattlesnakeNLPService {
 		}
 		Model nifModel = ModelFactory.createDefaultModel();
 		//Model nifModel = NIFWriter.initializeOutputModel();
-		NIFWriter.addInitialString(nifModel, inputText, DFKINIF.createDocumentURI());
+		NIFWriter.addInitialString(nifModel, inputText, DKTNIF.createDocumentURI());
 		responseCode = ParagraphDetector.detectParagraphsNIF(nifModel);
 		return responseCode;
 	}
@@ -47,7 +47,7 @@ public class ERattlesnakeNLPService {
 		Model nifModel = null;
     	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
 			nifModel = NIFWriter.initializeOutputModel();
-			NIFWriter.addInitialString(nifModel, textToProcess, DFKINIF.getDefaultPrefix());
+			NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
 		}
 		else {
 			try {

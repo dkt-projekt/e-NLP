@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import com.hp.hpl.jena.rdf.model.Model;
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.ParameterChecker;
@@ -45,7 +45,7 @@ public class EOpenNLPService {
         	Model nifModel = null;
         	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
     			nifModel = NIFWriter.initializeOutputModel();
-    			NIFWriter.addInitialString(nifModel, textToProcess, DFKINIF.getDefaultPrefix());
+    			NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
     		}
     		else {
     			nifModel = NIFReader.extractModelFromFormatString(textToProcess,inFormat);

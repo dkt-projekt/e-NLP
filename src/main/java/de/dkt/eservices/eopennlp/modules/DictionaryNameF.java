@@ -14,13 +14,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.core.io.ClassPathResource;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -28,8 +26,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import de.dkt.common.niftools.DFKINIF;
-import de.dkt.common.niftools.GEO;
+
+import de.dkt.common.niftools.DBO;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
@@ -110,7 +108,19 @@ public class DictionaryNameF {
 
 						//List<String> entURIs = new LinkedList<String>();
 						//entURIs.add(uri);
-						NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, DFKINIF.resource(dictionaryAnnotationType).toString());
+						String entityType = null;
+						// TODO: put in docs for dictionary upload that it HAS TO BE one the the following three:
+						if (dictionaryAnnotationType.equalsIgnoreCase("PER")){
+							entityType = DBO.person.toString();
+						}
+						else if (dictionaryAnnotationType.equalsIgnoreCase("LOC")){
+							entityType = DBO.location.toString();
+						}
+						else if (dictionaryAnnotationType.equalsIgnoreCase("ORG")){
+							entityType = DBO.organisation.toString();
+						}
+						//NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, DFKINIF.resource(dictionaryAnnotationType).toString());
+						NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, entityType);
 						
 						/*
 						 * This part is just for temporary purposes (paper ACL). Improve this!

@@ -30,9 +30,11 @@ import com.google.common.base.Joiner;
 import com.hp.hpl.jena.rdf.model.Model;
 
 import de.dkt.common.filemanagement.FileFactory;
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
+import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
+import de.dkt.common.niftools.TIME;
 import de.dkt.eservices.eopennlp.timexRules.DateCommons;
 import de.dkt.eservices.eopennlp.timexRules.EnglishDateRules;
 import de.dkt.eservices.eopennlp.timexRules.GermanDateRules;
@@ -359,12 +361,14 @@ public class RegexFinder {
 						normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
 					}
 					String normalization = joiner.join(normalizedStartAndEnd); 
-					String entType = DFKINIF.date.toString();
+					String entType = TIME.temporalEntity.toString();
 					if (normalizedStartAndEnd.size() == 2){
 						dateList.add(normalizedStartAndEnd.get(0));
 						dateList.add(normalizedStartAndEnd.get(1));
-						String URIdummy = DFKINIF.date.toString() + "=" + normalization;
-						NIFWriter.addAnnotationEntity(nifModel, startIndex, endIndex, foundDate, URIdummy, entType);
+						//String URIdummy = TIME.temporalEntity.toString() + "=" + normalization;
+						//NIFWriter.addAnnotationEntity(nifModel, startIndex, endIndex, foundDate, URIdummy, entType);
+						NIFWriter.addPrefixToModel(nifModel, "time", TIME.uri);
+						NIFWriter.addTemporalEntity(nifModel, startIndex, endIndex, foundDate, normalization);
 					}
 				}
 				

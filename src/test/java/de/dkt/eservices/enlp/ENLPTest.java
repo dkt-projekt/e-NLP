@@ -110,8 +110,7 @@ public class ENLPTest {
 	}
 	
 	@Test
-	public void basicPlainTextInTurtleOut() throws UnirestException, IOException,
-			Exception {
+	public void basicPlainTextInTurtleOut() throws UnirestException, IOException, Exception {
 
 		// plain text as input, turtle as output
 		HttpResponse<String> response2 = analyzeOpennlpRequest()
@@ -131,8 +130,7 @@ public class ENLPTest {
 	}
 	
 	@Test
-	public void basicPlainTextInTurtleOutDe() throws UnirestException, IOException,
-			Exception {
+	public void basicPlainTextInTurtleOutDe() throws UnirestException, IOException, Exception {
 
 		// plain text as input, turtle as output
 		HttpResponse<String> response37 = analyzeOpennlpRequest()
@@ -142,7 +140,7 @@ public class ENLPTest {
 				.queryString("models", "ner-de_aij-wikinerTrainLOC")
 				.queryString("informat", "text")
 				.queryString("outformat", "turtle")
-				.queryString("mode", "spot;link")
+				.queryString("mode", "all")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse37, response37.getBody());
@@ -151,7 +149,69 @@ public class ENLPTest {
 		
 	}
 	
+
+	@Test
+	public void basicPlainTextInTurtleOutDeSpot() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response371 = analyzeOpennlpRequest()
+				.queryString("input", "Wilkommen in Berlin.")
+				.queryString("analysis", "ner")
+				.queryString("language", "de")
+				.queryString("models", "ner-de_aij-wikinerTrainLOC")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("mode", "spot")
+				.asString();
 		
+		Assert.assertEquals(TestConstants.expectedResponse371, response371.getBody());
+		assertTrue(response371.getStatus() == 200);
+		assertTrue(response371.getBody().length() > 0);
+		
+	}
+
+	@Test
+	public void basicPlainTextInTurtleOutDeTempAnalyzeNoTempExpressions() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response371 = analyzeOpennlpRequest()
+				.queryString("input", "Wilkommen in Berlin.")
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse372, response371.getBody());
+		assertTrue(response371.getStatus() == 200);
+		assertTrue(response371.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void turtleInTurtleOutDeLink() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response372 = analyzeOpennlpRequest()
+				.queryString("analysis", "ner")
+				.queryString("language", "de")
+				.queryString("models", "ner-de_aij-wikinerTrainLOC")
+				.queryString("informat", "turtle")
+				.queryString("outformat", "turtle")
+				.queryString("mode", "link")
+				.body(TestConstants.expectedResponse371)
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse37, response372.getBody());
+		assertTrue(response372.getStatus() == 200);
+		assertTrue(response372.getBody().length() > 0);		
+	}
+	
+	
 	
 	@Test
 	public void basicPlainTextInTurtleOutTempAnalysis() throws UnirestException, IOException,
@@ -173,6 +233,70 @@ public class ENLPTest {
 		
 	}
 	
+	
+	@Test
+	public void basicPlainTextInTurtleOutNoEntitiesSpot() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response2 = analyzeOpennlpRequest()
+				.queryString("input", "Welcome")
+				.queryString("analysis", "ner")
+				.queryString("language", "en")
+				.queryString("models", "ner-wikinerEn_LOC")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("mode", "spot")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse83, response2.getBody());
+		assertTrue(response2.getStatus() == 200);
+		assertTrue(response2.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void basicPlainTextInTurtleOutNoEntitiesLinkTextInput() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response2 = analyzeOpennlpRequest()
+				.queryString("input", "Welcome")
+				.queryString("analysis", "ner")
+				.queryString("language", "en")
+				.queryString("models", "ner-wikinerEn_LOC")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("mode", "link")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse83, response2.getBody());
+		assertTrue(response2.getStatus() == 200);
+		assertTrue(response2.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void basicPlainTextInTurtleOutNoEntitiesLinkTurtleInput() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response2 = analyzeOpennlpRequest()
+				.queryString("analysis", "ner")
+				.queryString("language", "en")
+				.queryString("models", "ner-wikinerEn_LOC")
+				.queryString("informat", "turtle")
+				.queryString("outformat", "turtle")
+				.queryString("mode", "link")
+				.body(TestConstants.expectedResponse83)
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse84, response2.getBody());
+		assertTrue(response2.getStatus() == 200);
+		assertTrue(response2.getBody().length() > 0);
+		
+	}
+
 	
 	
 	@Test
@@ -259,6 +383,25 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void turtleInTurtleOutTempAnalysisEn() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response371 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "en")
+				.queryString("models", "englishDates")
+				.queryString("informat", "turtle")
+				.queryString("outformat", "turtle")
+				.body(TestConstants.expectedResponse5)
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse234, response371.getBody());
+		assertTrue(response371.getStatus() == 200);
+		assertTrue(response371.getBody().length() > 0);
+		
+	}
 	
 	
 	@Test

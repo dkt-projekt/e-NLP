@@ -30,11 +30,13 @@ import com.hp.hpl.jena.rdf.model.Model;
 import de.dkt.common.filemanagement.FileFactory;
 
 import de.dkt.common.niftools.DBO;
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.GEO;
+import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
+import de.dkt.common.niftools.TIME;
 //import de.dkt.eservices.eopennlp.TestConstants;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 import eu.freme.bservices.testhelper.TestHelper;
@@ -112,193 +114,202 @@ public class NameFinder {
 	}
 	*/
 	
-	public static Model detectEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language, String link) throws ExternalServiceFailedException, IOException {
-		
-		String docURI = NIFReader.extractDocumentURI(nifModel);
-		HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
-		String content = NIFReader.extractIsString(nifModel);
-		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
-		for (String nerModel : nerModels){
-			entityMap = detectEntitiesWithModel(entityMap, content, sentenceSpans, nerModel);
-		}
-		// filter hashmap for duplicates and keep the one with highest probability
-		for (Entry<ArrayList, HashMap<String, Double>> outerMap : entityMap.entrySet()) {
-		    ArrayList<Integer> spanList = outerMap.getKey();
-		    HashMap<String, Double> spanMap = outerMap.getValue();
-		    Double highestProb = 0.0;
-		    String finalType = null;
-		    for (HashMap.Entry<String, Double> innerMap : spanMap.entrySet()) {
-		        String type = innerMap.getKey();
-		        Double prob = innerMap.getValue();
-		        if (prob > highestProb){
-		        	finalType = type;
-		        	highestProb = prob;
-		        }
-		    }
-		    // finalType is now the type with the highest probability, so get DBpedia URI and add to the nifModel
-		    int nameStart = spanList.get(0);
-		    int nameEnd = spanList.get(1);
-		    String foundName = content.substring(nameStart, nameEnd);
-		    String nerType = null;
-		    if (finalType.equals("LOC")){
-				nerType = DFKINIF.location.toString();
-			}
-			else if (finalType.equals("PER")){
-				nerType = DFKINIF.person.toString();
-			}
-			else if (finalType.equals("ORG")){
-				nerType = DFKINIF.organization.toString();
-			}
-		    
-		    String sparqlService = null;
-		    String defaultGraph = null;
-		    if (language.equalsIgnoreCase("en")){
-		    	sparqlService = "http://dbpedia.org/sparql";
-		    	defaultGraph = "http://dbpedia.org";
-		    }
-		    else if (language.equalsIgnoreCase("de")){
-		    	sparqlService = "http://de.dbpedia.org/sparql";
-		    	defaultGraph = "http://de.dbpedia.org";
-		    }
-		    else{
-		    	//add more languages here
-		    }
-		    //List<String> entURIs = new ArrayList<String>();
-		    String entURI = null;
-		    if (link.equalsIgnoreCase("yes")){
-		    	entURI = Sparqler.getDBPediaURI(foundName, language, sparqlService, defaultGraph);
-		    	if (!(entURI == null)){
-		    		NIFWriter.addAnnotationEntities(nifModel, nameStart, nameEnd, foundName, entURI, nerType);
-		    	}
-		    	else{
-		    		NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
-		    	}
-		    }
-		    else if (link.equalsIgnoreCase("no")){
-		    	NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
-		    	
-		    }
-		    //TODO: currently every single entity is looked up. TODO: implement the modes (like in FREME), then do first spotting, then do lookup only on unique entities. As long as we have no means of disambiguation, this is a lot better and faster
-		    
-			
-		 // collect and add type-specific information from DBpedia:
-			if (!(entURI == null)){
-				//TODO: use e-linking here instead of self-defined sparql stuff, like so:
-				//call e-link api here (if dbpedia uri is retrieved, to get lat/long etc.)
-				/*
-				try {
-					HttpResponse<String> elinkingResponse = elinkingRequest()
-							.queryString("informat", "turtle")
-							.queryString("outformat", "turtle")
-							.queryString("templateid", "TODO")
-							.body(NIFReader.model2String(nifModel, "TTL"))//TODO; check if TTL is correct, or if it should be turtle
-							.asString();
-					System.out.println("DEBUGGING elinkingResult:" + elinkingResponse.getBody());
-							
-				} catch (UnirestException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				*/
-				
-				if (nerType.equals(DFKINIF.location.toString())){
-					NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
-					// NOTE: the name in our outout model suggests that this is using the w3.org lat and long ones, but it's not. 
-					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService); //www.w3.org/2003/01/geo/wgs84_pos#lat
-					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService); //www.w3.org/2003/01/geo/wgs84_pos#long
-				}
-				else if (nerType.equals(DFKINIF.person.toString())){
-					NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
-					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
-					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
-				}
-				else if (nerType.equals(DFKINIF.organization.toString())){
-					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
-				}
-			}
-
-			
-
-		}
-		
-		// if there was a location in there, add document stats for geopoints 
-		if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
-			Sparqler.addGeoStats(nifModel, content, docURI);
-		}
-		
-		return nifModel;
-		
-	}
+//	public static Model detectEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language, String link) throws ExternalServiceFailedException, IOException {
+//		
+//		String docURI = NIFReader.extractDocumentURI(nifModel);
+//		HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
+//		String content = NIFReader.extractIsString(nifModel);
+//		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
+//		for (String nerModel : nerModels){
+//			entityMap = detectEntitiesWithModel(entityMap, content, sentenceSpans, nerModel);
+//		}
+//		// filter hashmap for duplicates and keep the one with highest probability
+//		for (Entry<ArrayList, HashMap<String, Double>> outerMap : entityMap.entrySet()) {
+//		    ArrayList<Integer> spanList = outerMap.getKey();
+//		    HashMap<String, Double> spanMap = outerMap.getValue();
+//		    Double highestProb = 0.0;
+//		    String finalType = null;
+//		    for (HashMap.Entry<String, Double> innerMap : spanMap.entrySet()) {
+//		        String type = innerMap.getKey();
+//		        Double prob = innerMap.getValue();
+//		        if (prob > highestProb){
+//		        	finalType = type;
+//		        	highestProb = prob;
+//		        }
+//		    }
+//		    // finalType is now the type with the highest probability, so get DBpedia URI and add to the nifModel
+//		    int nameStart = spanList.get(0);
+//		    int nameEnd = spanList.get(1);
+//		    String foundName = content.substring(nameStart, nameEnd);
+//		    String nerType = null;
+//		    if (finalType.equals("LOC")){
+//				nerType = DFKINIF.location.toString();
+//			}
+//			else if (finalType.equals("PER")){
+//				nerType = DFKINIF.person.toString();
+//			}
+//			else if (finalType.equals("ORG")){
+//				nerType = DFKINIF.organization.toString();
+//			}
+//		    
+//		    String sparqlService = null;
+//		    String defaultGraph = null;
+//		    if (language.equalsIgnoreCase("en")){
+//		    	sparqlService = "http://dbpedia.org/sparql";
+//		    	defaultGraph = "http://dbpedia.org";
+//		    }
+//		    else if (language.equalsIgnoreCase("de")){
+//		    	sparqlService = "http://de.dbpedia.org/sparql";
+//		    	defaultGraph = "http://de.dbpedia.org";
+//		    }
+//		    else{
+//		    	//add more languages here
+//		    }
+//		    //List<String> entURIs = new ArrayList<String>();
+//		    String entURI = null;
+//		    if (link.equalsIgnoreCase("yes")){
+//		    	entURI = Sparqler.getDBPediaURI(foundName, language, sparqlService, defaultGraph);
+//		    	if (!(entURI == null)){
+//		    		NIFWriter.addAnnotationEntities(nifModel, nameStart, nameEnd, foundName, entURI, nerType);
+//		    	}
+//		    	else{
+//		    		NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
+//		    	}
+//		    }
+//		    else if (link.equalsIgnoreCase("no")){
+//		    	NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
+//		    	
+//		    }
+//		    //TODO: currently every single entity is looked up. TODO: implement the modes (like in FREME), then do first spotting, then do lookup only on unique entities. As long as we have no means of disambiguation, this is a lot better and faster
+//		    
+//			
+//		 // collect and add type-specific information from DBpedia:
+//			if (!(entURI == null)){
+//				//TODO: use e-linking here instead of self-defined sparql stuff, like so:
+//				//call e-link api here (if dbpedia uri is retrieved, to get lat/long etc.)
+//				/*
+//				try {
+//					HttpResponse<String> elinkingResponse = elinkingRequest()
+//							.queryString("informat", "turtle")
+//							.queryString("outformat", "turtle")
+//							.queryString("templateid", "TODO")
+//							.body(NIFReader.model2String(nifModel, "TTL"))//TODO; check if TTL is correct, or if it should be turtle
+//							.asString();
+//					System.out.println("DEBUGGING elinkingResult:" + elinkingResponse.getBody());
+//							
+//				} catch (UnirestException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				*/
+//				
+//				if (nerType.equals(DFKINIF.location.toString())){
+//					NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
+//					// NOTE: the name in our outout model suggests that this is using the w3.org lat and long ones, but it's not. 
+//					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService); //www.w3.org/2003/01/geo/wgs84_pos#lat
+//					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService); //www.w3.org/2003/01/geo/wgs84_pos#long
+//				}
+//				else if (nerType.equals(DFKINIF.person.toString())){
+//					NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
+//					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
+//					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
+//				}
+//				else if (nerType.equals(DFKINIF.organization.toString())){
+//					Sparqler.queryDBPedia(nifModel, docURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
+//				}
+//			}
+//
+//			
+//
+//		}
+//		
+//		// if there was a location in there, add document stats for geopoints 
+//		if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
+//			Sparqler.addGeoStats(nifModel, content, docURI);
+//		}
+//		
+//		return nifModel;
+//		
+//	}
 	
 public static Model linkEntitiesNIF(Model nifModel, String language){
 	
 	// first loop through to make a list of unique entities, so the slow part (DBPedia lookup) has to be done only once for each entity. If at a later point we use a more sophisticated way of doing disambiguation (e.g. depending on context), this will not be applicable anymore. But for not it should significantly increase response times.
 	List<String[]> nifEntities = NIFReader.extractEntityIndices(nifModel);
-	ArrayList<String> uniqueEntities = new ArrayList<String>();
-	for (String[] e : nifEntities){
-		if ((!uniqueEntities.contains(e[1]))){
-			if (!(e[2].equals(DFKINIF.date.toString()))){
-				uniqueEntities.add(e[1]);	
+	
+	if (nifEntities == null){
+		return nifModel;
+	}
+	else{
+		ArrayList<String> uniqueEntities = new ArrayList<String>();
+		for (String[] e : nifEntities){
+			if ((!uniqueEntities.contains(e[1]))){
+				if (!(e[2].equals(TIME.temporalEntity.toString()))){
+					uniqueEntities.add(e[1]);	
+				}
 			}
 		}
+		String sparqlService = null;
+		String defaultGraph = null;
+		if (language.equalsIgnoreCase("en")){
+			sparqlService = "http://dbpedia.org/sparql";
+			defaultGraph = "http://dbpedia.org";
+		}
+		else if (language.equalsIgnoreCase("de")){
+			sparqlService = "http://de.dbpedia.org/sparql";
+			defaultGraph = "http://de.dbpedia.org";
+		}
+		else{
+			//add more languages here
+		}
+
+		String documentURI = NIFReader.extractDocumentURI(nifModel);
+
+		HashMap<String, String> entity2DBPediaURI = new HashMap<String, String>();
+		for (String ent : uniqueEntities){
+			String entURI = Sparqler.getDBPediaURI(ent, language, sparqlService, defaultGraph);
+			if(!(entURI == null)){
+				entity2DBPediaURI.put(ent, entURI);
+			}
+		}
+
+		for (String[] e : nifEntities){
+			String anchor = e[1];
+			if (entity2DBPediaURI.containsKey(anchor)){
+				String entURI = entity2DBPediaURI.get(anchor);
+				int nameStart = Integer.parseInt(e[3]);
+				int nameEnd = Integer.parseInt(e[4]);
+				NIFWriter.addEntityURI(nifModel, nameStart, nameEnd, documentURI, entURI);
+
+				//if (e[2].equals(DFKINIF.location.toString())){
+				if (e[2].equals(DBO.location.toString())){
+					NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
+					// NOTE: the name in our outModel suggests that this is using the w3.org lat and long ones, but it's not. 
+					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService);
+					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService);
+				}
+				//else if (e[2].equals(DFKINIF.person.toString())){
+				else if (e[2].equals(DBO.person.toString())){
+					NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
+					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
+					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
+				}
+				//else if (e[2].equals(DFKINIF.organization.toString())){
+				else if (e[2].equals(DBO.organisation.toString())){
+					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
+				}
+
+			}
+		}
+
+		// add doc level stats
+		if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
+			Sparqler.addGeoStats(nifModel, NIFReader.extractIsString(nifModel), documentURI);
+		}
+
+
+		return nifModel;
 	}
-	String sparqlService = null;
-    String defaultGraph = null;
-    if (language.equalsIgnoreCase("en")){
-    	sparqlService = "http://dbpedia.org/sparql";
-    	defaultGraph = "http://dbpedia.org";
-    }
-    else if (language.equalsIgnoreCase("de")){
-    	sparqlService = "http://de.dbpedia.org/sparql";
-    	defaultGraph = "http://de.dbpedia.org";
-    }
-    else{
-    	//add more languages here
-    }
-    
-    String documentURI = NIFReader.extractDocumentURI(nifModel);
-    
-    HashMap<String, String> entity2DBPediaURI = new HashMap<String, String>();
-    for (String ent : uniqueEntities){
-    	String entURI = Sparqler.getDBPediaURI(ent, language, sparqlService, defaultGraph);
-    	if(!(entURI == null)){
-    		entity2DBPediaURI.put(ent, entURI);
-    	}
-    }
-    
-    for (String[] e : nifEntities){
-    	String anchor = e[1];
-    	if (entity2DBPediaURI.containsKey(anchor)){
-    		String entURI = entity2DBPediaURI.get(anchor);
-    		int nameStart = Integer.parseInt(e[3]);
-    		int nameEnd = Integer.parseInt(e[4]);
-    		NIFWriter.addEntityURI(nifModel, nameStart, nameEnd, documentURI, entURI);
-    		
-    		if (e[2].equals(DFKINIF.location.toString())){
-				NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
-				// NOTE: the name in our outModel suggests that this is using the w3.org lat and long ones, but it's not. 
-				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService);
-				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService);
-			}
-			else if (e[2].equals(DFKINIF.person.toString())){
-				NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
-				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
-				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
-			}
-			else if (e[2].equals(DFKINIF.organization.toString())){
-				Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
-			}
-    		
-    	}
-    }
-    
-    // add doc level stats
-    if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
-		Sparqler.addGeoStats(nifModel, NIFReader.extractIsString(nifModel), documentURI);
-	}
-	
-	
-	return nifModel;
 }
 	
 public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException {
@@ -330,13 +341,16 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 		    String foundName = content.substring(nameStart, nameEnd);
 		    String nerType = null;
 		    if (finalType.equals("LOC")){
-				nerType = DFKINIF.location.toString();
+				//nerType = DFKINIF.location.toString();
+				nerType = DBO.location.toString();
 			}
 			else if (finalType.equals("PER")){
-				nerType = DFKINIF.person.toString();
+				//nerType = DFKINIF.person.toString();
+				nerType = DBO.person.toString();
 			}
 			else if (finalType.equals("ORG")){
-				nerType = DFKINIF.organization.toString();
+				//nerType = DFKINIF.organization.toString();
+				nerType = DBO.organisation.toString();
 			}
 		    
 		    NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);

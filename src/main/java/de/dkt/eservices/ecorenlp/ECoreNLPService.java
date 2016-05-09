@@ -24,7 +24,7 @@ import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFSerializationFormats;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
-import de.dkt.common.niftools.DFKINIF;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Lemmatizer;
@@ -66,7 +66,7 @@ public class ECoreNLPService {
         	Model nifModel = null;
         	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
         		nifModel = NIFWriter.initializeOutputModel();
-        		NIFWriter.addInitialString(nifModel, textToProcess, DFKINIF.getDefaultPrefix());
+        		NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
     		}
     		else {
     			nifModel = NIFReader.extractModelFromFormatString(textToProcess, inFormat);
