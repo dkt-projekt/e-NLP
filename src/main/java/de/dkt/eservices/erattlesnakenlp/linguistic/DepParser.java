@@ -21,7 +21,9 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import org.h2.engine.SysProperties;
 import org.json.JSONObject;
+import org.omg.Messaging.SyncScopeHelper;
 
 import com.hp.hpl.jena.rdf.model.Model;
 //import com.hp.hpl.jena.tdb.base.file.FileFactory;
@@ -100,9 +102,131 @@ public class DepParser {
 		return m;
 	}
 	
+
+	/*
+	 *action plan: find all entities in a sentence. If more than one, compare each to every other, find the lowest/first connecting/governing node/dependency, if this is a verb, take that as the relation.
+	 *this should make it less dependent on the actual dep parser used, since the possibility of traversing a tree should be pretty standard for every tree-like output.
+	 *it should also return more results, since not restricting on the type of dependency (but only on if there is a governing verb found. 
+	 */
 	
+	public static ArrayList<EntityRelationTriple> getRelationsNIF2(Model nifModel, BufferedWriter br2Debug){
+		
+		String isstr = NIFReader.extractIsString(nifModel);
+		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+		
+		if (!(entityMap == null)){
+			
+			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
+
+			for (List<HasWord> sentence : tokenizer) {
+				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+				ArrayList<ArrayList<Integer>> entityWordIndices = new ArrayList<ArrayList<Integer>>();
+				for (String[] e : entityMap){
+					int entityStart = Integer.parseInt(e[3]);
+					int entityEnd = Integer.parseInt(e[4]);
+					ArrayList<Integer> tuple = new ArrayList<Integer>();
+					for (int i = 0; i < tagged.size() ; i++){
+						TaggedWord t = tagged.get(i);
+						if (t.beginPosition() == entityStart){
+							tuple.add(i);
+						}
+						if (t.endPosition() == entityEnd){
+							tuple.add(i);
+						}
+					}
+					if (tuple.size() == 2){ // it does not always fill in the endposition. I'm assuming that this is because of punctuation at the end of an entity, which is seen as part of the entity by NER, but not by the tagger
+						// if this approach results in anything useful, dive into this.
+						entityWordIndices.add(tuple);
+					}
+				}
+//				System.out.println("Sentence:" + sentence);
+//				System.out.println("DEBUGGING entity word indices:" + entityWordIndices);
+//				for (ArrayList<Integer> l : entityWordIndices){
+//					ArrayList<String> reconstruct = new ArrayList<String>();
+//					for (int j = l.get(0); j < l.get(1)+1 ; j++){
+//						reconstruct.add(tagged.get(j).word());
+//					}
+//					System.out.println("DEBUGGING l:" + l);
+//					System.out.println("REC:" + reconstruct);
+//				}
+				
+				// now I have the word indices of all entities for this sentence
+				// if there is more than one entity, proceed to parse				
+				if (entityWordIndices.size() > 1){
+					GrammaticalStructure gs = parser.predict(tagged);
+					// the loop through dependency graph, if element in graph is part of an entity, find the shortest path in the graph to another node containing/being part of an entity
+					System.out.println("zsentence:" + sentence);
+					System.out.println("DEBUGGINg gs:" + gs.typedDependencies());
+					System.out.println("DEBUGGING entityWordIndices:" + entityWordIndices);
+					for (int q = 0; q < entityWordIndices.size(); q ++){
+						for (int r = q +1; r < entityWordIndices.size(); r ++){
+							TypedDependency qgs = gs.typedDependencies(false).get(entityWordIndices.get(q).get(0));
+							TypedDependency rgs = gs.typedDependencies(false).get(entityWordIndices.get(r).get(0));
+							
+							System.out.println("qgs:" + qgs);
+							System.out.println("tgs:" + rgs);
+							createTreeFromGrammaticalStructure(gs);
+						}	
+					}
+				}
+			}
+			
+		}
+		
+		return ert;
+		
+	}
 	
-	public static ArrayList<EntityRelationTriple> getRelationsNIF(Model nifModel){
+	public static void traverseGrammaticalStructure(Node node, GrammaticalStructure gs, IndexedWord iw){
+		
+		while (!(getTypedDependenciesbyDep(gs, iw).isEmpty())){
+			System.out.println("RESULT:" + getTypedDependenciesbyDep(gs, iw));
+			for (TypedDependency td : getTypedDependenciesbyDep(gs, iw)){
+				//node.addChild(new Node(td.dep().toString())); // add to subnode here instead
+				System.out.println("DEBUGGINg td:" + td);
+				traverseGrammaticalStructure(node, gs, td.dep());
+				
+			}
+		}
+		
+	}
+	
+	public static Node createTreeFromGrammaticalStructure(GrammaticalStructure gs){
+		Node root = new Node("root");
+		
+		for (TypedDependency td : gs.typedDependencies()){
+			if (td.reln().toString().equals("root")){
+				System.out.println("DEBUGGING tds:" + td);
+				System.out.println(td.dep());
+				System.out.println(td.gov());
+				System.out.println(td.reln());
+				root.addChild(new Node(td.dep().toString()));
+				System.out.println("all deps governed by sub:" + getTypedDependenciesbyDep(gs, td.dep()));			
+				traverseGrammaticalStructure(root, gs, td.dep());
+				
+				
+	
+				
+			}
+		}
+		//root.addChild(new Node("child1"));
+		//root.addChild(new Node("child2")); //etc.
+		
+		return root;
+	}
+	
+	public static ArrayList<TypedDependency> getTypedDependenciesbyDep(GrammaticalStructure gs, IndexedWord iw){
+		ArrayList<TypedDependency> al = new ArrayList<TypedDependency>();
+		for (TypedDependency td : gs.typedDependencies()){
+			if (td.gov().equals(iw)){
+				al.add(td);
+				}
+			}
+		return al;
+	}
+	
+	public static ArrayList<EntityRelationTriple> getRelationsNIF(Model nifModel, BufferedWriter br2Debug){
 		
 		/*
 		 * The code below parses for dependencies. With this we can extract the subject of a sentence and fill the EntityRelationTriple. The problem is that in the TypedDependencies, only the head of the subject noun phrase
@@ -120,7 +244,7 @@ public class DepParser {
 		
 		//TODO: complete the following
 		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
-		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod"));
+		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod")); // advmod, 
 		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("case"));
 		
 		List<String> germanSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
@@ -134,12 +258,18 @@ public class DepParser {
 			for (List<HasWord> sentence : tokenizer) {
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = parser.predict(tagged);
+				try {
+					br2Debug.write("DEBUGGING sentence:" + sentence + "\n");
+					br2Debug.write("DEBUGGING grammaticalStructure:" + gs + "\n\n");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject = null;
 				IndexedWord connectingElement = null;
 				IndexedWord object = null;
 				for (TypedDependency td : gs.typedDependencies()) {
-					// NOTE TO SELF: by commenting out the line below, I'm taking all relations in which there is a node that governs an entity and them some object. Let's see if this makes sense...
 						IndexedWordTuple t = new IndexedWordTuple();
 						t.setFirst(td.dep());
 						if (englishSubjectRelationTypes.contains(td.reln().toString())){
@@ -182,10 +312,16 @@ public class DepParser {
 							objectURI = l[0];
 						}
 					}
-					if (!(subjectURI == null)  && !(objectURI == null)){
+					if (!(subjectURI == null) && !(objectURI == null)){
 						EntityRelationTriple t = new EntityRelationTriple();
 						t.setSubject(String.format("%s(%s)", subject, subjectURI));
 						t.setRelation(connectingElement.word());
+						//if (!(objectURI == null)){
+							//t.setObject(String.format("%s(%s)", object, objectURI));
+						//}
+						//else {
+							//t.setObject(object.word());
+						//}
 						t.setObject(String.format("%s(%s)", object, objectURI));
 						ert.add(t);
 					}
@@ -220,13 +356,23 @@ public class DepParser {
 		HashMap<String,Integer> subjectCount = new HashMap<String,Integer>();
 		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif\\small";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\smallTestSetNIFS";
 		
 		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
 		BufferedWriter brDebug = null;
 		try {
 			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String debug2Out = "C:\\Users\\pebo01\\Desktop\\debug2.txt";
+		BufferedWriter br2Debug = null;
+		try {
+			br2Debug = FileFactory.generateOrCreateBufferedWriterInstance(debug2Out, "utf-8", false);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -246,7 +392,7 @@ public class DepParser {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				//System.out.println("Trying for file:" + f);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
+				ArrayList<EntityRelationTriple> ert = getRelationsNIF2(nifModel, br2Debug);
 				
 				// Action plan for mockup: ert is now per NIF. Add to masterList. Then convert this into double nested hashmap (subject > relation > object > count) and output JSON for Julian to eat in his mockup.
 				for (EntityRelationTriple t : ert){
@@ -341,6 +487,7 @@ public class DepParser {
 			
 	    try {
 			brDebug.close();
+			br2Debug.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

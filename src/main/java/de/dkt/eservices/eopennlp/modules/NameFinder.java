@@ -531,59 +531,204 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 	public static void main(String[] args) {
 		
 		String nifString = 
-				"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
+				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+						"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
 						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
-						"@prefix dfkinif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
 						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
 						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+						"@prefix time:  <http://www.w3.org/2006/time#> .\n" +
 						"\n" +
-						"<http://dkt.dfki.de/documents/#char=565,578>\n" +
-						"        a                     nif:RFC5147String , nif:String ;\n" +
-						"        nif:anchorOf          \"Arctic Circle\"^^xsd:string ;\n" +
-						"        nif:beginIndex        \"565\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:endIndex          \"578\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:entity            dfkinif:location ;\n" +
-						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> .\n" +
-						"\n" +
-						"<http://dkt.dfki.de/documents/#char=172,176>\n" +
-						"        a                     nif:RFC5147String , nif:String ;\n" +
-						"        nif:anchorOf          \"Asia\"^^xsd:string ;\n" +
-						"        nif:beginIndex        \"172\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:endIndex          \"176\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:entity            dfkinif:location ;\n" +
-						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> ;\n" +
-						"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Asia> .\n" +
-						"\n" +
-						"<http://dkt.dfki.de/documents/#char=149,153>\n" +
+						"<http://dkt.dfki.de/documents/#char=543,547>\n" +
 						"        a                     nif:String , nif:RFC5147String ;\n" +
-						"        nif:anchorOf          \"Iran\"^^xsd:string ;\n" +
-						"        nif:beginIndex        \"149\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:endIndex          \"153\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:entity            dfkinif:location ;\n" +
-						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,977> ;\n" +
-						"        geo:lat               \"32.49611111111111\"^^xsd:double ;\n" +
-						"        geo:long              \"54.295\"^^xsd:double ;\n" +
-						"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Iran> .\n" +
+						"        nif:anchorOf          \"Irun\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"543\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"547\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        geo:lat               \"43.33781388888889\"^^xsd:double ;\n" +
+						"        geo:long              \"-1.788811111111111\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
 						"\n" +
-						"<http://dkt.dfki.de/documents/#char=0,977>\n" +
-						"        a                         nif:Context , nif:String , nif:RFC5147String ;\n" +
-						"        dfkinif:averageLatitude   \"32.49611111111111\"^^xsd:double ;\n" +
-						"        dfkinif:averageLongitude  \"54.295\"^^xsd:double ;\n" +
-						"        dfkinif:standardDeviationLatitude\n" +
-						"                \"0.0\"^^xsd:double ;\n" +
-						"        dfkinif:standardDeviationLongitude\n" +
-						"                \"0.0\"^^xsd:double ;\n" +
-						"        nif:beginIndex            \"0\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:endIndex              \"977\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:isString              \"Myths of Creation\\r\\n\\r\\nAlthough the Aryan inhabitants of Northern Europe are supposed by some\\r\\nauthorities to have come originally from the plateau of Iran, in the\\r\\nheart of Asia, the climate and scenery of the countries where they\\r\\nfinally settled had great influence in shaping their early religious\\r\\nbeliefs, as well as in ordering their mode of living.\\r\\n\\r\\nThe grand and rugged landscapes of Northern Europe, the midnight\\r\\nsun, the flashing rays of the aurora borealis, the ocean continually\\r\\nlashing itself into fury against the great cliffs and icebergs of\\r\\nthe Arctic Circle, could not but impress the people as vividly as\\r\\nthe almost miraculous vegetation, the perpetual light, and the blue\\r\\nseas and skies of their brief summer season. It is no great wonder,\\r\\ntherefore, that the Icelanders, for instance, to whom we owe the most\\r\\nperfect records of this belief, fancied in looking about them that the\\r\\nworld was originally created from a strange mixture of fire and ice.\"^^xsd:string .\n" +
+						"<http://dkt.dfki.de/documents/#char=156,163>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"21 July\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"156\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"163\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-07-22T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-07-21T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=146,151>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"South\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"146\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"151\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=201,213>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Nationalists\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"201\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"213\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Organisation .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=58,65>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"20 July\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"58\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"65\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-07-21T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-07-20T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=0,4>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"1936\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1937-01-01T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-01-01T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=399,403>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"July\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"399\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"403\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-08-01T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-07-01T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=650,662>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Nationalists\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"650\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"662\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Organisation .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=494,505>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"5 September\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"494\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"505\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-09-06T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-09-05T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=372,393>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Campaign of Guipuzcoa\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"372\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"393\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Organisation .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=407,416>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"September\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"407\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"416\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-10-01T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-09-01T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=254,260>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Ferrol\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"254\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"260\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=277,282>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"Spain\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"277\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"282\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        geo:lat               \"40.43333333333333\"^^xsd:double ;\n" +
+						"        geo:long              \"-3.7\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=345,356>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        dbo:birthDate         \"1887-06-09\"^^xsd:date ;\n" +
+						"        dbo:deathDate         \"1937-06-03\"^^xsd:date ;\n" +
+						"        nif:anchorOf          \"Emilio Mola\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"345\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"356\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Person .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=0,805>\n" +
+						"        a                        nif:String , nif:Context , nif:RFC5147String ;\n" +
+						"        dktnif:averageLatitude   \"41.852856249999995\"^^xsd:double ;\n" +
+						"        dktnif:averageLongitude  \"-3.0322722222222223\"^^xsd:double ;\n" +
+						"        dktnif:meanDateEnd       \"1936-10-26T01:30:00\"^^xsd:dateTime ;\n" +
+						"        dktnif:meanDateStart     \"1936-06-04T01:30:00\"^^xsd:dateTime ;\n" +
+						"        dktnif:standardDeviationLatitude\n" +
+						"                \"1.4449139905737536\"^^xsd:double ;\n" +
+						"        dktnif:standardDeviationLongitude\n" +
+						"                \"0.7861709280932566\"^^xsd:double ;\n" +
+						"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex             \"805\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:isString             \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=18,26>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Sanjurjo\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"18\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"26\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        itsrdf:taClassRef     dbo:Person .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=636,642>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"Madrid\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"636\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"642\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        geo:lat               \"40.38333333333333\"^^xsd:double ;\n" +
+						"        geo:long              \"-3.716666666666667\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=704,710>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Bilbao\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"704\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"710\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+						"        geo:lat               \"43.25694444444444\"^^xsd:double ;\n" +
+						"        geo:long              \"-2.923611111111111\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=788,804>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"end of September\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"788\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"804\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-09-30T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-09-20T00:00:00\"^^xsd:dateTime .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=598,610>\n" +
+						"        a                      nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf           \"13 September\"^^xsd:string ;\n" +
+						"        nif:beginIndex         \"598\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex           \"610\"^^xsd:nonNegativeInteger ;\n" +
+						"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
+						"        time:intervalFinishes  \"1936-09-14T00:00:00\"^^xsd:dateTime ;\n" +
+						"        time:intervalStarts    \"1936-09-13T00:00:00\"^^xsd:dateTime .\n" +
 						"";
-		
 		try {
 			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-			linkEntitiesNIF(nifModel, "en");
+			Model outModel = linkEntitiesNIF(nifModel, "en");
+			System.out.println("RESULT:\n" + NIFReader.model2String(outModel, "TTL"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

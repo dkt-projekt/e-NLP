@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.2SNAPSHOT</version>
+			<version>0.2-SNAPSHOT</version>
 		</dependency>
 <!-- 		<dependency>
 	        <groupId>ch.qos.logback</groupId>

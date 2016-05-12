@@ -49,7 +49,6 @@ public class Sparqler {
 		sQuery.setLiteral("label", label);
 
 		ResultSet res = null;
-		
 		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery(), defaultGraph);
 		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
 		try{
