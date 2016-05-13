@@ -162,10 +162,10 @@ public class DictionaryNameF {
 					
 						
 				}
-				// if there was a location in there, add document stats for geopoints 
-				if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
-					Sparqler.addGeoStats(nifModel, content, NIFReader.extractDocumentURI(nifModel));
-				}
+//				// if there was a location in there, add document stats for geopoints
+//				if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
+//					Sparqler.addGeoStats(nifModel, content, NIFReader.extractDocumentURI(nifModel));
+//				}
 
 	
 			} catch (FileNotFoundException e) {

@@ -273,6 +273,7 @@ public static Model linkEntitiesNIF(Model nifModel, String language){
 			}
 		}
 
+		Sparqler sparqler = new Sparqler();
 		for (String[] e : nifEntities){
 			String anchor = e[1];
 			if (entity2DBPediaURI.containsKey(anchor)){
@@ -285,26 +286,26 @@ public static Model linkEntitiesNIF(Model nifModel, String language){
 				if (e[2].equals(DBO.location.toString())){
 					NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
 					// NOTE: the name in our outModel suggests that this is using the w3.org lat and long ones, but it's not. 
-					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService);
-					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService);
+					sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.latitude, sparqlService);
+					sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://www.georss.org/georss/point", GEO.longitude, sparqlService);
 				}
 				//else if (e[2].equals(DFKINIF.person.toString())){
 				else if (e[2].equals(DBO.person.toString())){
 					NIFWriter.addPrefixToModel(nifModel, "dbo", DBO.uri);
-					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
-					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
+					sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/birthDate", DBO.birthDate, sparqlService);
+					sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/deathDate", DBO.deathDate, sparqlService);
 				}
 				//else if (e[2].equals(DFKINIF.organization.toString())){
 				else if (e[2].equals(DBO.organisation.toString())){
-					Sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
+					sparqler.queryDBPedia(nifModel, documentURI, nameStart, nameEnd, "http://dbpedia.org/ontology/background", NIF.orgType, sparqlService);
 				}
 
 			}
 		}
 
 		// add doc level stats
-		if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
-			Sparqler.addGeoStats(nifModel, NIFReader.extractIsString(nifModel), documentURI);
+		if (sparqler.hasCoordinates()){
+			sparqler.addGeoStats(nifModel, NIFReader.extractIsString(nifModel), documentURI);
 		}
 
 
