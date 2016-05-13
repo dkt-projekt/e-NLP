@@ -393,9 +393,15 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
 			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
 			Span nameSpans[];
+
+			/*
+			 * This is synchronized because NameFinderME.find() is not thread-safe, but it might
+			 * be called concurrently on the same instance.
+			 */
 			synchronized (nameFinder) {
 				nameSpans = nameFinder.find(tokens);
 			}
+
 			for (Span s : nameSpans) {
 				int nameStartIndex = 0;
 				int nameEndIndex = 0;
