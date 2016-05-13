@@ -391,7 +391,10 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
 			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
 			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-			Span nameSpans[] = nameFinder.find(tokens);
+			Span nameSpans[];
+			synchronized (nameFinder) {
+				nameSpans = nameFinder.find(tokens);
+			}
 			for (Span s : nameSpans) {
 				int nameStartIndex = 0;
 				int nameEndIndex = 0;
