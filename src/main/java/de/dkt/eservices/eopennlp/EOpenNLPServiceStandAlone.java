@@ -179,8 +179,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 					throw new BadRequestException("Unsupported mode: " + m);
 				}
 			}
-
-			if (rMode.contains("link") && (!rMode.contains("spot") && informat == "text")) {
+			if (rMode.contains("link") && (!rMode.contains("spot")) && informat.equals("text")) {
 				throw new BadRequestException(
 						"Unsupported mode combination: Either provide NIF input or use link in combination with spot.");
 			}
