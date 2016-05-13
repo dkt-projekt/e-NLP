@@ -64,8 +64,8 @@ public class EOpenNLPService {
     		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
     		
         	if(analysisType.equalsIgnoreCase("ner")){
-        		
-        		if (mode == "spot"){
+
+        		if ("spot".equals(mode)) {
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
@@ -78,10 +78,10 @@ public class EOpenNLPService {
             		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
         			
         		}
-        		else if (mode == "link"){
+        		else if ("link".equals(mode)) {
         			nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
         		}
-        		else if (mode == "all"){
+        		else if ("all".equals(mode)) {
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
