@@ -918,6 +918,16 @@ public class TestConstants {
 					"        nif:endIndex    \"7\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:isString    \"Welcome\"^^xsd:string .\n" +
 					"";
+	static String expectedResponse888 =
+			
+			"{\n" +
+					"  \"exception\": \"eu.freme.common.exception.BadRequestException\",\n" +
+					"  \"path\": \"/e-nlp/namedEntityRecognition\",\n" +
+					"  \"message\": \"Unsupported mode combination: Either provide NIF input or use link in combination with spot.\",\n" +
+					"  \"error\": \"Bad Request\",\n" +
+					"  \"status\": 400,\n" +
+					"  \"timestamp\": 1463128970107\n" +
+					"}";
 	
 	static String expectedResponse84 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +

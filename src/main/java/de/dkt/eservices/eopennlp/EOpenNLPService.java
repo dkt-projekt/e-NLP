@@ -65,7 +65,7 @@ public class EOpenNLPService {
     		
         	if(analysisType.equalsIgnoreCase("ner")){
         		
-        		if (mode == "spot"){
+        		if (mode.equals("spot")){
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
@@ -78,10 +78,10 @@ public class EOpenNLPService {
             		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
         			
         		}
-        		else if (mode == "link"){
+        		else if (mode.equals("link")){
         			nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
         		}
-        		else if (mode == "all"){
+        		else if (mode.equals("all")){
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";

@@ -18,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
@@ -32,6 +33,7 @@ import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import eu.freme.common.exception.BadRequestException;
 import junit.framework.Assert;
 
 /**
@@ -255,7 +257,7 @@ public class ENLPTest {
 		
 	}
 	
-	@Test
+	@Test//(expected = BadRequestException.class)
 	public void basicPlainTextInTurtleOutNoEntitiesLinkTextInput() throws UnirestException, IOException,
 			Exception {
 
@@ -270,8 +272,8 @@ public class ENLPTest {
 				.queryString("mode", "link")
 				.asString();
 		
-		Assert.assertEquals(TestConstants.expectedResponse83, response2.getBody());
-		assertTrue(response2.getStatus() == 200);
+		Assert.assertEquals(TestConstants.expectedResponse888, response2.getBody().replaceAll("timestamp\": [0-9]+", "timestamp\": 1463128970107"));
+		assertTrue(response2.getStatus() == 400);
 		assertTrue(response2.getBody().length() > 0);
 		
 	}
