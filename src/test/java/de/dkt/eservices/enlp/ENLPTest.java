@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.riot.SysRIOT;
@@ -26,6 +27,9 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
+import de.dkt.common.niftools.DKTNIF;
+import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.enlp.TestConstants;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import eu.freme.bservices.testhelper.TestHelper;
@@ -498,49 +502,56 @@ public class ENLPTest {
 //	public void debugTest() throws UnirestException, IOException,
 //			Exception {
 //
-//		LanguageIdentificator.initializeNgramMaps();
-//		System.out.println("Done initializing language models");
+////		Date d1 = new Date();
+////		LanguageIdentificator.initializeNgramMaps();
+////		Date d2 = new Date();
+////		System.out.println("Done initializing language models. Took (seconds):" + (d2.getTime() - d1.getTime())/1000);
 //		
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\in";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		File df = new File(docFolder);
 //		for (File f : df.listFiles()){
 //			//System.out.println("Trying to read file:" + f.getAbsolutePath());
 //			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-//
+//			//Model nifModel = NIFWriter.initializeOutputModel();
+//			//NIFWriter.addInitialString(nifModel, fileContent, DKTNIF.getDefaultPrefix());
+//			//LanguageIdentificator.detectLanguageNIF(nifModel);
 //			//Model nifModel = identifyInputLanguage(fileContent, RDFSerialization.PLAINTEXT);
 //			
 //			
 //			
-////			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-////					.queryString("analysis", "ner")
-////					.queryString("language", "en")
-////					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
-////					.queryString("informat", "text")
-////					.queryString("outformat", "turtle")
-////					//.queryString("input", fileContent)
-////					.body(fileContent)
-////					.asString();
-////			String turtleModel = debugResponse.getBody();
-////			
-////			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
-////					.queryString("analysis", "temp")
-////					.queryString("language", "en")
-////					.queryString("models", "englishDates")
-////					.queryString("informat", "turtle")
-////					.queryString("outformat", "turtle")
-////					//.queryString("input", turtleModel)
-////					.body(turtleModel)
-////					.asString();
-////			
-////			
-////			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
-////			out.println(debugResponse2.getBody());
-////			out.close();
+//			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
+//					//.queryString("analysis", "ner")
+//					.queryString("analysis", "dict")
+//					.queryString("language", "en")
+//					//.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
+//					//.queryString("informat", "text")
+//					.queryString("informat", "turtle")
+//					.queryString("outformat", "turtle")
+//					//.queryString("input", fileContent)
+//					.body(fileContent)
+//					.asString();
+//			String turtleModel = debugResponse.getBody();
+//			
+//			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
+//					.queryString("analysis", "temp")
+//					.queryString("language", "en")
+//					.queryString("models", "englishDates")
+//					.queryString("informat", "turtle")
+//					.queryString("outformat", "turtle")
+//					//.queryString("input", turtleModel)
+//					.body(turtleModel)
+//					.asString();
+//			
+//			
+//			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
+//			out.println(debugResponse2.getBody());
+//			out.close();
 //		}
 //		
 //		
