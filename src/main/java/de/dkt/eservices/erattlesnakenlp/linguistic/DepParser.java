@@ -258,13 +258,13 @@ public class DepParser {
 			for (List<HasWord> sentence : tokenizer) {
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = parser.predict(tagged);
-				try {
-					br2Debug.write("DEBUGGING sentence:" + sentence + "\n");
-					br2Debug.write("DEBUGGING grammaticalStructure:" + gs + "\n\n");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				try {
+//					br2Debug.write("DEBUGGING sentence:" + sentence + "\n");
+//					br2Debug.write("DEBUGGING grammaticalStructure:" + gs + "\n\n");
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject = null;
 				IndexedWord connectingElement = null;
@@ -312,7 +312,23 @@ public class DepParser {
 							objectURI = l[0];
 						}
 					}
+					// Only for producing some triples for Mendelsohn corpus, remove after!
+//					if (subject.word().equalsIgnoreCase("i")){
+//						subjectURI = "http://d-nb.info/gnd/11858071X";
+//					}
+//					if (object.word().equalsIgnoreCase("me")){
+//						objectURI = "http://d-nb.info/gnd/11858071X";
+//					}
+//					if (object.word().equalsIgnoreCase("you")){
+//						objectURI = "http://d-nb.info/gnd/128830751";
+//					}
+//					if (subject.word().equals("you")){
+//						subjectURI = "http://d-nb.info/gnd/128830751";
+//					}
+					
+					System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
 					if (!(subjectURI == null) && !(objectURI == null)){
+						System.out.println("DEBUGGING relation with URI:" + subjectURI + "___" + connectingElement + "___" + objectURI);
 						EntityRelationTriple t = new EntityRelationTriple();
 						t.setSubject(String.format("%s(%s)", subject, subjectURI));
 						t.setRelation(connectingElement.word());
@@ -357,7 +373,8 @@ public class DepParser {
 		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif\\small";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\smallTestSetNIFS";
 		
 		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
@@ -392,7 +409,7 @@ public class DepParser {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				//System.out.println("Trying for file:" + f);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				ArrayList<EntityRelationTriple> ert = getRelationsNIF2(nifModel, br2Debug);
+				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel, br2Debug);
 				
 				// Action plan for mockup: ert is now per NIF. Add to masterList. Then convert this into double nested hashmap (subject > relation > object > count) and output JSON for Julian to eat in his mockup.
 				for (EntityRelationTriple t : ert){
@@ -435,34 +452,14 @@ public class DepParser {
 
 		}
 		
-		// DEBUGGING masterList and convert procedure:
-//		masterList.clear();
-//		EntityRelationTriple td = new EntityRelationTriple();
-//		td.setSubject("aapje");
-//		td.setRelation("boompje");
-//		td.setObject("beestje");
-//		EntityRelationTriple tda = new EntityRelationTriple();
-//		tda.setSubject("aapje");
-//		tda.setRelation("boompje");
-//		tda.setObject("kalfje");
-//		EntityRelationTriple tdb = new EntityRelationTriple();
-//		tdb.setSubject("aapje");
-//		tdb.setRelation("schaapje");
-//		tdb.setObject("veulentje");
-//		EntityRelationTriple tdc = new EntityRelationTriple();
-//		tdc.setSubject("huisje");
-//		tdc.setRelation("schaapje");
-//		tdc.setObject("veulentje");
-//		masterList.add(td);
-//		masterList.add(td);
-//		masterList.add(tda);
-//		masterList.add(tdb);
-//		masterList.add(tdc);
-//		
+
+		
 		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
 		JSONObject jsonMap = new JSONObject(m);
 		try {
-			brDebug.write(jsonMap.toString());
+			//brDebug.write(jsonMap.toString());
+			// pretty print:
+			brDebug.write(jsonMap.toString(4));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

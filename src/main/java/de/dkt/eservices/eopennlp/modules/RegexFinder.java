@@ -352,26 +352,27 @@ public class RegexFinder {
 				int endIndex = sentenceSpan.getStart() + ns.getEnd();
 				String foundDate = content.substring(startIndex, endIndex);
 				// ugly, but important; hard-coded exception to not trigger on just "may", since in isolation it is much more likely to be a modal verb
-				if (!foundDate.equalsIgnoreCase("may")){
-					LinkedList<String> normalizedStartAndEnd = new LinkedList<String>();
-					if (language.equalsIgnoreCase("de")){
-						normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
+				//if (!(foundDate == null)){
+					if (!foundDate.equalsIgnoreCase("may")){
+						LinkedList<String> normalizedStartAndEnd = new LinkedList<String>();
+						if (language.equalsIgnoreCase("de")){
+							normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
+						}
+						else if (language.equalsIgnoreCase("en")){
+							normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
+						}
+						String normalization = joiner.join(normalizedStartAndEnd); 
+						String entType = TIME.temporalEntity.toString();
+						if (normalizedStartAndEnd.size() == 2){
+							dateList.add(normalizedStartAndEnd.get(0));
+							dateList.add(normalizedStartAndEnd.get(1));
+							//String URIdummy = TIME.temporalEntity.toString() + "=" + normalization;
+							//NIFWriter.addAnnotationEntity(nifModel, startIndex, endIndex, foundDate, URIdummy, entType);
+							NIFWriter.addPrefixToModel(nifModel, "time", TIME.uri);
+							NIFWriter.addTemporalEntity(nifModel, startIndex, endIndex, foundDate, normalization);
+						}
 					}
-					else if (language.equalsIgnoreCase("en")){
-						normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
-					}
-					String normalization = joiner.join(normalizedStartAndEnd); 
-					String entType = TIME.temporalEntity.toString();
-					if (normalizedStartAndEnd.size() == 2){
-						dateList.add(normalizedStartAndEnd.get(0));
-						dateList.add(normalizedStartAndEnd.get(1));
-						//String URIdummy = TIME.temporalEntity.toString() + "=" + normalization;
-						//NIFWriter.addAnnotationEntity(nifModel, startIndex, endIndex, foundDate, URIdummy, entType);
-						NIFWriter.addPrefixToModel(nifModel, "time", TIME.uri);
-						NIFWriter.addTemporalEntity(nifModel, startIndex, endIndex, foundDate, normalization);
-					}
-				}
-				
+				//}
 			}
 			 
 		}

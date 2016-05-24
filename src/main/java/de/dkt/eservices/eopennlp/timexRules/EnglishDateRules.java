@@ -1,6 +1,7 @@
 package de.dkt.eservices.eopennlp.timexRules;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -122,7 +123,7 @@ public class EnglishDateRules {
 				if (key == 1){
 					String[] parts = foundDate.split("\\s");
 					int dayNumber = Integer.parseInt(parts[0]);
-					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase());
+					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
 					int yearNumber = DateCommons.getYearFromAnchorDate();
 					if (parts.length > 2){
 						yearNumber = Integer.parseInt(parts[2]);
@@ -143,7 +144,7 @@ public class EnglishDateRules {
 				//englishDateRegexMap.put(2, String.format("\\b%s( %s(st|nd|rd|th)?)?,?( %s)?\\b", monthName, dayNumber, yearNumber)); // TODO: debug for/also allow superscript for th?
 				if (key == 2){
 					String[] parts = foundDate.split("\\s");
-					int monthNumber = englishMonthName2Number.get(parts[0].toLowerCase());
+					int monthNumber = englishMonthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
 					int dayNumber = 1;
 					int yearNumber = DateCommons.getYearFromAnchorDate(); // TODO: guess I should use tense here as well. If someone says "in February", guess it depends on the tense of the sentence if last or next feb is meant
 					int increaseCalendarUnit = Calendar.DATE;
@@ -222,7 +223,7 @@ public class EnglishDateRules {
 				if (key == 6){
 					String[] parts = foundDate.split("(-| )");
 					int yearNumber = DateCommons.getYearFromAnchorDate();
-					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase().trim());
+					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase().trim().replaceAll("\\p{P}", ""));
 					int dayNumber = 10;
 					cal.set(yearNumber, monthNumber-1, dayNumber,0,0,0);
 					normalizedStartDate = cal.getTime();
@@ -315,7 +316,7 @@ public class EnglishDateRules {
 				if (key == 9){
 					String[] parts = foundDate.split("\\s");
 					int yearNumber = DateCommons.getYearFromAnchorDate();
-					int monthNumber = englishMonthName2Number.get(parts[parts.length-1].toLowerCase());
+					int monthNumber = englishMonthName2Number.get(parts[parts.length-1].toLowerCase().replaceAll("\\p{P}", ""));
 					int dayNumber = 1;
 					if (parts[0].matches("(?i)(start|beginning)")){ // redundant...
 						dayNumber = 1;
@@ -389,7 +390,7 @@ public class EnglishDateRules {
 				if (key == 13){
 					String[] parts = foundDate.split("\\s");
 					int yearNumber = DateCommons.getYearFromAnchorDate();
-					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase());
+					int monthNumber = englishMonthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
 					int dayNumber = 1;
 					if (parts[0].toLowerCase().matches("early")){
 						dayNumber = 1;
