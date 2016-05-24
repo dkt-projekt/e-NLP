@@ -32,8 +32,8 @@ public class Sparqler {
 
 	static Logger logger = Logger.getLogger(Sparqler.class);
 	//public static List<String> georssPoints = new ArrayList<String>();
-	public static List<Double> longitudes = new ArrayList<Double>();
-	public static List<Double> latitudes = new ArrayList<Double>();
+	private List<Double> longitudes = new ArrayList<Double>();
+	private List<Double> latitudes = new ArrayList<Double>();
 	
 	public static String getDBPediaURI(String label, String language, String service, String defaultGraph){
 		
@@ -136,7 +136,7 @@ public class Sparqler {
 	
 	*/
 	
-	public static void queryDBPedia(Model nifModel, String docURI, int nifStartIndex, int nifEndIndex, String infoURL, Property nifProp, String sparqlService){
+	public void queryDBPedia(Model nifModel, String docURI, int nifStartIndex, int nifEndIndex, String infoURL, Property nifProp, String sparqlService){
 
 		ParameterizedSparqlString sQuery = new ParameterizedSparqlString( "" +
 				"select ?uri ?info where {\n" +
@@ -207,17 +207,21 @@ public class Sparqler {
 	}
 
 
-	public static void addGeoStats(Model nifModel, String textToProcess, String string) {
+	public void addGeoStats(Model nifModel, String textToProcess, String string) {
 
 		Double avgLatitude = calculateAverage(latitudes);
 		Double stdDevLatitude = calculateStandardDeviation(latitudes, avgLatitude);
 		Double avgLongitude = calculateAverage(longitudes);
 		Double stdDevLongitude = calculateStandardDeviation(longitudes, avgLongitude);
-		Sparqler.latitudes.clear();
-		Sparqler.longitudes.clear();
+		latitudes.clear();
+		longitudes.clear();
 		String docURI = NIFReader.extractDocumentURI(nifModel);
 		NIFWriter.addGeoStats(nifModel, textToProcess, avgLatitude,  avgLongitude,  stdDevLatitude,  stdDevLongitude, docURI);
 
+	}
+
+	public boolean hasCoordinates() {
+		return latitudes.size() > 0 || longitudes.size() > 0;
 	}
 
 	private static Double calculateAverage(List <Double> l) {
