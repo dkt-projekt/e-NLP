@@ -1,13 +1,18 @@
 package de.dkt.eservices.eopennlp.timexRules;
 
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 
 import opennlp.tools.namefind.RegexNameFinder;
 
@@ -37,39 +42,72 @@ public class GermanDateRules {
 		put("dezember", 12);
 	}};
 
+	static HashMap<String, Integer> romanMonth2Number = new HashMap<String, Integer>(){{
+		put("I", 1);
+		put("II", 2);
+		put("III", 3);
+		put("IV", 4);
+		put("V", 5);
+		put("VI", 6);
+		put("VII", 7);
+		put("VIII", 8);
+		put("IX", 9);
+		put("X", 10);
+		put("XI", 11);
+		put("XII", 12);
+	}};
+
+	static HashMap<String, Integer> germanDayName2Integer = new HashMap<String, Integer>(){{
+		put("montag", 1);
+		put("dienstag", 2);
+		put("mittwoch", 3);
+		put("donnerstag", 4);
+		put("freitag", 5);
+		put("samstag", 6);
+		put("sonnabend", 6);
+		put("sonntag", 7);
+	}};
+	
+	
+	
 
 	
 	public static RegexNameFinder initGermanDateFinder(){
 
 		final String monthName = "(?i)(januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember)";
 		final String monthNumber = "(0?[0-9]|1[0-2])";
+		final String monthRomanNumber = "[IVX]+";
 		
 		final String dayName = "(?i)(montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonnabend|sonntag)";
 		final String dayNumber = "(0?[1-9]|1[0-9]|2[0-9]|3[0-1])";
 		
 		final String yearNumber = "([1-2]\\d{3})"; //FIXME: note that this doesn't work for (pre-)medieval year indications (containing only 3 (or less) digits. 
+		final String nineteenHundred_twoDigitYearNumber = "[0-9][0-9]";
 		
 		final String beforeChrist = "(?i)\\d{1,4} v\\. Chr\\.";
 		
-		final String dayPartName = "(?i)((morgen|gestern)?morgen|mittag|abend|nacht)";
+		final String dayPartName = "(?i)(morgen|gestern)?(morgens?|(vor|nach)?mittags?|abends?|nachts?)";
 		
 		final String day = "(?i)tage?";
 		final String week = "(?i)wochen?";
 		final String month = "(?i)monate?";
 		final String year = "(?i)jahre?";
 		
-		final String season = "(?i)(frühjahr|sommer|herbst|winter)";
+		final String season = "(?i)(frühjahr|frühling|sommer|herbst|winter)";
 		
 		final String alphaNumber = "(?i)(ein(s|en)?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|dreizehn|vierzehn|fünfzehn|sechzehn|siebzehn|achtzehn|neunzehn|zwanzig|einundzwanzig|zweiundzwanzig|dreiundzwanzig|vierundzwanzig|fünfundzwanzig|sechsundzwanzig|siebenundzwanzig|achtundzwanzig|neunundzwanzig|dreiβig|einunddreiβig|zweiundreißig|dreiunddreißig|vierunddreißig|fünfunddreißig|sechsunddreißig|siebenunddreißig|achtunddreißig|neununddreißig|vierzig|einundvierzig|zweiundvierzig|dreiundvierzig|vierundvierzig|fünfundvierzig|sechsundvierzig|siebenundvierzig|achtundvierzig|neunundvierzig|fünfzig|einundfünfzig|zweiundfünfzig|dreiundfünfzig|vierundfünfzig|fünfundfünfzig|sechsundfünfzig|siebenundfünfzig|achtundfünfzig|neunundfünfzig|sechzig|einundsechzig|zweiundsechzig|dreiundsechzig|vierundsechzig|fünfundsechzig|sechsundsechzig|siebenundsechzig|achtundsechzig|neunundsechzig|siebzig|einundsiebzig|zweiundsiebzig|dreiundsiebzig|vierundsiebzig|fünfundsiebzig|sechsundsiebzig|siebenundsiebzig|achtundsiebzig|neunundsiebzig|achtzig|einundachtzig|zweiundachtzig|dreiundachtzig|vierundachtzig|fünfundachtzig|sechsundachtzig|siebenundachtzig|achtundachtzig|neunundachtzig|neunzig|einundneunzig|zweiundneunzig|dreiundneunzig|vierundneunzig|fünfundneunzig|sechsundneunzig|siebenundneunzig|achtundneunzig|neunundneunzig|(ein)?hundert)";
 		
 		final String anfangMitteEnde = "(?i)(anfang|mitte|ende)";
 		final String gegenwärtig = "(?i)(gegenwärtig)";
 		final String jetzt = "(?i)jetzt";
-		final String heute = "(?i)heute";
+		final String heute = "(?i)heute?";
 		//final String bald = "(?i)bald";
 		
-		final String holidays = "(?i)(weihnachten|Ostern|Himmelfahrt|pfingsten)"; //TODO I probably forgot some
+		final String holidays = "(?i)(weihnacht(en)?|Ostern|Himmelfahrt|pfingsten)"; //TODO I probably forgot some
 		final String zeitpunkt = "(?i)zeitpunkt";
+		
+		final String gestern = "(?i)(vor)?gestern";
+		final String morgen = "(?i)(über)?morgen";
 		
 		//TODO: think about most efficient way to do word boundaries 
 		
@@ -99,6 +137,12 @@ public class GermanDateRules {
 		germanDateRegexMap.put(21, String.format("\\b%s %s\\b", anfangMitteEnde, yearNumber));
 		germanDateRegexMap.put(22, String.format("(?i)\\bnach %s (%s|%s|%s|%s)\\b", alphaNumber, day, week, month, year));
 		germanDateRegexMap.put(23, String.format("(?i)\\b(am|im) selben (tag|monat)\\b"));
+		germanDateRegexMap.put(24, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", dayNumber, monthRomanNumber, nineteenHundred_twoDigitYearNumber));
+		germanDateRegexMap.put(25, String.format("\\b%s([- ]?%s)?\\b", dayName, dayPartName));
+		germanDateRegexMap.put(26, String.format("\\b%s\\b", heute));
+		germanDateRegexMap.put(27, String.format("\\b%s\\b", jetzt));
+		germanDateRegexMap.put(28, String.format("\\b%s\\b", gestern));
+		germanDateRegexMap.put(29, String.format("\\b%s\\b", morgen));
 
 	
 		
@@ -125,7 +169,13 @@ public class GermanDateRules {
 			Pattern.compile(germanDateRegexMap.get(20)),
 			Pattern.compile(germanDateRegexMap.get(21)),
 			Pattern.compile(germanDateRegexMap.get(22)),
-			Pattern.compile(germanDateRegexMap.get(23))
+			Pattern.compile(germanDateRegexMap.get(23)),
+			Pattern.compile(germanDateRegexMap.get(24)),
+			Pattern.compile(germanDateRegexMap.get(25)),
+			Pattern.compile(germanDateRegexMap.get(26)),
+			Pattern.compile(germanDateRegexMap.get(27)),
+			Pattern.compile(germanDateRegexMap.get(28)),
+			Pattern.compile(germanDateRegexMap.get(29))
 		};
 	
 		RegexNameFinder rnf = new RegexNameFinder(regexes, null);
@@ -269,9 +319,43 @@ public class GermanDateRules {
 				
 				
 				//dateRegexMap.put(8, String.format("\\b%s\\b", dayPartName));
-				//final String dayPartName = "(?i)((morgen|gestern)?morgen|mittag|abend|nacht)";
+				//final String dayPartName = "(?i)(morgen|gestern)?(morgens?|(vor|nach)?mittags?|abends?|nachts?)";
 				if (key == 8){
-					//TODO: anchoring
+					
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					int hour = 0;
+					//cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					if(foundDate.contains("morgen")){
+						hour = 6;
+					}
+					else if (foundDate.contains("mittag")){
+						hour = 12; 
+					}
+					else if (foundDate.contains("abend")){
+						hour = 18;
+					}
+					else if (foundDate.contains("nacht")){
+						hour = 0;
+						dayNumber += 1;
+					}
+					if (foundDate.toLowerCase().startsWith("morgen")){
+						dayNumber += 1;
+					}
+					else if (foundDate.toLowerCase().startsWith("gestern")){
+						dayNumber -= 1;
+					}
+					else{
+						// do nothing
+					}
+					cal.set(yearNumber,  monthNumber, dayNumber, hour, 0, 0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.HOUR, 6, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					
 				}
 				
 				//dateRegexMap.put(9, String.format("\\b%s %s( %s)?\\b", anfangMitteEnde, monthName, yearNumber));
@@ -343,7 +427,7 @@ public class GermanDateRules {
 					int startMonth = 1;
 					int endDay = 1;
 					int endMonth = 1;
-					if (season.equalsIgnoreCase("frühjahr")){
+					if (season.equalsIgnoreCase("frühjahr") || season.equalsIgnoreCase("frühling")){
 						startMonth = 3;
 						endDay = 31;
 						endMonth = 5;
@@ -529,7 +613,7 @@ public class GermanDateRules {
 						yearNumber = DateCommons.getYearFromAnchorDate();
 					}
 					//final String holidays = "(?i)(weihnachten|Ostern|Himmelfahrt|pfingsten)";					
-					if (parts[0].matches("(?i)weihnachten")){
+					if (parts[0].toLowerCase().contains("weihnacht")){
 						monthNumber = 12;
 						dayNumber = 25;
 						cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
@@ -640,6 +724,123 @@ public class GermanDateRules {
 					DateCommons.updateAnchorDate(normalizedStartDate);
 				}
 				
+				//germanDateRegexMap.put(24, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", dayNumber, monthRomanNumber, nineteenHundred_twoDigitYearNumber));
+				if (key == 24){
+					String[] parts = foundDate.split("[-/\\.]");
+					int dayNumber = Integer.parseInt(parts[0]);
+					int monthNumber = romanMonth2Number.get((parts[1]));
+					int yearNumber = Integer.parseInt("19" + parts[2]);
+					cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+				}
+				
+				//germanDateRegexMap.put(25, String.format("\\b%s([- ]?%s)?\\b", dayName, dayPartName));
+				if (key == 25){
+					//String[] parts = foundDate.split("\\s");
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+					foundDate = foundDate.replaceAll("(?i)((morgen|gestern)?morgen|(vor|nach)?mittag|abend|nacht)", "");
+					//TODO: also take into account the mittag/abend stuff for normalization!
+					//System.out.println("DEBUGGING HERE:" + foundDate.trim().toLowerCase());
+					//System.out.println("DEBUGGING HERE:" + germanDayName2Integer.get(foundDate.trim().toLowerCase()));
+					if (germanDayName2Integer.containsKey(foundDate.trim().toLowerCase())){
+						int x = germanDayName2Integer.get(foundDate.trim().toLowerCase());
+						int daysOfIncrease = 0;
+						if (x > dayOfWeek){
+							// it is in the rest of the week
+							daysOfIncrease = x - dayOfWeek;
+						}
+						else if (x == dayOfWeek){
+							// do nothing, it is the current day
+							daysOfIncrease = 0;
+						}
+						else{ // else x < currentDayOfWeek and the day is in the next week
+							daysOfIncrease = 7 - dayOfWeek + x;
+						}
+
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, daysOfIncrease, cal.getTime());
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+
+						dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+						dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+						DateCommons.updateAnchorDate(normalizedStartDate);
+					}
+					
+				}
+				
+				//germanDateRegexMap.put(26, String.format("\\b%s\\b", heute));
+				if (key == 26){
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					
+				}
+				
+				//germanDateRegexMap.put(27, String.format("\\b%s\\b", jetzt));
+				if (key == 27){
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					
+				}
+				
+				
+				//final String gestern = "(?i)(vor)?gestern";
+				if (key == 28){
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					if (foundDate.toLowerCase().startsWith("vor")){
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, -2, cal.getTime());
+					}
+					else{
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, -1, cal.getTime());	
+					}
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					
+				}
+				
+				//final String morgen = "(?i)(über)?morgen";
+				if (key == 29){
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					if (foundDate.toLowerCase().startsWith("über")){
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, 2, cal.getTime());
+					}
+					else{
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, 1, cal.getTime());
+					}
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					
+				}
 				
 			}
 			
@@ -757,10 +958,10 @@ public class GermanDateRules {
 		
 		int r = 0;
 		// think eins? and (ein)?hundert are the only ones with variation, so:
-		if (alphaNumber.matches("ein(s|en)?")){
+		if (alphaNumber.toLowerCase().matches("ein(s|en)?")){
 			r = 1;
 		}
-		else if (alphaNumber.matches("(ein)?hundert")){
+		else if (alphaNumber.toLowerCase().matches("(ein)?hundert")){
 			r = 100;
 		}
 		else{

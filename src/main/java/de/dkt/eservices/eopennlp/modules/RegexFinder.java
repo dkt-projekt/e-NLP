@@ -447,7 +447,7 @@ public class RegexFinder {
 		RegexNameFinder dateFinderEN = EnglishDateRules.initEnglishDateFinder();
 		
 		//evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\wikiwarsEN - Copy.txt", "en");
-		evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\timeMLAquaint_opennlpformat - Copy.txt", "en");
+		//evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\timeMLAquaint_opennlpformat - Copy.txt", "en");
 		//evaluateAnnotatedFile(dateFinderDE, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\wikiwarsTimexes.txt", "de");
 		
 		
@@ -455,15 +455,15 @@ public class RegexFinder {
 		//File f = FileFactory.generateFileInstance("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\timeMLAquaint_opennlpformat.txt");
 		//String textToProcess = FileReadUtilities.readFile2String(f.getPath());
 		//DateCommons.setInitialAnchorDate();
-		String textToProcess = "22-01-1936 and 01-10-1936";
+		String textToProcess = "Allenstein 25-05-2016 weihnacht";
 		//List<Span> nameSpans = filterFind(dateFinderEN, textToProcess);
-		List<Span> nameSpans = filterFind(dateFinderEN, textToProcess);
+		List<Span> nameSpans = filterFind(dateFinderDE, textToProcess);
 		for (Span ns : nameSpans){
 			int startIndex = ns.getStart();
 			int endIndex = ns.getEnd();
 			String foundDate = textToProcess.substring(startIndex, endIndex);
 			//LinkedList<String> normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
-			LinkedList<String> normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
+			LinkedList<String> normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
 			
 			System.out.println("DEBUGGING date found: " + foundDate);
 			System.out.println("DEBUGGING norm found: " + normalizedStartAndEnd);
@@ -471,8 +471,8 @@ public class RegexFinder {
 				dateList.add(normalizedStartAndEnd.get(0) + "_" + normalizedStartAndEnd.get(1));
 			}
 		}
-		Date avg = getAverageDate();
-		System.out.println(avg);
+		//Date avg = getAverageDate();
+		//System.out.println(avg);
 		
 		
 		//RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
