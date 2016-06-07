@@ -929,6 +929,23 @@ public class TestConstants {
 					"  \"timestamp\": 1463128970107\n" +
 					"}";
 	
+	static String expectedResponse154553 =
+			
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,7>\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"7\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Welcome\"^^xsd:string .\n" +
+					"";
+	
+	
 	static String expectedResponse84 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
