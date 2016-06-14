@@ -442,8 +442,6 @@ public class TestConstants {
 					
 	static String expectedResponse22 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-					"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -456,22 +454,13 @@ public class TestConstants {
 					"        nif:beginIndex        \"11\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"17\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,26> ;\n" +
-					"        geo:lat               \"52.516666666666666\"^^xsd:double ;\n" +
-					"        geo:long              \"13.383333333333333\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Berlin> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,26>\n" +
-					"        a                        nif:Context , nif:String , nif:RFC5147String ;\n" +
-					"        dktnif:averageLatitude   \"52.516666666666666\"^^xsd:double ;\n" +
-					"        dktnif:averageLongitude  \"13.383333333333333\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLatitude\n" +
-					"                \"0.0\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLongitude\n" +
-					"                \"0.0\"^^xsd:double ;\n" +
-					"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex             \"26\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:isString             \"Welcome to Berlin in 2016.\"^^xsd:string .\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"26\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Welcome to Berlin in 2016.\"^^xsd:string .\n" +
 					"";
 	
 	static String turtleInput3 = 
@@ -503,12 +492,10 @@ public class TestConstants {
 	
 	static String expectedResponse3 =
 			
-			"<rdf:RDFxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"xmlns:time=\"http://www.w3.org/2006/time#\"xmlns:dbo=\"http://dbpedia.org/ontology/\"xmlns:geo=\"http://www.w3.org/2003/01/geo/wgs84_pos/\"xmlns:itsrdf=\"http://www.w3.org/2005/11/its/rdf#\"xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"xmlns:dktnif=\"http://dkt.dfki.de/ontologies/nif#\"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"xmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=0,26\"><dktnif:averageLongituderdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">13.383333333333333</dktnif:averageLongitude><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#Context\"/><dktnif:standardDeviationLongituderdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">0.0</dktnif:standardDeviationLongitude><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">26</nif:endIndex><nif:isStringrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">WelcometoBerlinin2016.</nif:isString><dktnif:meanDateStartrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T01:00:00</dktnif:meanDateStart><dktnif:standardDeviationLatituderdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">0.0</dktnif:standardDeviationLatitude><dktnif:meanDateEndrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T01:00:00</dktnif:meanDateEnd><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/><dktnif:averageLatituderdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">52.516666666666666</dktnif:averageLatitude><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">0</nif:beginIndex></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=21,25\"><time:intervalStartsrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T00:00:00</time:intervalStarts><time:intervalFinishesrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T00:00:00</time:intervalFinishes><itsrdf:taClassRefrdf:resource=\"http://www.w3.org/2006/time#TemporalEntity\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">25</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">21</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">2016</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=11,17\"><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/><geo:latrdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">52.516666666666666</geo:lat><nif:referenceContextrdf:resource=\"http://dkt.dfki.de/documents/#char=0,26\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><itsrdf:taIdentRefrdf:resource=\"http://dbpedia.org/resource/Berlin\"/><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Berlin</nif:anchorOf><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">17</nif:endIndex><itsrdf:taClassRefrdf:resource=\"http://dbpedia.org/ontology/Location\"/><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">11</nif:beginIndex><geo:longrdf:datatype=\"http://www.w3.org/2001/XMLSchema#double\">13.383333333333333</geo:long></rdf:Description></rdf:RDF>";
+			"<rdf:RDFxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"xmlns:time=\"http://www.w3.org/2006/time#\"xmlns:itsrdf=\"http://www.w3.org/2005/11/its/rdf#\"xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"xmlns:dktnif=\"http://dkt.dfki.de/ontologies/nif#\"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"xmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=0,26\"><nif:isStringrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">WelcometoBerlinin2016.</nif:isString><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">26</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">0</nif:beginIndex><dktnif:meanDateStartrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T01:00:00</dktnif:meanDateStart><dktnif:meanDateEndrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T01:00:00</dktnif:meanDateEnd><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#Context\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=21,25\"><time:intervalStartsrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T00:00:00</time:intervalStarts><time:intervalFinishesrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T00:00:00</time:intervalFinishes><itsrdf:taClassRefrdf:resource=\"http://www.w3.org/2006/time#TemporalEntity\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">25</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">21</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">2016</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=11,17\"><itsrdf:taClassRefrdf:resource=\"http://dbpedia.org/ontology/Location\"/><nif:referenceContextrdf:resource=\"http://dkt.dfki.de/documents/#char=0,26\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">17</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">11</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Berlin</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/></rdf:Description></rdf:RDF>";
 	
 	static String expectedResponse234 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-					"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -522,10 +509,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"543\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"547\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"43.33781388888889\"^^xsd:double ;\n" +
-					"        geo:long              \"-1.788811111111111\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Irun> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=156,163>\n" +
 					"        a                      nif:RFC5147String , nif:String ;\n" +
@@ -542,8 +526,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"146\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"151\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/property/south> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=201,213>\n" +
 					"        a                     nif:String , nif:RFC5147String ;\n" +
@@ -551,8 +534,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"201\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"213\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nationalists> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=58,65>\n" +
 					"        a                      nif:RFC5147String , nif:String ;\n" +
@@ -587,8 +569,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"650\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"662\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nationalists> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=494,505>\n" +
 					"        a                      nif:RFC5147String , nif:String ;\n" +
@@ -605,8 +586,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"372\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"393\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Campaign_of_Guipuzcoa> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=407,416>\n" +
 					"        a                      nif:RFC5147String , nif:String ;\n" +
@@ -623,44 +603,31 @@ public class TestConstants {
 					"        nif:beginIndex        \"254\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"260\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Ferrol> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=277,282>\n" +
-					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        a                     nif:String , nif:RFC5147String ;\n" +
 					"        nif:anchorOf          \"Spain\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"277\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"282\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"40.43333333333333\"^^xsd:double ;\n" +
-					"        geo:long              \"-3.7\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Spain> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=345,356>\n" +
-					"        a                     nif:RFC5147String , nif:String ;\n" +
-					"        dbo:birthDate         \"1887-06-09\"^^xsd:date ;\n" +
-					"        dbo:deathDate         \"1937-06-03\"^^xsd:date ;\n" +
+					"        a                     nif:String , nif:RFC5147String ;\n" +
 					"        nif:anchorOf          \"Emilio Mola\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"345\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"356\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Person ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Emilio_Mola> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,805>\n" +
-					"        a                        nif:String , nif:Context , nif:RFC5147String ;\n" +
-					"        dktnif:averageLatitude   \"41.852856249999995\"^^xsd:double ;\n" +
-					"        dktnif:averageLongitude  \"-3.0322722222222223\"^^xsd:double ;\n" +
-					"        dktnif:meanDateEnd       \"1936-10-26T01:30:00\"^^xsd:dateTime ;\n" +
-					"        dktnif:meanDateStart     \"1936-06-04T01:30:00\"^^xsd:dateTime ;\n" +
-					"        dktnif:standardDeviationLatitude\n" +
-					"                \"1.4449139905737536\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLongitude\n" +
-					"                \"0.7861709280932566\"^^xsd:double ;\n" +
-					"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex             \"805\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:isString             \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +
+					"        a                     nif:Context , nif:String , nif:RFC5147String ;\n" +
+					"        dktnif:meanDateEnd    \"1936-10-26T01:30:00\"^^xsd:dateTime ;\n" +
+					"        dktnif:meanDateStart  \"1936-06-04T01:30:00\"^^xsd:dateTime ;\n" +
+					"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"805\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString          \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=18,26>\n" +
 					"        a                     nif:String , nif:RFC5147String ;\n" +
@@ -668,19 +635,15 @@ public class TestConstants {
 					"        nif:beginIndex        \"18\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"26\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Person ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Sanjurjo> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=636,642>\n" +
-					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        a                     nif:String , nif:RFC5147String ;\n" +
 					"        nif:anchorOf          \"Madrid\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"636\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"642\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"40.38333333333333\"^^xsd:double ;\n" +
-					"        geo:long              \"-3.716666666666667\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Madrid> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=704,710>\n" +
 					"        a                     nif:String , nif:RFC5147String ;\n" +
@@ -688,10 +651,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"704\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"710\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"43.25694444444444\"^^xsd:double ;\n" +
-					"        geo:long              \"-2.923611111111111\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Bilbao> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=788,804>\n" +
 					"        a                      nif:RFC5147String , nif:String ;\n" +
@@ -737,8 +697,6 @@ public class TestConstants {
 	
 	static String expectedResponse37 =
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-					"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -746,27 +704,18 @@ public class TestConstants {
 					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=13,19>\n" +
-					"        a                     nif:String , nif:RFC5147String ;\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
 					"        nif:anchorOf          \"Berlin\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"13\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"19\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,20> ;\n" +
-					"        geo:lat               \"52.51861111111111\"^^xsd:double ;\n" +
-					"        geo:long              \"13.408333333333333\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Berlin> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,20>\n" +
-					"        a                        nif:String , nif:RFC5147String , nif:Context ;\n" +
-					"        dktnif:averageLatitude   \"52.51861111111111\"^^xsd:double ;\n" +
-					"        dktnif:averageLongitude  \"13.408333333333333\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLatitude\n" +
-					"                \"0.0\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLongitude\n" +
-					"                \"0.0\"^^xsd:double ;\n" +
-					"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex             \"20\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:isString             \"Wilkommen in Berlin.\"^^xsd:string .\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"20\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Wilkommen in Berlin.\"^^xsd:string .\n" +
 					"";
 	
 	static String bodyInput5 = "1936\n\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.";
@@ -774,8 +723,6 @@ public class TestConstants {
 	static String expectedResponse5 = 
 			
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-					"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -788,8 +735,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"650\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"662\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nationalists> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=18,26>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -797,8 +743,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"18\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"26\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Person ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Sanjurjo> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=277,282>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -806,10 +751,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"277\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"282\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"40.43333333333333\"^^xsd:double ;\n" +
-					"        geo:long              \"-3.7\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Spain> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=254,260>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -817,19 +759,15 @@ public class TestConstants {
 					"        nif:beginIndex        \"254\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"260\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Ferrol> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=704,710>\n" +
-					"        a                     nif:String , nif:RFC5147String ;\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
 					"        nif:anchorOf          \"Bilbao\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"704\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"710\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"43.25694444444444\"^^xsd:double ;\n" +
-					"        geo:long              \"-2.923611111111111\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Bilbao> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=201,213>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -837,31 +775,21 @@ public class TestConstants {
 					"        nif:beginIndex        \"201\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"213\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nationalists> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,805>\n" +
-					"        a                        nif:String , nif:Context , nif:RFC5147String ;\n" +
-					"        dktnif:averageLatitude   \"41.852856249999995\"^^xsd:double ;\n" +
-					"        dktnif:averageLongitude  \"-3.0322722222222223\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLatitude\n" +
-					"                \"1.4449139905737536\"^^xsd:double ;\n" +
-					"        dktnif:standardDeviationLongitude\n" +
-					"                \"0.7861709280932566\"^^xsd:double ;\n" +
-					"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex             \"805\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:isString             \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"805\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"1936\\n\\nCoup leader Sanjurjo was killed in a plane crash on 20 July, leaving an effective command split between Mola in the North and Franco in the South. On 21 July, the fifth day of the rebellion, the Nationalists captured the main Spanish naval base at Ferrol in northwestern Spain. A rebel force under Colonel Beorlegui Canet, sent by General Emilio Mola, undertook the Campaign of Guipuzcoa from July to September. The capture of Guipuzcoa isolated the Republican provinces in the north. On 5 September, after heavy fighting the force took Irun, closing the French border to the Republicans. On 13 September, the Basques surrendered Madrid to the Nationalists, who then advanced toward their capital, Bilbao. The Republican militias on the border of Viscaya halted these forces at the end of September.\"^^xsd:string .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=543,547>\n" +
-					"        a                     nif:String , nif:RFC5147String ;\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
 					"        nif:anchorOf          \"Irun\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"543\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"547\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"43.33781388888889\"^^xsd:double ;\n" +
-					"        geo:long              \"-1.788811111111111\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Irun> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=372,393>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -869,8 +797,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"372\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"393\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Organisation ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Campaign_of_Guipuzcoa> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Organisation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=146,151>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -878,8 +805,7 @@ public class TestConstants {
 					"        nif:beginIndex        \"146\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"151\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/property/south> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=636,642>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
@@ -887,21 +813,15 @@ public class TestConstants {
 					"        nif:beginIndex        \"636\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"642\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        geo:lat               \"40.38333333333333\"^^xsd:double ;\n" +
-					"        geo:long              \"-3.716666666666667\"^^xsd:double ;\n" +
-					"        itsrdf:taClassRef     dbo:Location ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Madrid> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=345,356>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
-					"        dbo:birthDate         \"1887-06-09\"^^xsd:date ;\n" +
-					"        dbo:deathDate         \"1937-06-03\"^^xsd:date ;\n" +
 					"        nif:anchorOf          \"Emilio Mola\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"345\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"356\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
-					"        itsrdf:taClassRef     dbo:Person ;\n" +
-					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Emilio_Mola> .\n" +
+					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" +
 					"";
 	
 	static String expectedResponse83 = 
