@@ -258,13 +258,13 @@ public class DepParser {
 			for (List<HasWord> sentence : tokenizer) {
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = parser.predict(tagged);
-//				try {
-//					br2Debug.write("DEBUGGING sentence:" + sentence + "\n");
-//					br2Debug.write("DEBUGGING grammaticalStructure:" + gs + "\n\n");
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+				try {
+					br2Debug.write("DEBUGGING sentence:" + sentence + "\n");
+					br2Debug.write("DEBUGGING grammaticalStructure:" + gs + "\n\n");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject = null;
 				IndexedWord connectingElement = null;
@@ -373,7 +373,8 @@ public class DepParser {
 		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\clintonCorpus\\nifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\smallTestSetNIFS";
 		

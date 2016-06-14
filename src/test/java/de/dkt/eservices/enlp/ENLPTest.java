@@ -523,13 +523,15 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clintonCorpus";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\clintonCorpus\\nifs";
 //		File df = new File(docFolder);
-//		PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
+//		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
 //		for (File f : df.listFiles()){
 //			//System.out.println("Trying to read file:" + f.getAbsolutePath());
@@ -542,19 +544,19 @@ public class ENLPTest {
 //			
 //			
 //			
-////			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-////					//.queryString("analysis", "ner")
-////					.queryString("analysis", "ner")
-////					.queryString("language", "en")
-////					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
-////					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
-////					.queryString("informat", "text")
-////					//.queryString("informat", "turtle")
-////					.queryString("outformat", "turtle")
-////					//.queryString("input", fileContent)
-////					.body(fileContent)
-////					.asString();
-////			String turtleModel = debugResponse.getBody();
+//			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
+//					//.queryString("analysis", "ner")
+//					.queryString("analysis", "ner")
+//					.queryString("language", "en")
+//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
+//					.queryString("informat", "text")
+//					//.queryString("informat", "turtle")
+//					.queryString("outformat", "turtle")
+//					//.queryString("input", fileContent)
+//					.body(fileContent)
+//					.asString();
+//			String turtleModel = debugResponse.getBody();
 ////			
 //			for (int i =0; i < 10; i++){
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
@@ -564,12 +566,14 @@ public class ENLPTest {
 //					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", turtleModel)
-//					.body(fileContent)
+//					.body(turtleModel)
 //					.asString();
-//			String turtleModel = debugResponse2.getBody();
+//			//String turtleModel = debugResponse2.getBody();
+//			turtleModel = debugResponse2.getBody();
 //			}
 //			Date d2 = new Date();
-//			out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
+//			//out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
+//			System.out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
 //			
 //			
 //			
@@ -584,11 +588,11 @@ public class ENLPTest {
 ////					.asString();
 ////			turtleModel = debugResponse3.getBody();
 ////			
-////			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
-////			out.println(turtleModel);
-////			out.close();
+//			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
+//			out.println(turtleModel);
+//			out.close();
 //		}
-//		out.close();
+//		//out.close();
 //		
 //		
 //	}	 

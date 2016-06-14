@@ -455,22 +455,22 @@ public class RegexFinder {
 		//File f = FileFactory.generateFileInstance("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\timeMLAquaint_opennlpformat.txt");
 		//String textToProcess = FileReadUtilities.readFile2String(f.getPath());
 		//DateCommons.setInitialAnchorDate();
-		String textToProcess = "Allenstein 25-05-2016 weihnacht";
-		//List<Span> nameSpans = filterFind(dateFinderEN, textToProcess);
-		List<Span> nameSpans = filterFind(dateFinderDE, textToProcess);
-		for (Span ns : nameSpans){
-			int startIndex = ns.getStart();
-			int endIndex = ns.getEnd();
-			String foundDate = textToProcess.substring(startIndex, endIndex);
-			//LinkedList<String> normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
-			LinkedList<String> normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
-			
-			System.out.println("DEBUGGING date found: " + foundDate);
-			System.out.println("DEBUGGING norm found: " + normalizedStartAndEnd);
-			if (normalizedStartAndEnd.size() > 1){
-				dateList.add(normalizedStartAndEnd.get(0) + "_" + normalizedStartAndEnd.get(1));
-			}
-		}
+//		String textToProcess = "Allenstein 25-05-2016 weihnacht";
+//		//List<Span> nameSpans = filterFind(dateFinderEN, textToProcess);
+//		List<Span> nameSpans = filterFind(dateFinderDE, textToProcess);
+//		for (Span ns : nameSpans){
+//			int startIndex = ns.getStart();
+//			int endIndex = ns.getEnd();
+//			String foundDate = textToProcess.substring(startIndex, endIndex);
+//			//LinkedList<String> normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
+//			LinkedList<String> normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
+//			
+//			System.out.println("DEBUGGING date found: " + foundDate);
+//			System.out.println("DEBUGGING norm found: " + normalizedStartAndEnd);
+//			if (normalizedStartAndEnd.size() > 1){
+//				dateList.add(normalizedStartAndEnd.get(0) + "_" + normalizedStartAndEnd.get(1));
+//			}
+//		}
 		//Date avg = getAverageDate();
 		//System.out.println(avg);
 		
@@ -503,6 +503,10 @@ public class RegexFinder {
 		}
 		*/
 		
+		Date d1  = new Date(-1875,1,1);
+		Date d2  = new Date(116,6,13);
+		
+		System.out.println(d2.getTime()-d1.getTime());
 		
 	}
 
