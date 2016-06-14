@@ -12,7 +12,7 @@ public class TaggerRelationCleaning {
 
 	public static void main(String[] args) throws Exception{
 		String folder = "/Users/jumo04/Downloads/tests/";
-		int windowsSize = 20;
+		int windowsSize = 5;
 		String debugFilename = "debug_ws"+windowsSize+".txt";
 
 		HashMap<String,HashMap<String,Integer>> relations = new HashMap<String,HashMap<String,Integer>>();
@@ -130,6 +130,74 @@ public class TaggerRelationCleaning {
 		}
 		
 		
+		System.out.println("$relations = array(");
+		Set<String> keys2 = relations.keySet();
+		Object[] keys22 = keys2.toArray();
+		for (int i = 0; i < keys22.length; i++) {
+			String k2 = (String) keys22[i];
+			Set<String> keys3 = relations.get(k2).keySet();
+			Object[] keys33 = keys3.toArray();
+			System.out.println("\t\"" + k2 + "\"" + " => array(");
+			for (int j = 0; j < keys33.length; j++) {
+				String k3 = (String)keys33[j];
+				System.out.print("\t\t\"" + k3 + "\"" + " => \""+relations.get(k2).get(k3)+"\"");
+				if(j!=keys33.length-1){
+					System.out.println(",");
+				}
+				else{
+					System.out.println("");
+				}
+			}
+			System.out.print("\t)");
+			if(i!=keys22.length-1){
+				System.out.println(",");
+			}
+			else{
+				System.out.println("");
+			}
+		}
+		for (String k2 : keys2) {
+		}
+		System.out.println(");");
+
+		
+		System.out.println("$relations = array(");
+		Set<String> keys4 = relations.keySet();
+		Object[] keys44 = keys2.toArray();
+		String persons = "var news1 = [ ";
+		String dates = "var news4 = [ ";
+		String locations = "var news2 = [ ";
+		String organizations = "var news3 = [ ";
+		for (int i = 0; i < keys44.length; i++) {
+			String k4 = (String) keys44[i];
+			
+			if(k4.contains("geonames")){
+				locations += "['"+k4.substring(0, k4.indexOf('('))+"','"+k4+"'],";
+			}
+			else if(k4.contains("nif#date")){
+				dates += "['"+k4.substring(0, k4.indexOf('('))+"','"+k4+"'],";
+			}
+			else if(k4.contains("d-nb.info")){
+				persons += "['"+k4.substring(0, k4.indexOf('('))+"','"+k4+"'],";
+			}
+			
+		}
+		persons += "];";
+		locations += "];";
+		dates += "];";
+		organizations += "];";
+		
+		System.out.println("------------------------------------------");
+		System.out.println("PERSONS:");
+		System.out.println(persons);
+		System.out.println("------------------------------------------");
+		System.out.println("LOCATIONS:");
+		System.out.println("------------------------------------------");
+		System.out.println(locations);
+		System.out.println("------------------------------------------");
+		System.out.println("dates:");
+		System.out.println("------------------------------------------");
+		System.out.println(dates);
 	}
 	
 }
