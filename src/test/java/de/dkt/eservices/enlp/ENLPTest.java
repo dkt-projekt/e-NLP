@@ -498,100 +498,100 @@ public class ENLPTest {
 	*/
 	
 	
-	@Test
-	public void debugTest() throws UnirestException, IOException,
-			Exception {
-
-		
-		//upload viking dictionary
-		//String p = "C:\\Users\\pebo01\\workspace\\e-openNLP\\target\\test-classes\\trainedModels\\dict\\mendelson_LOC.tsv";
-//		String p = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\vikingDictionary\\vikingDictionary.txt";
-//		HttpResponse<String> trainVikingDict= trainOpennlpModel()
-//				.queryString("analysis", "dict")
-//				.queryString("language", "en")
-//				.queryString("modelName", "vikingDummy_PER")
-//				.body(readFile(p, StandardCharsets.UTF_8))
-//				.asString();
-//	
-		
-		
-//		Date d1 = new Date();
-//		LanguageIdentificator.initializeNgramMaps();
-//		Date d2 = new Date();
-//		System.out.println("Done initializing language models. Took (seconds):" + (d2.getTime() - d1.getTime())/1000);
-		
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
-		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
-		
-		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
-		String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-		File df = new File(docFolder);
-		PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
-		
-		for (File f : df.listFiles()){
-			//System.out.println("Trying to read file:" + f.getAbsolutePath());
-			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-			Date d1 = new Date();
-			//Model nifModel = NIFWriter.initializeOutputModel();
-			//NIFWriter.addInitialString(nifModel, fileContent, DKTNIF.getDefaultPrefix());
-			//LanguageIdentificator.detectLanguageNIF(nifModel);
-			//Model nifModel = identifyInputLanguage(fileContent, RDFSerialization.PLAINTEXT);
-			
-			
-			
-//			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-//					//.queryString("analysis", "ner")
-//					.queryString("analysis", "ner")
-//					.queryString("language", "en")
-//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
-//					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
-//					.queryString("informat", "text")
-//					//.queryString("informat", "turtle")
-//					.queryString("outformat", "turtle")
-//					//.queryString("input", fileContent)
-//					.body(fileContent)
-//					.asString();
-//			String turtleModel = debugResponse.getBody();
+//	@Test
+//	public void debugTest() throws UnirestException, IOException,
+//			Exception {
+//
+//		
+//		//upload viking dictionary
+//		//String p = "C:\\Users\\pebo01\\workspace\\e-openNLP\\target\\test-classes\\trainedModels\\dict\\mendelson_LOC.tsv";
+////		String p = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\vikingDictionary\\vikingDictionary.txt";
+////		HttpResponse<String> trainVikingDict= trainOpennlpModel()
+////				.queryString("analysis", "dict")
+////				.queryString("language", "en")
+////				.queryString("modelName", "vikingDummy_PER")
+////				.body(readFile(p, StandardCharsets.UTF_8))
+////				.asString();
+////	
+//		
+//		
+////		Date d1 = new Date();
+////		LanguageIdentificator.initializeNgramMaps();
+////		Date d2 = new Date();
+////		System.out.println("Done initializing language models. Took (seconds):" + (d2.getTime() - d1.getTime())/1000);
+//		
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\in";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
+//		
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+//		File df = new File(docFolder);
+//		PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
+//		
+//		for (File f : df.listFiles()){
+//			//System.out.println("Trying to read file:" + f.getAbsolutePath());
+//			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//			Date d1 = new Date();
+//			//Model nifModel = NIFWriter.initializeOutputModel();
+//			//NIFWriter.addInitialString(nifModel, fileContent, DKTNIF.getDefaultPrefix());
+//			//LanguageIdentificator.detectLanguageNIF(nifModel);
+//			//Model nifModel = identifyInputLanguage(fileContent, RDFSerialization.PLAINTEXT);
 //			
-			for (int i =0; i < 10; i++){
-			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
-					.queryString("analysis", "temp")
-					.queryString("language", "en")
-					.queryString("models", "englishDates")
-					.queryString("informat", "turtle")
-					.queryString("outformat", "turtle")
-					//.queryString("input", turtleModel)
-					.body(fileContent)
-					.asString();
-			String turtleModel = debugResponse2.getBody();
-			}
-			Date d2 = new Date();
-			out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
-			
-			
-			
-//			HttpResponse<String> debugResponse3 = analyzeOpennlpRequest()
-//					.queryString("analysis", "dict")
+//			
+//			
+////			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
+////					//.queryString("analysis", "ner")
+////					.queryString("analysis", "ner")
+////					.queryString("language", "en")
+////					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+////					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
+////					.queryString("informat", "text")
+////					//.queryString("informat", "turtle")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", fileContent)
+////					.body(fileContent)
+////					.asString();
+////			String turtleModel = debugResponse.getBody();
+////			
+//			for (int i =0; i < 10; i++){
+//			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
+//					.queryString("analysis", "temp")
 //					.queryString("language", "en")
-//					.queryString("models", "vikingDummy_PER")
+//					.queryString("models", "englishDates")
 //					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", turtleModel)
-//					.body(turtleModel)
+//					.body(fileContent)
 //					.asString();
-//			turtleModel = debugResponse3.getBody();
+//			String turtleModel = debugResponse2.getBody();
+//			}
+//			Date d2 = new Date();
+//			out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
 //			
-//			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
-//			out.println(turtleModel);
-//			out.close();
-		}
-		out.close();
-		
-		
-	}	 
+//			
+//			
+////			HttpResponse<String> debugResponse3 = analyzeOpennlpRequest()
+////					.queryString("analysis", "dict")
+////					.queryString("language", "en")
+////					.queryString("models", "vikingDummy_PER")
+////					.queryString("informat", "turtle")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", turtleModel)
+////					.body(turtleModel)
+////					.asString();
+////			turtleModel = debugResponse3.getBody();
+////			
+////			PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f.getName()) + ".nif"));
+////			out.println(turtleModel);
+////			out.close();
+//		}
+//		out.close();
+//		
+//		
+//	}	 
 	
 	@Test
 	public void sanityCheck() throws UnirestException, IOException, Exception {

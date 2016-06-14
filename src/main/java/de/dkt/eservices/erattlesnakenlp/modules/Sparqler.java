@@ -44,10 +44,11 @@ public class Sparqler {
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
 				"SELECT ?uri WHERE {\n" +
 					"?uri rdfs:label ?label@" + language + ".\n" + // this is stupid, but couldn't figure out how to properly add this (e.g. setLiteral surrounds it with quotes, setIri with hooks...
+					//"FILTER NOT EXISTS { ?uri rdf:type rdf:Property } \n" +
 				"}"
 				);
 		sQuery.setLiteral("label", label);
-
+		//System.out.println("DEBUGGING QUERY:" + sQuery.toString());
 		ResultSet res = null;
 		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery(), defaultGraph);
 		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
