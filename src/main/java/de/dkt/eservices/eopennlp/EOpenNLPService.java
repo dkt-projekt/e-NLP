@@ -2,6 +2,8 @@ package de.dkt.eservices.eopennlp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +50,12 @@ public class EOpenNLPService {
     			NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
     		}
     		else {
-    			nifModel = NIFReader.extractModelFromFormatString(textToProcess,inFormat);
+    			try{
+    				nifModel = NIFReader.extractModelFromFormatString(textToProcess,inFormat);
+    			}
+    			catch(RiotException e){
+    				throw new BadRequestException("Check the input format ["+inFormat+"]!!");
+    			}
     		}
         	String sentModel = null;
     		String[] nerModels = models.split(";");
