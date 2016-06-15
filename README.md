@@ -72,5 +72,6 @@ http://api.digitale-kuratierung.de/api/e-nlp/trainModel
 ### Output
 A trained model which is stored and can directly be used in the namedEntityRecognition endpoint.
 
-
+Examle cURL post:
+`curl "http://api.digitale-kuratierung.de/api/e-nlp/trainModel?modelName=testModel&language=en&analysis=ner" --data-urlencode "trainingData= <START:person> Pierre Vinken <END> , 61 years old , will join the board as a nonexecutive director Nov. 29 . "`
 
