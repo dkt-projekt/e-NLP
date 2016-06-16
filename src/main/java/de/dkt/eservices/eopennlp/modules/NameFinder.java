@@ -66,6 +66,7 @@ public class NameFinder {
 
 	//public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
 	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
+//	public static String modelsDirectory = "trainedModels" + File.separator + "ner2" + File.separator;
 	static Logger logger = Logger.getLogger(NameFinder.class);
 
 	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();

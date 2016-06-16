@@ -137,6 +137,14 @@ public class EOpenNLPService {
         			if (nerModel.equalsIgnoreCase("germanDates") || nerModel.equalsIgnoreCase("englishDates")){
         				nifModel = RegexFinder.detectEntitiesNIF(nifModel, sentModel, languageParam, null);
         			}
+        			if (nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_LOC") ||
+        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
+        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
+        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
+        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
+        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ){
+        				throw new BadRequestException("Please use germanDates or englishDates");
+        			}
         			else{
         				throw new BadRequestException("Temporal analysis not supported for language: " + languageParam);
         			}
