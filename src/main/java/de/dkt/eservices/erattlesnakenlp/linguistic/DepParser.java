@@ -3,6 +3,7 @@ package de.dkt.eservices.erattlesnakenlp.linguistic;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -10,26 +11,20 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Tuple;
 
-import org.h2.engine.SysProperties;
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;
-import org.omg.Messaging.SyncScopeHelper;
-
 import com.hp.hpl.jena.rdf.model.Model;
 //import com.hp.hpl.jena.tdb.base.file.FileFactory;
 
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
 //import de.dkt.eservices.ecorenlp.modules.Tagger;
 import edu.stanford.nlp.ling.HasWord;
@@ -39,6 +34,7 @@ import edu.stanford.nlp.parser.nndep.DependencyParser;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
+import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 
@@ -243,9 +239,9 @@ public class DepParser {
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 		
 		//TODO: complete the following
-		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
-		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod")); // advmod, 
-		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("case"));
+		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
+		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); // advmod, // cheating by adding the indirect object ones here, to get some more relations 
+		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
 		
 		List<String> germanSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
 		List<String> germanObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod"));
@@ -326,9 +322,9 @@ public class DepParser {
 //						subjectURI = "http://d-nb.info/gnd/128830751";
 //					}
 					
-					System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
+					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
 					if (!(subjectURI == null) && !(objectURI == null)){
-						System.out.println("DEBUGGING relation with URI:" + subjectURI + "___" + connectingElement + "___" + objectURI);
+						//System.out.println("DEBUGGING relation with URI:" + subjectURI + "___" + connectingElement + "___" + objectURI);
 						EntityRelationTriple t = new EntityRelationTriple();
 						t.setSubject(String.format("%s(%s)", subject, subjectURI));
 						t.setRelation(connectingElement.word());
@@ -349,14 +345,25 @@ public class DepParser {
 		
 	}
 	
+
 	
-	static String readFile(String path, Charset encoding) 
-			  throws IOException 
-			{
-			  byte[] encoded = Files.readAllBytes(Paths.get(path));
-			  return new String(encoded, encoding);
+	//WRONG! this seems to find the path to the ROOT node (at which point there is no more content in the JSONObject and it just returns, I guess. Also useful, but modify it to really find the path from left to right.
+	public static ArrayList<Pair> getShortestTreePath(JSONObject j, String left, String right, ArrayList<Pair> pairList){
+		
+		for (Object key : j.keySet()){
+			if (key.toString().equals(left)){
+				if (j.get(key.toString()).equals(right)){
+					pairList.add(new Pair<String, String>(left, right));
+					return pairList;
+				}
+				else{
+					pairList.add(new Pair<String, String>(key.toString(), j.get(key.toString()).toString()));
+					pairList = getShortestTreePath(j, j.get(key.toString()).toString(), right, pairList);
+				}
 			}
-	
+		}
+		return pairList;
+	}
 	
 	public static void main(String args[]){
 		
@@ -366,133 +373,129 @@ public class DepParser {
 		//initParser("de");
 
 		
-	      
-		Date d1 = new Date();
-
-		HashMap<String,Integer> subjectCount = new HashMap<String,Integer>();
-		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\clintonCorpus\\nifs";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\smallTestSetNIFS";
+		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the little green books that are written by me will be shipped to both you and Rice."));
 		
-		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
-		BufferedWriter brDebug = null;
-		try {
-			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		String debug2Out = "C:\\Users\\pebo01\\Desktop\\debug2.txt";
-		BufferedWriter br2Debug = null;
-		try {
-			br2Debug = FileFactory.generateOrCreateBufferedWriterInstance(debug2Out, "utf-8", false);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		// String outputFolder =
-		// "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
-		
-		File df = new File(docFolder);
-		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
-		Date d3 = new Date();
-		int c = 0;
-		for (File f : df.listFiles()) {
-			c += 1;
-			String fileContent;
-			try {
-				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-				//System.out.println("Trying for file:" + f);
-				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel, br2Debug);
-				
-				// Action plan for mockup: ert is now per NIF. Add to masterList. Then convert this into double nested hashmap (subject > relation > object > count) and output JSON for Julian to eat in his mockup.
-				for (EntityRelationTriple t : ert){
-					masterList.add(t);
-				}
-				
-				//System.out.println("FileName:" + f.getName());
-//				brDebug.write("FileName:" + f.getName());
-//				//System.out.println("DEBUGGINg result:");
-//				for (EntityRelationTriple t : ert) {
-//					//System.out.println("subject---relation---object: " + t.getSubject() + "---" + t.getRelation() + "---" + t.getObject());
-//					brDebug.write("subject---relation---object: " + t.getSubject() + "---" + t.getRelation() + "---" + t.getObject() + "\n");
-//					int currentSubjectCount = 1;
-//					if (subjectCount.containsKey(t.getSubject())){
-//						currentSubjectCount += subjectCount.get(t.getSubject());
-//					}
-//					subjectCount.put(t.getSubject(), currentSubjectCount);
-//
-//					
-//					HashMap<String,Integer> innerMap = new HashMap<String,Integer>();
-//					if (subject2RelationCount.containsKey(t.getSubject())){
-//						innerMap = subject2RelationCount.get(t.getSubject());
-//						int currentSubject2Relationcount = 1;
-//						if (innerMap.containsKey(t.getRelation())){
-//							currentSubject2Relationcount += innerMap.get(t.getRelation());
-//						}
-//						innerMap.put(t.getRelation(), currentSubject2Relationcount);						
-//					}
-//					subject2RelationCount.put(t.getSubject(), innerMap);
-//					
-//				}
-//				//System.out.println("\n");
-//				brDebug.write("\n");
-				
-				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		for (List<HasWord> sentence : tokenizer) {
+			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+			GrammaticalStructure gs = parser.predict(tagged);
+			JSONObject j = new JSONObject();
+			for (TypedDependency td : gs.typedDependencies()) {
+				System.out.println(td);
+				j.put(td.dep().word(), td.gov().word());
+									// for multi word entities: check which part of the entity has the shortest path to the root node.
 			}
-
-		}
-		
-
-		
-		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
-		JSONObject jsonMap = new JSONObject(m);
-		try {
-			//brDebug.write(jsonMap.toString());
-			// pretty print:
-			brDebug.write(jsonMap.toString(4));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} // write to JSON here
-		
-//		List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(subjectCount.entrySet());
-//		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-//			public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-//				return (o2.getValue()).compareTo(o1.getValue());
-//			}
-//		});
-//		Map<String, Integer> result = new LinkedHashMap<String, Integer>();
-//		for (Map.Entry<String, Integer> entry : list) {
-//			result.put(entry.getKey(), entry.getValue());
-//		}
-//		System.out.println(result);
-//		System.out.println(subject2RelationCount);
-		
-		//get objects of relations also in my maps
-		
-		System.out.println("Done."); 
+			ArrayList<Pair> pairList = getShortestTreePath(j, "me", "be", new ArrayList<Pair>());
+			for (Pair p : pairList){
+				System.out.println("P;" + p.getLeft() + "|" + p.getRight());
+			}
 			
-	    try {
-			brDebug.close();
-			br2Debug.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-	    
 
 		
+		//this is just for converting a set of nifs from one format to another, needed that at some point.
+//		String doc1Folder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\rdfxmlnifs";
+//		File d1f = new File(doc1Folder);
+//		for (File f1 : d1f.listFiles()){
+//			String fileContent;
+//			try {
+//				fileContent = readFile(f1.getAbsolutePath(), StandardCharsets.UTF_8);
+//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent,RDFConstants.RDFSerialization.TURTLE);
+//				PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f1.getName()) + ".rdfxml"));
+//				out.println(NIFReader.model2String(nifModel, "RDF/XML"));
+//				out.close();
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//		}
+//		
+//		System.exit(0);
+		
+	      
+//		Date d1 = new Date();
+//
+//		HashMap<String,Integer> subjectCount = new HashMap<String,Integer>();
+//		HashMap<String,HashMap<String,Integer>> subject2RelationCount = new HashMap<String,HashMap<String,Integer>>();
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\out\\out\\english";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempOut\\out";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\smallTestSetNIFS";
+//		
+//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+//		BufferedWriter brDebug = null;
+//		try {
+//			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		String debug2Out = "C:\\Users\\pebo01\\Desktop\\debug2.txt";
+//		BufferedWriter br2Debug = null;
+//		try {
+//			br2Debug = FileFactory.generateOrCreateBufferedWriterInstance(debug2Out, "utf-8", false);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		// String outputFolder =
+//		// "C:\\Users\\pebo01\\Desktop\\mendelsohnDocs\\out";
+//		
+//		File df = new File(docFolder);
+//		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
+//		Date d3 = new Date();
+//		int c = 0;
+//		for (File f : df.listFiles()) {
+//			c += 1;
+//			String fileContent;
+//			try {
+//				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//				//System.out.println("Trying for file:" + f);
+//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+//				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel, br2Debug);
+//				
+//				// Action plan for mockup: ert is now per NIF. Add to masterList. Then convert this into double nested hashmap (subject > relation > object > count) and output JSON for Julian to eat in his mockup.
+//				for (EntityRelationTriple t : ert){
+//					masterList.add(t);
+//				}
+//				
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		}
+//		
+//
+//		
+//		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
+//		JSONObject jsonMap = new JSONObject(m);
+//		try {
+//			//brDebug.write(jsonMap.toString());
+//			// pretty print:
+//			brDebug.write(jsonMap.toString(4));
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		} // write to JSON here
+//
+//		System.out.println("Done."); 
+//			
+//	    try {
+//			brDebug.close();
+//			br2Debug.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	    
+//
+//		
 	}
 	
     

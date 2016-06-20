@@ -1,14 +1,18 @@
 package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.ListIterator;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
-import de.dkt.eservices.eopennlp.modules.Tokenizer;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import eu.freme.common.exception.BadRequestException;
 import opennlp.tools.util.Span;
@@ -38,6 +42,89 @@ public class Tagger {
 				
 	}
 	
+	public static HashMap<String, HashMap<String, Integer>> getEntitytCandidateMap(String str, String language){
+		
+		ArrayList<String> englishEntityCandidateTagSet = new ArrayList<>(Arrays.asList("NNP")); // NOTE: this is coupled to the stanford postagger...
+		ArrayList<String> germanEntityCandidateTagSet = new ArrayList<>(Arrays.asList("NE")); // NOTE: this is coupled to the stanford postagger...
+		//TODO: create a general official stopwords list somewhere for all languages we support
+		ArrayList<String> candidateTagSet = new ArrayList<String>();
+	
+				if (language.equals("en")){
+					candidateTagSet = englishEntityCandidateTagSet;
+
+				}
+				else if (language.equals("de")){
+					candidateTagSet = germanEntityCandidateTagSet;
+				}
+		
+		HashMap<String, HashMap<String, Integer>> entityCandidateMap = new HashMap<String, HashMap<String, Integer>>();
+		String taggedString = tagger.tagString(str);
+		String[] tagList = taggedString.split(" ");
+		String word = "";
+		for (int i = 0; i < tagList.length; i++){
+			String parts[] = tagList[i].split("_");
+			String w = parts[0];
+			String tag = parts[1];
+			if (candidateTagSet.contains(tag)){
+				word += " " + w;
+				//check if next word is also of properNoun type to capture multi word units
+				if (i < tagList.length && candidateTagSet.contains(tagList[i+1].split("_")[1])){
+					// do nothing so that in next increment, the next word gets added
+				}
+				else{
+					int c = 1;
+					HashMap<String, Integer> innerMap = new HashMap<String, Integer>();
+					word = word.trim();
+					if (entityCandidateMap.containsKey(word)){
+						if (entityCandidateMap.get(word).containsKey(tag)){
+							c = entityCandidateMap.get(word).get(tag) + 1;
+						}
+					}
+					innerMap.put(tag, c);
+					entityCandidateMap.put(word, innerMap);
+					// and clear word, since it's not assumed to be part of multi word unit
+					word = "";
+				}
+			}
+		}
+//		try {
+//			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\temp.txt.txt"));
+//			out.write(taggedString);
+//			out.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		return entityCandidateMap;
+	}
+	
+//	public static HashMap<String, HashMap<String, Integer>> getWord2Tag2Count(String str){
+//		
+//		HashMap<String, HashMap<String, Integer>> tagMap = new HashMap<String, HashMap<String, Integer>>();
+//		String taggedString = tagger.tagString(str);
+//		//TODO: take out NNP items that are misrecognized, that are actually mostly Prepositions, Adjectives, Verbs?
+//		
+//		
+//		for (String t: taggedString.split(" ")){
+//			String parts[] = t.split("_");
+//			String word = parts[0];
+//			String tag = parts[1];
+//			int c = 1;
+//			HashMap<String, Integer> innerMap = new HashMap<String, Integer>();
+//			if (tagMap.containsKey(word)){
+//				if (tagMap.get(word).containsKey(tag)){
+//					c = tagMap.get(word).get(tag) + 1;
+//				}
+//			}
+//			innerMap.put(tag, c);
+//			tagMap.put(word, innerMap);
+//		}
+//		
+//		return tagMap;
+//	}
+	
+	
 	public static Model tagNIF(Model nifModel, String informat, String sentenceModel){
 		
 		String text = NIFReader.extractIsString(nifModel);
@@ -60,7 +147,6 @@ public class Tagger {
 			}
 			
 		}
-
 		
 		return nifModel;
 	}
@@ -86,7 +172,6 @@ public class Tagger {
 		//String tokens[] = Span.spansToStrings(tokenSpans, sentence);
 		
 		
-//		
 //		initTagger("en");
 //		String sentence = "This isn't this is a test sentence.";
 //		Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);

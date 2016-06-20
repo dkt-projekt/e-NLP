@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.ResponseEntity;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -261,8 +263,10 @@ public class DictionaryNameF {
 		Model nifModel = ModelFactory.createDefaultModel();
 		String docURI = "http://dkt.dfki.de/examples/";
 		NIFWriter.addInitialString(nifModel, "Luise Mendelsohn acted in The Matrix Reloaded", docURI);
-		//ResponseEntity<String> responseCode = detectEntitiesNIF(nifModel, "mendelsohnTest", "PER", "en-sent.bin");
-		//System.out.println("OUTPUT:" + responseCode.getBody());
+		ArrayList<String> dictionaries = new ArrayList<String>();
+		dictionaries.add("mendelsohnTest");
+		nifModel = detectEntitiesNIF(nifModel, dictionaries, "en-sent.bin");
+		System.out.println(NIFReader.model2String(nifModel, "turtle"));
 		//System.out.println(detectEntitiesNIF("This is a story about Erich Mendelsohn. It is very short. It also mentions Luise Mendelsohn. The end.", "mendelsohnTest", "PERSON", "en-token.bin", "en-sent.bin"));
 		
 	}

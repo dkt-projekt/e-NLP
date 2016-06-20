@@ -4,14 +4,23 @@ import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.FileReadUtilities;
+import de.dkt.common.tools.ParameterChecker;
+import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
+import de.dkt.eservices.eopennlp.modules.NameFinder;
+import de.dkt.eservices.eopennlp.modules.RegexFinder;
+import de.dkt.eservices.erattlesnakenlp.linguistic.EntityCandidateExtractor;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.exception.BadRequestException;
+import eu.freme.common.exception.ExternalServiceFailedException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -67,5 +76,38 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
+	public ArrayList<String> suggestEntityCandidates(String textToProcess, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue)
+					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
+		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
+
+		ArrayList<String> entityCandidates = new ArrayList<String>();
+		try {
+			Model nifModel = null;
+			if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
+				nifModel = NIFWriter.initializeOutputModel();
+				NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
+			} else {
+				try {
+					nifModel = NIFReader.extractModelFromFormatString(textToProcess, inFormat);
+				} catch (RiotException e) {
+					throw new BadRequestException("Check the input format [" + inFormat + "]!!");
+				}
+			}
+
+			entityCandidates = EntityCandidateExtractor.suggestCandidates(nifModel, languageParam, thresholdValue);
+			
+		} catch (BadRequestException e) {
+			logger.error(e.getMessage());
+			throw e;
+		} catch (ExternalServiceFailedException e2) {
+			logger.error(e2.getMessage());
+			throw e2;
+		}
+
+		return entityCandidates;
+	
+	}
+	
+
 
 }

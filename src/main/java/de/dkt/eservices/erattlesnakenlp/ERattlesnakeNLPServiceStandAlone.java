@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -39,7 +40,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 		
 	@RequestMapping(value = "/e-rattlesnakenlp/testURL", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> testURL(
-			@RequestParam(value = "preffix", required = false) String preffix,
+			@RequestParam(value = "prefix", required = false) String preffix,
 			@RequestBody(required = false) String postBody) throws Exception {
 
 	    HttpHeaders responseHeaders = new HttpHeaders();
@@ -145,6 +146,63 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
     }
 
 
-	
+	@RequestMapping(value = "/e-nlp/suggestEntityCandidates", method = {
+            RequestMethod.POST, RequestMethod.GET })
+	public ResponseEntity<String> listModels(
+			@RequestParam(value = "language", required = false) String language,
+			@RequestParam(value = "threshold", required = false) String thresholdValue,
+			@RequestParam(value = "prefix", required = false) String prefix,
+			@RequestParam(value = "p", required = false) String p,
+			@RequestHeader(value = "Accept", required = false) String acceptHeader,
+			@RequestHeader(value = "Content-Type", required = false) String contentTypeHeader,
+            @RequestParam Map<String, String> allParams,
+            @RequestBody(required = false) String postBody) throws Exception {
+		ParameterChecker.checkInList(language, "en;de", "language", logger);
+		// Check the document or directory parameter.
+        if(language == null) {
+       		logger.error("Parameter language not specified.");
+       		throw new BadRequestException("Parameter language not specified.");
+        }
+        double t;
+        if (thresholdValue != null) {
+			//try to parse to double and check if in between 0 and 1.
+        	try{
+        		t = Double.parseDouble(thresholdValue);
+        		if (!(t >= 0 && t <= 1)){
+        			throw new BadRequestException("Please specify a number between 0 and 1 for parameter thresholdValue. Current value: " + thresholdValue);
+        		}
+        	}
+        	catch (NumberFormatException e){
+        		logger.error(e.getMessage());
+        		throw new BadRequestException("Unable to parse string to double for parameter thresholdValue: " + thresholdValue);
+        	}
+		} else { // if none specified, default is 0.5
+			t = 0.5;
+		}
+        
+        NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
+        
+        String textForProcessing = null;
+        if (nifParameters.getInformat().equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
+            textForProcessing = nifParameters.getInput();
+        } else {
+        	textForProcessing = postBody;
+            if (textForProcessing == null) {
+            	logger.error("No text to process.");
+                throw new BadRequestException("No text to process.");
+            }
+        }
+        ArrayList<String> entityCandidates = service.suggestEntityCandidates(textForProcessing, language, nifParameters.getInformat(), t);
+        String output = "";
+        for (String s: entityCandidates){
+        	output += s + "\n";
+        }
+        
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Content-Type", "text/plain");
+        ResponseEntity<String> response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+        return response;
+	}
+
 
 }

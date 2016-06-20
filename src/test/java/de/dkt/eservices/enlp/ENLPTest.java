@@ -81,13 +81,13 @@ public class ENLPTest {
 		return Unirest.post(url);
 	}
 	
-	private HttpRequestWithBody baseCorenlpRequest() {
-		String url = testHelper.getAPIBaseUrl() + "/e-corenlp/testURL";
+	private HttpRequestWithBody baseRattlesnakeRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-rattlesnakenlp/testURL";
 		return Unirest.post(url);
 	}
 	
-	private HttpRequestWithBody baseRattlesnakeRequest() {
-		String url = testHelper.getAPIBaseUrl() + "/e-rattlesnakenlp/testURL";
+	private HttpRequestWithBody entitySuggestRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-nlp/suggestEntityCandidates";
 		return Unirest.post(url);
 	}
 	
@@ -525,14 +525,33 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clintonCorpus";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\oneBigBunch";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\clintonCorpus\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
+//		
+//		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
+//				.queryString("analysis", "dict")
+//				.queryString("language", "en")
+//				.queryString("modelName", "enronSureNames_PER")
+//				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
+//				.asString();
+//		assertTrue(trainSureNamesEnron.getStatus() == 200);
+//		assertTrue(trainSureNamesEnron.getBody().length() > 0);
+////		HttpResponse<String> trainAllNamesEnron = trainOpennlpModel()
+////				.queryString("analysis", "dict")
+////				.queryString("language", "en")
+////				.queryString("modelName", "enronAllNames_PER")
+////				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronAllNames_PER", StandardCharsets.UTF_8))
+////				.asString();
+////		assertTrue(trainAllNamesEnron.getStatus() == 200);
+////		assertTrue(trainAllNamesEnron.getBody().length() > 0);
+//		
+//		
 //		
 //		for (File f : df.listFiles()){
 //			//System.out.println("Trying to read file:" + f.getAbsolutePath());
@@ -547,9 +566,9 @@ public class ENLPTest {
 //			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
 //					//.queryString("analysis", "ner")
-//					.queryString("analysis", "ner")
+//					.queryString("analysis", "dict")
 //					.queryString("language", "en")
-//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					.queryString("models", "enronSureNames_PER")
 //					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
 //					.queryString("informat", "text")
 //					//.queryString("informat", "turtle")
@@ -559,7 +578,8 @@ public class ENLPTest {
 //					.asString();
 //			String turtleModel = debugResponse.getBody();
 ////			
-//			for (int i =0; i < 10; i++){
+//			
+//
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
 //					.queryString("analysis", "temp")
 //					.queryString("language", "en")
@@ -571,7 +591,7 @@ public class ENLPTest {
 //					.asString();
 //			//String turtleModel = debugResponse2.getBody();
 //			turtleModel = debugResponse2.getBody();
-//			}
+//			
 //			Date d2 = new Date();
 //			//out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
 //			System.out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
@@ -598,54 +618,40 @@ public class ENLPTest {
 //		
 //	}	 
 	
-	@Test
-	public void sanityCheck() throws UnirestException, IOException, Exception {
 
-		HttpResponse<String> response = baseCorenlpRequest()
-				.queryString("informat", "text")
-				.queryString("input", "hello world")
-				.queryString("outformat", "turtle").asString();
-
-		System.out.println("BODY: "+response.getBody());
-		System.out.println("STATUS:" + response.getStatus());
-
-		assertTrue(response.getStatus() == 200);
-		assertTrue(response.getBody().length() > 0);
-	}
 	
-	
-	@Test
-	public void enTest() throws UnirestException, IOException, Exception {
-		HttpResponse<String> response2 = tagRequest()
-				.queryString("input", "If you like to gamble, I tell you I'm your man.      You win some, lose some, all the same to me.")
-				.queryString("language", "en")
-				.queryString("informat", "text")
-				.queryString("outformat", "turtle")
-				.asString();
-		
-		Assert.assertEquals(TestConstants.expectedResponse, response2.getBody());
-		assertTrue(response2.getStatus() == 200);
-		assertTrue(response2.getBody().length() > 0);
-		
-	}
-	
-	
-	@Test
-	public void deTest() throws UnirestException, IOException, Exception {
-	
-		HttpResponse<String> response3 = tagRequest()
-				//.queryString("input", "Halb Sechs, meine Augen brennen. Tret' auf 'nen Typen, der zwischen toten Tauben pennt.")
-				.queryString("language", "de")
-				.queryString("informat", "turtle")
-				.queryString("outformat", "turtle")
-				.body(TestConstants.turtleInput2)
-				.asString();
-		
-		Assert.assertEquals(TestConstants.expectedResponse2, response3.getBody());
-		assertTrue(response3.getStatus() == 200);
-		assertTrue(response3.getBody().length() > 0);
-		
-	}
+//	@Test
+//	public void enTest() throws UnirestException, IOException, Exception {
+//		HttpResponse<String> response2 = tagRequest()
+//				.queryString("input", "If you like to gamble, I tell you I'm your man.      You win some, lose some, all the same to me.")
+//				.queryString("language", "en")
+//				.queryString("informat", "text")
+//				.queryString("outformat", "turtle")
+//				.asString();
+//		
+//		Assert.assertEquals(TestConstants.expectedResponse, response2.getBody());
+//		assertTrue(response2.getStatus() == 200);
+//		assertTrue(response2.getBody().length() > 0);
+//		
+//	}
+//	
+//	
+//	@Test
+//	public void deTest() throws UnirestException, IOException, Exception {
+//	
+//		HttpResponse<String> response3 = tagRequest()
+//				//.queryString("input", "Halb Sechs, meine Augen brennen. Tret' auf 'nen Typen, der zwischen toten Tauben pennt.")
+//				.queryString("language", "de")
+//				.queryString("informat", "turtle")
+//				.queryString("outformat", "turtle")
+//				.body(TestConstants.turtleInput2)
+//				.asString();
+//		
+//		Assert.assertEquals(TestConstants.expectedResponse2, response3.getBody());
+//		assertTrue(response3.getStatus() == 200);
+//		assertTrue(response3.getBody().length() > 0);
+//		
+//	}
 	
 		//NL test:
 		// TODO: not really working. Check for the correct exception thrown
@@ -663,7 +669,7 @@ public class ENLPTest {
 		System.out.println("STATUS3:" + response4.getStatus());
 		*/
 	
-	
+
 	
 	@Test
 	public void testERattlesnakeNLPBasic() throws UnirestException, IOException,
@@ -677,5 +683,32 @@ public class ENLPTest {
 		
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
+	}
+	
+	@Test
+	public void entitySuggestTest() throws UnirestException, IOException,
+			Exception {
+
+		HttpResponse<String> response = entitySuggestRequest()
+				.queryString("informat", "text")
+				.queryString("language", "de")
+				.queryString("threshold", "0.2")
+				.body(TestConstants.germanPlainTextInput)
+				.asString();
+			
+
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		String expectedResp = 
+				"Deutschland	28\n" +
+						"SPIEGEL ONLINE	17\n" +
+						"El Feki	14\n" +
+						"Ukraine	12\n" +
+						"Bremen	9\n" +
+						"Donezk	9\n" +
+						"";
+		Assert.assertEquals(expectedResp, response.getBody());
+		
 	}
 }
