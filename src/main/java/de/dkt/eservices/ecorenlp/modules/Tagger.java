@@ -31,14 +31,14 @@ public class Tagger {
 
 		String taggersDirectory = "taggers" + File.separator;
 		if (language.equalsIgnoreCase("en")){
-			logger.info("Loading model: " + taggersDirectory + "english-left3words-distsim.tagger");
+			logger.info("Loading model: " + System.getProperty("user.dir") + taggersDirectory + "english-left3words-distsim.tagger");
 			tagger = new MaxentTagger(taggersDirectory + "english-left3words-distsim.tagger");
 			
 		}
 		else if (language.equalsIgnoreCase("de")){
 			//tagger = new MaxentTagger(taggersDirectory + "german-hgc.tagger");
 			logger.info("Loading model: " + taggersDirectory + "german-fast.tagger");
-			tagger = new MaxentTagger(taggersDirectory + "german-fast.tagger");
+			tagger = new MaxentTagger(taggersDirectory + System.getProperty("user.dir") + "german-fast.tagger");
 			
 		}
 		else {
