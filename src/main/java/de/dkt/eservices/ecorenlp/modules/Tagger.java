@@ -37,14 +37,14 @@ public class Tagger {
 		try {
 			File taggerFolder = FileFactory.generateOrCreateDirectoryInstance(taggersDirectory);
 			if (language.equalsIgnoreCase("en")) {
-				logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggerFolder + File.separator
+				logger.info("Loading model: " + taggerFolder + File.separator
 						+ "english-left3words-distsim.tagger");
 				tagger = new MaxentTagger(taggerFolder + File.separator + "english-left3words-distsim.tagger");
 
 			} else if (language.equalsIgnoreCase("de")) {
 				// tagger = new MaxentTagger(taggersDirectory +
 				// "german-hgc.tagger");
-				logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggerFolder + File.separator
+				logger.info("Loading model: " + taggerFolder + File.separator
 						+ "german-fast.tagger");
 				tagger = new MaxentTagger(taggerFolder + File.separator + "german-fast.tagger");
 
