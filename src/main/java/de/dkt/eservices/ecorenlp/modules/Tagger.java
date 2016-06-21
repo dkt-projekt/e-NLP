@@ -1,10 +1,14 @@
 package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.ListIterator;
 
@@ -12,9 +16,9 @@ import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
+import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
-import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import eu.freme.common.exception.BadRequestException;
@@ -30,20 +34,26 @@ public class Tagger {
 	public static void initTagger(String language){
 
 		String taggersDirectory = "taggers" + File.separator;
-		if (language.equalsIgnoreCase("en")){
-			logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggersDirectory + "english-left3words-distsim.tagger");
-			System.out.println("Loading model: " + System.getProperty("user.dir") + File.separator + taggersDirectory + "english-left3words-distsim.tagger");
-			tagger = new MaxentTagger(taggersDirectory + "english-left3words-distsim.tagger");
-			
-		}
-		else if (language.equalsIgnoreCase("de")){
-			//tagger = new MaxentTagger(taggersDirectory + "german-hgc.tagger");
-			logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggersDirectory + "german-fast.tagger");
-			tagger = new MaxentTagger(taggersDirectory + "german-fast.tagger");
-			
-		}
-		else {
-			throw new BadRequestException("Unsupported language: "+ language);
+		try {
+			File taggerFolder = FileFactory.generateOrCreateDirectoryInstance(taggersDirectory);
+			if (language.equalsIgnoreCase("en")) {
+				logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggerFolder + File.separator
+						+ "english-left3words-distsim.tagger");
+				tagger = new MaxentTagger(taggerFolder + File.separator + "english-left3words-distsim.tagger");
+
+			} else if (language.equalsIgnoreCase("de")) {
+				// tagger = new MaxentTagger(taggersDirectory +
+				// "german-hgc.tagger");
+				logger.info("Loading model: " + System.getProperty("user.dir") + File.separator + taggerFolder + File.separator
+						+ "german-fast.tagger");
+				tagger = new MaxentTagger(taggerFolder + File.separator + "german-fast.tagger");
+
+			} else {
+				throw new BadRequestException("Unsupported language: " + language);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 				
 	}
