@@ -85,7 +85,7 @@ public class NameFinder {
 				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
 				Date end = new Date();
 				long seconds = (end.getTime()-start.getTime()) / 1000;
-				logger.info("Initializing " + f.getName() + " from " + System.getProperty("user.dir") + modelsDirectory + " took " + seconds + " seconds.");
+				logger.info("Initializing " + f.getName() + " from " + System.getProperty("user.dir") + File.separator + modelsDirectory + " took " + seconds + " seconds.");
 			}
 		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
