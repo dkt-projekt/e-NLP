@@ -8,10 +8,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ListIterator;
 
+import org.apache.log4j.Logger;
+
 import com.hp.hpl.jena.rdf.model.Model;
 
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
+import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import eu.freme.common.exception.BadRequestException;
@@ -22,17 +25,19 @@ public class Tagger {
 	
 	
 	public static MaxentTagger tagger;
-	
+	static Logger logger = Logger.getLogger(Tagger.class);
 	
 	public static void initTagger(String language){
 
 		String taggersDirectory = "taggers" + File.separator;
 		if (language.equalsIgnoreCase("en")){
+			logger.info("Loading model: " + taggersDirectory + "english-left3words-distsim.tagger");
 			tagger = new MaxentTagger(taggersDirectory + "english-left3words-distsim.tagger");
 			
 		}
 		else if (language.equalsIgnoreCase("de")){
 			//tagger = new MaxentTagger(taggersDirectory + "german-hgc.tagger");
+			logger.info("Loading model: " + taggersDirectory + "german-fast.tagger");
 			tagger = new MaxentTagger(taggersDirectory + "german-fast.tagger");
 			
 		}
