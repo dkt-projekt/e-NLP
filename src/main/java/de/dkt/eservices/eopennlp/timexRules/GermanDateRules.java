@@ -418,7 +418,7 @@ public class GermanDateRules {
 						yearNumber = Integer.parseInt(parts[1]);	
 					}
 					else{
-						yearNumber = DateCommons.getDayFromAnchorDate();
+						yearNumber = DateCommons.getYearFromAnchorDate();
 					}
 					
 					// taking the "meteorological seasons" here

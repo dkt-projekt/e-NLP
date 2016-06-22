@@ -410,6 +410,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void seasonBugfixTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response9 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("2016 blabla Sommer")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse9, response9.getBody());
+		assertTrue(response9.getStatus() == 200);
+		assertTrue(response9.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
