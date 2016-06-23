@@ -474,18 +474,8 @@ public class RegexFinder {
 		//Date avg = getAverageDate();
 		//System.out.println(avg);
 		
-		
-		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
-		
-		
+	
 
-		String input = "tag der deutschen einheit 1990";
-		//Span[] timeSpans = filterFind(timeFinder, input);
-
-		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
-		
-		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
-		
 		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
 		
 		
