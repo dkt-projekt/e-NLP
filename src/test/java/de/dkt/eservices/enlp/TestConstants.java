@@ -1059,6 +1059,44 @@ public class TestConstants {
 					"        time:intervalFinishes  \"2017-01-01T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"2016-01-01T00:00:00\"^^xsd:dateTime .\n" +
 					"";
+	
+	static String expectedResponse9 = 
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"+
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"+
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"+
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"+
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"+
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"+
+					"@prefix time:  <http://www.w3.org/2006/time#> .\n"+
+					"\n"+
+					"<http://dkt.dfki.de/documents/#char=0,18>\n"+
+					"        a                     nif:RFC5147String , nif:String , nif:Context ;\n"+
+					"        dktnif:meanDateEnd    \"2016-11-19T06:30:00\"^^xsd:dateTime ;\n"+
+					"        dktnif:meanDateStart  \"2016-02-27T06:30:00\"^^xsd:dateTime ;\n"+
+					"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"+
+					"        nif:endIndex          \"18\"^^xsd:nonNegativeInteger ;\n"+
+					"        nif:isString          \"2016 blabla Sommer\"^^xsd:string .\n"+
+					"\n"+
+					"<http://dkt.dfki.de/documents/#char=12,18>\n"+
+					"        a                      nif:RFC5147String , nif:String ;\n"+
+					"        nif:anchorOf           \"Sommer\"^^xsd:string ;\n"+
+					"        nif:beginIndex         \"12\"^^xsd:nonNegativeInteger ;\n"+
+					"        nif:endIndex           \"18\"^^xsd:nonNegativeInteger ;\n"+
+					"        itsrdf:taClassRef      time:TemporalEntity ;\n"+
+					"        time:intervalFinishes  \"2016-08-31T00:00:00\"^^xsd:dateTime ;\n"+
+					"        time:intervalStarts    \"2016-06-01T00:00:00\"^^xsd:dateTime .\n"+
+					"\n"+
+					"<http://dkt.dfki.de/documents/#char=0,4>\n"+
+					"        a                      nif:RFC5147String , nif:String ;\n"+
+					"        nif:anchorOf           \"2016\"^^xsd:string ;\n"+
+					"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"+
+					"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n"+
+					"        itsrdf:taClassRef      time:TemporalEntity ;\n"+
+					"        time:intervalFinishes  \"2017-01-01T00:00:00\"^^xsd:dateTime ;\n"+
+					"        time:intervalStarts    \"2016-01-01T00:00:00\"^^xsd:dateTime .\n"+
+					"";
+
+			
 	static String dictUploadData = 
 			"Mahler	http://d-nb.info/gnd/11857633X\n" +
 				"Herbert Eulenberg	http://d-nb.info/gnd/118682636\n" +
