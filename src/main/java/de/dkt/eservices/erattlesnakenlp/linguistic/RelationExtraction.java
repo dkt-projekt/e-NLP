@@ -68,7 +68,7 @@ public class RelationExtraction {
 				for (TaggedWord tw : tagged){
 					for (String[] sa : entityMap){
 						if (Integer.parseInt(sa[3]) >= tagged.get(0).beginPosition() && Integer.parseInt(sa[4]) <= tagged.get(tagged.size()-1).endPosition()){ // if the entity is inside this sentence
-							SpanWord sw = new SpanWord(sa[1], sa[2], tagged.indexOf(tw)); // SpanWord is now entity label (anchorOf), URI (taIdentRef) and index in tagged TODO: edit name, because it's a gross abuse of the original idea
+							SpanWord sw = new SpanWord(sa[1], sa[0], tagged.indexOf(tw)); // SpanWord is now entity label (anchorOf), URI (taIdentRef) and index in tagged TODO: edit name, because it's a gross abuse of the original idea
 							sentenceEntities.add(sw);
 						}
 					}
@@ -77,33 +77,31 @@ public class RelationExtraction {
 					for (int j = i+1; j < sentenceEntities.size(); j++){
 						String leftWord = sentenceEntities.get(i).getText();
 						String rightWord = sentenceEntities.get(j).getText();
-						DPTreeNode result = tree.getShortestPath(leftWord, rightWord, list2); //TODO: now the leftWord and rightWord are still string based. Only the result.value now has IndexedWord. Fis this so that I am accessing getShortestPath with tagged indices rather than strings. Because currecntly this is not happening, right?
-						if (result != null){
-							if (result.indexedWord.tag() != null && result.indexedWord.tag().startsWith("V")) {
-								// this is a really stupid and naive assumption, but the best we have currently: the entity that appears first in the sentence is supposed to be the subject of the relation triple
-								// this is the problem when we take the lowest common verb node; you lose track of which is the real subject and object because there is no direct relation between them (or at least not necessarily.
-								// perhaps it would be possible to trace the path and get this information there.
-								String subject = null;
-								String object = null;
-								if (sentenceEntities.get(i).getTaggedWordsIndex() < sentenceEntities.get(j)
-										.getTaggedWordsIndex()) {
-									subject = String.format("%s(%s)", sentenceEntities.get(i).getText(),
-											sentenceEntities.get(i).getURI());
-									object = String.format("%s(%s)", sentenceEntities.get(j).getText(),
-											sentenceEntities.get(j).getURI());
-								} else {
-									subject = String.format("%s(%s)", sentenceEntities.get(j).getText(),
-											sentenceEntities.get(j).getURI());
-									object = String.format("%s(%s)", sentenceEntities.get(i).getText(),
-											sentenceEntities.get(i).getURI());
+						if (sentenceEntities.get(i).getURI() != null
+								&& sentenceEntities.get(j).getURI() != null) { // only proceed if we have a URI for both entities
+							DPTreeNode result = tree.getShortestPath(leftWord, rightWord, list2); //TODO: now the leftWord and rightWord are still string based. Only the result.value now has IndexedWord. Fis this so that I am accessing getShortestPath with tagged indices rather than strings. Because currecntly this is not happening, right?
+							if (result != null){
+								if (result.indexedWord.tag() != null && result.indexedWord.tag().startsWith("V")) {
+									// this is a really stupid and naive assumption, but the best we have currently: the entity that appears first in the sentence is supposed to be the subject of the relation triple
+									// this is the problem when we take the lowest common verb node; you lose track of which is the real subject and object because there is no direct relation between them (or at least not necessarily.
+									// perhaps it would be possible to trace the path and get this information there.
+									String subject = null;
+									String object = null;
+								
+									if (sentenceEntities.get(i).getTaggedWordsIndex() < sentenceEntities.get(j).getTaggedWordsIndex()) {
+										subject = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
+										object = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
+									} else {
+										subject = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
+										object = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
+									}
+									String relation = result.value;
+									EntityRelationTriple t = new EntityRelationTriple();
+									t.setSubject(subject);
+									t.setRelation(relation);
+									t.setObject(object);
+									ert.add(t);
 								}
-								String relation = result.value;
-								EntityRelationTriple t = new EntityRelationTriple();
-								t.setSubject(subject);
-								t.setRelation(relation);
-								t.setObject(object);
-								ert.add(t);
-
 								// System.out.println(leftWord + "+++" +
 								// result.value + "+++" + rightWord);
 							}
