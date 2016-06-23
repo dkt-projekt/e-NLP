@@ -5,10 +5,19 @@ public class SpanWord implements LinguisticUnit {
 	protected String text;
 	protected int startSpan;
 	protected int endSpan;
+	protected int taggedWordsIndex;
+	protected String uri;
 	
 	public SpanWord(String text) {
 		super();
 		this.text = text;
+	}
+	
+	public SpanWord(String label, String URI, int taggedWordsIndex){
+		super();
+		this.text = label;
+		this.uri = URI;
+		this.taggedWordsIndex = taggedWordsIndex;
 	}
 	
 	public SpanWord(String text, int startSpan, int endSpan) {
@@ -20,6 +29,18 @@ public class SpanWord implements LinguisticUnit {
 
 	public String getText() {
 		return text;
+	}
+	public String getURI() {
+		return uri;
+	}
+	public void setURI(String uri) {
+		this.uri = uri;
+	}
+	public int getTaggedWordsIndex() {
+		return taggedWordsIndex;
+	}
+	public void setTaggedWordsIndex(int taggedWordsIndex) {
+		this.taggedWordsIndex = taggedWordsIndex;
 	}
 
 	public void setText(String text) {
