@@ -200,7 +200,7 @@ public class GermanDateRules {
 			String p = (String) pair.getValue();
 			// compile with ^ and $ since I want the whole match/no submatches (not sure if this works though, debug!)
 			if (Pattern.matches(String.format("^%s$", p), foundDate)){
-
+				//System.out.println("Matching with key:" + key);
 				//dateRegexMap.put(1, String.format("\\b%s\\.? %s(,? %s)?\\b", dayNumber, monthName, yearNumber));
 				if (key == 1){
 					foundDate = foundDate.replaceAll("\\.", "");
@@ -748,8 +748,6 @@ public class GermanDateRules {
 					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 					foundDate = foundDate.replaceAll("(?i)((morgen|gestern)?morgen|(vor|nach)?mittag|abend|nacht)", "");
 					//TODO: also take into account the mittag/abend stuff for normalization!
-					//System.out.println("DEBUGGING HERE:" + foundDate.trim().toLowerCase());
-					//System.out.println("DEBUGGING HERE:" + germanDayName2Integer.get(foundDate.trim().toLowerCase()));
 					if (germanDayName2Integer.containsKey(foundDate.trim().toLowerCase())){
 						int x = germanDayName2Integer.get(foundDate.trim().toLowerCase());
 						int daysOfIncrease = 0;
@@ -764,10 +762,9 @@ public class GermanDateRules {
 						else{ // else x < currentDayOfWeek and the day is in the next week
 							daysOfIncrease = 7 - dayOfWeek + x;
 						}
-
 						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, daysOfIncrease, cal.getTime());
 						normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
-
+						
 						dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
 						dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
 						DateCommons.updateAnchorDate(normalizedStartDate);

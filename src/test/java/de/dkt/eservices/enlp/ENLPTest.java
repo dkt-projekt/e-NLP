@@ -525,23 +525,23 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\oneBigBunch";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
-//		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
-//				.queryString("analysis", "dict")
-//				.queryString("language", "en")
-//				.queryString("modelName", "enronSureNames_PER")
-//				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
-//				.asString();
-//		assertTrue(trainSureNamesEnron.getStatus() == 200);
-//		assertTrue(trainSureNamesEnron.getBody().length() > 0);
+////		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
+////				.queryString("analysis", "dict")
+////				.queryString("language", "en")
+////				.queryString("modelName", "enronSureNames_PER")
+////				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
+////				.asString();
+////		assertTrue(trainSureNamesEnron.getStatus() == 200);
+////		assertTrue(trainSureNamesEnron.getBody().length() > 0);
 ////		HttpResponse<String> trainAllNamesEnron = trainOpennlpModel()
 ////				.queryString("analysis", "dict")
 ////				.queryString("language", "en")
@@ -565,11 +565,11 @@ public class ENLPTest {
 //			
 //			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-//					//.queryString("analysis", "ner")
-//					.queryString("analysis", "dict")
+//					.queryString("analysis", "ner")
+//					//.queryString("analysis", "dict")
 //					.queryString("language", "en")
-//					.queryString("models", "enronSureNames_PER")
-//					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
+//					//.queryString("models", "enronSureNames_PER")
+//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_PER;ner-wikinerEn_ORG")
 //					.queryString("informat", "text")
 //					//.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
