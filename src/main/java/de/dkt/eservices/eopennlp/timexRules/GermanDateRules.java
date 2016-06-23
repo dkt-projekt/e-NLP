@@ -58,14 +58,13 @@ public class GermanDateRules {
 	}};
 
 	static HashMap<String, Integer> germanDayName2Integer = new HashMap<String, Integer>(){{
-		put("montag", 1);
-		put("dienstag", 2);
-		put("mittwoch", 3);
-		put("donnerstag", 4);
-		put("freitag", 5);
-		put("samstag", 6);
-		put("sonnabend", 6);
-		put("sonntag", 7);
+		put("sonntag", 1);
+		put("montag", 2);
+		put("dienstag", 3);
+		put("mittoch", 4);
+		put("donnerstag", 5);
+		put("freitag", 6);
+		put("samstag", 7);
 	}};
 	
 	
@@ -103,7 +102,7 @@ public class GermanDateRules {
 		final String heute = "(?i)heute?";
 		//final String bald = "(?i)bald";
 		
-		final String holidays = "(?i)(weihnacht(en)?|Ostern|Himmelfahrt|pfingsten)"; //TODO I probably forgot some
+		final String holidays = "(?i)(weihnacht(en|stag)?|ostern|himmelfahrt|pfingsten|silvester(nacht)?|neujahr(stag)?|maifeiertag|tag der arbeit|tag der deutschen einheit)"; //TODO I probably forgot some
 		final String zeitpunkt = "(?i)zeitpunkt";
 		
 		final String gestern = "(?i)(vor)?gestern";
@@ -600,19 +599,24 @@ public class GermanDateRules {
 				
 				
 				//germanDateRegexMap.put(19, String.format("\\b%s( %s)?\\b", holidays, yearNumber));
+				
 				if (key == 19){
 					
 					int yearNumber = DateCommons.getYearFromAnchorDate();
 					int monthNumber = 1;
 					int dayNumber = 1;
 					String[] parts = foundDate.split("\\s");
-					if (parts.length == 2){
-						yearNumber = Integer.parseInt(parts[1]);
+					
+					if (parts[parts.length-1].matches("([1-2]\\d{3})")){
+						yearNumber = Integer.parseInt(parts[parts.length-1]);
 					}
 					else{
 						yearNumber = DateCommons.getYearFromAnchorDate();
 					}
-					//final String holidays = "(?i)(weihnachten|Ostern|Himmelfahrt|pfingsten)";					
+					//final String holidays = "(?i)(weihnacht(en|stag)?|ostern|himmelfahrt|pfingsten
+					//|silvester(nacht)?|neujahr(stag)?|
+					//maifeiertag|tag der deutschen einheit"
+					
 					if (parts[0].toLowerCase().contains("weihnacht")){
 						monthNumber = 12;
 						dayNumber = 25;
@@ -627,6 +631,32 @@ public class GermanDateRules {
 					}
 					else if (parts[0].matches("(?i)pfingsten")){
 						normalizedStartDate = DateCommons.getPentecostDate(yearNumber);
+					}
+					else if (parts[0].toLowerCase().contains("silvester")){
+						monthNumber = 12;
+						dayNumber = 31;
+						cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+						normalizedStartDate = cal.getTime();
+					}
+					else if (parts[0].toLowerCase().contains("neujahr")){
+						monthNumber = 1;
+						dayNumber = 1;
+						cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+						normalizedStartDate = cal.getTime();
+					}
+					else if (foundDate.matches("(?i)(maifeiertag|tag der arbeit)( [1-2]\\d{3})?")){
+						monthNumber = 5;
+						dayNumber = 1;
+						cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+						normalizedStartDate = cal.getTime();
+		
+					}
+					else if (foundDate.matches("(?i)tag der deutschen einheit( [1-2]\\d{3})?")){
+						monthNumber = 10;
+						dayNumber = 3;
+						cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+						normalizedStartDate = cal.getTime();
+						
 					}
 					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
 					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));

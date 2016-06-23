@@ -430,6 +430,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void addedHolidaysTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response10 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("2014 silvester neujahr tag der arbeit maifeiertag tag der deutschen einheit")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse10, response10.getBody());
+		assertTrue(response10.getStatus() == 200);
+		assertTrue(response10.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
