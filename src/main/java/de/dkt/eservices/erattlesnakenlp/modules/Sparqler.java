@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.namespace.NamespaceContext;
+
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -35,6 +37,43 @@ public class Sparqler {
 	private List<Double> longitudes = new ArrayList<Double>();
 	private List<Double> latitudes = new ArrayList<Double>();
 	
+	public static String getDBPediaLabelForLanguage(String URI, String targetLang){
+		
+		String targetLabel = null;
+		
+		ParameterizedSparqlString sQuery = new ParameterizedSparqlString(
+				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+				"SELECT ?label\n" +
+				"WHERE {\n" +
+				"?uri rdfs:label ?label\n" +
+				"}"
+		);
+		sQuery.setIri("uri", URI);
+		String service = "http://dbpedia.org/sparql";
+		//System.out.println("dEBUGGINg\n" + sQuery);
+		ResultSet res = null;
+		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery());
+		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+		
+		try{
+			res = exec.execSelect();
+			while (res.hasNext()) {
+				QuerySolution qs = res.next();
+				RDFNode uri = qs.get("label");
+				String labelLanguage = uri.toString().substring(uri.toString().lastIndexOf("@")+1);
+				if (labelLanguage.equalsIgnoreCase(targetLang)){
+					targetLabel = uri.toString().substring(0, uri.toString().lastIndexOf("@"));
+				}
+				
+			}
+			
+		}catch(Exception e){
+			logger.info("Unable to retrieve label for URI: " + URI + " in language: " + targetLang + ". Skipping.");
+	}
+		
+		return targetLabel;
+	}
+	
 	public static String getDBPediaURI(String label, String language, String service, String defaultGraph){
 		
 		String URI = null;
@@ -48,7 +87,7 @@ public class Sparqler {
 				"}"
 				);
 		sQuery.setLiteral("label", label);
-		//System.out.println("DEBUGGING QUERY:" + sQuery.toString());
+		System.out.println("DEBUGGING QUERY:" + sQuery.toString());
 		ResultSet res = null;
 		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery(), defaultGraph);
 		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
@@ -193,10 +232,13 @@ public class Sparqler {
 
 	public static void main(String[] args) throws Exception {
 
-		String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
-		System.out.println("uri:" + uri);
-		uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
-		System.out.println("uri:" + uri);
+		//String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+		//System.out.println("uri:" + uri);
+		//uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+		//System.out.println("uri:" + uri);
+		String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
+		System.out.println(targetLabel);
+		
 	}
 
 }
