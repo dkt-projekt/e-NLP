@@ -450,6 +450,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void addedTimesAndMoreDatesTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response11 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("Tele 5 zeigt am 17.12. um 20.15 Uhr die Komödie")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse11, response11.getBody());
+		assertTrue(response11.getStatus() == 200);
+		assertTrue(response11.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
