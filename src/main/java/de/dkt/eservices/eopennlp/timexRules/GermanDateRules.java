@@ -99,9 +99,9 @@ public class GermanDateRules {
 		
 		final String anfangMitteEnde = "(?i)(anfang|mitte|ende)";
 		final String gegenwärtig = "(?i)(gegenwärtig)";
-		final String jetzt = "(?i)jetzt";
+		final String jetzt = "(?i)(jetzt|aktuell|derzeit)";
 		final String heute = "(?i)heute?";
-		//final String bald = "(?i)bald";
+		final String thisYearWeek = "(?i)((in dieser Woche|in diesem Jahr)|(diese(r)? Woche|diese(s|m) Jahr))";
 		
 		final String holidays = "(?i)(weihnacht(en|stag)?|ostern|himmelfahrt|pfingsten|silvester(nacht)?|neujahr(stag)?|maifeiertag|tag der arbeit|tag der deutschen einheit)"; //TODO I probably forgot some
 		final String zeitpunkt = "(?i)zeitpunkt";
@@ -144,6 +144,7 @@ public class GermanDateRules {
 		germanDateRegexMap.put(28, String.format("\\b%s\\b", gestern));
 		germanDateRegexMap.put(29, String.format("\\b%s\\b", morgen));
 		germanDateRegexMap.put(30, String.format("\\b%s Uhr\\b", time));
+		germanDateRegexMap.put(31, String.format("\\b%s\\b", thisYearWeek));
 
 	
 		
@@ -177,7 +178,8 @@ public class GermanDateRules {
 			Pattern.compile(germanDateRegexMap.get(27)),
 			Pattern.compile(germanDateRegexMap.get(28)),
 			Pattern.compile(germanDateRegexMap.get(29)),
-			Pattern.compile(germanDateRegexMap.get(30))
+			Pattern.compile(germanDateRegexMap.get(30)),
+			Pattern.compile(germanDateRegexMap.get(31))
 		};
 	
 		RegexNameFinder rnf = new RegexNameFinder(regexes, null);
@@ -898,6 +900,39 @@ public class GermanDateRules {
 					cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
 					normalizedStartDate = cal.getTime();
 					normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+				}
+				
+				//germanDateRegexMap.put(31, String.format("\\b%s\\b", thisYearWeek));
+				if (key == 31){
+
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					int hour = 0;
+					int minute = 0;
+					if(foundDate.matches("(in diesem Jahr|diese(s|m) Jahr)")){
+						yearNumber = DateCommons.getYearFromAnchorDate();
+						monthNumber = DateCommons.getMonthFromAnchorDate();
+						int x = 12 - monthNumber;
+						cal.set(yearNumber,  monthNumber, 1, hour, minute, 0);
+						normalizedStartDate = cal.getTime();
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, x, normalizedStartDate);
+					}
+					if(foundDate.matches("(in dieser Woche|diese(r)? Woche)")){
+						int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+						int x = 7 - dayOfWeek;
+						cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+						normalizedStartDate = cal.getTime();
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, x, normalizedStartDate);
+					}
+					else{
+						// do nothing
+					}
+					cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+					normalizedStartDate = cal.getTime();
 					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
 					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
 					DateCommons.updateAnchorDate(normalizedStartDate);

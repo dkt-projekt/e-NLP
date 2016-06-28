@@ -470,6 +470,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void addedThisWeekYearTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response12 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("08.10.1990 diese Woche dieses Jahr")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse12, response12.getBody());
+		assertTrue(response12.getStatus() == 200);
+		assertTrue(response12.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
