@@ -450,6 +450,28 @@ public class ENLPTest {
 		
 	}
 	
+
+	@Test
+	public void addedTimesAndMoreDatesTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response11 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("Tele 5 zeigt am 17.12. um 20.15 Uhr und um 15 Uhr die Komödie")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse11, response11.getBody());
+		assertTrue(response11.getStatus() == 200);
+		assertTrue(response11.getBody().length() > 0);
+		
+	}
+	
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
@@ -565,12 +587,14 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
@@ -607,9 +631,10 @@ public class ENLPTest {
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
 //					.queryString("analysis", "ner")
 //					//.queryString("analysis", "dict")
+//					//.queryString("language", "de")
 //					.queryString("language", "en")
-//					//.queryString("models", "enronSureNames_PER")
-//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_PER;ner-wikinerEn_ORG")
+//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					//.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainPER")
 //					.queryString("informat", "text")
 //					//.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
@@ -622,8 +647,8 @@ public class ENLPTest {
 //
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
 //					.queryString("analysis", "temp")
-//					.queryString("language", "en")
-//					.queryString("models", "englishDates")
+//					.queryString("language", "de")
+//					.queryString("models", "germanDates")
 //					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", turtleModel)

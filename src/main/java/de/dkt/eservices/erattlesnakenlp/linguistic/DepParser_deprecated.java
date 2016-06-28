@@ -328,7 +328,7 @@ public class DepParser_deprecated {
 		
 		//TODO: complete the following
 		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
-		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); // advmod, // cheating by adding the indirect object ones here, to get some more relations 
+		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
 		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
 		
 		List<String> germanSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass"));
