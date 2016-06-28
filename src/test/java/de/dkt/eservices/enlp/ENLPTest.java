@@ -461,7 +461,7 @@ public class ENLPTest {
 				.queryString("models", "germanDates")
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
-				.body("Tele 5 zeigt am 17.12. um 20.15 Uhr die Komödie")
+				.body("Tele 5 zeigt am 17.12. um 20.15 Uhr und um 15 Uhr die Komödie")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse11, response11.getBody());

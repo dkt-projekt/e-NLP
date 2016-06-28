@@ -87,7 +87,7 @@ public class GermanDateRules {
 		
 		final String dayPartName = "(?i)(morgen|gestern)?(morgens?|(vor|nach)?mittags?|abends?|nachts?)";
 		
-		final String time = "(([0-9]|0[0-9]|1[0-9]|2[0-3])(:|.)[0-5][0-9])";
+		final String time = "(([0-9]|0[0-9]|1[0-9]|2[0-3])(:|.)?([0-5][0-9])?)";
 		final String day = "(?i)tage?";
 		final String week = "(?i)wochen?";
 		final String month = "(?i)monate?";
