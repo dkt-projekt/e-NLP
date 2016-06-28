@@ -1167,8 +1167,6 @@ public class TestConstants {
 			+"        time:intervalStarts    \"2014-05-01T00:00:00\"^^xsd:dateTime .\n"
 			+"";
 	
-
-	
 	static String expectedResponse11 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"

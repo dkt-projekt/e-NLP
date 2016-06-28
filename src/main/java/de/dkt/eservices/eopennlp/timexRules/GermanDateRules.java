@@ -61,7 +61,7 @@ public class GermanDateRules {
 		put("sonntag", 1);
 		put("montag", 2);
 		put("dienstag", 3);
-		put("mittoch", 4);
+		put("mittwoch", 4);
 		put("donnerstag", 5);
 		put("freitag", 6);
 		put("samstag", 7);
@@ -87,6 +87,7 @@ public class GermanDateRules {
 		
 		final String dayPartName = "(?i)(morgen|gestern)?(morgens?|(vor|nach)?mittags?|abends?|nachts?)";
 		
+		final String time = "(([0-9]|0[0-9]|1[0-9]|2[0-3])(:|.)?([0-5][0-9])?)";
 		final String day = "(?i)tage?";
 		final String week = "(?i)wochen?";
 		final String month = "(?i)monate?";
@@ -117,7 +118,7 @@ public class GermanDateRules {
 		germanDateRegexMap.put(2, String.format("\\b(%s )?%s\\b", year, yearNumber));
 		germanDateRegexMap.put(3, String.format("\\b%s,? %s\\b", monthName, yearNumber));
 		germanDateRegexMap.put(4, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", yearNumber, monthNumber, dayNumber));
-		germanDateRegexMap.put(5, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", dayNumber, monthNumber, yearNumber));
+		germanDateRegexMap.put(5, String.format("\\b%s[-/\\.]%s[-/\\.](%s)?", dayNumber, monthNumber, yearNumber));
 		germanDateRegexMap.put(6, String.format("\\b%s[-/\\.]%s\\b", monthNumber, yearNumber));
 		germanDateRegexMap.put(7, String.format("\\b%s", beforeChrist));
 		germanDateRegexMap.put(8, String.format("\\b%s\\b", dayPartName));
@@ -142,6 +143,7 @@ public class GermanDateRules {
 		germanDateRegexMap.put(27, String.format("\\b%s\\b", jetzt));
 		germanDateRegexMap.put(28, String.format("\\b%s\\b", gestern));
 		germanDateRegexMap.put(29, String.format("\\b%s\\b", morgen));
+		germanDateRegexMap.put(30, String.format("\\b%s Uhr\\b", time));
 
 	
 		
@@ -174,7 +176,8 @@ public class GermanDateRules {
 			Pattern.compile(germanDateRegexMap.get(26)),
 			Pattern.compile(germanDateRegexMap.get(27)),
 			Pattern.compile(germanDateRegexMap.get(28)),
-			Pattern.compile(germanDateRegexMap.get(29))
+			Pattern.compile(germanDateRegexMap.get(29)),
+			Pattern.compile(germanDateRegexMap.get(30))
 		};
 	
 		RegexNameFinder rnf = new RegexNameFinder(regexes, null);
@@ -274,12 +277,17 @@ public class GermanDateRules {
 					DateCommons.updateAnchorDate(normalizedStartDate);
 				}
 				
-				//dateRegexMap.put(5, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", dayNumber, monthNumber, yearNumber));
+				//germanDateRegexMap.put(5, String.format("\\b%s[-/\\.]%s[-/\\.](%s)?\\b", dayNumber, monthNumber, yearNumber));;
 				if (key == 5){
 					String[] parts = foundDate.split("[-/\\.]");
 					int dayNumber = Integer.parseInt(parts[0]);
 					int monthNumber = Integer.parseInt(parts[1]);
-					int yearNumber = Integer.parseInt(parts[2]);
+					int yearNumber = 0;
+					if(parts.length==3){
+						yearNumber = Integer.parseInt(parts[2]);
+					}else{
+						yearNumber = DateCommons.getYearFromAnchorDate();
+					}
 					cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
 					normalizedStartDate = cal.getTime();
 					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
@@ -867,6 +875,32 @@ public class GermanDateRules {
 					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
 					DateCommons.updateAnchorDate(normalizedStartDate);
 					
+				}
+				
+				//germanDateRegexMap.put(30, String.format("\\b%s Uhr\\b", time));
+				if (key == 30){
+
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					int hour = 0;
+					int minute = 0;
+					String[] parts = foundDate.split("(:|\\.|\\s)");
+					if(parts[0].matches("([0-9]|0[0-9]|1[0-9]|2[0-3])")){
+						hour = Integer.parseInt(parts[0]);
+					}
+					if(parts[1].matches("[0-5][0-9]")){
+						minute = Integer.parseInt(parts[1]);
+					}
+					else{
+						// do nothing
+					}
+					cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
 				}
 				
 			}

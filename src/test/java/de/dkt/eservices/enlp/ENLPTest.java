@@ -450,7 +450,6 @@ public class ENLPTest {
 		
 	}
 	
-
 	@Test
 	public void addedTimesAndMoreDatesTest() throws UnirestException, IOException,
 			Exception {
@@ -470,7 +469,6 @@ public class ENLPTest {
 		assertTrue(response11.getBody().length() > 0);
 		
 	}
-	
 	
 	
 	@Test

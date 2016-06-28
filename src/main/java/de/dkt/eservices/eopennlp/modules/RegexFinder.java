@@ -480,7 +480,7 @@ public class RegexFinder {
 		
 		
 
-		String input = "Es war mal Montag";
+		String input = "Tele 5 zeigt am Mittwoch, dem 17.12. um 20 Uhr die Komödie";
 		//Span[] timeSpans = filterFind(timeFinder, input);
 		List<Span> timeSpans = filterFind(timeFinder, input);
 		for (Span s : timeSpans){
