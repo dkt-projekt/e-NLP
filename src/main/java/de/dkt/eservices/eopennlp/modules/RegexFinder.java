@@ -480,7 +480,7 @@ public class RegexFinder {
 		
 		
 
-		String input = "dieses Jahr diese Woche";
+		String input = "seit 17 Jahren seit zwanzig Jahren vor 11 Monaten vor elf Monaten";
 		//Span[] timeSpans = filterFind(timeFinder, input);
 		List<Span> timeSpans = filterFind(timeFinder, input);
 		for (Span s : timeSpans){

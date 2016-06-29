@@ -490,6 +490,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void addedSinceAndAgo() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response13 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("1990 seit 10 Jahren, 2010 vor 10 Jahren")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse13, response13.getBody());
+		assertTrue(response13.getStatus() == 200);
+		assertTrue(response13.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
