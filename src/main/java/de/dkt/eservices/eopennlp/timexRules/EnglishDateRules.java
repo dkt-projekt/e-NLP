@@ -30,6 +30,16 @@ public class EnglishDateRules {
 		put("november", 11);
 		put("december", 12);
 	}};
+	
+	static HashMap<String, Integer> englishDayName2Integer = new HashMap<String, Integer>(){{
+		put("sunday", 1);
+		put("monday", 2);
+		put("tuesday", 3);
+		put("thursday", 4);
+		put("wednesday", 5);
+		put("friday", 6);
+		put("saturday", 7);
+	}};
 
 	
 	public static RegexNameFinder initEnglishDateFinder(){
@@ -479,38 +489,32 @@ public class EnglishDateRules {
 				//englishDateRegexMap.put(17, String.format("\\b%s\\b", dayName));
 				if (key == 17){
 					//TODO: fix this once I have sentence tense in place. The approach below is a simplified version, and should really be properly debugged before using it.
-					/*
-					int yearNumber = DateCommons.getYearFromAnchorDate();
-					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					
 					int dayNumber = DateCommons.getDayFromAnchorDate();
-					cal.set(yearNumber, monthNumber, dayNumber);
-					if (foundDate.equalsIgnoreCase("monday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);	
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
+					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+					int daysOfIncrease = 0;
+					int x = englishDayName2Integer.get(foundDate.trim().toLowerCase());
+					if (x > dayOfWeek){
+						// it is in the rest of the week
+						daysOfIncrease = x - dayOfWeek;
 					}
-					else if (foundDate.equalsIgnoreCase("tuesday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY);
+					else if (x == dayOfWeek){
+						// do nothing, it is the current day
+						daysOfIncrease = 0;
 					}
-					else if (foundDate.equalsIgnoreCase("wednesday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+					else{ // else x < currentDayOfWeek and the day is in the next week
+						daysOfIncrease = 7 - dayOfWeek + x;
 					}
-					else if (foundDate.equalsIgnoreCase("thursday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
-					}
-					else if (foundDate.equalsIgnoreCase("friday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-					}
-					else if (foundDate.equalsIgnoreCase("saturday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-					}
-					else if (foundDate.equalsIgnoreCase("sunday")){
-						cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-					}
-					normalizedStartDate = cal.getTime();
+					normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, daysOfIncrease, cal.getTime());
 					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					
 					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
 					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
 					DateCommons.updateAnchorDate(normalizedStartDate);
-					*/
+					
 				}
 				
 				//final String holidays = "(?i)(christmas( day)?|easter( monday)?|new year'?s day|may day|boxing day|independence day|labor day|memorial day|veterans day|thanksgiving)";

@@ -510,6 +510,26 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void addedEnglishWeekdaysTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response14 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "en")
+				.queryString("models", "englishDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("8.10.1990 monday tuesday friday")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse14, response14.getBody());
+		assertTrue(response14.getStatus() == 200);
+		assertTrue(response14.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
