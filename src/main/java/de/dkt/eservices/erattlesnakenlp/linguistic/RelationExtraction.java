@@ -287,7 +287,8 @@ public class RelationExtraction {
 		DepParserTree.initParser("en");
 
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 
 		File df = new File(docFolder);
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();

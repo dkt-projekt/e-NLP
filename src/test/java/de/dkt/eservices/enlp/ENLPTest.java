@@ -527,6 +527,42 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void trainModelDICTInBodyAndSpotWithModelOtherType() throws UnirestException, IOException,
+			Exception {
+
+		
+		//upload dictionary by submitting tsv in postBody
+		HttpResponse<String> response8 = trainOpennlpModel()
+				.queryString("analysis", "dict")
+				.queryString("language", "en")
+				.queryString("modelName", "testDummyDict_AAPJE")
+				.body(TestConstants.dictUploadData)
+				.asString();
+		
+		assertTrue(response8.getStatus() == 200);
+		assertTrue(response8.getBody().length() > 0);
+		System.out.println(response8.getBody());
+		
+		// dictionary name finding with dictionary uploaded above
+		HttpResponse<String> response6 = analyzeOpennlpRequest()
+				.queryString("analysis", "dict")
+				.queryString("language", "de")
+				.queryString("models", "testDummyDict_AAPJE")
+				//.queryString("models", "mendelsohn_LOC")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("input", "wer weiß, wo Herbert Eulenberg ging?")
+				//.queryString("input", "wer weiß, wo Herbert Eulenberg ging? Ware es Haarlem?")
+				.asString();
+		
+		assertTrue(response6.getStatus() == 200);
+		assertTrue(response6.getBody().length() > 0);
+		Assert.assertEquals(TestConstants.expectedResponse666, response6.getBody());
+		
+		
+	}
+	
 
 	
 	static String readFile(String path, Charset encoding) 

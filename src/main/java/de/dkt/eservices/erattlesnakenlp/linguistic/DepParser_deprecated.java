@@ -487,94 +487,94 @@ public class DepParser_deprecated {
 
 		
 		
-		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the books will be shipped to both you and Rice."));
-		
-		for (List<HasWord> sentence : tokenizer) {
-			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
-			GrammaticalStructure gs = parser.predict(tagged);
-
-			String subRootNode = getsubRootNode(gs);
-			
-			JSONObject j = new JSONObject();
-			System.out.println("DEBUGGINg:" + gs.typedDependencies());
-			IndexedWord dep1 = null;
-			IndexedWord gov1 = null;
-			for (TypedDependency td : gs.typedDependencies()) {
-				IndexedWord dep = td.dep();
-				IndexedWord gov = td.gov();
-				if(dep!=null && dep.word().equalsIgnoreCase("let")){
-					dep1 = dep;
-				}
-				if(gov!=null && gov.word()!=null && gov.word().equalsIgnoreCase("rice")){
-					gov1 = gov;
-				}
-				System.out.println("DEBUGGINg td: " + td);
-				System.out.println("Dep" + td.dep().word());
-				System.out.println("Grammatical relation: " +gs.getGrammaticalRelation(gov, dep));
-				j.put(td.dep().word(), td.gov().word());
-				// for multi word entities: check which part of the entity has the shortest path to the root node.
-			}
-			System.out.println("Grammatical relation HUGE: " +gs.getGrammaticalRelation(dep1, gov1));
-			System.out.println(j);
-			ArrayList<Pair> pairList = getShortestPathToRoot(j, "let", subRootNode, new ArrayList<Pair>());
-			ArrayList<Pair> pairList2 = getShortestPathToRoot(j, "Rice", subRootNode, new ArrayList<Pair>());
-			
-			// now find the first item that is in both lists
-			List<String> sequential = new ArrayList<String>();
-			for (Pair p : pairList){
-				sequential.add(p.getLeft().toString());
-				sequential.add(p.getRight().toString());
-			}
-			List<String> sequential2 = new ArrayList<String>();
-			for (Pair p : pairList2){
-				sequential2.add(p.getLeft().toString());
-				sequential2.add(p.getRight().toString());
-			}
-			
-			List<String> common = new ArrayList<String>(sequential);
-			common.retainAll(sequential2);
-			System.out.println(common);
-			
-			String connectingVerb = null;
-			for (TypedDependency td : gs.typedDependencies()){
-				for (String s : common){
-					if (td.dep().word().equals(s)){
-						if (td.dep().tag().startsWith("V")){ // this assumes that it is a verb. Look into this in more detail.
-							connectingVerb = td.dep().word();
-						}
-					}
-					else if (td.gov().word().equals(s)){
-						if (td.gov().tag().startsWith("V")){
-							connectingVerb = td.gov().word(); // TODO: find out why .lemma() doesn't seem to work
-						}
-					}
-				}
-			}
-			System.out.println("Connecting verb: " + connectingVerb);
-			
-		}
-		System.exit(1);
-		
-		//this is just for converting a set of nifs from one format to another, needed that at some point.
-//		String doc1Folder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\rdfxmlnifs";
-//		File d1f = new File(doc1Folder);
-//		for (File f1 : d1f.listFiles()){
-//			String fileContent;
-//			try {
-//				fileContent = readFile(f1.getAbsolutePath(), StandardCharsets.UTF_8);
-//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent,RDFConstants.RDFSerialization.TURTLE);
-//				PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f1.getName()) + ".rdfxml"));
-//				out.println(NIFReader.model2String(nifModel, "RDF/XML"));
-//				out.close();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
+//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the books will be shipped to both you and Rice."));
+//		
+//		for (List<HasWord> sentence : tokenizer) {
+//			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+//			GrammaticalStructure gs = parser.predict(tagged);
+//
+//			String subRootNode = getsubRootNode(gs);
+//			
+//			JSONObject j = new JSONObject();
+//			System.out.println("DEBUGGINg:" + gs.typedDependencies());
+//			IndexedWord dep1 = null;
+//			IndexedWord gov1 = null;
+//			for (TypedDependency td : gs.typedDependencies()) {
+//				IndexedWord dep = td.dep();
+//				IndexedWord gov = td.gov();
+//				if(dep!=null && dep.word().equalsIgnoreCase("let")){
+//					dep1 = dep;
+//				}
+//				if(gov!=null && gov.word()!=null && gov.word().equalsIgnoreCase("rice")){
+//					gov1 = gov;
+//				}
+//				System.out.println("DEBUGGINg td: " + td);
+//				System.out.println("Dep" + td.dep().word());
+//				System.out.println("Grammatical relation: " +gs.getGrammaticalRelation(gov, dep));
+//				j.put(td.dep().word(), td.gov().word());
+//				// for multi word entities: check which part of the entity has the shortest path to the root node.
+//			}
+//			System.out.println("Grammatical relation HUGE: " +gs.getGrammaticalRelation(dep1, gov1));
+//			System.out.println(j);
+//			ArrayList<Pair> pairList = getShortestPathToRoot(j, "let", subRootNode, new ArrayList<Pair>());
+//			ArrayList<Pair> pairList2 = getShortestPathToRoot(j, "Rice", subRootNode, new ArrayList<Pair>());
+//			
+//			// now find the first item that is in both lists
+//			List<String> sequential = new ArrayList<String>();
+//			for (Pair p : pairList){
+//				sequential.add(p.getLeft().toString());
+//				sequential.add(p.getRight().toString());
+//			}
+//			List<String> sequential2 = new ArrayList<String>();
+//			for (Pair p : pairList2){
+//				sequential2.add(p.getLeft().toString());
+//				sequential2.add(p.getRight().toString());
 //			}
 //			
+//			List<String> common = new ArrayList<String>(sequential);
+//			common.retainAll(sequential2);
+//			System.out.println(common);
+//			
+//			String connectingVerb = null;
+//			for (TypedDependency td : gs.typedDependencies()){
+//				for (String s : common){
+//					if (td.dep().word().equals(s)){
+//						if (td.dep().tag().startsWith("V")){ // this assumes that it is a verb. Look into this in more detail.
+//							connectingVerb = td.dep().word();
+//						}
+//					}
+//					else if (td.gov().word().equals(s)){
+//						if (td.gov().tag().startsWith("V")){
+//							connectingVerb = td.gov().word(); // TODO: find out why .lemma() doesn't seem to work
+//						}
+//					}
+//				}
+//			}
+//			System.out.println("Connecting verb: " + connectingVerb);
+//			
 //		}
-//		
-//		System.exit(0);
+//		System.exit(1);
+		
+		//this is just for converting a set of nifs from one format to another, needed that at some point.
+		String doc1Folder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
+		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifRdfXml";
+		File d1f = new File(doc1Folder);
+		for (File f1 : d1f.listFiles()){
+			String fileContent;
+			try {
+				fileContent = readFile(f1.getAbsolutePath(), StandardCharsets.UTF_8);
+				Model nifModel = NIFReader.extractModelFromFormatString(fileContent,RDFConstants.RDFSerialization.TURTLE);
+				PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f1.getName()) + ".rdfxml"));
+				out.println(NIFReader.model2String(nifModel, "RDF/XML"));
+				out.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		System.exit(0);
 		
 	      
 //		Date d1 = new Date();
