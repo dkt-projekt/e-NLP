@@ -593,7 +593,53 @@ public class GermanDateRules {
 				
 				//germanDateRegexMap.put(16, String.format("\\bnächste(r|s|n)? (%s|%s|%s|%s)\\b", day, week, month, year));
 				if (key == 16){
-					//TODO: anchoring
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					
+					String[] parts = foundDate.split("\\s");
+					
+					if(parts[1].matches("(?i)jahre?")){
+						
+						cal.set(yearNumber+1, 0, 1, 0, 0, 0);
+						normalizedStartDate = cal.getTime();
+						cal.set(yearNumber+2,  0, 1, 0, 0, 0);
+						normalizedEndDate = cal.getTime();
+						
+					}
+					if(parts[1].matches("(?i)monate?")){
+						
+						cal.set(yearNumber, monthNumber+1, 1, 0, 0, 0);
+						
+						normalizedStartDate = cal.getTime();
+						normalizedEndDate = cal.getTime();
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);
+						
+					}
+					if(parts[1].matches("(?i)wochen?")){
+						
+						cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);
+						int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+						int x = 7 - dayOfWeek;
+						
+						cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);
+						normalizedStartDate = cal.getTime();
+						normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, -dayOfWeek+7, normalizedStartDate);
+						cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);
+						normalizedEndDate = cal.getTime();
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, x+7, normalizedEndDate);
+						
+					}if(parts[1].matches("(?i)tage?")){
+						
+						cal.set(yearNumber, monthNumber, dayNumber+1, 0, 0, 0);
+						normalizedStartDate = cal.getTime();
+						normalizedEndDate = cal.getTime();
+						normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					}
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+					DateCommons.updateAnchorDate(normalizedEndDate);
 				}
 				
 				//germanDateRegexMap.put(17, String.format("(?i)\\bdiese(s|r|m|n)? (%s|%s|%s|%s)\\b", day, week, month, year));
