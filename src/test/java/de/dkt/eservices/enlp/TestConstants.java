@@ -1235,50 +1235,67 @@ public class TestConstants {
 					"        nif:isString    \"wer weiß, wo Herbert Eulenberg ging?\"^^xsd:string .\n" +
 					"";
 	
-	static String expectedResponse12 = 
-			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
-					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
-					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
-					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
-					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
-					"@prefix time:  <http://www.w3.org/2006/time#> .\n" +
-					"\n" +
-					"<http://dkt.dfki.de/documents/#char=23,34>\n" +
-					"        a                      nif:RFC5147String , nif:String ;\n" +
-					"        nif:anchorOf           \"dieses Jahr\"^^xsd:string ;\n" +
-					"        nif:beginIndex         \"23\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex           \"34\"^^xsd:nonNegativeInteger ;\n" +
-					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
-					"        time:intervalFinishes  \"1991-01-01T00:00:00\"^^xsd:dateTime ;\n" +
-					"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n" +
-					"\n" +
-					"<http://dkt.dfki.de/documents/#char=11,22>\n" +
-					"        a                      nif:RFC5147String , nif:String ;\n" +
-					"        nif:anchorOf           \"diese Woche\"^^xsd:string ;\n" +
-					"        nif:beginIndex         \"11\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex           \"22\"^^xsd:nonNegativeInteger ;\n" +
-					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
-					"        time:intervalFinishes  \"1990-10-11T00:00:00\"^^xsd:dateTime ;\n" +
-					"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n" +
-					"\n" +
-					"<http://dkt.dfki.de/documents/#char=0,10>\n" +
-					"        a                      nif:RFC5147String , nif:String ;\n" +
-					"        nif:anchorOf           \"08.10.1990\"^^xsd:string ;\n" +
-					"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex           \"10\"^^xsd:nonNegativeInteger ;\n" +
-					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
-					"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n" +
-					"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n" +
-					"\n" +
-					"<http://dkt.dfki.de/documents/#char=0,34>\n" +
-					"        a                     nif:RFC5147String , nif:String , nif:Context ;\n" +
-					"        dktnif:meanDateEnd    \"1990-11-27T16:48:00\"^^xsd:dateTime ;\n" +
-					"        dktnif:meanDateStart  \"1990-09-22T16:48:00\"^^xsd:dateTime ;\n" +
-					"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:endIndex          \"34\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:isString          \"08.10.1990 diese Woche dieses Jahr\"^^xsd:string .\n" +
-					"";
+	static String expectedResponse12 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
+			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
+			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
+			+"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"
+			+"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"
+			+"@prefix time:  <http://www.w3.org/2006/time#> .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=11,21>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"dieser Tag\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"11\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"21\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=22,33>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"diese Woche\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"22\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"33\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-13T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-06T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=0,10>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"08.10.1990\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"10\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=47,58>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"dieses Jahr\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"47\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"58\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1991-01-01T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-01-01T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=34,46>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"dieser Monat\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"34\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"46\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-11-01T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-01T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=0,58>\n"
+			+"        a                     nif:RFC5147String , nif:String , nif:Context ;\n"
+			+"        dktnif:meanDateEnd    \"1990-12-19T17:48:00\"^^xsd:dateTime ;\n"
+			+"        dktnif:meanDateStart  \"1990-06-22T17:48:00\"^^xsd:dateTime ;\n"
+			+"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex          \"58\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:isString          \"08.10.1990 dieser Tag diese Woche dieser Monat dieses Jahr\"^^xsd:string .\n"
+			+"";
 	
 	static String expectedResponse13 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
@@ -1384,6 +1401,50 @@ public class TestConstants {
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-10T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-09T00:00:00\"^^xsd:dateTime .\n"
+			+"";
+	
+	static String expectedResponse15 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
+			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
+			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
+			+"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"
+			+"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"
+			+"@prefix time:  <http://www.w3.org/2006/time#> .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=0,9>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"8.10.1990\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"9\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=21,29>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"9.00 a.m\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"21\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"29\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-08T09:01:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-08T09:00:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=10,19>\n"
+			+"        a                      nif:RFC5147String , nif:String ;\n"
+			+"        nif:anchorOf           \"10.34 p.m\"^^xsd:string ;\n"
+			+"        nif:beginIndex         \"10\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex           \"19\"^^xsd:nonNegativeInteger ;\n"
+			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
+			+"        time:intervalFinishes  \"1990-10-08T22:35:00\"^^xsd:dateTime ;\n"
+			+"        time:intervalStarts    \"1990-10-08T22:34:00\"^^xsd:dateTime .\n"
+			+"\n"
+			+"<http://dkt.dfki.de/documents/#char=0,30>\n"
+			+"        a                     nif:RFC5147String , nif:String , nif:Context ;\n"
+			+"        dktnif:meanDateEnd    \"1990-10-08T14:31:40\"^^xsd:dateTime ;\n"
+			+"        dktnif:meanDateStart  \"1990-10-08T14:31:40\"^^xsd:dateTime ;\n"
+			+"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:endIndex          \"30\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:isString          \"8.10.1990 10.34 p.m. 9.00 a.m.\"^^xsd:string .\n"
 			+"";
 			
 	static String dictUploadData = 

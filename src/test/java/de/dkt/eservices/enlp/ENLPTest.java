@@ -481,7 +481,7 @@ public class ENLPTest {
 				.queryString("models", "germanDates")
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
-				.body("08.10.1990 diese Woche dieses Jahr")
+				.body("08.10.1990 dieser Tag diese Woche dieser Monat dieses Jahr")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse12, response12.getBody());
@@ -527,6 +527,26 @@ public class ENLPTest {
 		Assert.assertEquals(TestConstants.expectedResponse14, response14.getBody());
 		assertTrue(response14.getStatus() == 200);
 		assertTrue(response14.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedEnglishTimeTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response15 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "en")
+				.queryString("models", "englishDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("8.10.1990 10.34 p.m. 9.00 a.m.")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse15, response15.getBody());
+		assertTrue(response15.getStatus() == 200);
+		assertTrue(response15.getBody().length() > 0);
 		
 	}
 	

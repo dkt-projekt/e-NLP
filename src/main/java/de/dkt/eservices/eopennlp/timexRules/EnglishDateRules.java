@@ -47,6 +47,8 @@ public class EnglishDateRules {
 		final String monthName = "(?i)(january|february|march|april|may|june|july|august|september|october|november|december)";
 		final String monthNumber = "(0?[0-9]|1[0-2])";
 		
+		final String time = "(([0-9]|0[0-9]|1[0-2])(:|.)?([0-5][0-9])?)";
+		
 		final String dayName = "(?i)(monday|tuesday|wednesday|thursday|friday|saturday|sunday)";
 		final String dayNumber = "(0?[1-9]|1[0-9]|2[0-9]|3[0-1])";
 		final String season = "(?i)(summer|winter|spring|autumn|fall)";
@@ -83,6 +85,7 @@ public class EnglishDateRules {
 		englishDateRegexMap.put(16, String.format("\\b%ss\\b", yearNumber));
 		englishDateRegexMap.put(17, String.format("\\b%s\\b", dayName));
 		englishDateRegexMap.put(18, String.format("\\b%s( %s)?\\b", holidays, yearNumber));
+		englishDateRegexMap.put(19, String.format("\\b%s (?i)(a.m|p.m)\\b", time));
 		
 		Pattern[] regexes = {
 			Pattern.compile(englishDateRegexMap.get(1)),
@@ -103,6 +106,7 @@ public class EnglishDateRules {
 			Pattern.compile(englishDateRegexMap.get(16)),
 			Pattern.compile(englishDateRegexMap.get(17)),
 			Pattern.compile(englishDateRegexMap.get(18)),
+			Pattern.compile(englishDateRegexMap.get(19)),
 		};
 	
 		RegexNameFinder rnf = new RegexNameFinder(regexes, null);
@@ -573,6 +577,34 @@ public class EnglishDateRules {
 					cal.set(yearNumber, monthNumber-1, dayNumber,0,0,0);
 					normalizedStartDate = cal.getTime();
 					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
+					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+					DateCommons.updateAnchorDate(normalizedStartDate);
+				}
+				
+				//englishDateRegexMap.put(19, String.format("\\b%s (?i)(a.m|p.m)\\b", time));
+				if (key == 19){
+
+					int dayNumber = DateCommons.getDayFromAnchorDate();
+					int monthNumber = DateCommons.getMonthFromAnchorDate();
+					int yearNumber = DateCommons.getYearFromAnchorDate();
+					int hour = 0;
+					int minute = 0;
+					String[] parts = foundDate.split("(:|\\.|\\s)");
+					if(parts[0].matches("([0-9]|0[0-9]|1[0-1])")){
+						hour = Integer.parseInt(parts[0]);
+					}
+					if(parts[1].matches("[0-5][0-9]")){
+						minute = Integer.parseInt(parts[1]);
+					}
+					if (parts[2].matches("p")){
+						hour = hour+12;
+					}else{
+						//do nothing
+					}
+					cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+					normalizedStartDate = cal.getTime();
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1, normalizedStartDate);
 					dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
 					dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
 					DateCommons.updateAnchorDate(normalizedStartDate);
