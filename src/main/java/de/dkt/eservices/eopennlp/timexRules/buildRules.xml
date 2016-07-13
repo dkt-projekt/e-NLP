@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+
+<project name="rules" default="compilerules">
+    <target name="compilerules">
+    	<copy overwrite ="true" todir="${dirdest}">
+		<fileset dir="${dirorig}" includes="${rulesclass}.in"/>
+		<mapper type="glob" from="*.in" to="*.java"/>
+        </copy>
+
+<!--    	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"-->
+       	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"
+    	    replace="\1">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  replace="counter++;englishDateRegexMap.put(1, String.format(&#x22;\2&#x22;));&#xD;&#xA;
+    		patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;(.*)&#x3e;:=="
+        	    	  replace="String \1:==">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;(.*?)&#x3e;"
+        	    	  replace="&#x22;&#x2b;\1&#x2b;&#x22;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+        	    	  match=":==(.*)&#xD;&#xA;"
+        	    	  replace=":==\1 &#x22;&#x3b;&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+        	
+    	
+    	<replaceregexp flags="g" match=":=="
+    	    replace="=&#x22;">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<replaceregexp flags="g" match="\["
+    	    replace="(">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g" match="\]"
+    	    replace=")&#x3f;">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<replaceregexp flags="g"
+        	    	  match="START_RULES\(([^\)]*)\)"
+        	    	  replace=" package ${package};&#xD;&#xA;
+    import java.text.SimpleDateFormat;&#xD;&#xA;
+    import java.util.Arrays;&#xD;&#xA;
+    import java.util.Calendar;&#xD;&#xA;
+    import java.util.Date;&#xD;&#xA;
+    import java.util.GregorianCalendar;&#xD;&#xA;
+    import java.util.HashMap;&#xD;&#xA;
+    import java.util.Iterator;&#xD;&#xA;
+    import java.util.LinkedList;&#xD;&#xA;
+    import java.util.List;&#xD;&#xA;
+    import java.util.regex.Pattern;&#xD;&#xA;
+    import opennlp.tools.namefind.RegexNameFinder;&#xD;&#xA;
+    public class \1 {&#xD;&#xA;
+    static HashMap&#x3c;Integer, String&#x3e; englishDateRegexMap = new HashMap&#x3c;Integer, String&#x3e;();&#xD;&#xA;
+    public static RegexNameFinder initEnglishDateFinder(){&#xD;&#xA;
+    		int counter = 0;&#xD;&#xA;
+    		List&#x3c;Pattern&#x3e; patterns = new LinkedList&#x3c;Pattern&#x3e;();&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+        	
+    	<replaceregexp flags="g"
+    	    	    	  match="END_RULES"
+    	    	    	  replace="
+RegexNameFinder rnf = new RegexNameFinder((Pattern[])patterns.toArray(), null);&#xD;&#xA;
+return rnf;&#xD;&#xA;
+}&#xD;&#xA;
+}&#xD;&#xA;
+">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    </target>
+</project>
