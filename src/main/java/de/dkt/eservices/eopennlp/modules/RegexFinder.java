@@ -474,17 +474,24 @@ public class RegexFinder {
 		//Date avg = getAverageDate();
 		//System.out.println(avg);
 		
+	
+
+		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
 		
-		//RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
 		
-		/*
-		String input = "The date is 23-12-1980 when blablba happened";
+
+		String input = "8.10.1990 diese Woche";
 		//Span[] timeSpans = filterFind(timeFinder, input);
 		List<Span> timeSpans = filterFind(timeFinder, input);
 		for (Span s : timeSpans){
 			System.out.println("DEBUGGING:" + input.substring(s.getStart(), s.getEnd()));
+			GermanDateRules.normalizeGermanDate(input.substring(s.getStart(), s.getEnd()));
 		}
-		*/
+		
+
+		
+
+		
 		
 		//String inputFile = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\wikiwarsDe.test.txt";
 		//String inputFile = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\aij-wikiner-de.test.txt";
@@ -506,7 +513,8 @@ public class RegexFinder {
 		Date d1  = new Date(-1875,1,1);
 		Date d2  = new Date(116,6,13);
 		
-		System.out.println(d2.getTime()-d1.getTime());
+
+		//System.out.println(d2.getTime()-d1.getTime());
 		
 	}
 

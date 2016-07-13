@@ -30,6 +30,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import de.dkt.common.niftools.DBO;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
@@ -120,6 +121,10 @@ public class DictionaryNameF {
 						}
 						else if (dictionaryAnnotationType.equalsIgnoreCase("ORG")){
 							entityType = DBO.organisation.toString();
+						}
+						else{
+							// added because we want to allow the flexibility to add any types in dictionary uploading
+							entityType = DKTNIF.property(dictionaryAnnotationType).toString();
 						}
 						//NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, DFKINIF.resource(dictionaryAnnotationType).toString());
 						NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, entityType);

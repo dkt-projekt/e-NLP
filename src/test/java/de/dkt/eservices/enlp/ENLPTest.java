@@ -410,6 +410,166 @@ public class ENLPTest {
 		
 	}
 	
+	@Test
+	public void seasonBugfixTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response9 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("2016 blabla Sommer")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse9, response9.getBody());
+		assertTrue(response9.getStatus() == 200);
+		assertTrue(response9.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedHolidaysTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response10 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("2014 silvester neujahr tag der arbeit maifeiertag tag der deutschen einheit")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse10, response10.getBody());
+		assertTrue(response10.getStatus() == 200);
+		assertTrue(response10.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedTimesAndMoreDatesTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response11 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("Tele 5 zeigt am 17.12. um 20.15 Uhr und um 15 Uhr die Komödie")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse11, response11.getBody());
+		assertTrue(response11.getStatus() == 200);
+		assertTrue(response11.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedThisWeekYearTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response12 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("08.10.1990 dieser Tag diese Woche dieser Monat dieses Jahr")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse12, response12.getBody());
+		assertTrue(response12.getStatus() == 200);
+		assertTrue(response12.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedSinceAndAgo() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response13 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("1990 seit 10 Jahren, 2010 vor 10 Jahren")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse13, response13.getBody());
+		assertTrue(response13.getStatus() == 200);
+		assertTrue(response13.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedEnglishWeekdaysTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response14 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "en")
+				.queryString("models", "englishDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("8.10.1990 monday tuesday friday")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse14, response14.getBody());
+		assertTrue(response14.getStatus() == 200);
+		assertTrue(response14.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedEnglishTimeTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response15 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "en")
+				.queryString("models", "englishDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("8.10.1990 10.34 p.m. 9.00 a.m.")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse15, response15.getBody());
+		assertTrue(response15.getStatus() == 200);
+		assertTrue(response15.getBody().length() > 0);
+		
+	}
+	
+	@Test
+	public void addedNextDayWeekEctTest() throws UnirestException, IOException,
+			Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response16 = analyzeOpennlpRequest()
+				.queryString("analysis", "temp")
+				.queryString("language", "de")
+				.queryString("models", "germanDates")
+				//.queryString("informat", "turtle")
+				//.queryString("outformat", "turtle")
+				.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
+				.asString();
+		
+		Assert.assertEquals(TestConstants.expectedResponse16, response16.getBody());
+		assertTrue(response16.getStatus() == 200);
+		assertTrue(response16.getBody().length() > 0);
+		
+	}
+	
 	
 	@Test
 	public void trainModelDICTInBodyAndSpotWithModel() throws UnirestException, IOException,
@@ -443,6 +603,42 @@ public class ENLPTest {
 		assertTrue(response6.getStatus() == 200);
 		assertTrue(response6.getBody().length() > 0);
 		Assert.assertEquals(TestConstants.expectedResponse6, response6.getBody());
+		
+		
+	}
+	
+	@Test
+	public void trainModelDICTInBodyAndSpotWithModelOtherType() throws UnirestException, IOException,
+			Exception {
+
+		
+		//upload dictionary by submitting tsv in postBody
+		HttpResponse<String> response8 = trainOpennlpModel()
+				.queryString("analysis", "dict")
+				.queryString("language", "en")
+				.queryString("modelName", "testDummyDict_AAPJE")
+				.body(TestConstants.dictUploadData)
+				.asString();
+		
+		assertTrue(response8.getStatus() == 200);
+		assertTrue(response8.getBody().length() > 0);
+		System.out.println(response8.getBody());
+		
+		// dictionary name finding with dictionary uploaded above
+		HttpResponse<String> response6 = analyzeOpennlpRequest()
+				.queryString("analysis", "dict")
+				.queryString("language", "de")
+				.queryString("models", "testDummyDict_AAPJE")
+				//.queryString("models", "mendelsohn_LOC")
+				.queryString("informat", "text")
+				.queryString("outformat", "turtle")
+				.queryString("input", "wer weiß, wo Herbert Eulenberg ging?")
+				//.queryString("input", "wer weiß, wo Herbert Eulenberg ging? Ware es Haarlem?")
+				.asString();
+		
+		assertTrue(response6.getStatus() == 200);
+		assertTrue(response6.getBody().length() > 0);
+		Assert.assertEquals(TestConstants.expectedResponse666, response6.getBody());
 		
 		
 	}
@@ -525,23 +721,25 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\oneBigBunch";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\enronCorpus\\nifs";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
-//		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
-//				.queryString("analysis", "dict")
-//				.queryString("language", "en")
-//				.queryString("modelName", "enronSureNames_PER")
-//				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
-//				.asString();
-//		assertTrue(trainSureNamesEnron.getStatus() == 200);
-//		assertTrue(trainSureNamesEnron.getBody().length() > 0);
+////		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
+////				.queryString("analysis", "dict")
+////				.queryString("language", "en")
+////				.queryString("modelName", "enronSureNames_PER")
+////				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
+////				.asString();
+////		assertTrue(trainSureNamesEnron.getStatus() == 200);
+////		assertTrue(trainSureNamesEnron.getBody().length() > 0);
 ////		HttpResponse<String> trainAllNamesEnron = trainOpennlpModel()
 ////				.queryString("analysis", "dict")
 ////				.queryString("language", "en")
@@ -565,11 +763,12 @@ public class ENLPTest {
 //			
 //			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-//					//.queryString("analysis", "ner")
-//					.queryString("analysis", "dict")
+//					.queryString("analysis", "ner")
+//					//.queryString("analysis", "dict")
+//					//.queryString("language", "de")
 //					.queryString("language", "en")
-//					.queryString("models", "enronSureNames_PER")
-//					//.queryString("models", "mendelsohnDictionary_LOC;mendelsohnDictionary_PER;mendelsohnDictionary_ORG")
+//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					//.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainPER")
 //					.queryString("informat", "text")
 //					//.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
@@ -582,8 +781,8 @@ public class ENLPTest {
 //
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
 //					.queryString("analysis", "temp")
-//					.queryString("language", "en")
-//					.queryString("models", "englishDates")
+//					.queryString("language", "de")
+//					.queryString("models", "germanDates")
 //					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", turtleModel)

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.namespace.NamespaceContext;
+
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -34,6 +36,43 @@ public class Sparqler {
 	//public static List<String> georssPoints = new ArrayList<String>();
 	private List<Double> longitudes = new ArrayList<Double>();
 	private List<Double> latitudes = new ArrayList<Double>();
+	
+	public static String getDBPediaLabelForLanguage(String URI, String targetLang){
+		
+		String targetLabel = null;
+		
+		ParameterizedSparqlString sQuery = new ParameterizedSparqlString(
+				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+				"SELECT ?label\n" +
+				"WHERE {\n" +
+				"?uri rdfs:label ?label\n" +
+				"}"
+		);
+		sQuery.setIri("uri", URI);
+		String service = "http://dbpedia.org/sparql";
+		//System.out.println("dEBUGGINg\n" + sQuery);
+		ResultSet res = null;
+		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery());
+		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+		
+		try{
+			res = exec.execSelect();
+			while (res.hasNext()) {
+				QuerySolution qs = res.next();
+				RDFNode uri = qs.get("label");
+				String labelLanguage = uri.toString().substring(uri.toString().lastIndexOf("@")+1);
+				if (labelLanguage.equalsIgnoreCase(targetLang)){
+					targetLabel = uri.toString().substring(0, uri.toString().lastIndexOf("@"));
+				}
+				
+			}
+			
+		}catch(Exception e){
+			logger.info("Unable to retrieve label for URI: " + URI + " in language: " + targetLang + ". Skipping.");
+	}
+		
+		return targetLabel;
+	}
 	
 	public static String getDBPediaURI(String label, String language, String service, String defaultGraph){
 		
@@ -79,63 +118,7 @@ public class Sparqler {
 
 		return URI;
 	}
-	/*
-	public static void getInfo(){
-		  try{
-		   // Construct data
-			  String sQuery = 
-					  "PREFIX gn: <http://www.geonames.org/ontology#>\n" +
-							  "						  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> \n" +
-							  "						  PREFIX spatial: <http://jena.apache.org/spatial#> \n" +
-							  "						  PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>\n" +
-							  "						   \n" +
-							  "\n" +
-							  "						  SELECT ?link ?name ?lat ?lon\n" +
-							  "						  WHERE  {  \n" +
-							  "						     ?link gn:name ?name .  \n" +
-							  "						     ?link geo:lat ?lat .\n" +
-							  "						     ?link geo:long ?lon\n" +
-							  "						  FILTER (?link = <http://sws.geonames.org/4951257/>)\n" +
-							  "						  }\n";
-			  
-		      String data = URLEncoder.encode("query", "UTF-8") + "=" + URLEncoder.encode(sQuery, "UTF-8");
-		      //data += "&" + URLEncoder.encode("key2", "UTF-8") + "=" + URLEncoder.encode("value2", "UTF-8");
 
-		      // Send data
-		      //URL url = new URL("http://hostname:80/cgi");
-		      
-		      URL url = new URL("http://www.lotico.com:3030/lotico/sparql");
-		      URLConnection conn = url.openConnection();
-		      conn.setDoOutput(true);
-		      OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-		      wr.write(data);
-		      wr.flush();
-
-		      // Get the response
-		      BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		      String line;
-		      String result = "";
-		      while ((line = rd.readLine()) != null) {
-		    	  System.out.println(line);
-		       result += line;
-		      }
-		      wr.close();
-		      rd.close();
-		      
-		      JSONObject obj = new JSONObject(result);
-		      JSONObject obj2 = obj.getJSONObject("results");
-		      JSONObject obj3 = obj2.getJSONObject("bindings");
-		    
-		    		  
-		      
-		      //System.out.println(result);
-		      
-		  } catch (Exception e) {
-		   e.printStackTrace();
-		  }
-		 }
-	
-	*/
 	
 	public void queryDBPedia(Model nifModel, String docURI, int nifStartIndex, int nifEndIndex, String infoURL, Property nifProp, String sparqlService){
 
@@ -182,7 +165,7 @@ public class Sparqler {
 					}
 					else if (nifProp == DBO.birthDate || nifProp == DBO.deathDate){
 						String[] p = n.toString().split("\\^\\^");
-						infoToAdd = p[0];
+						infoToAdd = p[0]; // TODO: there is a bug here resulting in an invalid date value (e.g. containing hyphen where it should not). Difficult to debug though, perhaps temporarily increase timeout setting to test?)
 						dataType = XSDDatatype.XSDdate;
 					}
 					else if(nifProp == NIF.orgType){
@@ -249,10 +232,13 @@ public class Sparqler {
 
 	public static void main(String[] args) throws Exception {
 
-		String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
-		System.out.println("uri:" + uri);
-		uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
-		System.out.println("uri:" + uri);
+		//String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+		//System.out.println("uri:" + uri);
+		//uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+		//System.out.println("uri:" + uri);
+		String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
+		System.out.println(targetLabel);
+		
 	}
 
 }
