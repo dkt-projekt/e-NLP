@@ -8,13 +8,14 @@
         </copy>
 
 <!--    	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"-->
-       	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"
+    	<!--match="(.*?)" -->
+       	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;" 
     	    replace="\1">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	
+    	<!--match=<;RUL_(.*)>:==(:*)newLine -->
     	<replaceregexp flags="g"
         	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
-        	    	  replace="counter++;englishDateRegexMap.put(1, String.format(&#x22;\2&#x22;));&#xD;&#xA;
+        	    	  replace="counter++;englishDateRegexMap.put(counter, String.format(&#x22;\2&#x22;));&#xD;&#xA;
     		patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
@@ -30,7 +31,7 @@
     	
     	<replaceregexp flags="g"
         	    	  match=":==(.*)&#xD;&#xA;"
-        	    	  replace=":==\1 &#x22;&#x3b;&#xD;&#xA;">
+        	    	  replace=":==\1&#x22;&#x3b;&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
         	
     	
@@ -42,7 +43,7 @@
     	    replace="(">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	<replaceregexp flags="g" match="\]"
-    	    replace=")&#x3f;">
+    	    replace=")">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	<replaceregexp flags="g"
