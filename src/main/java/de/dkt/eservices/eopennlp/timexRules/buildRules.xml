@@ -8,11 +8,10 @@
         </copy>
 
 <!--    	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"-->
-    	<!--match="(.*?)" -->
        	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;" 
     	    replace="\1">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	<!--match=<;RUL_(.*)>:==(:*)newLine -->
+   
     	<replaceregexp flags="g"
         	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
         	    	  replace="counter++;englishDateRegexMap.put(counter, String.format(&#x22;\2&#x22;));&#xD;&#xA;
@@ -26,7 +25,7 @@
     	
     	<replaceregexp flags="g"
         	    	  match="&#x3c;(.*?)&#x3e;"
-        	    	  replace="&#x22;&#x2b;\1&#x2b;&#x22;">
+        	    	  replace="&#x28;&#x22;&#x2b;\1&#x2b;&#x22;&#x29;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	
     	<replaceregexp flags="g"
@@ -43,7 +42,7 @@
     	    replace="(">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	<replaceregexp flags="g" match="\]"
-    	    replace=")">
+    	    replace=")?">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	<replaceregexp flags="g"
@@ -60,6 +59,11 @@
     import java.util.List;&#xD;&#xA;
     import java.util.regex.Pattern;&#xD;&#xA;
     import opennlp.tools.namefind.RegexNameFinder;&#xD;&#xA;
+    import de.dkt.eservices.eopennlp.modules.RegexFinder;&#xD;&#xA;
+    import opennlp.tools.namefind.RegexNameFinder;&#xD;&#xA;
+    import opennlp.tools.util.Span;&#xD;&#xA;
+    import java.util.Map;&#xD;&#xA;
+    &#xD;&#xA;
     public class \1 {&#xD;&#xA;
     static HashMap&#x3c;Integer, String&#x3e; englishDateRegexMap = new HashMap&#x3c;Integer, String&#x3e;();&#xD;&#xA;
     public static RegexNameFinder initEnglishDateFinder(){&#xD;&#xA;
@@ -70,11 +74,69 @@
     	<replaceregexp flags="g"
     	    	    	  match="END_RULES"
     	    	    	  replace="
-RegexNameFinder rnf = new RegexNameFinder((Pattern[])patterns.toArray(), null);&#xD;&#xA;
-return rnf;&#xD;&#xA;
-}&#xD;&#xA;
-}&#xD;&#xA;
+    	       int counter2=0;&#xD;&#xA;
+    	       Pattern[] patts = new Pattern[patterns.size()];&#xD;&#xA;
+    	       for (Pattern p : patterns) {&#xD;&#xA;
+    	    	   patts[counter2]=p;&#xD;&#xA;
+    	    	   counter2++;&#xD;&#xA;
+    		}&#xD;&#xA;
+    	 RegexNameFinder rnf = new RegexNameFinder(patts, null);&#xD;&#xA;
+    	 return rnf;&#xD;&#xA;
+    	 }&#xD;&#xA;
+    	     
+    	     public static void main(String[] args) {&#xD;&#xA;
+    	 		RegexNameFinder timeFinder= AutomaticEnglishDateRules.initEnglishDateFinder();&#xD;&#xA;
+    	 		String input = &#x22;october 6 1990&#x22;;&#xD;&#xA;
+    	 		RegexFinder rf = new RegexFinder();&#xD;&#xA;
+    	 		List&#x3c;Span&#x3e; timeSpans = rf.filterFind(timeFinder, input);&#xD;&#xA;
+    	 		for (Span s : timeSpans){&#xD;&#xA;
+    	 			System.out.println(&#x22;DEBUGGING:&#x22; + s.getStart() + &#x22;=--=&#x22;+s.getEnd());&#xD;&#xA;
+    	 			System.out.println(&#x22;DEBUGGING span:&#x22; + input.substring(s.getStart(), s.getEnd()));&#xD;&#xA;
+    	 		}&#xD;&#xA;
+    		}&#xD;&#xA;
+
 ">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g"
+    	    	    	  match="END_RULES"
+    	    	    	  replace="
+				RegexNameFinder rnf = new RegexNameFinder((Pattern[])patterns.toArray(), null);&#xD;&#xA;
+				return rnf;&#xD;&#xA;
+				}&#xD;&#xA;
+    	">
+    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	    	    	    	  match="BEGIN_NORMALIZATION"
+    	    	    	    	  replace="
+    	    		public static LinkedList&#x3c;String&#x3e; normalizeEnglishDate(String foundDate) {&#xD;&#xA;
+
+    	    				// this is directly coupled to the dateRegexMap thing. If that changes, this needs to be checked too&#xD;&#xA;
+    	    				Date normalizedStartDate = new Date();&#xD;&#xA;
+    	    				Date normalizedEndDate = new Date();&#xD;&#xA;
+    	    				Calendar cal = Calendar.getInstance();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    				Iterator it = englishDateRegexMap.entrySet().iterator();&#xD;&#xA;
+    	    				LinkedList&#x3c;String&#x3e; dates = new LinkedList&#x3c;String&#x3e;();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    		while (it.hasNext()){&#xD;&#xA;
+    	    					Map.Entry pair = (Map.Entry)it.next();&#xD;&#xA;
+    	    					int key = (Integer) pair.getKey();&#xD;&#xA;
+    	    					String p = (String) pair.getValue();&#xD;&#xA;
+    	    					// compile with ^ and $ since I want the whole match/no submatches (not sure if this works though, debug!)&#xD;&#xA;
+    	    					if (Pattern.matches(String.format(&#x22;^%s$&#x22;, p), foundDate)){&#xD;&#xA;
+    	    	">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	    	
+    	    	<replaceregexp flags="g"
+    	    	    	    	  match="END_NORMALIZATION"
+    	    	    	    	  replace="
+    	    					}&#xD;&#xA;
+    	    		}&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    				return dates;}&#xD;&#xA;
+    	    		}&#xD;&#xA;
+    	    	">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     </target>

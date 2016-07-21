@@ -5,12 +5,21 @@ START_RULES(AutomaticEnglishDateRules)
 <digit>:=="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 <ceroone>:=="0"|"1"
 <onetwo>:=="1"|"2"
-<daynumber>:==["0"][<digit>]|"1"[<digit>]|"2"[<digit>]|"3"[<ceroone>]
+<daynumber>:==["0"]<digit>|"1"<digit>|"2"<digit>|"3"<ceroone>
 <monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
 <yearnumber>:==<onetwo><digit><digit><digit>
 
-<RUL_date1>:==[<daynumber>][<monthname>][[","]?[<yearnumber>]]?
+<RUL_date1>:==<daynumber> <monthname>[[","] <yearnumber>]
 
-<RUL_date2>:==[<monthname>][ <daynumber>["st"|"nd"|"rd"|"th"]?]?","?[ <yearnumber>]?
+<RUL_date2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+
+<RUL_date3>:==<yearnumber>
 
 END_RULES
+
+BEGIN_NORMALIZATION
+
+<NR>:==<Nday> <NMonthL> <NYear>
+
+
+END_NORMALIZATION
