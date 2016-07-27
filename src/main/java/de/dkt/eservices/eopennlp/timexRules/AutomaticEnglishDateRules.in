@@ -9,17 +9,19 @@ START_RULES(AutomaticEnglishDateRules)
 <monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
 <yearnumber>:==<onetwo><digit><digit><digit>
 
-<RUL_date1>:==<daynumber> <monthname>[[","] <yearnumber>]
+<RUL_1>:==<daynumber> <monthname>[[","] <yearnumber>]
 
-<RUL_date2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+<RUL_2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
 
-<RUL_date3>:==<yearnumber>
+<RUL_3>:==<yearnumber>
 
 END_RULES
 
 BEGIN_NORMALIZATION
-
-<NR>:==<Nday> <NMonthL> <NYear>
+// needed info: key, beginYear, beginMonth, beginDay, beginHour, endYear, endMonth, endDay, endHour
+<NR_1>:==<NDay_0> <NMonthL_1> <NYear_2>
+<NR_2>:==<NDayST_1> <NMonthL_0> <NYear_2>
+<NR_3>:==<NYear_0>
 
 
 END_NORMALIZATION

@@ -7,11 +7,76 @@
 		<mapper type="glob" from="*.in" to="*.java"/>
         </copy>
 
+    	<replaceregexp flags="g" match="\["
+    	    replace="(">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g" match="\]"
+    	    replace=")?">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+
+
 <!--    	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;"-->
        	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;" 
     	    replace="\1">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-   
+    	
+    	
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;NR_(.*?)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  replace="
+			if (key == \1){&#xD;&#xA;
+    		int dayNumber = 1;&#xD;&#xA;
+    		int monthNumber = 1;&#xD;&#xA;
+    		int yearNumber = 1000;&#xD;&#xA;
+				String[] parts = foundDate.split(&#x22;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;s&#x22;);&#xD;&#xA;
+\2
+    		
+    		}&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+
+
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NDay_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		dayNumber = Integer.parseInt(parts[1].replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));;&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NDayST_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		if (parts[1].matches(&#x22;\\\\\\\\d{1,2}(st|nd|rd|th)?(,)?&#x22;)){&#xD;&#xA;
+    									dayNumber = Integer.parseInt(parts[1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;	
+    								};&#xD;&#xA;">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NMonthL_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		monthNumber = englishMonthName2Number.get(parts[\1].toLowerCase().replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+		
+
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NYear_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+			if (parts.length > \1){&#xD;&#xA;
+				yearNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;
+			}&#xD;&#xA;
+			else{&#xD;&#xA;
+				yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+			}&#xD;&#xA;
+    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    		normalizedStartDate = cal.getTime();&#xD;&#xA;
+    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+			">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+
+    	
     	<replaceregexp flags="g"
         	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
         	    	  replace="counter++;englishDateRegexMap.put(counter, String.format(&#x22;\2&#x22;));&#xD;&#xA;
@@ -22,12 +87,12 @@
         	    	  match="&#x3c;(.*)&#x3e;:=="
         	    	  replace="String \1:==">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	
+
     	<replaceregexp flags="g"
         	    	  match="&#x3c;(.*?)&#x3e;"
         	    	  replace="&#x28;&#x22;&#x2b;\1&#x2b;&#x22;&#x29;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	
+  	
     	<replaceregexp flags="g"
         	    	  match=":==(.*)&#xD;&#xA;"
         	    	  replace=":==\1&#x22;&#x3b;&#xD;&#xA;">
@@ -38,12 +103,6 @@
     	    replace="=&#x22;">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
-    	<replaceregexp flags="g" match="\["
-    	    replace="(">
-    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	<replaceregexp flags="g" match="\]"
-    	    replace=")?">
-    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	<replaceregexp flags="g"
         	    	  match="START_RULES\(([^\)]*)\)"
@@ -66,6 +125,21 @@
     &#xD;&#xA;
     public class \1 {&#xD;&#xA;
     static HashMap&#x3c;Integer, String&#x3e; englishDateRegexMap = new HashMap&#x3c;Integer, String&#x3e;();&#xD;&#xA;
+    
+    		static HashMap&#x3c;String, Integer&#x3e; englishMonthName2Number = new HashMap&#x3c;String, Integer&#x3e;(){{&#xD;&#xA;
+    			put(&#x22;january&#x22;, 1);&#xD;&#xA;
+    			put(&#x22;february&#x22;, 2);&#xD;&#xA;
+    			put(&#x22;march&#x22;, 3);&#xD;&#xA;
+    			put(&#x22;april&#x22;, 4);&#xD;&#xA;
+    			put(&#x22;may&#x22;, 5);&#xD;&#xA;
+    			put(&#x22;june&#x22;, 6);&#xD;&#xA;
+    			put(&#x22;july&#x22;, 7);&#xD;&#xA;
+    			put(&#x22;august&#x22;, 8);&#xD;&#xA;
+    			put(&#x22;september&#x22;, 9);&#xD;&#xA;
+    			put(&#x22;october&#x22;, 10);&#xD;&#xA;
+    			put(&#x22;november&#x22;, 11);&#xD;&#xA;
+    			put(&#x22;december&#x22;, 12);&#xD;&#xA;
+    		}};		&#xD;&#xA;
     public static RegexNameFinder initEnglishDateFinder(){&#xD;&#xA;
     		int counter = 0;&#xD;&#xA;
     		List&#x3c;Pattern&#x3e; patterns = new LinkedList&#x3c;Pattern&#x3e;();&#xD;&#xA;">
@@ -92,6 +166,8 @@
     	 		for (Span s : timeSpans){&#xD;&#xA;
     	 			System.out.println(&#x22;DEBUGGING:&#x22; + s.getStart() + &#x22;=--=&#x22;+s.getEnd());&#xD;&#xA;
     	 			System.out.println(&#x22;DEBUGGING span:&#x22; + input.substring(s.getStart(), s.getEnd()));&#xD;&#xA;
+    				LinkedList&#x3c;String&#x3e; normalizedStartAndEnd = normalizeEnglishDate(input.substring(s.getStart(), s.getEnd()));;&#xD;&#xA;
+    		        System.out.println(&#x22;DEBUGGING norm:&#x22; + normalizedStartAndEnd);;&#xD;&#xA;
     	 		}&#xD;&#xA;
     		}&#xD;&#xA;
 
