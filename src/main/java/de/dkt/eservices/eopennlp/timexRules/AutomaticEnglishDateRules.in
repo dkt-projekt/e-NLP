@@ -8,20 +8,48 @@ START_RULES(AutomaticEnglishDateRules)
 <daynumber>:==["0"]<digit>|"1"<digit>|"2"<digit>|"3"<ceroone>
 <monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
 <yearnumber>:==<onetwo><digit><digit><digit>
+<monthnumber>:== "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"|"10"|"11"|"12"
+<separation>:=="."|"/"|"-"
+<hyphenorwhitespace>:=="-"|" "
+<season>:=="summer"|"winter"|"spring"|"autumn"|"fall"
+<earlymidlate>:=="early"|"mid"|"late"
+<beginmiddleend>:=="start"|"beginning"|"middle"|"end"
+<yearnumberbc>:==<digit>[<digit>[<digit>[<digit>]]]
+
+
 
 <RUL_1>:==<daynumber> <monthname>[[","] <yearnumber>]
-
 <RUL_2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
-
 <RUL_3>:==<yearnumber>
+<RUL_4>:==<daynumber><separation><monthnumber>[<separation><yearnumber>]
+<RUL_5>:==<yearnumber>s
+<RUL_6>:==<earlymidlate><hyphenorwhitespace><yearnumber>
+<RUL_7>:==<earlymidlate><hyphenorwhitespace><monthname>[ <yearnumber>]
+<RUL_8>:==<season>[ <yearnumber>]
+<RUL_9>:==<season> of <yearnumber>
+<RUL_10>:==<monthname> [the ]<daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+<RUL_11>:==<beginmiddleend> of <yearnumber>
+<RUL_12>:==<beginmiddleend> of <monthname>[ <yearnumber>]
+<RUL_13>:==<yearnumberbc> b["."]c["."]
+
+
 
 END_RULES
 
 BEGIN_NORMALIZATION
-// needed info: key, beginYear, beginMonth, beginDay, beginHour, endYear, endMonth, endDay, endHour
-<NR_1>:==<NDay_0> <NMonthL_1> <NYear_2>
-<NR_2>:==<NDayST_1> <NMonthL_0> <NYear_2>
-<NR_3>:==<NYear_0>
+//we need a variable for duration, we need to say if we split by blanks or by characters
+<NR_1_s>:== <NDay_0> <NMonthL_1> <NYear_2> <NDur_1>
+<NR_2_s>:== <NDayST_1> <NMonthL_0> <NYear_2> <NDur_1>
+<NR_3_s>:== <NYear_0> <NDur_365>
+<NR_4_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDur_1>
+<NR_5_s>:== <NYear_0> <NDur_3652>
+<NR_6_s|->:== <VarY1> <NYear_1> <NDur_60>
+<NR_7_s|->:== <VarM1> <NMonthL_1> <NYear_2> <NDur_10>
+<NR_8_s>:== <NSeason_0> <NYear_1> <NDur_60>
+<NR_9_s>:== <NSeason_0> <NYear_2> <NDur_60>  
+<NR_10_s>:== <NDayST_2> <NMonthL_0> <NYear_3> <NDur_1>
+<NR_11_s>:== <VarY2> <NYear_2> <NDur_91>
+<NR_12_s>:== <VarM2> <NMonthL_2> <NYear_3> <NDur_10>
 
 
 END_NORMALIZATION

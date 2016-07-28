@@ -20,33 +20,94 @@
        	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;" 
     	    replace="\1">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	
+  
     	
     	<replaceregexp flags="g"
-        	    	  match="&#x3c;NR_(.*?)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  match="&#x3c;NR_(.*?)_(.*?)&#x3e;:==(.*)&#xD;&#xA;"
         	    	  replace="
 			if (key == \1){&#xD;&#xA;
     		int dayNumber = 1;&#xD;&#xA;
     		int monthNumber = 1;&#xD;&#xA;
-    		int yearNumber = 1000;&#xD;&#xA;
-				String[] parts = foundDate.split(&#x22;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;s&#x22;);&#xD;&#xA;
-\2
+    		int yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+				String[] parts = foundDate.split(&#x22;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;\2&#x22;);&#xD;&#xA;
+\3
     		
     		}&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-    	
-
+    		
 
     	<replaceregexp flags="g"
     	        	        	    	  match="&#x3c;NDay_(.*?)&#x3e;"
     	        	        	    	  replace="
-    		dayNumber = Integer.parseInt(parts[1].replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));;&#xD;&#xA;">
+    		dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));;&#xD;&#xA;">
     	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
+    	<!-- Marks eary/mid/late for years -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;VarY1&#x3e;"
+    	    	        	        	    	  replace="
+    		  if (parts[0].toLowerCase().matches(&#x22;early&#x22;)){&#xD;&#xA;
+    					monthNumber = 1;&#xD;&#xA;
+    				}&#xD;&#xA;
+    				else if (parts[0].toLowerCase().matches(&#x22;mid&#x22;)){&#xD;&#xA;
+    					monthNumber = 6;&#xD;&#xA;
+    				}&#xD;&#xA;
+    				else if (parts[0].toLowerCase().matches(&#x22;late&#x22;)){&#xD;&#xA;
+    					monthNumber = 10;&#xD;&#xA;
+    				}&#xD;&#xA;">
+
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<!-- Marks beginning/middle/end of for years -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;VarY2&#x3e;"
+    	    	        	        	    	  replace="
+    		if (parts[0].matches(&#x22;(?i)(start|beginning)&#x22;)){&#xD;&#xA;
+    								monthNumber = 1;&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].matches(&#x22;(?i)middle&#x22;)){&#xD;&#xA;
+    								monthNumber = 5;&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].matches(&#x22;(?i)end&#x22;)){&#xD;&#xA;
+    								monthNumber = 10;&#xD;&#xA;
+    							}">
+
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<!-- Marks beginning/middle/end of for months -->
+    	<replaceregexp flags="g"
+        	    	        	        	    	  match="&#x3c;VarM1&#x3e;"
+        	    	        	        	    	  replace="
+        		  if (parts[0].toLowerCase().matches(&#x22;early&#x22;)){&#xD;&#xA;
+        					dayNumber = 1;&#xD;&#xA;
+        				}&#xD;&#xA;
+        				else if (parts[0].toLowerCase().matches(&#x22;mid&#x22;)){&#xD;&#xA;
+        					dayNumber = 10;&#xD;&#xA;
+        				}&#xD;&#xA;
+        				else if (parts[0].toLowerCase().matches(&#x22;late&#x22;)){&#xD;&#xA;
+        					dayNumber = 20;&#xD;&#xA;
+        				}&#xD;&#xA;">
+
+        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<!-- Marks eary/mid/late for months -->
+        	<replaceregexp flags="g"
+            	    	        	        	    	  match="&#x3c;VarM2&#x3e;"
+            	    	        	        	    	  replace="
+        		if (parts[0].matches(&#x22;(?i)(start|beginning)&#x22;)){&#xD;&#xA;
+        								dayNumber = 1;&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[0].matches(&#x22;(?i)middle&#x22;)){&#xD;&#xA;
+        								dayNumber = 10;&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[0].matches(&#x22;(?i)end&#x22;)){&#xD;&#xA;
+        								dayNumber = DateCommons.getLastDayOfMonth(monthNumber, yearNumber) - 10;&#xD;&#xA;
+        							}&#xD;&#xA;">
+
+            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NDayST_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    		if (parts[1].matches(&#x22;\\\\\\\\d{1,2}(st|nd|rd|th)?(,)?&#x22;)){&#xD;&#xA;
-    									dayNumber = Integer.parseInt(parts[1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;	
+    		if (parts[\1].matches(&#x22;\\\\\\\\d{1,2}(st|nd|rd|th)?(,)?&#x22;)){&#xD;&#xA;
+    									dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;	
     								};&#xD;&#xA;">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
     	
@@ -54,7 +115,12 @@
     	        	        	    	  match="&#x3c;NMonthL_(.*?)&#x3e;"
     	        	        	    	  replace="
     		monthNumber = englishMonthName2Number.get(parts[\1].toLowerCase().replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));&#xD;&#xA;">
-    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NMonth_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		monthNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
 		
 
     	<replaceregexp flags="g"
@@ -62,24 +128,68 @@
     	        	        	    	  replace="
     		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
 			if (parts.length > \1){&#xD;&#xA;
-				yearNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;
+				yearNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\D&#x22;, &#x22;&#x22;));&#xD;&#xA;
 			}&#xD;&#xA;
 			else{&#xD;&#xA;
 				yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
 			}&#xD;&#xA;
-    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
-    		normalizedStartDate = cal.getTime();&#xD;&#xA;
-    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
-    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
-    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
-    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
 			">
     	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NDur_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, \1, normalizedStartDate);&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<!-- This is used to set the seasons-->
+    	<replaceregexp flags="g"
+    	
+        												
+    	 match="&#x3c;NSeason_(.*?)&#x3e;"
+    	 replace="
+ 
+    		 String season = parts[0];&#xD;&#xA;
+    		       if (season.equalsIgnoreCase(&#x22;spring&#x22;)){&#xD;&#xA;
+    		             monthNumber = 3;&#xD;&#xA;
+    		             dayNumber = 31;&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else if (season.equalsIgnoreCase(&#x22;summer&#x22;)){&#xD;&#xA;
+    		            monthNumber = 6;&#xD;&#xA;
+    		            dayNumber = 31;&#xD;&#xA;
+    		&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else if (season.equalsIgnoreCase(&#x22;(autumn|fall)&#x22;)){&#xD;&#xA;
+    		            monthNumber = 9;&#xD;&#xA;
+    		            dayNumber = 30;&#xD;&#xA;
+    		&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else if (season.equalsIgnoreCase(&#x22;winter&#x22;)){&#xD;&#xA;
+    		            monthNumber = 12;&#xD;&#xA;
+    		            dayNumber = 28;&#xD;&#xA;
+    		&#xD;&#xA;
+    		             if (((GregorianCalendar) cal).isLeapYear(yearNumber)){&#xD;&#xA;
+    		            	dayNumber = 29;&#xD;&#xA;
+    		             }&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            if (season.equalsIgnoreCase(&#x22;winter&#x22;)){&#xD;&#xA;
+    		             cal.set(yearNumber-1, monthNumber-1, dayNumber,0,0,0);&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else{&#xD;&#xA;
+    		             cal.set(yearNumber, monthNumber-1, dayNumber,0,0,0);&#xD;&#xA;
+    		            }&#xD;&#xA;
+    	    				">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	
     	<replaceregexp flags="g"
         	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
-        	    	  replace="counter++;englishDateRegexMap.put(counter, String.format(&#x22;\2&#x22;));&#xD;&#xA;
+        	    	  replace="counter++;englishDateRegexMap.put(counter, String.format(&#x22;\\\\\\\\b\2\\\\\\\\b&#x22;));&#xD;&#xA;
     		patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
@@ -214,6 +324,7 @@
     	    		}&#xD;&#xA;
     	    	">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
 
     </target>
 </project>
