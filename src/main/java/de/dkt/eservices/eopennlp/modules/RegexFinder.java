@@ -392,7 +392,7 @@ public class RegexFinder {
 
 	
 	
-	private static List<Span> filterFind(RegexNameFinder timeFinder, String input) {
+	public static List<Span> filterFind(RegexNameFinder timeFinder, String input) {
 		
 		Span[] timeSpans = timeFinder.find(input);
 		

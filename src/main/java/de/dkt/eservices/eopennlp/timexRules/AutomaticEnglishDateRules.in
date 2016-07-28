@@ -2,14 +2,26 @@
 START_RULES(AutomaticEnglishDateRules)
 
 
-<digit>:== "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-<ceroone>:== "0" | "1"
-<onetwo>:== "1" | "2"
-<daynumber>:== ["0"] <digit> | "1" <digit> | "2" <digit> | "3" <ceroone>
-<monthname>:== "januar" | "february" | "march" | "april" | "may" | "june" | "july" | "august" | "september" | "october" | "november" | "december"
-<yearnumber>:== <onetwo> <digit> <digit> <digit>
+<digit>:=="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+<ceroone>:=="0"|"1"
+<onetwo>:=="1"|"2"
+<daynumber>:==["0"]<digit>|"1"<digit>|"2"<digit>|"3"<ceroone>
+<monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
+<yearnumber>:==<onetwo><digit><digit><digit>
 
-<RUL_date1>:== <daynumber> <monthname> [ [","] <yearnumber>]
+<RUL_1>:==<daynumber> <monthname>[[","] <yearnumber>]
 
+<RUL_2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+
+<RUL_3>:==<yearnumber>
 
 END_RULES
+
+BEGIN_NORMALIZATION
+// needed info: key, beginYear, beginMonth, beginDay, beginHour, endYear, endMonth, endDay, endHour
+<NR_1>:==<NDay_0> <NMonthL_1> <NYear_2>
+<NR_2>:==<NDayST_1> <NMonthL_0> <NYear_2>
+<NR_3>:==<NYear_0>
+
+
+END_NORMALIZATION
