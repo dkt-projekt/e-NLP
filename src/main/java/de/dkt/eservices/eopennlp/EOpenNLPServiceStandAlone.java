@@ -167,6 +167,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
 		// Check the language parameter.
 		ParameterChecker.checkInList(language, "en;de", "language", logger);
+        ParameterChecker.checkNotNullOrEmpty(models, "models", logger);
 
 		ArrayList<String> rMode = new ArrayList<>();
 
@@ -212,6 +213,8 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         	
         }
 
+
+        
         if(allParams.get("input")==null){
         	allParams.put("input", input);
         }
