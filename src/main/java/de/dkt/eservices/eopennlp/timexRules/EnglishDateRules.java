@@ -77,15 +77,15 @@ public class EnglishDateRules {
 		englishDateRegexMap.put(8, String.format("\\b%s of %s\\b", beginningMiddleEnd, yearNumber));//automated
 		englishDateRegexMap.put(9, String.format("\\b%s of %s\\b", beginningMiddleEnd, monthName));//automated
 		englishDateRegexMap.put(10, String.format("\\bthe %s(st|nd|rd|th)\\b", dayNumber)); //automated TODO: debug for/also allow superscript for th?
-		englishDateRegexMap.put(11, String.format("\\b%s", beforeChrist));
+		englishDateRegexMap.put(11, String.format("\\b%s", beforeChrist));//automated
 		englishDateRegexMap.put(12, String.format("\\b(early|late) %s\\b", yearNumber));//automated
 		englishDateRegexMap.put(13, String.format("\\b(early|late) %s\\b", monthName));//automated
-		englishDateRegexMap.put(14, String.format("(?i)\\b(today|(right )?now|this (day|date))\\b"));
-		englishDateRegexMap.put(15, String.format("(?i)\\b%s (%s|%s|%s|%s) (later|after|earlier|before)\\b", alphaNumber, day, week, month, year));
+		englishDateRegexMap.put(14, String.format("(?i)\\b(today|(right )?now|this (day|date))\\b"));//automated
+		englishDateRegexMap.put(15, String.format("(?i)\\b%s (%s|%s|%s|%s) (later|after|earlier|before)\\b", alphaNumber, day, week, month, year));//automated
 		englishDateRegexMap.put(16, String.format("\\b%ss\\b", yearNumber)); //automated
 		englishDateRegexMap.put(17, String.format("\\b%s\\b", dayName));
-		englishDateRegexMap.put(18, String.format("\\b%s( %s)?\\b", holidays, yearNumber));
-		englishDateRegexMap.put(19, String.format("\\b%s (?i)(a.m|p.m)\\b", time));
+		englishDateRegexMap.put(18, String.format("\\b%s( %s)?\\b", holidays, yearNumber));//automated
+		englishDateRegexMap.put(19, String.format("\\b%s (?i)(a.m|p.m)\\b", time));//automated
 		
 		Pattern[] regexes = {
 			Pattern.compile(englishDateRegexMap.get(1)),

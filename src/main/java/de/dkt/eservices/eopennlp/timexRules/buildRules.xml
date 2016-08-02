@@ -35,7 +35,31 @@
     		}&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     		
-
+    	<!-- sets the minute -->
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NMinute_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		if(parts[1].matches(&#x22;[0-5][0-9]&#x22;)){&#xD;&#xA;
+    								minute = Integer.parseInt(parts[\1]);&#xD;&#xA;
+    							}&#xD;&#xA;
+    		else{&#xD;&#xA;
+    								//do nothing&#xD;&#xA;
+    							}&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>   	
+    	<!-- sets the hour -->
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NHour_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		int hour = 0;&#xD;&#xA;
+    		int minute = 0;&#xD;&#xA;
+    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
+    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
+    							}&#xD;&#xA;
+    		if (parts[2].matches(&#x22;p&#x22;)|parts[1].matches(&#x22;p&#x22;))&#xD;&#xA;{
+    								hour = hour+12;&#xD;&#xA;
+    							}&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
     	<replaceregexp flags="g"
     	        	        	    	  match="&#x3c;NDay_(.*?)&#x3e;"
     	        	        	    	  replace="
@@ -121,8 +145,17 @@
     	    	        	        	    	  replace="
     		monthNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
-		
-
+		<!-- Variable for years b.c. -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NYearBC_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		String yearNumberBeforeChrist = parts[0];&#xD;&#xA;
+    				int yearSubtract = cal.get(Calendar.YEAR) + Integer.parseInt(yearNumberBeforeChrist);&#xD;&#xA;
+    		cal.add(Calendar.YEAR, -yearSubtract+1);&#xD;&#xA;
+    				yearNumber = cal.get(Calendar.YEAR);&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
     	<replaceregexp flags="g"
     	        	        	    	  match="&#x3c;NYear_(.*?)&#x3e;"
     	        	        	    	  replace="
@@ -134,9 +167,33 @@
 				yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
 			}&#xD;&#xA;
 			">
-    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	<!-- variable for a year number without a fixed position -->
     	<replaceregexp flags="g"
-    	    	        	        	    	  match="&#x3c;NDur_(.*?)&#x3e;"
+    	    	        	        	    	  match="&#x3c;NYearV&#x3e;"
+    	    	        	        	    	  replace="
+    		if (parts[parts.length-1].matches(&#x22;^\\\\\\\\d{4}$&#x22;)){&#xD;&#xA;
+    		             yearNumber = Integer.parseInt(parts[parts.length-1]);&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else{&#xD;&#xA;
+    		             yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    		            }&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+       	<!-- variable for "now" -->
+    	<replaceregexp flags="g"
+        	        	        	    	  match="&#x3c;NNow&#x3e;"
+        	        	        	    	  replace="
+        		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+       			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+       			dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    			
+    			">
+        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<!-- sets the duration in days -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NDurD_(.*?)&#x3e;"
     	    	        	        	    	  replace="
     	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
     	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
@@ -146,6 +203,139 @@
     	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
     				">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	<!-- sets the duration in minutes -->
+    	<replaceregexp flags="g"
+        	    	        	        	    	  match="&#x3c;NDurM_(.*?)&#x3e;"
+        	    	        	        	    	  replace="
+       		cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);&#xD;&#xA;
+       							normalizedStartDate = cal.getTime();&#xD;&#xA;
+       							normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, \1, normalizedStartDate);&#xD;&#xA;
+       							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+       							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+       							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+        				">
+        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<!-- sets the duration in minutes -->
+    	    	<replaceregexp flags="g"
+    	        	    	        	        	    	  match="&#x3c;NWeekday&#x3e;"
+    	        	    	        	        	    	  replace="
+    	    		dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    	    							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    	    							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    	    							cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);&#xD;&#xA;
+    	    							int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);&#xD;&#xA;
+    	    							int daysOfIncrease = 0;&#xD;&#xA;
+    	    							int x = englishDayName2Integer.get(foundDate.trim().toLowerCase());&#xD;&#xA;
+    	    							if (x &#x3e; dayOfWeek){&#xD;&#xA;
+    	    								// it is in the rest of the week&#xD;&#xA;
+    	    								daysOfIncrease = x - dayOfWeek;&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							else if (x == dayOfWeek){&#xD;&#xA;
+    	    								// do nothing, it is the current day&#xD;&#xA;
+    	    								daysOfIncrease = 0;&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							else{ // else x smaller than currentDayOfWeek and the day is in the next week&#xD;&#xA;
+    	    								daysOfIncrease = 7 - dayOfWeek + x;&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, daysOfIncrease, cal.getTime());&#xD;&#xA;
+    	    							normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    	        				">
+    	        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<!-- sets the duration in minutes -->
+        	<replaceregexp flags="g"
+            	    	        	        	    	  match="&#x3c;NLater&#x3e;"
+            	    	        	        	    	  replace="
+        		int direction = 0;&#xD;&#xA;
+        							if (parts[2].toLowerCase().matches(&#x22;(later|after)&#x22;)){&#xD;&#xA;
+        								direction = 1;&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[2].toLowerCase().matches(&#x22;(earlier|before)&#x22;)){&#xD;&#xA;
+        								direction = -1;&#xD;&#xA;
+        							}&#xD;&#xA;
+        						    int increment = convertEnglishAlphaNumber(parts[0].toLowerCase()) * direction;&#xD;&#xA;
+        							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+        							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+        							if (monthNumber == 0){&#xD;&#xA;
+        								monthNumber += 1;&#xD;&#xA;
+        							}&#xD;&#xA;
+        							dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+        							cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);&#xD;&#xA;
+        							Date anchor = cal.getTime();&#xD;&#xA;
+        							//final String day = &#x22;(?i)days?&#x22;;&#xD;&#xA;
+        							//final String week = &#x22;(?i)weeks?&#x22;;&#xD;&#xA;
+        							//final String month = &#x22;(?i)months?&#x22;;&#xD;&#xA;
+        							//final String year = &#x22;(?i)years?&#x22;;&#xD;&#xA;
+        							if (parts[1].toLowerCase().matches(&#x22;(?i)days?&#x22;)){&#xD;&#xA;
+        								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment, anchor);&#xD;&#xA;
+        								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)weeks?&#x22;)){&#xD;&#xA;
+        								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment * 7, anchor);&#xD;&#xA;
+        								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1 * 7, normalizedStartDate);&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)months?&#x22;)){&#xD;&#xA;
+        								normalizedStartDate = DateCommons.increaseCalendar(Calendar.MONTH, increment, anchor);&#xD;&#xA;
+        								normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);&#xD;&#xA;
+        							}&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)years?&#x22;)){&#xD;&#xA;
+        								normalizedStartDate = DateCommons.increaseCalendar(Calendar.YEAR, increment, anchor);&#xD;&#xA;
+        								normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, 1, normalizedStartDate);&#xD;&#xA;
+        							}&#xD;&#xA;
+        		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+        						dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+        						DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+            				">
+            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<!-- variable for the holidays -->
+    	<replaceregexp flags="g"
+            	    	        	        	    	  match="&#x3c;NHoliday&#x3e;"
+            	    	        	        	    	  replace="
+    		if (parts[0].toLowerCase().matches(&#x22;christmas&#x22;)){&#xD;&#xA;
+    								monthNumber = 12;&#xD;&#xA;
+    								dayNumber = 25;&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].toLowerCase().matches(&#x22;boxing&#x22;)){&#xD;&#xA;
+    								monthNumber = 12;&#xD;&#xA;
+    								dayNumber = 26;&#xD;&#xA;
+    							}
+    							else if (parts[0].toLowerCase().matches(&#x22;thanksgiving&#x22;)){&#xD;&#xA;
+    								monthNumber =  07;&#xD;&#xA;
+    								dayNumber = 04;&#xD;&#xA;
+    							}
+    							else if (parts[0].toLowerCase().matches(&#x22;veteran'?s&#x22;)){&#xD;&#xA;
+    								monthNumber = 11 ;&#xD;&#xA;
+    								dayNumber = 11;&#xD;&#xA;
+    							}
+    							else if (parts[0].toLowerCase().matches(&#x22;new&#x22;)){&#xD;&#xA;
+    								monthNumber = 1;&#xD;&#xA;
+    								dayNumber = 1;&#xD;&#xA;
+    							}
+    							else if (parts[0].toLowerCase().matches(&#x22;may&#x22;)){&#xD;&#xA;
+    								monthNumber = 5;&#xD;&#xA;
+    								dayNumber = 1;&#xD;&#xA;
+    							}
+    							else if (parts[0].toLowerCase().matches(&#x22;labor&#x22;)){&#xD;&#xA;
+    								monthNumber = 9;&#xD;&#xA;
+    								dayNumber = DateCommons.getFirstSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].toLowerCase().matches(&#x22;memorial&#x22;)){&#xD;&#xA;
+    								monthNumber = 5;&#xD;&#xA;
+    								dayNumber = DateCommons.getLastSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].toLowerCase().matches(&#x22;easter&#x22;)){&#xD;&#xA;
+    								Calendar loCal = Calendar.getInstance();&#xD;&#xA;
+    								loCal.setTime(DateCommons.getEasterDate(yearNumber));&#xD;&#xA;
+    								monthNumber = loCal.get(Calendar.MONTH);&#xD;&#xA;
+    								dayNumber = loCal.get(Calendar.DATE);&#xD;&#xA;
+    							}&#xD;&#xA;
+            				">
+            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	<!-- This is used to set the seasons-->
     	<replaceregexp flags="g"
@@ -252,7 +442,9 @@
     		}};		&#xD;&#xA;
     public static RegexNameFinder initEnglishDateFinder(){&#xD;&#xA;
     		int counter = 0;&#xD;&#xA;
-    		List&#x3c;Pattern&#x3e; patterns = new LinkedList&#x3c;Pattern&#x3e;();&#xD;&#xA;">
+    		List&#x3c;Pattern&#x3e; patterns = new LinkedList&#x3c;Pattern&#x3e;();&#xD;&#xA;
+    		&#xD;&#xA;
+    		">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
         	
     	<replaceregexp flags="g"
@@ -321,7 +513,132 @@
     	    		}&#xD;&#xA;
     	    		&#xD;&#xA;
     	    				return dates;}&#xD;&#xA;
-    	    		}&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    		
+    	    		private static Integer convertEnglishAlphaNumber(String alphaNumber){&#xD;&#xA;
+    	    		    		&#xD;&#xA;
+    	    		    				HashMap&#x3c;String,Integer&#x3e; m = new HashMap&#x3c;String,Integer&#x3e;();&#xD;&#xA;
+    	    		    				m.put(&#x22;one&#x22;,1);&#xD;&#xA;
+    	    		    				m.put(&#x22;two&#x22;,2);&#xD;&#xA;
+    	    		    				m.put(&#x22;three&#x22;,3);&#xD;&#xA;
+    	    		    				m.put(&#x22;four&#x22;,4);&#xD;&#xA;
+    	    		    				m.put(&#x22;five&#x22;,5);&#xD;&#xA;
+    	    		    				m.put(&#x22;six&#x22;,6);&#xD;&#xA;
+    	    		    				m.put(&#x22;seven&#x22;,7);&#xD;&#xA;
+    	    		    				m.put(&#x22;eight&#x22;,8);&#xD;&#xA;
+    	    		    				m.put(&#x22;nine&#x22;,9);&#xD;&#xA;
+    	    		    				m.put(&#x22;ten&#x22;,10);&#xD;&#xA;
+    	    		    				m.put(&#x22;eleven&#x22;,11);&#xD;&#xA;
+    	    		    				m.put(&#x22;twelve&#x22;,12);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirteen&#x22;,13);&#xD;&#xA;
+    	    		    				m.put(&#x22;fourteen&#x22;,14);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifteen&#x22;,15);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixteen&#x22;,16);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventeen&#x22;,17);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighteen&#x22;,18);&#xD;&#xA;
+    	    		    				m.put(&#x22;nineteen&#x22;,19);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty&#x22;,20);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-one&#x22;,21);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-two&#x22;,22);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-three&#x22;,23);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-four&#x22;,24);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-five&#x22;,25);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-six&#x22;,26);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-seven&#x22;,27);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-eight&#x22;,28);&#xD;&#xA;
+    	    		    				m.put(&#x22;twenty-nine&#x22;,29);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty&#x22;,30);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-one&#x22;,31);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-two&#x22;,32);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-three&#x22;,33);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-four&#x22;,34);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-five&#x22;,35);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-six&#x22;,36);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-seven&#x22;,37);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-eight&#x22;,38);&#xD;&#xA;
+    	    		    				m.put(&#x22;thirty-nine&#x22;,39);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty&#x22;,40);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-one&#x22;,41);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-two&#x22;,42);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-three&#x22;,43);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-four&#x22;,44);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-five&#x22;,45);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-six&#x22;,46);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-seven&#x22;,47);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-eight&#x22;,48);&#xD;&#xA;
+    	    		    				m.put(&#x22;forty-nine&#x22;,49);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty&#x22;,50);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-one&#x22;,51);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-two&#x22;,52);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-three&#x22;,53);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-four&#x22;,54);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-five&#x22;,55);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-six&#x22;,56);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-seven&#x22;,57);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-eight&#x22;,58);&#xD;&#xA;
+    	    		    				m.put(&#x22;fifty-nine&#x22;,59);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty&#x22;,60);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-one&#x22;,61);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-two&#x22;,62);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-three&#x22;,63);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-four&#x22;,64);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-five&#x22;,65);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-six&#x22;,66);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-seven&#x22;,67);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-eight&#x22;,68);&#xD;&#xA;
+    	    		    				m.put(&#x22;sixty-nine&#x22;,69);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy&#x22;,70);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-one&#x22;,71);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-two&#x22;,72);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-three&#x22;,73);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-four&#x22;,74);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-five&#x22;,75);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-six&#x22;,76);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-seven&#x22;,77);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-eight&#x22;,78);&#xD;&#xA;
+    	    		    				m.put(&#x22;seventy-nine&#x22;,79);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty&#x22;,80);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-one&#x22;,81);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-two&#x22;,82);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-three&#x22;,83);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-four&#x22;,84);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-five&#x22;,85);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-six&#x22;,86);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-seven&#x22;,87);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-eight&#x22;,88);&#xD;&#xA;
+    	    		    				m.put(&#x22;eighty-nine&#x22;,89);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety&#x22;,90);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-one&#x22;,91);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-two&#x22;,92);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-three&#x22;,93);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-four&#x22;,94);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-five&#x22;,95);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-six&#x22;,96);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-seven&#x22;,97);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-eight&#x22;,98);&#xD;&#xA;
+    	    		    				m.put(&#x22;ninety-nine&#x22;,99);&#xD;&#xA;
+    	    		    				
+
+    	    		    				int r = 0;&#xD;&#xA;
+    	    		    				if (alphaNumber.matches(&#x22;(one )?hundred&#x22;)){&#xD;&#xA;
+    	    		    					r = 100;&#xD;&#xA;
+    	    		    				}&#xD;&#xA;
+    	    		    				else{&#xD;&#xA;
+    	    		    					r = m.get(alphaNumber.toLowerCase());&#xD;&#xA;
+    	    		    				}&#xD;&#xA;
+    	    		    		&#xD;&#xA;
+    	    		    				return r;&#xD;&#xA;
+    	    		    			}&#xD;&#xA;
+    	    		static HashMap&#x3c;String, Integer&#x3e; englishDayName2Integer = new HashMap&#x3c;String, Integer&#x3e;(){{
+    	    				put(&#x22;sunday&#x22;, 1);
+    	    				put(&#x22;monday&#x22;, 2);
+    	    				put(&#x22;tuesday&#x22;, 3);
+    	    				put(&#x22;thursday&#x22;, 4);
+    	    				put(&#x22;wednesday&#x22;, 5);
+    	    				put(&#x22;friday&#x22;, 6);
+    	    				put(&#x22;saturday&#x22;, 7);
+    	    			}};
+    	}
     	    	">
     	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
