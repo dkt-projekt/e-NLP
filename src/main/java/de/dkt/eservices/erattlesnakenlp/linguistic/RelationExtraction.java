@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.json.JSONObject;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -31,6 +30,7 @@ import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+
 
 /**
  * @author Julian Moreno Schneider julian.moreno_schneider@dfki.de, Peter Bourgonje peter.bourgonje@dfki.de
@@ -111,15 +111,21 @@ public class RelationExtraction {
 							objectURI = l[0];
 						}
 					}
-					System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
-					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
-//					if (!(subjectURI == null) && !(objectURI == null)){
-//						EntityRelationTriple t = new EntityRelationTriple();
-//						t.setSubject(String.format("%s(%s)", subject, subjectURI));
-//						t.setRelation(connectingElement.word());
-//						t.setObject(String.format("%s(%s)", object, objectURI));
-//						ert.add(t);
+//					// Mendelsohn exception:
+//					if (subject.word().equalsIgnoreCase("i")){
+//						subjectURI = "Eric";
 //					}
+					
+					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
+					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
+					if (!(subjectURI == null) && !(objectURI == null)){
+						EntityRelationTriple t = new EntityRelationTriple();
+						t.setSubject(String.format("%s(%s)", subject, subjectURI));
+						t.setRelation(connectingElement.word());
+						t.setObject(String.format("%s(%s)", object, objectURI));
+						ert.add(t);
+					}
+					
 				}
 				
 				
@@ -219,7 +225,7 @@ public class RelationExtraction {
 														sentenceEntities.get(i).getURI());
 											}
 											//System.out.println(
-											//		"result: " + leftWord + "===" + result.value + "===" + rightWord);
+													//"result: " + leftWord + "===" + result.value + "===" + rightWord);
 											String relation = result.value;
 											EntityRelationTriple t = new EntityRelationTriple();
 											t.setSubject(subject);
@@ -283,12 +289,31 @@ public class RelationExtraction {
 	
 	public static void main(String args[]){
 		
+		
+		//String tempString = "This is a sentence; with a semi-colon in it.";
+//		String tempString = 
+//				"Across the promontoire the lake is blue\n" +
+//				"like the Atlantic in sunlight, its colour\n"+
+//				"lightened by the white salt deposits.\n"+
+//				"Behind the prom, the water is open, wavy\n"+
+//				"like an ocean, and we cross it on a bridge.\n"+
+//				"You really feel like crossing the ocean\n"+
+//				"on a bridge of wood - air and salt-conditio-\n"+
+//				"ned! An hour long!";
+//		
+//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(tempString));
+//		for (List<HasWord> sentence : tokenizer) {
+//			System.out.println("Sentence: " + sentence);
+//		}
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
+		
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
 
 		File df = new File(docFolder);
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
