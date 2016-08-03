@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+import de.dkt.common.feedback.InteractionManagement;
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.tools.ParameterChecker;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
@@ -43,23 +46,6 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 	@Autowired
 	EOpenNLPService service;
 	
-	
-//	
-//	@Autowired
-//	RDFConversionService rdfConversionService;
-//
-//	@Autowired
-//	NIFParameterFactory nifParameterFactory;
-//
-//	@Autowired
-//	RDFSerializationFormats rdfSerializationFormats;
-//
-//	@Autowired
-//	RDFELinkSerializationFormats rdfELinkSerializationFormats;
-//	
-//	@Autowired
-//	ExceptionHandlerService exceptionHandlerService;
-
 	@RequestMapping(value = "/e-opennlp/testURL", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> testURL(
 			@RequestParam(value = "preffix", required = false) String preffix,
@@ -74,6 +60,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-nlp/trainModel", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> trainModel(
+			HttpServletRequest request,
 			@RequestParam(value = "trainingData", required = false) String trainingData,
 			@RequestParam(value = "t", required = false) String t,
 			@RequestParam(value = "analysis", required = false) String analysis,
@@ -118,8 +105,11 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         } else {
         	trainingData = postBody;
             if (trainingData == null) {
-                logger.error("No training data to process.");
-                throw new BadRequestException("No training data to process.");
+    			String msg = "No training data to process.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/trainModel", msg, 
+    					"", "Exception", msg, "");
+    			throw new BadRequestException(msg);
             }
         }
 
@@ -132,13 +122,17 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
             String body = "The model ["+trainedModelName+"] has been generated.";
     		ResponseEntity<String> response = new ResponseEntity<String>(body, responseHeaders, HttpStatus.OK);
 
+    		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/openNLP/trainModel", "Success", "", "", "", "");
+
             return response;
             
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/trainModel", e.getMessage(), "", "Exception", e.getMessage(), "");
             throw e;
         } catch (ExternalServiceFailedException e) {
         	logger.error(e.getMessage());
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/trainModel", e.getMessage(), "", "Exception", e.getMessage(), "");
             throw e;
         }
 	}
@@ -148,6 +142,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-nlp/namedEntityRecognition", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> analyzeText(
+			HttpServletRequest request,
 			@RequestParam(value = "input", required = false) String input,
 			@RequestParam(value = "analysis", required = false) String analysis, // either ner or dict
 			@RequestParam(value = "models", required = false) String models,
@@ -176,12 +171,19 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 				if (m.equals("spot") || m.equals("link") || m.equals("all")) {
 					rMode.add(m);
 				} else {
-					throw new BadRequestException("Unsupported mode: " + m);
+	    			String msg = "Unsupported mode: " + m;
+	    			logger.error(msg);
+	    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
+	    					"", "Exception", msg, "");
+	    			throw new BadRequestException(msg);
 				}
 			}
 			if (rMode.contains("link") && (!rMode.contains("spot")) && informat.equals("text")) {
-				throw new BadRequestException(
-						"Unsupported mode combination: Either provide NIF input or use link in combination with spot.");
+    			String msg = "Unsupported mode combination: Either provide NIF input or use link in combination with spot.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
+    					"", "Exception", msg, "");
+    			throw new BadRequestException(msg);
 			}
 
 			if (rMode.contains("all")) {
@@ -202,7 +204,11 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 		}
 
         if(analysis == null) {
-       		throw new BadRequestException("Unspecified analysis type.");
+			String msg = "Unspecified analysis type.";
+			logger.error(msg);
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
+					"", "Exception", msg, "");
+			throw new BadRequestException(msg);
         }
         else if (analysis.equalsIgnoreCase("dict") || analysis.equalsIgnoreCase("temp")){
         	// mode in combination with dict or temp analysis makes no sense. Possibly may want to tell this to the user here... (But now mode is set to all by default, so this will always be triggered, also when user did not specify mode
@@ -238,8 +244,11 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
             //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
         	textForProcessing = postBody;
             if (textForProcessing == null) {
-            	logger.error("No text to process.");
-                throw new BadRequestException("No text to process.");
+    			String msg = "No text to process.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
+    					"", "Exception", msg, "");
+    			throw new BadRequestException(msg);
             }
         }
         
@@ -260,12 +269,16 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
                 Resource res = resIter.next();
                 outModel.removeAll(res, null, (RDFNode) null);
             }
+    		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/openNLP/namedEntityRecognition", "Success", "", "", "", "");
+
             return createSuccessResponse(outModel, nifParameters.getOutformat());
             
         } catch (BadRequestException e) {
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", e.getMessage(), "", "Exception", e.getMessage(), "");
         	logger.error(e.getMessage());
             throw e;
         } catch (ExternalServiceFailedException e) {
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", e.getMessage(), "", "Exception", e.getMessage(), "");
         	logger.error(e.getMessage());
             throw e;
         }
@@ -274,6 +287,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-nlp/listModels", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> listModels(
+			HttpServletRequest request,
 			@RequestParam(value = "analysis", required = false) String analysis, // either ner or dict
 			@RequestParam(value = "prefix", required = false) String prefix,
 			@RequestParam(value = "p", required = false) String p,
@@ -284,8 +298,10 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
 		// Check the document or directory parameter.
         if(analysis == null) {
-       		logger.error("Unspecified analysis type.");
-       		throw new BadRequestException("Unspecified analysis type.");
+			String msg = "Unspecified analysis type.";
+			logger.error(msg);
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/listModels", msg, "", "Exception", msg, "");
+			throw new BadRequestException(msg);
         }
         
         String models = "";
@@ -312,12 +328,15 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         	models += "englishDates" + "\n";
         }
         else{
-        	logger.error("Analysis type unknown.");
-        	throw new BadRequestException("Analysis type unknown.");
+			String msg = "Analysis type unknown.";
+			logger.error(msg);
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/listModels", msg, "", "Exception", msg, "");
+			throw new BadRequestException(msg);
         }
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "text/plain");
         ResponseEntity<String> response = new ResponseEntity<String>(models, responseHeaders, HttpStatus.OK);
+		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/openNLP/listModels", "Success", "", "", "", "");
         return response;
 	}
 }

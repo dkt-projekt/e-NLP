@@ -3,6 +3,8 @@ package de.dkt.eservices.erattlesnakenlp;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +25,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+import de.dkt.common.feedback.InteractionManagement;
 import de.dkt.common.tools.ParameterChecker;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.exception.BadRequestException;
@@ -53,6 +56,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-rattlesnakenlp/segmentParagraphs", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> segmentParagraphs(
+			HttpServletRequest request,
 			@RequestParam(value = "inputFile", required = false) String inputFile,
 			@RequestParam(value = "language", required = false) String language,
 			@RequestHeader(value = "Accept", required = false) String acceptHeader,
@@ -62,9 +66,14 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 		ParameterChecker.checkInList(language, "en;de;es;da;nl;pt;se", "language", logger);
 		ParameterChecker.checkNotNull(inputFile, "inputFile", logger);
 		try {
-        	return service.segmentParagraphs(inputFile, language);            
+			ResponseEntity<String> response =service.segmentParagraphs(inputFile, language);
+
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/segmentParagraphs", "Success", "", "Exception", "", "");
+
+        	return response;
         } catch (Exception e) {
         	logger.error(e.getMessage());
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/segmentParagraphs", e.getMessage(), "", "Exception", e.getMessage(), "");
         	throw e;
         }
 		
@@ -73,6 +82,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-nlp/languageIdentification", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> identifyInputLanguage(
+			HttpServletRequest request,
 			@RequestParam(value = "input", required = false) String input,
 			@RequestParam(value = "i", required = false) String i,
 			@RequestParam(value = "informat", required = false) String informat,
@@ -113,8 +123,10 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
             //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
         	textForProcessing = postBody;
             if (textForProcessing == null) {
-            	logger.error("No text to process.");
-                throw new BadRequestException("No text to process.");
+    			String msg = "No text to process.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/languageIdentification", msg, "", "Exception", msg, "");
+    			throw new BadRequestException(msg);
             }
         }
         
@@ -134,6 +146,8 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
                 Resource res = resIter.next();
                 outModel.removeAll(res, null, (RDFNode) null);
             }
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/languageIdentification", "Success", "", "Exception", "", "");
+
             return createSuccessResponse(outModel, nifParameters.getOutformat());
             
         } catch (BadRequestException e) {
@@ -149,6 +163,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 	@RequestMapping(value = "/e-nlp/suggestEntityCandidates", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> listModels(
+			HttpServletRequest request,
 			@RequestParam(value = "language", required = false) String language,
 			@RequestParam(value = "threshold", required = false) String thresholdValue,
 			@RequestParam(value = "prefix", required = false) String prefix,
@@ -169,12 +184,17 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         	try{
         		t = Double.parseDouble(thresholdValue);
         		if (!(t >= 0 && t <= 1)){
-        			throw new BadRequestException("Please specify a number between 0 and 1 for parameter thresholdValue. Current value: " + thresholdValue);
+        			String msg = "Please specify a number between 0 and 1 for parameter thresholdValue. Current value: " + thresholdValue;
+        			logger.error(msg);
+        			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", msg, "", "Exception", msg, "");
+        			throw new BadRequestException(msg);
         		}
         	}
         	catch (NumberFormatException e){
-        		logger.error(e.getMessage());
-        		throw new BadRequestException("Unable to parse string to double for parameter thresholdValue: " + thresholdValue);
+    			String msg = "Unable to parse string to double for parameter thresholdValue: " + thresholdValue;
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", msg, "", "Exception", msg, "");
+    			throw new BadRequestException(msg);
         	}
 		} else { // if none specified, default is 0.5
 			t = 0.5;
@@ -188,8 +208,10 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         } else {
         	textForProcessing = postBody;
             if (textForProcessing == null) {
-            	logger.error("No text to process.");
-                throw new BadRequestException("No text to process.");
+    			String msg = "No text to process.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", msg, "", "Exception", msg, "");
+    			throw new BadRequestException(msg);
             }
         }
         ArrayList<String> entityCandidates = service.suggestEntityCandidates(textForProcessing, language, nifParameters.getInformat(), t);
@@ -201,6 +223,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "text/plain");
         ResponseEntity<String> response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+
+        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", "Success", "", "Exception", "", "");
+        
         return response;
 	}
 
