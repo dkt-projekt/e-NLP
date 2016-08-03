@@ -1,27 +1,75 @@
-
 START_RULES(AutomaticEnglishDateRules)
 
 
 <digit>:=="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 <ceroone>:=="0"|"1"
+<cerofive>:=="0"|"1"|"2"|"3"|"4"|"5"
 <onetwo>:=="1"|"2"
+<ceroonetwo>:=="0"|"1"|"2"
 <daynumber>:==["0"]<digit>|"1"<digit>|"2"<digit>|"3"<ceroone>
 <monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
 <yearnumber>:==<onetwo><digit><digit><digit>
+<monthnumber>:== "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"|"10"|"11"|"12"
+<separation>:=="."|"/"|"-"
+<hyphenorwhitespace>:=="-"|" "
+<season>:=="summer"|"winter"|"spring"|"autumn"|"fall"
+<earlymidlate>:=="early"|"mid"|"late"
+<beginmiddleend>:=="start"|"beginning"|"middle"|"end"
+<yearnumberbc>:==<digit>[<digit>[<digit>[<digit>]]]
+<now>:=="today"|"now"|"right now"|"this day"|"this day"
+<timehours>:==<digit>|0<digit>|1<ceroonetwo>
+<timetotal>:==<timehours>[.|:][<cerofive><digit>]
+<ampm>:=="a.m"|"p.m"
+<holiday>:=="christmas[ day]"|"easter"|"new year'?s"|"may day"|"boxing day"|"independence day"|"labor day"|"memorial day"|"veteran'?s day"|"thanksgiving"
+<alphaNumber>:=="one"|"two"|"three"|"four"|"five"|"six"|"seven"|"eight"|"nine"|"ten"|"eleven"|"twelve"|"thirteen"|"fourteen"|"fifteen"|"sixteen"|"seventeen"|"eighteen"|"nineteen"|"twenty"|"twenty-one"|"twenty-two"|"twenty-three"|"twenty-four"|"twenty-five"|"twenty-six"|"twenty-seven"|"twenty-eight"|"twenty-nine"|"thirty"|"thirty-one"|"thirty-two"|"thirty-three"|"thirty-four"|"thirty-five"|"thirty-six"|"thirty-seven"|"thirty-eight"|"thirty-nine"|"forty"|"forty-one"|"forty-two"|"forty-three"|"forty-four"|"forty-five"|"forty-six"|"forty-seven"|"forty-eight"|"forty-nine"|"fifty"|"fifty-one"|"fifty-two"|"fifty-three"|"fifty-four"|"fifty-five"|"fifty-six"|"fifty-seven"|"fifty-eight"|"fifty-nine"|"sixty"|"sixty-one"|"sixty-two"|"sixty-three"|"sixty-four"|"sixty-five"|"sixty-six"|"sixty-seven"|"sixty-eight"|"sixty-nine"|"seventy"|"seventy-one"|"seventy-two"|"seventy-three"|"seventy-four"|"seventy-five"|"seventy-six"|"seventy-seven"|"seventy-eight"|"seventy-nine"|"eighty"|"eighty-one"|"eighty-two"|"eighty-three"|"eighty-four"|"eighty-five"|"eighty-six"|"eighty-seven"|"eighty-eight"|"eighty-nine"|"ninety"|"ninety-one"|"ninety-two"|"ninety-three"|"ninety-four"|"ninety-five"|"ninety-six"|"ninety-seven"|"ninety-eight"|"ninety-nine"|"(one )?hundred";
+<dayweekmonthyear>:=="days?"|"weeks?"|"months?"|"years?"
+<later>:=="later"|"after"|"earlier"|"before"
+<dayName>:=="monday"|"tuesday"|"wednesday"|"thursday"|"friday"|"saturday"|"sunday"
+
+
+
 
 <RUL_1>:==<daynumber> <monthname>[[","] <yearnumber>]
-
 <RUL_2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
-
 <RUL_3>:==<yearnumber>
+<RUL_4>:==<daynumber><separation><monthnumber>[<separation><yearnumber>]
+<RUL_5>:==<yearnumber>s
+<RUL_6>:==<earlymidlate><hyphenorwhitespace><yearnumber>
+<RUL_7>:==<earlymidlate><hyphenorwhitespace><monthname>[ <yearnumber>]
+<RUL_8>:==<season>[ <yearnumber>]
+<RUL_9>:==<season> of <yearnumber>
+<RUL_10>:==<monthname> [the ]<daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+<RUL_11>:==<beginmiddleend> of <yearnumber>
+<RUL_12>:==<beginmiddleend> of <monthname>[ <yearnumber>]
+<RUL_13>:==<yearnumberbc> b["."]c["."]
+<RUL_14>:==<now>
+<RUL_15>:==<timetotal> <ampm>
+<RUL_16>:==<holiday>[ <yearnumber>]
+<RUL_17>:==<alphaNumber> <dayweekmonthyear> <later>
+<RUL_18>:==<dayName>
+
 
 END_RULES
 
 BEGIN_NORMALIZATION
-// needed info: key, beginYear, beginMonth, beginDay, beginHour, endYear, endMonth, endDay, endHour
-<NR_1>:==<NDay_0> <NMonthL_1> <NYear_2>
-<NR_2>:==<NDayST_1> <NMonthL_0> <NYear_2>
-<NR_3>:==<NYear_0>
-
+//we need a variable for duration, we need to say if we split by blanks or by characters
+<NR_1_s>:== <NDay_0> <NMonthL_1> <NYear_2> <NDurD_1>
+<NR_2_s>:== <NDayST_1> <NMonthL_0> <NYear_2> <NDurD_1>
+<NR_3_s>:== <NYear_0> <NDurD_365>
+<NR_4_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
+<NR_5_s>:== <NYear_0> <NDurD_3652>
+<NR_6_s|->:== <Var1_early2Month_0> <NYear_1> <NDurD_60>
+<NR_7_s|->:== <Var2_early2Day_0> <NMonthL_1> <NYear_2> <NDurD_10>
+<NR_8_s>:== <Var3_season2Dates_0> <NYear_1> <NDurD_60>
+<NR_9_s>:== <Var3_season2Dates_0> <NYear_2> <NDurD_60>  
+<NR_10_s>:== <NDayST_2> <NMonthL_0> <NYear_3> <NDurD_1>
+<NR_11_s>:== <Var1_start2Month_0> <NYear_2> <NDurD_91>
+<NR_12_s>:== <Var2_start2Day_0> <NMonthL_2> <NYear_3> <NDurD_10>
+<NR_13_s>:== <NYearBC_0> <NDurD_365>
+<NR_14_s>:== <NNow> <NDurD_1>
+<NR_15_s|:|\\.>:== <NNow> <NHour_0> <NMinute_1> <NDurM_1>
+<NR_16_s>:==<Var3_fixedHoliday2Dates_0> <movingHolidays> <NYearV> <NDurD_1>
+<NR_17_s>:==<NLater> 
+<NR_18_s>:==<NWeekday>
 
 END_NORMALIZATION

@@ -106,6 +106,7 @@ public class Sparqler {
 			if (resList.size() > 0) {
 				URI = resList.get(0);
 				for (String uri : resList) {
+					//System.out.println("URI loop:" + uri);
 					if (uri.length() < URI.length()) {
 						URI = uri;
 					}
@@ -232,12 +233,12 @@ public class Sparqler {
 
 	public static void main(String[] args) throws Exception {
 
-		//String uri = getDBPediaURI("Berlin", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
-		//System.out.println("uri:" + uri);
+		String uri = getDBPediaURI("Hollande", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+		System.out.println("uri:" + uri);
 		//uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
 		//System.out.println("uri:" + uri);
-		String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
-		System.out.println(targetLabel);
+		//String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
+		//System.out.println(targetLabel);
 		
 	}
 

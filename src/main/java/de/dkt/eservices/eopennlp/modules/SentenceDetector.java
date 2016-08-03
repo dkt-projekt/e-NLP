@@ -1,6 +1,7 @@
 package de.dkt.eservices.eopennlp.modules;
 
 import java.io.BufferedOutputStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,6 +39,8 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
+
+
 
 /**
  * @author Julian Moreno Schneider julian.moreno_schneider@dfki.de
@@ -340,7 +343,9 @@ public class SentenceDetector {
 	}
 
 	public static void main(String[] args) throws Exception{
-		ResponseEntity<String> result = SentenceDetector.detectSentencesNIF("  First sentence. Second sentence. ", "en-sent.bin");
-		System.out.println(result.toString());
+//		ResponseEntity<String> result = SentenceDetector.detectSentencesNIF("  First sentence. Second sentence. ", "en-sent.bin");
+//		System.out.println(result.toString());
+
+		
 	}
 }
