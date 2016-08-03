@@ -1,4 +1,3 @@
-
 START_RULES(AutomaticEnglishDateRules)
 
 
@@ -59,17 +58,17 @@ BEGIN_NORMALIZATION
 <NR_3_s>:== <NYear_0> <NDurD_365>
 <NR_4_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
 <NR_5_s>:== <NYear_0> <NDurD_3652>
-<NR_6_s|->:== <VarY1> <NYear_1> <NDurD_60>
-<NR_7_s|->:== <VarM1> <NMonthL_1> <NYear_2> <NDurD_10>
-<NR_8_s>:== <NSeason_0> <NYear_1> <NDurD_60>
-<NR_9_s>:== <NSeason_0> <NYear_2> <NDurD_60>  
+<NR_6_s|->:== <Var1_early2Month_0> <NYear_1> <NDurD_60>
+<NR_7_s|->:== <Var2_early2Day_0> <NMonthL_1> <NYear_2> <NDurD_10>
+<NR_8_s>:== <Var3_season2Dates_0> <NYear_1> <NDurD_60>
+<NR_9_s>:== <Var3_season2Dates_0> <NYear_2> <NDurD_60>  
 <NR_10_s>:== <NDayST_2> <NMonthL_0> <NYear_3> <NDurD_1>
-<NR_11_s>:== <VarY2> <NYear_2> <NDurD_91>
-<NR_12_s>:== <VarM2> <NMonthL_2> <NYear_3> <NDurD_10>
+<NR_11_s>:== <Var1_start2Month_0> <NYear_2> <NDurD_91>
+<NR_12_s>:== <Var2_start2Day_0> <NMonthL_2> <NYear_3> <NDurD_10>
 <NR_13_s>:== <NYearBC_0> <NDurD_365>
 <NR_14_s>:== <NNow> <NDurD_1>
 <NR_15_s|:|\\.>:== <NNow> <NHour_0> <NMinute_1> <NDurM_1>
-<NR_16_s>:==<NHoliday> <NYearV> <NDurD_1>
+<NR_16_s>:==<Var3_fixedHoliday2Dates_0> <movingHolidays> <NYearV> <NDurD_1>
 <NR_17_s>:==<NLater> 
 <NR_18_s>:==<NWeekday>
 

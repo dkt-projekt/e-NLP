@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="data" default="compiledata">
+    <target name="compiledata">
+    	<copy overwrite ="true" todir="${dirdest}">
+		<fileset dir="${dirorig}" includes="${rulesclass}.in"/>
+		<mapper type="glob" from="*.in" to="*.java"/>
+        </copy>
+
+        	        	<replaceregexp flags="g"
+        	    	  match="&#x3c;(.*?),(.*?)&#x3e;"
+        	    	  replace="put(\1,\2);">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>  
+
+
+        	    
+       	<replaceregexp flags="g"
+        	    	  match="HS_(.*?)_(.*?)_(.*?):==(.*)"
+        	    	  replace="
+    		static HashMap&#x3c;\2, \3&#x3e; \1 = new HashMap&#x3c;\2, \3&#x3e;(){{&#xD;&#xA;
+    		\4
+    		}};&#xD;&#xA;
+    		">
+    		
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+        	    	
+    	<replaceregexp flags="g"
+        	    	  match="START_HS\(([^\)]*)\)"
+        	    	  replace=" package ${package};&#xD;&#xA;
+  
+    import java.util.HashMap;&#xD;&#xA;
+ 
+    &#xD;&#xA;
+    public class \1 {&#xD;&#xA;
+    
+    		">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+ 
+     	<replaceregexp flags="g"
+    	    	    	  match="END_HS"
+    	    	    	  replace="
+    	     
+    	 		}&#xD;&#xA;
+    	
+
+">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+
+
+    </target>
+</project>
