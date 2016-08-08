@@ -16,8 +16,8 @@
      import java.util.Map;
      
      public class AutomaticEnglishDateRules {
-     static HashMap<Integer, String> englishDateRegexMap = new HashMap<Integer, String>();
-          public static RegexNameFinder initEnglishDateFinder(){
+     static HashMap<Integer, String> dateRegexMap = new HashMap<Integer, String>();
+          public static RegexNameFinder initDateFinder(){
        int counter = 0;
        List<Pattern> patterns = new LinkedList<Pattern>();
        
@@ -52,42 +52,42 @@ String dayName="monday|tuesday|wednesday|thursday|friday|saturday|sunday";
 
 
 
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+daynumber+") ("+monthname+")((,)? ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+monthname+") ("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+daynumber+")("+separation+")("+monthnumber+")(("+separation+")("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+yearnumber+")s\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+monthname+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+season+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+season+") of ("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+monthname+") (the )?("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+monthname+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+yearnumberbc+") b(.)?c(.)?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+now+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+timetotal+") ("+ampm+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+holiday+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+alphaNumber+") ("+dayweekmonthyear+") ("+later+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
-counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
-       patterns.add(Pattern.compile(englishDateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+daynumber+") ("+monthname+")((,)? ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+monthname+") ("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+daynumber+")("+separation+")("+monthnumber+")(("+separation+")("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumber+")s\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+monthname+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+season+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+season+") of ("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+monthname+") (the )?("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+monthname+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumberbc+") b(.)?c(.)?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+now+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+timetotal+") ("+ampm+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+holiday+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+alphaNumber+") ("+dayweekmonthyear+") ("+later+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
 
 
              int counter2=0;
@@ -100,26 +100,26 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
        return rnf;
        }
                       public static void main(String[] args) {
-         RegexNameFinder timeFinder= AutomaticEnglishDateRules.initEnglishDateFinder();
+         RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
          String input = "october 6 1990";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){
           System.out.println("DEBUGGING:" + s.getStart() + "=--="+s.getEnd());
           System.out.println("DEBUGGING span:" + input.substring(s.getStart(), s.getEnd()));
-         LinkedList<String> normalizedStartAndEnd = normalizeEnglishDate(input.substring(s.getStart(), s.getEnd()));;
+         LinkedList<String> normalizedStartAndEnd = normalizeDate(input.substring(s.getStart(), s.getEnd()));;
                System.out.println("DEBUGGING norm:" + normalizedStartAndEnd);;
          }
        }
   
 
-            public static LinkedList<String> normalizeEnglishDate(String foundDate) {
+            public static LinkedList<String> normalizeDate(String foundDate) {
                // this is directly coupled to the dateRegexMap thing. If that changes, this needs to be checked too
               Date normalizedStartDate = new Date();
               Date normalizedEndDate = new Date();
               Calendar cal = Calendar.getInstance();
             
-              Iterator it = englishDateRegexMap.entrySet().iterator();
+              Iterator it = dateRegexMap.entrySet().iterator();
               LinkedList<String> dates = new LinkedList<String>();
             
             while (it.hasNext()){
@@ -136,7 +136,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = AutomaticEnglishData.englishMonthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
+        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -159,7 +159,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
          if (parts[1].matches("\\d{1,2}(st|nd|rd|th)?(,)?")){
               dayNumber = Integer.parseInt(parts[1].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
               };
-        monthNumber = AutomaticEnglishData.englishMonthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
+        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -267,7 +267,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
                         dayNumber = AutomaticEnglishData.early2Day.get(a);
                        }
              
-         monthNumber = AutomaticEnglishData.englishMonthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
+         monthNumber = AutomaticEnglishData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -344,7 +344,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
          if (parts[2].matches("\\d{1,2}(st|nd|rd|th)?(,)?")){
               dayNumber = Integer.parseInt(parts[2].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
               };
-        monthNumber = AutomaticEnglishData.englishMonthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
+        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 3){
      yearNumber = Integer.parseInt(parts[3].replaceAll("\\D", ""));
@@ -393,7 +393,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
                         dayNumber = AutomaticEnglishData.start2Day.get(a);
                        }
              
-         monthNumber = AutomaticEnglishData.englishMonthName2Number.get(parts[2].toLowerCase().replaceAll("\\p{P}", ""));
+         monthNumber = AutomaticEnglishData.monthName2Number.get(parts[2].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 3){
      yearNumber = Integer.parseInt(parts[3].replaceAll("\\D", ""));
@@ -520,7 +520,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
                 else if (parts[2].toLowerCase().matches("(earlier|before)")){
                  direction = -1;
                 }
-                   int increment = AutomaticEnglishData.englishAlpha2Number.get(parts[0]) * direction;
+                   int increment = AutomaticEnglishData.alpha2Number.get(parts[0]) * direction;
                 yearNumber = DateCommons.getYearFromAnchorDate();
                 monthNumber = DateCommons.getMonthFromAnchorDate();
                 if (monthNumber == 0){
@@ -564,7 +564,7 @@ counter++;englishDateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"))
                  cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
                  int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
                  int daysOfIncrease = 0;
-                 int x = AutomaticEnglishData.englishDayName2Integer.get(foundDate.trim().toLowerCase());
+                 int x = AutomaticEnglishData.dayName2Integer.get(foundDate.trim().toLowerCase());
                  if (x > dayOfWeek){
                   // it is in the rest of the week
                   daysOfIncrease = x - dayOfWeek;
