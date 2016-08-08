@@ -810,22 +810,22 @@ public class ENLPTest {
 //	}	 
 	
 
-	@Test
-	public void dareTestTestTest() throws UnirestException, IOException, Exception {
-
-		// plain text as input, turtle as output
-		HttpResponse<String> response2 = dareTestRequest()
-				.queryString("input", "Brad married Jolie.")
-				.queryString("language", "en")
-				.queryString("informat", "text")
-				.asString();
-		//"This is some sample text", "en", RDFSerialization.PLAINTEXT
-		//Assert.assertEquals(TestConstants.expectedResponse22, response2.getBody());
-		assertTrue(response2.getStatus() == 200);
-		assertTrue(response2.getBody().length() > 0);
-		System.out.println("DEBUGGING body: " + response2.getBody());
-		
-	}
+//	@Test
+//	public void dareTestTestTest() throws UnirestException, IOException, Exception {
+//
+//		// plain text as input, turtle as output
+//		HttpResponse<String> response2 = dareTestRequest()
+//				.queryString("input", "Brad married Jolie.")
+//				.queryString("language", "en")
+//				.queryString("informat", "text")
+//				.asString();
+//		//"This is some sample text", "en", RDFSerialization.PLAINTEXT
+//		//Assert.assertEquals(TestConstants.expectedResponse22, response2.getBody());
+//		assertTrue(response2.getStatus() == 200);
+//		assertTrue(response2.getBody().length() > 0);
+//		System.out.println("DEBUGGING body: " + response2.getBody());
+//		
+//	}
 	
 	
 //	@Test
