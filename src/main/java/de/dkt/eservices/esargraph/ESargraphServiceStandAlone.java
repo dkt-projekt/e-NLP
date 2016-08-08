@@ -23,6 +23,7 @@
 //import com.hp.hpl.jena.vocabulary.OWL;
 //import com.hp.hpl.jena.vocabulary.RDF;
 //
+//import de.dkt.common.niftools.NIFWriter;
 //import de.dkt.common.tools.ParameterChecker;
 //import eu.freme.common.conversion.rdf.RDFConstants;
 //import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -156,8 +157,9 @@
 //            }
 //        }
 //        try {
-//        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode);
-//            return createSuccessResponse(outModel, nifParameters.getOutformat());
+//        	Model outModel = NIFWriter.initializeOutputModel();
+//        	//Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode);
+//        	return createSuccessResponse(outModel, nifParameters.getOutformat());
 //            
 //        } catch (BadRequestException e) {
 //        	logger.error(e.getMessage());

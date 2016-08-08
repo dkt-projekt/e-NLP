@@ -12,6 +12,7 @@
 //import org.springframework.stereotype.Component;
 //
 //import com.hp.hpl.jena.rdf.model.Model;
+//import com.hp.hpl.jena.sparql.engine.optimizer.Pattern;
 //
 //import de.dfki.lt.dare.element.AnnotatedSentence;
 //import de.dkt.eservices.esargraph.modules.element.RelationGraphIndexer;
@@ -22,6 +23,7 @@
 //import de.dfki.lt.dare.element.io.XmlIOUtils;
 //import de.dfki.lt.dare.element.io.XmlZipSaver;
 //import de.dfki.lt.dare.element.io.XmlZipSaverFactory;
+//import de.dfki.lt.dare.gui.pattern.Pattern2ImageFileTransformer;
 //import de.dkt.eservices.esargraph.modules.element.DefaultRelationValidatorFactory;
 //import de.dkt.eservices.esargraph.modules.element.RelationValidator;
 //import de.dfki.lt.dare.pattern.RePattern;
@@ -59,74 +61,19 @@
 //    
 //	public static void main(String[] args) {
 //		ESargraphService ess = new ESargraphService();
-//		String sampleText = "Iceland is a little country far north in the cold sea. Men found it and\n" +
-//				"went there to live more than a thousand years ago. During the warm\n" +
-//				"season they used to fish and make fish-oil and hunt sea-birds and gather\n" +
-//				"feathers and tend their sheep and make hay. But the winters were long\n" +
-//				"and dark and cold. Men and women and children stayed in the house and\n" +
-//				"carded and spun and wove and knit. A whole family sat for hours around\n" +
-//				"the fire in the middle of the room. That fire gave the only light.\n" +
-//				"Shadows flitted in the dark corners. Smoke curled along the high beams\n" +
-//				"in the ceiling. The children sat on the dirt floor close by the fire.\n" +
-//				"The grown people were on a long narrow bench that they had pulled up to\n" +
-//				"the light and warmth. Everybody's hands were busy with wool. The work\n" +
-//				"left their minds free to think and their lips to talk. What was there to\n" +
-//				"talk about? The summer's fishing, the killing of a fox, a voyage to\n" +
-//				"Norway. But the people grew tired of this little gossip. Fathers looked\n" +
-//				"at their children and thought:\n" +
-//				"\n" +
-//				"\"They are not learning much. What will make them brave and wise? What\n" +
-//				"will teach them to love their country and old Norway? Will not the\n" +
-//				"stories of battles, of brave deeds, of mighty men, do this?\"\n" +
-//				"\n" +
-//				"So, as the family worked in the red fire-light, the father told of the\n" +
-//				"kings of Norway, of long voyages to strange lands, of good fights. And\n" +
-//				"in farmhouses all through Iceland these old tales were told over and\n" +
-//				"over until everybody knew them and loved them. Some men could sing and\n" +
-//				"play the harp. This made the stories all the more interesting. People\n" +
-//				"called such men \"skalds,\" and they called their songs \"sagas.\"\n" +
-//				"\n" +
-//				"Every midsummer there was a great meeting. Men from all over Iceland\n" +
-//				"came to it and made laws. During the day there were rest times, when no\n" +
-//				"business was going on. Then some skald would take his harp and walk to a\n" +
-//				"large stone or a knoll and stand on it and begin a song of some brave\n" +
-//				"deed of an old Norse hero. At the first sound of the harp and the\n" +
-//				"voice, men came running from all directions, crying out:\n" +
-//				"\n" +
-//				"\"The skald! The skald! A saga!\"\n" +
-//				"\n" +
-//				"They stood about for hours and listened. They shouted applause. When the\n" +
-//				"skald was tired, some other man would come up from the crowd and sing or\n" +
-//				"tell a story. As the skald stepped down from his high position, some\n" +
-//				"rich man would rush up to him and say:\n" +
-//				"\n" +
-//				"\"Come and spend next winter at my house. Our ears are thirsty for song.\"\n" +
-//				"\n" +
-//				"So the best skalds traveled much and visited many people. Their songs\n" +
-//				"made them welcome everywhere. They were always honored with good seats\n" +
-//				"at a feast. They were given many rich gifts. Even the King of Norway\n" +
-//				"would sometimes send across the water to Iceland, saying to some famous\n" +
-//				"skald:\n" +
-//				"\n" +
-//				"\"Come and visit me. You shall not go away empty-handed. Men say that the\n" +
-//				"sweetest songs are in Iceland. I wish to hear them.\"\n" +
-//				"\n" +
-//				"These tales were not written. Few men wrote or read in those days.\n" +
-//				"Skalds learned songs from hearing them sung. At last people began to\n" +
-//				"write more easily. Then they said:\n" +
-//				"\n" +
-//				"\"These stories are very precious. We must write them down to save them\n" +
-//				"from being forgotten.\"\n" +
-//				"\n" +
-//				"After that many men in Iceland spent their winters in writing books.\n" +
-//				"They wrote on sheepskin; vellum, we call it. Many of these old vellum\n" +
-//				"books have been saved for hundreds of years, and are now in museums in\n" +
-//				"Norway. Some leaves are lost, some are torn, all are yellow and\n" +
-//				"crumpled. But they are precious. They tell us all that we know about\n" +
-//				"that olden time. There are the very words that the men of Iceland wrote\n" +
-//				"so long ago--stories of kings and of battles and of ship-sailing. Some\n" +
-//				"of those old stories I have told in this book.\n";
+//		String sampleText = "On May 3, 2003 , LeBlanc married Melissa McKnight.\n" +
+//				"Personal life Finch married free agent pitcher Casey Daigle on January 15, 2005, at the Crystal Cathedral in Garden Grove, California.\n" +
+//				"Fashion model Natalia Vodianova married Justin Portman, on September 1, 2002.\n" +
+//				"On August 28, 2004, in Santa Barbara , California , Hargitay married Peter Hermann , an actor and writer whom she met on the set of Law & Order: SVU , on which Hermann plays the recurring role of Defense Attorney Trevor Langan on SVU .\n" +
+//				"Alicia Rickter married U.S. Major League Baseball player Mike Piazza on January 29, 2005.\n" +
+//				"Gordon married Vandebosch in a small, private ceremony in Mexico on Nov. 7.\n" +
+//				"Biography-continued Dahl married American actress Patricia Neal on 2nd July 1953 at Trinity Church in New York City.\n" +
+//				"Taccone married Marielle Heller on June 30, 2007 at Mission Ranch, Carmel Jorma's brother, Asa, often helps The Lonely Island by making music for their shorts.\n" +
+//				"Yes, Jon Foreman married Emily Foreman on January 26th, 2002.\n" +
+//				"Jessica Alba married her boyfriend Cash Warren on May 19, 2008.\n" +
+//				"Yes, Jude Law married Sadie Frost on September 2, 1997.";
 //		ess.processData(sampleText, "en", RDFSerialization.PLAINTEXT);
+//		
 //	}
 //	
 //    public Model processData(String textToProcess, String languageParam, RDFSerialization inFormat) throws ExternalServiceFailedException, BadRequestException {
@@ -169,23 +116,24 @@
 //				}
 //				
 //				SimplePatternMatcher matcher = new SimplePatternMatcher();
-//				RelationValidator rv = DefaultRelationValidatorFactory.getValidator(FileFactory.generateFileInstance(RELATION_VALIDATOR_CONFIG).getAbsolutePath());
 //				//RelationValidator rv = DefaultRelationValidatorFactory.getValidator(RELATION_VALIDATOR_CONFIG);
+//				// hardcoded for debugging:
+//				RelationValidator rv = DefaultRelationValidatorFactory.getValidator("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\de\\dfki\\lt\\dare\\element\\extendedFBRelations2.xml");
 //			    System.currentTimeMillis();
 //			    Set<String> nfoRelevantSentences = new HashSet<>();
-//			    Set<String> nfoUtilizedSentences = new HashSet<>();
-//			    XmlBatchWriter<ExtractedRelationMention> mentionWriter = XmlBatchWriterFactory.getWriter(ExtractedRelationMention.class, new File(dareTempFolder));
-//				ObjectZipLoader<AnnotatedSentence> sentLoader = new ObjectZipLoader<AnnotatedSentence>(new File(DARE_SENTENCE));
-//				SentenceIndexSearcher sentSearcher = new SentenceIndexSearcher(sentLoader, new File(DARE_SENTENCE_DPINDEXER));
+////			    Set<String> nfoUtilizedSentences = new HashSet<>();
+////			    XmlBatchWriter<ExtractedRelationMention> mentionWriter = XmlBatchWriterFactory.getWriter(ExtractedRelationMention.class, new File(dareTempFolder));
+//				//ObjectZipLoader<AnnotatedSentence> sentLoader = new ObjectZipLoader<AnnotatedSentence>(new File(DARE_SENTENCE));
+//			    // hardcoded for debugging:
+//			    //ObjectZipLoader<AnnotatedSentence> sentLoader = new ObjectZipLoader<AnnotatedSentence>(new File("C:\\Users\\pebo01\\workspace\\e-NLP\\dareTempFiles\\dare_sentence.zip"));
+//			    //SentenceIndexSearcher sentSearcher = new SentenceIndexSearcher(sentLoader, new File(DARE_SENTENCE_DPINDEXER));
 //				
-//				System.out.println("DEBUGGING content:" + new File(darePatterns).listFiles());
-//				for (File ruleDir : new File(darePatterns).listFiles()) {
-//					System.out.println("DEBUG: ruleDir:" + ruleDir.getName());
+//				//for (File ruleDir : new File(darePatterns).listFiles()) {
+//				for (File ruleDir : new File("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\darePatterns").listFiles()) { // for debugging only
 //					try (XmlBatchReader<RePattern> patternReader = XmlBatchReaderFactory.getReader(RePattern.class, ruleDir)) {
 //						List<RePattern> patterns;
 //						while (null != (patterns = patternReader.read())) {
 //							for (RePattern pattern : patterns) {
-//								System.out.println("DEBUG: looping with pattern:" + pattern.getRelationType());
 //								int tmp;
 //								try {
 //									tmp = Integer.parseInt(pattern.getFeatureSet().get(PatternSemanticKAdder.PATTERN_FEATURENAME_KVALUE).get(0));
@@ -194,14 +142,16 @@
 //								}
 //								final int kValue = tmp;
 //								final int freq = pattern.getLearningTracks().size();
-//								int cntExtractedMentionsForCurrentPattern = 0;
-//								Set<AnnotatedSentence> relevantSentencesForCurrentPattern = sentSearcher.getTargetSentences(pattern);
-//								if (null == relevantSentencesForCurrentPattern || relevantSentencesForCurrentPattern.isEmpty()) {
-//									//TODO: log something
-//									continue;
-//								}
+////								int cntExtractedMentionsForCurrentPattern = 0;
+////								Set<AnnotatedSentence> relevantSentencesForCurrentPattern = sentSearcher.getTargetSentences(pattern);
+////								
+////								if (null == relevantSentencesForCurrentPattern || relevantSentencesForCurrentPattern.isEmpty()) {
+////									//TODO: log something
+////									continue;
+////								}
 //								
-//								for (AnnotatedSentence relevantSentence : relevantSentencesForCurrentPattern) {
+//								//for (AnnotatedSentence relevantSentence : relevantSentencesForCurrentPattern) {
+//								for (AnnotatedSentence relevantSentence : annotatedSentences) { // seems to be less efficient as the commented/original lines above, but for a first stage, just to get it to work
 //									nfoRelevantSentences.add(relevantSentence.getId());
 //									List<ExtractedRelationMention> erms = matcher.apply(relevantSentence, pattern, rv);
 //									if (erms == null || erms.isEmpty())
@@ -209,18 +159,49 @@
 //									erms.forEach(erm -> {
 //										if (kValue != -1)
 //											erm.getFeatures().addFeature(Postprocessor.ERM_FEATURE_KVALUE, kValue + "");
-//										erm.getFeatures().addFeature(Postprocessor.ERM_FEATURE_FREQUENCY, freq + "");
-//										erm.getFeatures().addFeature(Postprocessor.ERM_FEATURE_OFFSET,
-//												relevantSentence.getStart() + "");
+//											erm.getFeatures().addFeature(Postprocessor.ERM_FEATURE_FREQUENCY, freq + "");
+//											erm.getFeatures().addFeature(Postprocessor.ERM_FEATURE_OFFSET,
+//											relevantSentence.getStart() + "");
+//											System.out.println("Found pattern: " + pattern.getId());
+//											System.out.println("Sentence: " + relevantSentence.getText());
+//											System.out.println("start:" + relevantSentence.getStart());
+//											System.out.println("end:" + relevantSentence.getEnd());
+//											System.out.println("relationMentions:" + relevantSentence.getRelationMentions());
+//											System.out.println("conceptMentions" + relevantSentence.getConceptMentions());
+//											System.out.println("relation type:" + pattern.getRelationType());
+//											System.out.println("edge set:" + pattern.edgeSet());
+//											System.out.println("graphToString:" + pattern.graphToString());
+//											XmlIOUtils.write(pattern, f);+
+//											System.out.println("arity:" + pattern.getArity());
+//											System.out.println("sent graph:" + relevantSentence.getGraph());
+//											System.out.println("semantic terms:" + relevantSentence.getSemanticTerms());
+//											System.out.println("source unit id:" + relevantSentence.getSourceUnitId());
+//											System.out.println("pattern graphId:" + pattern.getGraphId());
+//											System.out.println("root set:" + pattern.rootSet());
+//											System.out.println("vertex set:" + pattern.vertexSet());
+//											System.out.println("annotator:" + relevantSentence.getAnnotator());
+//											//TODO:
+//											System.out.println(erm.getArgumentNames());
+//											System.out.println(erm.getArguments());
+//											for(String argName : erm.geraRRguments
+//											System.out.println(erm.getArgument();
+//											
+//											
+//											
+//											
+//											System.out.println("\n");
+//
 //									});
-//									nfoUtilizedSentences.add(relevantSentence.getId());
-//									cntExtractedMentionsForCurrentPattern += erms.size();
-//									erms.size();
-//									mentionWriter.write(erms);
+////									nfoUtilizedSentences.add(relevantSentence.getId());
+////									cntExtractedMentionsForCurrentPattern += erms.size();
+////									erms.size();
+////									mentionWriter.write(erms);
 //								}
 //								
-//								if (cntExtractedMentionsForCurrentPattern > 0)
-//									System.out.println("Found something!");
+////								if (cntExtractedMentionsForCurrentPattern > 0)
+////									System.out.println("Found pattern: " + pattern.getId());
+////									System.out.println("\tSentence: " + relevantSentence);
+//									
 //									//pattern.getId(),
 //				                  	//cntExtractedMentionsForCurrentPattern,
 //				                  	//relevantSentencesForCurrentPattern.size()));

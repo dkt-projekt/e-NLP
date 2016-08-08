@@ -3,41 +3,24 @@ package de.dkt.eservices.enlp;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.jena.riot.SysRIOT;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
-import de.dkt.common.niftools.DKTNIF;
-import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.enlp.TestConstants;
-import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
-import eu.freme.common.conversion.rdf.RDFConstants;
-import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import eu.freme.common.exception.BadRequestException;
 import junit.framework.Assert;
 
 /**
@@ -96,6 +79,13 @@ public class ENLPTest {
 		//Unirest.setTimeouts(10000, 10000000);
 		return Unirest.post(url);
 	}
+	
+	private HttpRequestWithBody dareTestRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-sargraph/processData";
+		return Unirest.post(url);
+	}
+	
+
 	
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
@@ -722,13 +712,15 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\en";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\sentencesOnly";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
@@ -781,8 +773,8 @@ public class ENLPTest {
 //
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
 //					.queryString("analysis", "temp")
-//					.queryString("language", "de")
-//					.queryString("models", "germanDates")
+//					.queryString("language", "en")
+//					.queryString("models", "englishDates")
 //					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", turtleModel)
@@ -818,6 +810,23 @@ public class ENLPTest {
 //	}	 
 	
 
+	@Test
+	public void dareTestTestTest() throws UnirestException, IOException, Exception {
+
+		// plain text as input, turtle as output
+		HttpResponse<String> response2 = dareTestRequest()
+				.queryString("input", "Brad married Jolie.")
+				.queryString("language", "en")
+				.queryString("informat", "text")
+				.asString();
+		//"This is some sample text", "en", RDFSerialization.PLAINTEXT
+		//Assert.assertEquals(TestConstants.expectedResponse22, response2.getBody());
+		assertTrue(response2.getStatus() == 200);
+		assertTrue(response2.getBody().length() > 0);
+		System.out.println("DEBUGGING body: " + response2.getBody());
+		
+	}
+	
 	
 //	@Test
 //	public void enTest() throws UnirestException, IOException, Exception {
