@@ -1,0 +1,333 @@
+<?xml version="1.0"?>
+
+<project name="rules" default="allGeneric">
+    <target name="allGeneric" depends="compilenormalization,compilerules">
+	</target>
+    <target name="prerequisites">
+    	<replaceregexp flags="g" match="\["
+    	    replace="(">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g" match="\]"
+    	    replace=")?">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+
+       	<replaceregexp flags="g" match="&#x22;(.*?)&#x22;" 
+    	    replace="\1">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+  
+   	</target>
+    <target name="compilenormalization">
+
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;NR_(.*?)_(.*?)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  replace="
+			if (key == \1){&#xD;&#xA;
+    		int dayNumber = 1;&#xD;&#xA;
+    		int monthNumber = 1;&#xD;&#xA;
+    		int yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+				String[] parts = foundDate.split(&#x22;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;\2&#x22;);&#xD;&#xA;
+\3
+    		
+    		}&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	
+    	<!-- sets the minute -->
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NMinute_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		if(parts[1].matches(&#x22;[0-5][0-9]&#x22;)){&#xD;&#xA;
+    								minute = Integer.parseInt(parts[\1]);&#xD;&#xA;
+    							}&#xD;&#xA;
+    		else{&#xD;&#xA;
+    								//do nothing&#xD;&#xA;
+    							}&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>   	
+    	<!-- sets the hour -->
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NHour_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		int hour = 0;&#xD;&#xA;
+    		int minute = 0;&#xD;&#xA;
+    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
+    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
+    							}&#xD;&#xA;
+    		if (parts[2].matches(&#x22;p&#x22;)|parts[1].matches(&#x22;p&#x22;))&#xD;&#xA;{
+    								hour = hour+12;&#xD;&#xA;
+    							}&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NDay_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));;&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NMonth_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		monthNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NMonthL_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		monthNumber = ${dataclass}.monthName2Number.get(parts[\1].toLowerCase().replaceAll(&#x22;\\\\\\\\p{P}&#x22;, &#x22;&#x22;));&#xD;&#xA;">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+
+		<!-- Variable for years b.c. -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NYearBC_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		String yearNumberBeforeChrist = parts[0];&#xD;&#xA;
+    				int yearSubtract = cal.get(Calendar.YEAR) + Integer.parseInt(yearNumberBeforeChrist);&#xD;&#xA;
+    		cal.add(Calendar.YEAR, -yearSubtract+1);&#xD;&#xA;
+    				yearNumber = cal.get(Calendar.YEAR);&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	
+    	<replaceregexp flags="g"
+    	        	        	    	  match="&#x3c;NYear_(.*?)&#x3e;"
+    	        	        	    	  replace="
+    		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+			if (parts.length > \1){&#xD;&#xA;
+				yearNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\D&#x22;, &#x22;&#x22;));&#xD;&#xA;
+			}&#xD;&#xA;
+			else{&#xD;&#xA;
+				yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+			}&#xD;&#xA;
+			">
+    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	<!-- variable for a year number without a fixed position -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NYearV&#x3e;"
+    	    	        	        	    	  replace="
+    		if (parts[parts.length-1].matches(&#x22;^\\\\\\\\d{4}$&#x22;)){&#xD;&#xA;
+    		             yearNumber = Integer.parseInt(parts[parts.length-1]);&#xD;&#xA;
+    		            }&#xD;&#xA;
+    		            else{&#xD;&#xA;
+    		             yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    		            }&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+
+    	<!-- Marks eary/mid/late for years -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;Var1_(.*?)_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    		 String a = parts[\2];&#xD;&#xA;
+    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
+    		           monthNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
+    		          }&#xD;&#xA;
+    		&#xD;&#xA;	
+    	">
+
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<!-- Marks beginning/middle/end of for months -->
+    	<replaceregexp flags="g"
+        	    	        	        	    	  match="&#x3c;Var2_(.*?)_(.*?)&#x3e;"
+        	    	        	        	    	  replace="
+    		 String a = parts[\2];&#xD;&#xA;
+    		    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
+    		    		           dayNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
+    		    		          }&#xD;&#xA;
+    		    		&#xD;&#xA;	">
+
+        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+       	<!-- variable for "now" -->
+    	<replaceregexp flags="g"
+        	        	        	    	  match="&#x3c;NNow&#x3e;"
+        	        	        	    	  replace="
+        		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+       			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+       			dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    			
+    			">
+        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+
+    	<!-- This is used to set the seasons-->
+    	<replaceregexp flags="g"
+    	
+        												
+    	 match="&#x3c;Var3_(.*?)_(.*?)&#x3e;"
+    	 replace="
+ 
+    		 String a = parts[\2];&#xD;&#xA;
+    		&#xD;&#xA;
+    		if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
+    						String stringDates = ${dataclass}.\1.get(a);&#xD;&#xA;
+    						monthNumber = Integer.parseInt(stringDates.substring(0, 2));&#xD;&#xA;
+    						dayNumber = Integer.parseInt(stringDates.substring(2, 4));&#xD;&#xA;
+    					}&#xD;&#xA;
+    		&#xD;&#xA;
+    	    				">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<!-- variable for the holidays -->
+    	<replaceregexp flags="g"
+            	    	        	        	    	  match="&#x3c;movingHolidays&#x3e;"
+            	    	        	        	    	  replace="
+    							else if (parts[0].toLowerCase().matches(&#x22;labor&#x22;)){&#xD;&#xA;
+    								monthNumber = 9;&#xD;&#xA;
+    								dayNumber = DateCommons.getFirstSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].toLowerCase().matches(&#x22;memorial&#x22;)){&#xD;&#xA;
+    								monthNumber = 5;&#xD;&#xA;
+    								dayNumber = DateCommons.getLastSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[0].toLowerCase().matches(&#x22;easter&#x22;)){&#xD;&#xA;
+    								Calendar loCal = Calendar.getInstance();&#xD;&#xA;
+    								loCal.setTime(DateCommons.getEasterDate(yearNumber));&#xD;&#xA;
+    								monthNumber = loCal.get(Calendar.MONTH);&#xD;&#xA;
+    								dayNumber = loCal.get(Calendar.DATE);&#xD;&#xA;
+    							}&#xD;&#xA;
+            				">
+            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+
+
+    </target>
+    <target name="compilerules">
+    	<!--    	<copy overwrite ="true" todir="${dirdest}">-->
+    	<!--		<fileset dir="${dirorig}" includes="${rulesclass}.in"/>-->
+    	<!--		<mapper type="glob" from="*.in" to="*.java"/>-->
+    	<!--        </copy>-->
+
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;HS_(.*?)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  replace="
+    		static HashMap&#x3c;String, String&#x3e; \1 = new HashMap&#x3c;String, String&#x3e;(){{&#xD;&#xA;
+    		\2
+    		}}&#xD;&#xA;
+    		">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+        	
+
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
+        	    	  replace="counter++;dateRegexMap.put(counter, String.format(&#x22;\\\\\\\\b\2\\\\\\\\b&#x22;));&#xD;&#xA;
+    		patterns.add(Pattern.compile(dateRegexMap.get(counter)));&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;(.*)&#x3e;:=="
+        	    	  replace="String \1:==">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<!-- Rule for detecting <*> elements. -->
+    	<replaceregexp flags="g"
+        	    	  match="&#x3c;(.*?)&#x3e;"
+        	    	  replace="&#x28;&#x22;&#x2b;\1&#x2b;&#x22;&#x29;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+  	
+    	<replaceregexp flags="g"
+        	    	  match=":==(.*)&#xD;&#xA;"
+        	    	  replace=":==\1&#x22;&#x3b;&#xD;&#xA;">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+        	
+    	
+    	<replaceregexp flags="g" match=":=="
+    	    replace="=&#x22;">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	    	  
+    	<replaceregexp flags="g"
+        	    	  match="START_RULES\(([^\)]*)\)"
+        	    	  replace=" package ${package};&#xD;&#xA;
+    import java.text.SimpleDateFormat;&#xD;&#xA;
+    import java.util.Arrays;&#xD;&#xA;
+    import java.util.Calendar;&#xD;&#xA;
+    import java.util.Date;&#xD;&#xA;
+    import java.util.GregorianCalendar;&#xD;&#xA;
+    import java.util.HashMap;&#xD;&#xA;
+    import java.util.Iterator;&#xD;&#xA;
+    import java.util.LinkedList;&#xD;&#xA;
+    import java.util.List;&#xD;&#xA;
+    import java.util.regex.Pattern;&#xD;&#xA;
+    import opennlp.tools.namefind.RegexNameFinder;&#xD;&#xA;
+    import de.dkt.eservices.eopennlp.modules.RegexFinder;&#xD;&#xA;
+    import opennlp.tools.namefind.RegexNameFinder;&#xD;&#xA;
+    import opennlp.tools.util.Span;&#xD;&#xA;
+    import java.util.Map;&#xD;&#xA;
+    &#xD;&#xA;
+    public class \1 {&#xD;&#xA;
+    static HashMap&#x3c;Integer, String&#x3e; dateRegexMap = new HashMap&#x3c;Integer, String&#x3e;();&#xD;&#xA;
+    
+    public static RegexNameFinder initDateFinder(){&#xD;&#xA;
+    		int counter = 0;&#xD;&#xA;
+    		List&#x3c;Pattern&#x3e; patterns = new LinkedList&#x3c;Pattern&#x3e;();&#xD;&#xA;
+    		&#xD;&#xA;
+    		">
+        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	    	    	  match="END_RULES"
+    	    	    	  replace="
+    	       int counter2=0;&#xD;&#xA;
+    	       Pattern[] patts = new Pattern[patterns.size()];&#xD;&#xA;
+    	       for (Pattern p : patterns) {&#xD;&#xA;
+    	    	   patts[counter2]=p;&#xD;&#xA;
+    	    	   counter2++;&#xD;&#xA;
+    		}&#xD;&#xA;
+    	 RegexNameFinder rnf = new RegexNameFinder(patts, null);&#xD;&#xA;
+    	 return rnf;&#xD;&#xA;
+    	 }&#xD;&#xA;
+    	     
+    	     public static void main(String[] args) {&#xD;&#xA;
+    	 		RegexNameFinder timeFinder= ${rulesclass}.initDateFinder();&#xD;&#xA;
+    	 		String input = &#x22;october 6 1990&#x22;;&#xD;&#xA;
+    	 		RegexFinder rf = new RegexFinder();&#xD;&#xA;
+    	 		List&#x3c;Span&#x3e; timeSpans = rf.filterFind(timeFinder, input);&#xD;&#xA;
+    	 		for (Span s : timeSpans){&#xD;&#xA;
+    	 			System.out.println(&#x22;DEBUGGING:&#x22; + s.getStart() + &#x22;=--=&#x22;+s.getEnd());&#xD;&#xA;
+    	 			System.out.println(&#x22;DEBUGGING span:&#x22; + input.substring(s.getStart(), s.getEnd()));&#xD;&#xA;
+    				LinkedList&#x3c;String&#x3e; normalizedStartAndEnd = normalizeDate(input.substring(s.getStart(), s.getEnd()));;&#xD;&#xA;
+    		        System.out.println(&#x22;DEBUGGING norm:&#x22; + normalizedStartAndEnd);;&#xD;&#xA;
+    	 		}&#xD;&#xA;
+    		}&#xD;&#xA;
+
+">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	<replaceregexp flags="g"
+    	    	    	    	  match="BEGIN_NORMALIZATION"
+    	    	    	    	  replace="
+    	    		public static LinkedList&#x3c;String&#x3e; normalizeDate(String foundDate) {&#xD;&#xA;
+
+    	    				// this is directly coupled to the dateRegexMap thing. If that changes, this needs to be checked too&#xD;&#xA;
+    	    				Date normalizedStartDate = new Date();&#xD;&#xA;
+    	    				Date normalizedEndDate = new Date();&#xD;&#xA;
+    	    				Calendar cal = Calendar.getInstance();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    				Iterator it = dateRegexMap.entrySet().iterator();&#xD;&#xA;
+    	    				LinkedList&#x3c;String&#x3e; dates = new LinkedList&#x3c;String&#x3e;();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    		while (it.hasNext()){&#xD;&#xA;
+    	    					Map.Entry pair = (Map.Entry)it.next();&#xD;&#xA;
+    	    					int key = (Integer) pair.getKey();&#xD;&#xA;
+    	    					String p = (String) pair.getValue();&#xD;&#xA;
+    	    					// compile with ^ and $ since I want the whole match/no submatches (not sure if this works though, debug!)&#xD;&#xA;
+    	    					if (Pattern.matches(String.format(&#x22;^%s$&#x22;, p), foundDate)){&#xD;&#xA;
+    	    	">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+    	    	<replaceregexp flags="g"
+    	    	    	    	  match="END_NORMALIZATION"
+    	    	    	    	  replace="
+    	    					}&#xD;&#xA;
+    	    		}&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    				return dates;}&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    		
+    	    		
+    	}
+    	    	">
+    	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+
+
+    </target>
+</project>
