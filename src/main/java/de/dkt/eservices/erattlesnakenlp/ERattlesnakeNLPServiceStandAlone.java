@@ -1,6 +1,7 @@
 package de.dkt.eservices.erattlesnakenlp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +69,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 		try {
 			ResponseEntity<String> response =service.segmentParagraphs(inputFile, language);
 
-			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/segmentParagraphs", "Success", "", "Exception", "", "");
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/segmentParagraphs", "Success", "", "", "", "");
 
         	return response;
         } catch (Exception e) {
@@ -146,7 +147,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
                 Resource res = resIter.next();
                 outModel.removeAll(res, null, (RDFNode) null);
             }
-			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/languageIdentification", "Success", "", "Exception", "", "");
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/languageIdentification", "Success", "", "", "", "");
 
             return createSuccessResponse(outModel, nifParameters.getOutformat());
             
@@ -166,6 +167,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 			HttpServletRequest request,
 			@RequestParam(value = "language", required = false) String language,
 			@RequestParam(value = "threshold", required = false) String thresholdValue,
+			@RequestParam(value = "classificationModels", required = false) String classificationModels,
 			@RequestParam(value = "prefix", required = false) String prefix,
 			@RequestParam(value = "p", required = false) String p,
 			@RequestHeader(value = "Accept", required = false) String acceptHeader,
@@ -178,6 +180,14 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
        		logger.error("Parameter language not specified.");
        		throw new BadRequestException("Parameter language not specified.");
         }
+        if (language.equalsIgnoreCase("en")){
+        	// all is well
+        }
+        // TODO: add support for German (have to find document collection to get tfIdf serialized hashmap for this
+        else{
+        	throw new BadRequestException("Language not supported.");
+        }
+        
         double t;
         if (thresholdValue != null) {
 			//try to parse to double and check if in between 0 and 1.
@@ -196,9 +206,20 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
     			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", msg, "", "Exception", msg, "");
     			throw new BadRequestException(msg);
         	}
-		} else { // if none specified, default is 0.5
-			t = 0.5;
+		} else { // if none specified, default is 0.02
+			t = 0.02;
 		}
+        ArrayList<String> cm = null;
+
+		if (classificationModels != null) {
+			cm = new ArrayList<String>();
+			String[] modes = classificationModels.split(";");
+			for (String m : modes) {
+				cm.add(m);
+			}
+		}
+
+        
         
         NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
         
@@ -214,7 +235,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
     			throw new BadRequestException(msg);
             }
         }
-        ArrayList<String> entityCandidates = service.suggestEntityCandidates(textForProcessing, language, nifParameters.getInformat(), t);
+        ArrayList<String> entityCandidates = service.suggestEntityCandidates(textForProcessing, language, nifParameters.getInformat(), t, cm);
         String output = "";
         for (String s: entityCandidates){
         	output += s + "\n";
@@ -224,10 +245,69 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         responseHeaders.add("Content-Type", "text/plain");
         ResponseEntity<String> response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
 
-        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", "Success", "", "Exception", "", "");
+        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/rattlesnakeNLP/suggestEntityCandidates", "Success", "", "", "", "");
         
         return response;
 	}
 
+	
+	
+	
+	@RequestMapping(value = "/e-nlp/uploadClassificationModel", method = {
+            RequestMethod.POST, RequestMethod.GET })
+	public ResponseEntity<String> uploadClassificationModel(
+			HttpServletRequest request,
+			@RequestParam(value = "data", required = false) String data,
+			@RequestParam(value = "modelName", required = false) String modelName,
+			@RequestParam(value = "prefix", required = false) String prefix,
+			@RequestParam(value = "p", required = false) String p,
+			@RequestHeader(value = "Accept", required = false) String acceptHeader,
+			@RequestHeader(value = "Content-Type", required = false) String contentTypeHeader,
+            @RequestParam Map<String, String> allParams,
+            @RequestBody(required = false) String postBody) throws Exception {
+		
+        if(modelName == null) {
+       		logger.error("Parameter modelName not specified.");
+       		throw new BadRequestException("Parameter modelName not specified.");
+        }
+        else if (modelName.contains(";")){
+        	logger.error("Usage of ; (semi-colon) not allowed in modelName.");
+       		throw new BadRequestException("Usage of ; (semi-colon) not allowed in modelName");
+        }
+        
+        NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
+        
+        if (allParams.get("data") != null) {
+        	// trainingdata is sent as value of the trainingdata parameter
+            data = allParams.get("data");
+        } else {
+        	data = postBody;
+            if (data == null) {
+    			String msg = "No data to process.";
+    			logger.error(msg);
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-nlp/uploadClassificationModel", msg, 
+    					"", "Exception", msg, "");
+    			throw new BadRequestException(msg);
+            }
+        }
+        
+        
+        String r = service.uploadClassificationModel(data, modelName);
+        String output = "";
+        
+        
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Content-Type", "text/plain");
+        ResponseEntity<String> response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+
+        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-nlp/uploadClassificationModel", "Success", "", "", "", "");
+        
+        return response;
+	}
+
+	
+	
+	
+	
 
 }

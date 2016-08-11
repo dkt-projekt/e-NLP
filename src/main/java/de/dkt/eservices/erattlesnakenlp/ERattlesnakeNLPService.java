@@ -17,11 +17,14 @@ import eu.freme.common.exception.ExternalServiceFailedException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -76,7 +79,7 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
-	public ArrayList<String> suggestEntityCandidates(String textToProcess, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue)
+	public ArrayList<String> suggestEntityCandidates(String textToProcess, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
@@ -93,8 +96,17 @@ public class ERattlesnakeNLPService {
 					throw new BadRequestException("Check the input format [" + inFormat + "]!!");
 				}
 			}
+			
+			String referenceCorpus=  null;
+			if (languageParam.equalsIgnoreCase("en")){
+				referenceCorpus = "englishReuters";
+			}
+			else { //TODO: add more ref corpora for other languages and modify here
+				throw new BadRequestException("No reference corpus available yet for language: " + languageParam);
+			}
+			
 
-			entityCandidates = EntityCandidateExtractor.suggestCandidates(nifModel, languageParam, thresholdValue);
+			entityCandidates = EntityCandidateExtractor.entitySuggest(nifModel, languageParam, referenceCorpus, thresholdValue, classificationModels);
 			
 		} catch (BadRequestException e) {
 			logger.error(e.getMessage());
@@ -108,6 +120,24 @@ public class ERattlesnakeNLPService {
 	
 	}
 	
+	
+	public String uploadClassificationModel(String data, String modelName) throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
+		
+		try {
+			EntityCandidateExtractor.serializeClassLanguageModel(data, modelName);
 
+		} catch (BadRequestException e) {
+			logger.error(e.getMessage());
+			throw e;
+		} catch (ExternalServiceFailedException e2) {
+			logger.error(e2.getMessage());
+			throw e2;
+		}
+
+		return "success"; // TODO come up with a proper response here
+
+}
+	
+	
 
 }

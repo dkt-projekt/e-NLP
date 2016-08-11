@@ -58,9 +58,37 @@ public class Tagger {
 				
 	}
 	
+	
+	public static HashMap<String, HashMap<String, Integer>> getTagMap(String str, String language){
+		
+		HashMap<String, HashMap<String, Integer>> tagMap = new HashMap<String, HashMap<String, Integer>>();
+		String[] sentences = SentenceDetector.detectSentences(str, language + "-sent.bin");
+		for (String sentence : sentences){
+			String taggedString = tagger.tagString(sentence);
+			String[] tagList = taggedString.split(" ");
+			for (int i = 0; i < tagList.length; i++) {
+				String parts[] = tagList[i].split("_");
+				String w = parts[0];
+				String tag = parts[1];
+				int c = 1;
+				HashMap<String, Integer> innerMap = new HashMap<String, Integer>();
+				if (tagMap.containsKey(w)) {
+					if (tagMap.get(w).containsKey(tag)) {
+						c = tagMap.get(w).get(tag) + 1;
+					}
+				}
+				innerMap.put(tag, c);
+				tagMap.put(w, innerMap);
+			}
+		}
+		
+		return tagMap;
+	}
+	
+	//deprecated, I think
 	public static HashMap<String, HashMap<String, Integer>> getEntitytCandidateMap(String str, String language){
 		
-		ArrayList<String> englishEntityCandidateTagSet = new ArrayList<>(Arrays.asList("NNP")); // NOTE: this is coupled to the stanford postagger...
+		ArrayList<String> englishEntityCandidateTagSet = new ArrayList<>(Arrays.asList("NNP", "NN", "NNS")); // NOTE: this is coupled to the stanford postagger...
 		ArrayList<String> germanEntityCandidateTagSet = new ArrayList<>(Arrays.asList("NE")); // NOTE: this is coupled to the stanford postagger...
 		//TODO: create a general official stopwords list somewhere for all languages we support
 		ArrayList<String> candidateTagSet = new ArrayList<String>();

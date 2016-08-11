@@ -84,6 +84,10 @@ public class ENLPTest {
 		String url = testHelper.getAPIBaseUrl() + "/e-sargraph/processData";
 		return Unirest.post(url);
 	}
+	private HttpRequestWithBody uploadClassificationLMRequest() {
+		String url = testHelper.getAPIBaseUrl() + "/e-nlp/uploadClassificationModel";
+		return Unirest.post(url);
+	}
 	
 
 	
@@ -633,7 +637,31 @@ public class ENLPTest {
 		
 	}
 	
+	
+	@Test
+	public void uploadClassificationLM() throws UnirestException, IOException,
+			Exception {
 
+		
+		HttpResponse<String> response8 = uploadClassificationLMRequest()
+				.queryString("modelName", "dummyLM")
+				.body(TestConstants.dictUploadData)
+				.asString();
+		
+		assertTrue(response8.getStatus() == 200);
+		//assertTrue(response8.getBody().length() > 0);
+		
+		HttpResponse<String> response9 = uploadClassificationLMRequest()
+				.queryString("modelName", "dummy2LM")
+				.body(TestConstants.bodyInput5)
+				.asString();
+		
+		assertTrue(response9.getStatus() == 200);
+		
+	}
+
+	
+	
 	
 	static String readFile(String path, Charset encoding) 
 			  throws IOException 
@@ -897,10 +925,11 @@ public class ENLPTest {
 	public void entitySuggestTest() throws UnirestException, IOException,
 			Exception {
 
+		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
 		HttpResponse<String> response = entitySuggestRequest()
 				.queryString("informat", "text")
-				.queryString("language", "de")
-				.queryString("threshold", "0.2")
+				.queryString("language", "en")
+				.queryString("threshold", "0.5")
 				.body(TestConstants.germanPlainTextInput)
 				.asString();
 			
@@ -909,14 +938,46 @@ public class ENLPTest {
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 		String expectedResp = 
-				"Deutschland	28\n" +
-						"SPIEGEL ONLINE	17\n" +
-						"El Feki	14\n" +
-						"Ukraine	12\n" +
-						"Bremen	9\n" +
-						"Donezk	9\n" +
+				"ist\n" +
+						"nicht\n" +
+						"das\n" +
+						"auch\n" +
+						"den\n" +
+						"sie\n" +
+						"und\n" +
 						"";
 		Assert.assertEquals(expectedResp, response.getBody());
 		
 	}
+	
+	@Test
+	public void entitySuggestTestWithClassification() throws UnirestException, IOException,
+			Exception {
+
+		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
+		HttpResponse<String> response = entitySuggestRequest()
+				.queryString("informat", "text")
+				.queryString("language", "en")
+				.queryString("threshold", "0.5")
+				.queryString("classificationModels", "dummyLM;dummy2LM")
+				.body(TestConstants.germanPlainTextInput)
+				.asString();
+			
+
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		String expectedResp = 
+				"auch	dummyLM\n" +
+						"das	dummy2LM\n" +
+						"und	dummyLM\n" +
+						"ist	dummy2LM\n" +
+						"nicht	dummyLM\n" +
+						"den	dummy2LM\n" +
+						"sie	dummy2LM\n" +
+						"";
+		Assert.assertEquals(expectedResp, response.getBody());
+		
+	}
+	
 }
