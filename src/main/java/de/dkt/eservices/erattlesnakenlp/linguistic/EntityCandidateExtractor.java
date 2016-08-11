@@ -60,7 +60,7 @@ public class EntityCandidateExtractor {
 		
 		HashMap<String, Integer> refMap = null;
 		try{
-			File serializedFile = FileFactory.generateOrCreateFileInstance(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
+			File serializedFile = FileFactory.generateFileInstance(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
 			FileInputStream fis = new FileInputStream(serializedFile);
 			//FileInputStream fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\referenceCorpora" + File.separator + referenceMap + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -107,7 +107,7 @@ public class EntityCandidateExtractor {
 			else{
 				throw new BadRequestException("No stoplist available for language: "+language+". Please create one first.");
 			}
-			File serializedFile = FileFactory.generateOrCreateFileInstance(serializedStopListDirectory + File.separator + s + ".ser");
+			File serializedFile = FileFactory.generateFileInstance(serializedStopListDirectory + File.separator + s + ".ser");
 			FileInputStream fis = new FileInputStream(serializedFile);
 			//FileInputStream fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\stopwords" + File.separator + s + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -165,7 +165,7 @@ public class EntityCandidateExtractor {
 		for (String model : languageModels) {
 			FileInputStream fis;
 			try {
-				File serializedFile = FileFactory.generateOrCreateFileInstance(serializedHashMapDirectory + File.separator + model + ".ser");
+				File serializedFile = FileFactory.generateFileInstance(serializedHashMapDirectory + File.separator + model + ".ser");
 				fis = new FileInputStream(serializedFile);
 				//fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\referenceCorpora"	+ File.separator + model + ".ser");
 				ObjectInputStream ois = new ObjectInputStream(fis);
