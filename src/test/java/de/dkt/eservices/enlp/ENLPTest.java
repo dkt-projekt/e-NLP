@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.Before;
@@ -642,10 +643,14 @@ public class ENLPTest {
 	public void uploadClassificationLM() throws UnirestException, IOException,
 			Exception {
 
+		String in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\vikingNames.txt", StandardCharsets.UTF_8);
+		in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\bacteriaNamesFromWikipedia.txt", StandardCharsets.UTF_8);
 		
 		HttpResponse<String> response8 = uploadClassificationLMRequest()
-				.queryString("modelName", "dummyLM")
-				.body(TestConstants.dictUploadData)
+				//.queryString("modelName", "dummyLM")
+				.queryString("modelName", "bacteriaLM")
+				//.body(TestConstants.dictUploadData)
+				.body(in)
 				.asString();
 		
 		assertTrue(response8.getStatus() == 200);
@@ -938,13 +943,14 @@ public class ENLPTest {
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 		String expectedResp = 
+				"und\n" +
+				"nicht\n" +
 				"ist\n" +
-						"nicht\n" +
-						"das\n" +
-						"auch\n" +
-						"den\n" +
-						"sie\n" +
-						"und\n" +
+				"auch\n" +
+				"das\n" +
+				"sie\n" +
+				"den\n" +
+
 						"";
 		Assert.assertEquals(expectedResp, response.getBody());
 		
@@ -968,14 +974,15 @@ public class ENLPTest {
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 		String expectedResp = 
-				"auch	dummyLM\n" +
-						"das	dummy2LM\n" +
-						"und	dummyLM\n" +
-						"ist	dummy2LM\n" +
-						"nicht	dummyLM\n" +
-						"den	dummy2LM\n" +
-						"sie	dummy2LM\n" +
-						"";
+				"und	dummyLM\n"+
+				"nicht	dummyLM\n"+
+				"ist	dummy2LM\n"+
+				"auch	dummyLM\n"+
+				"das	dummy2LM\n"+
+				"sie	dummy2LM\n"+
+				"den	dummy2LM\n"+
+				"";
+
 		Assert.assertEquals(expectedResp, response.getBody());
 		
 	}

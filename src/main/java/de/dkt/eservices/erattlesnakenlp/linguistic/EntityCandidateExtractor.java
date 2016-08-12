@@ -39,7 +39,7 @@ public class EntityCandidateExtractor {
 	static int minNgramSize = 2;
 	static int maxNgramSize = 5;
 	
-	public static ArrayList<String> entitySuggest(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels){
+	public static HashMap<String, Double> entitySuggest(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels){
 		
 		ArrayList<String> candidates = new ArrayList<String>();
 		Tagger.initTagger(language);
@@ -140,21 +140,26 @@ public class EntityCandidateExtractor {
 				}
 			}
 		}
+		HashMap<String, Double> resultMap = new HashMap<String, Double>();
+		for (String c : candidates){
+			resultMap.put(c, tokenScores.get(c));
+		}
 		
 		//System.out.println(candidates);
 		if (classificationModels != null){
+			HashMap<String, Double> resultMap2 = new HashMap<String, Double>();
 			HashMap<String, String> classScores = classifySuggestions(classificationModels, candidates);
 			// a bit ugly, but for now this will do as I don't want to change return type depending on if models are specified or not:
-			ArrayList<String> candidatesWithClasses = new ArrayList<String>();
+			//ArrayList<String> candidatesWithClasses = new ArrayList<String>();
 			for (String c : classScores.keySet()){
-				candidatesWithClasses.add(c + "\t" + classScores.get(c));
+				//candidatesWithClasses.add(c + "\t" + classScores.get(c));
+				resultMap2.put(c + "\t" + classScores.get(c), tokenScores.get(c));
 			}
-			candidates = candidatesWithClasses;
+			//candidates = candidatesWithClasses;
+			resultMap = resultMap2;
 		}
-
-				
 		
-		return candidates;
+		return resultMap;
 		
 	}
 	
@@ -188,22 +193,27 @@ public class EntityCandidateExtractor {
 			String model = (String) pair.getKey();
 			HashMap<String, Double> lm = (HashMap<String, Double>) pair.getValue();
 			HashMap<String, Double> innerMap = new HashMap<String, Double>();
+			Double maxValue = 0.0;
+			for (String  k : lm.keySet()){
+				maxValue += lm.get(k);
+			}
 			for (String candidate : candidates) {
 				Double classScore = 0.0;
 				for (int i = minNgramSize; i <= maxNgramSize; i++) {
 					for (int j = 0; j <= candidate.length() - i; j++) {
 						String ngram = candidate.substring(j, j + i);
-						// since it's already normalized, I can just sum here
 						if (lm.containsKey(ngram)) {
-							classScore += lm.get(ngram);
+							classScore += (lm.get(ngram) / maxValue);
 						}
 					}
 				}
 				innerMap.put(candidate, classScore);
 			}
 			candidateClassificationScores.put(model, innerMap);
+			//TODO: continue here. Debug why it's always generalEnglishLm in my example... Should I do some more normalization somehow to correct for large difference in LM sizes?
+			
 		}
-
+		
 		// because of the structure of the hashmap (should be reversed), this is
 		// a bit elaborate now...
 		HashMap<String, String> classificationScores = new HashMap<String, String>();

@@ -79,24 +79,12 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
-	public ArrayList<String> suggestEntityCandidates(String textToProcess, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
+	public HashMap<String, Double> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
-		ArrayList<String> entityCandidates = new ArrayList<String>();
+		HashMap<String, Double> entityCandidates = new HashMap<String, Double>();
 		try {
-			Model nifModel = null;
-			if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
-				nifModel = NIFWriter.initializeOutputModel();
-				NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
-			} else {
-				try {
-					nifModel = NIFReader.extractModelFromFormatString(textToProcess, inFormat);
-				} catch (RiotException e) {
-					throw new BadRequestException("Check the input format [" + inFormat + "]!!");
-				}
-			}
-			
 			String referenceCorpus=  null;
 			if (languageParam.equalsIgnoreCase("en")){
 				referenceCorpus = "englishReuters";
