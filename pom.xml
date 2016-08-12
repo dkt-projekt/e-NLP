@@ -44,6 +44,12 @@
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
 			<version>0.4-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 				<dependency>
 		    		<groupId>edu.stanford.nlp</groupId>
