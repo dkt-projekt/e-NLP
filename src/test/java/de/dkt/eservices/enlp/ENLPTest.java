@@ -643,14 +643,14 @@ public class ENLPTest {
 	public void uploadClassificationLM() throws UnirestException, IOException,
 			Exception {
 
-		String in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\vikingNames.txt", StandardCharsets.UTF_8);
-		in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\bacteriaNamesFromWikipedia.txt", StandardCharsets.UTF_8);
+		//String in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\vikingNames.txt", StandardCharsets.UTF_8);
+		//in = readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\bacteriaNamesFromWikipedia.txt", StandardCharsets.UTF_8);
 		
 		HttpResponse<String> response8 = uploadClassificationLMRequest()
-				//.queryString("modelName", "dummyLM")
-				.queryString("modelName", "bacteriaLM")
-				//.body(TestConstants.dictUploadData)
-				.body(in)
+				.queryString("modelName", "dummyLM")
+				//.queryString("modelName", "bacteriaLM")
+				.body(TestConstants.dictUploadData)
+				//.body(in)
 				.asString();
 		
 		assertTrue(response8.getStatus() == 200);
