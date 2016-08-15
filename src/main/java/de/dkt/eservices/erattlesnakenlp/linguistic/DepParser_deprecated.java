@@ -565,7 +565,7 @@ public class DepParser_deprecated {
 				fileContent = readFile(f1.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent,RDFConstants.RDFSerialization.TURTLE);
 				PrintWriter out = new PrintWriter(new File(outputFolder, FilenameUtils.removeExtension(f1.getName()) + ".rdfxml"));
-				out.println(NIFReader.model2String(nifModel, "RDF/XML"));
+				out.println(NIFReader.model2String(nifModel, RDFSerialization.RDF_XML));
 				out.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

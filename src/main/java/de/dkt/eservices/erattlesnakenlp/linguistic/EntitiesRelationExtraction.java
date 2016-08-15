@@ -62,7 +62,7 @@ public class EntitiesRelationExtraction {
 			texts.add((SpanWord) lu);
 		}
 
-		String nifString = NIFReader.model2String(nifModel, "TTL");
+		String nifString = NIFReader.model2String(nifModel, RDFSerialization.TURTLE);
 		Model m2 = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
 		
 //		Tagger.initTagger("en");
@@ -293,7 +293,7 @@ public class EntitiesRelationExtraction {
 						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Emilio_Mola> .\n" +
 						"";
 		Model m = EntitiesRelationExtraction.extractRelationsNIFString(s,5);
-		System.out.println(NIFReader.model2String(m, "TTL"));
+		System.out.println(NIFReader.model2String(m, RDFSerialization.TURTLE));
 //		System.out.println(s);
 	}
 }

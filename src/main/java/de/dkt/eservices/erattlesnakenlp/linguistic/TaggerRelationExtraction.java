@@ -47,7 +47,7 @@ public class TaggerRelationExtraction {
 				Model m2 = EntitiesRelationExtraction.extractRelationsNIFString(content,windowsSize);
 
 				BufferedWriter bw1 = FileFactory.generateOrCreateBufferedWriterInstance(folder+outputSubfolder+sf, "utf-8", false);
-				bw1.write(NIFReader.model2String(m2, "TTL")+"\n");
+				bw1.write(NIFReader.model2String(m2, RDFSerialization.TURTLE)+"\n");
 				bw1.close();
 
 			    bw.write(folder+subfolder+sf+"\n\n");

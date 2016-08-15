@@ -183,7 +183,7 @@ public class LanguageIdentificator {
 		long startRecog = System.currentTimeMillis();
 		nifModel = detectLanguageNIF(nifModel);
 		System.out.println("done recognizing in " + (System.currentTimeMillis() - startRecog));
-		System.out.println("model:" + NIFReader.model2String(nifModel, "TTL"));
+		System.out.println("model:" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 	}
 	
 	

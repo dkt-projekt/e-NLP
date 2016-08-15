@@ -11,11 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
+import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,21 +20,14 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
-//import com.hp.hpl.jena.vocabulary.RDFS;
-import com.hp.hpl.jena.vocabulary.XSD;
-
 import de.dkt.common.filemanagement.FileFactory;
 
 import de.dkt.common.niftools.DBO;
-import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.GEO;
-import de.dkt.common.niftools.ITSRDF;
 import de.dkt.common.niftools.NIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
@@ -45,8 +35,6 @@ import de.dkt.common.niftools.TIME;
 import de.dkt.common.niftools.RDFS;
 //import de.dkt.eservices.eopennlp.TestConstants;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
-import eu.freme.bservices.testhelper.TestHelper;
-import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
@@ -576,7 +564,7 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 				String arabicLabel = Sparqler.getDBPediaLabelForLanguage(sa[0], "ar");
 				if (arabicLabel != null){
 					NIFWriter.addEntityProperty(nifModel, Integer.parseInt(sa[3]), Integer.parseInt(sa[4]), "http://freme-project.eu/", arabicLabel, RDFS.arabicLabel, XSDDatatype.XSDnormalizedString);
-					System.out.println(NIFReader.model2String(nifModel, "TTL"));
+					System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 				}
 			}
 		} catch (Exception e) {

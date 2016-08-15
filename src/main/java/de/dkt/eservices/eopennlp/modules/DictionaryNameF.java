@@ -34,6 +34,7 @@ import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 //import de.dkt.eservices.esesame.modules.SesameStorage;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
@@ -271,7 +272,7 @@ public class DictionaryNameF {
 		ArrayList<String> dictionaries = new ArrayList<String>();
 		dictionaries.add("mendelsohnTest");
 		nifModel = detectEntitiesNIF(nifModel, dictionaries, "en-sent.bin");
-		System.out.println(NIFReader.model2String(nifModel, "turtle"));
+		System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 		//System.out.println(detectEntitiesNIF("This is a story about Erich Mendelsohn. It is very short. It also mentions Luise Mendelsohn. The end.", "mendelsohnTest", "PERSON", "en-token.bin", "en-sent.bin"));
 		
 	}
