@@ -59,17 +59,20 @@ public class EntityCandidateExtractor {
 		}
 		
 		HashMap<String, Integer> refMap = null;
+		File serializedFile = null;
 		try{
-			File serializedFile = FileFactory.generateFileInstance(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
+			System.out.println(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
+			serializedFile = FileFactory.generateFileInstance(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
 			FileInputStream fis = new FileInputStream(serializedFile);
+			System.out.println("DEBUGGING ref file:" + serializedFile.getAbsolutePath());
 			//FileInputStream fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\referenceCorpora" + File.separator + referenceMap + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			refMap = (HashMap) ois.readObject();
 			ois.close();
 			fis.close();
 		} catch (Exception e) {
-			// FIXME
 			e.printStackTrace();
+			throw new BadRequestException("ERROR: could not find reference corpus:" + serializedFile.getAbsolutePath());
 		}
 
 		double maxValue = 0;
@@ -107,7 +110,7 @@ public class EntityCandidateExtractor {
 			else{
 				throw new BadRequestException("No stoplist available for language: "+language+". Please create one first.");
 			}
-			File serializedFile = FileFactory.generateFileInstance(serializedStopListDirectory + File.separator + s + ".ser");
+			serializedFile = FileFactory.generateFileInstance(serializedStopListDirectory + File.separator + s + ".ser");
 			FileInputStream fis = new FileInputStream(serializedFile);
 			//FileInputStream fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\stopwords" + File.separator + s + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
