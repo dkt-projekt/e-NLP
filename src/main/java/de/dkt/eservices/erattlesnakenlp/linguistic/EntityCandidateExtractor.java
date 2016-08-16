@@ -61,10 +61,10 @@ public class EntityCandidateExtractor {
 		HashMap<String, Integer> refMap = null;
 		File serializedFile = null;
 		try{
-			System.out.println(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
+			//System.out.println(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
 			serializedFile = FileFactory.generateFileInstance(serializedHashMapDirectory + File.separator + referenceMap + ".ser");
 			FileInputStream fis = new FileInputStream(serializedFile);
-			System.out.println("DEBUGGING ref file:" + serializedFile.getAbsolutePath());
+			//System.out.println("DEBUGGING ref file:" + serializedFile.getAbsolutePath());
 			//FileInputStream fis = new FileInputStream("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\referenceCorpora" + File.separator + referenceMap + ".ser");
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			refMap = (HashMap) ois.readObject();
@@ -118,8 +118,8 @@ public class EntityCandidateExtractor {
 			ois.close();
 			fis.close();
 		} catch (Exception e) {
-			// FIXME
 			e.printStackTrace();
+			throw new BadRequestException("ERROR: could not load stoplist for language:" + language);
 		}
 
 		for (String token : tokenScores.keySet()){
