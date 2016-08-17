@@ -9,35 +9,36 @@
     	    	<replaceregexp flags="g"
     	            	    	        	        	    	  match="&#x3c;movingHolidays&#x3e;"
     	            	    	        	        	    	  replace="
-    	    							else if (parts[0].toLowerCase().matches(&#x22;labor&#x22;)){&#xD;&#xA;
-    	    								monthNumber = 9;&#xD;&#xA;
-    	    								dayNumber = DateCommons.getFirstSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
-    	    							}&#xD;&#xA;
-    	    							else if (parts[0].toLowerCase().matches(&#x22;memorial&#x22;)){&#xD;&#xA;
-    	    								monthNumber = 5;&#xD;&#xA;
-    	    								dayNumber = DateCommons.getLastSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
-    	    							}&#xD;&#xA;
-    	    							else if (parts[0].toLowerCase().matches(&#x22;easter&#x22;)){&#xD;&#xA;
+    	    							else if (parts[0].toLowerCase().matches(&#x22;ostern&#x22;)){&#xD;&#xA;
     	    								Calendar loCal = Calendar.getInstance();&#xD;&#xA;
     	    								loCal.setTime(DateCommons.getEasterDate(yearNumber));&#xD;&#xA;
     	    								monthNumber = loCal.get(Calendar.MONTH);&#xD;&#xA;
     	    								dayNumber = loCal.get(Calendar.DATE);&#xD;&#xA;
     	    							}&#xD;&#xA;
+    	    		else if (parts[0].toLowerCase().matches(&#x22;erster&#x22;)){&#xD;&#xA;
+    	    								monthNumber = 12;&#xD;&#xA;
+    	    								dayNumber = 26;&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							else if (parts.length>2 &#38;&#38; parts[2].toLowerCase().matches(&#x22;arbeit&#x22;)){&#xD;&#xA;
+    	    								monthNumber = 5;&#xD;&#xA;
+    	    								dayNumber = 1;&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    		else if (parts.length>2 &#38;&#38; parts[2].toLowerCase().matches(&#x22;deutschen&#x22;)){&#xD;&#xA;
+    	    		    	    								monthNumber = 3;&#xD;&#xA;
+    	    		    	    								dayNumber = 10;&#xD;&#xA;
+    	    		    	    							}&#xD;&#xA;
+    	    							
     	            				">
     	            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
-    	
     	<!-- sets the hour -->
     	    	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NHour_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    	    		int hour = 0;&#xD;&#xA;
-    	    		int minute = 0;&#xD;&#xA;
-    	    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
+    	    		
+    	    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-9]|2[0-4])&#x22;)){&#xD;&#xA;
     	    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
     	    							}&#xD;&#xA;
-    	    		if (parts[2].matches(&#x22;p&#x22;)|parts[1].matches(&#x22;p&#x22;))&#xD;&#xA;{
-    	    								hour = hour+12;&#xD;&#xA;
-    	    							}&#xD;&#xA;">
+    	    		">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	<!-- Marks beginning/middle/end of for years -->
@@ -74,8 +75,8 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NDayST_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    		if (parts[\1].matches(&#x22;\\\\\\\\d{1,2}(st|nd|rd|th)?(,)?&#x22;)){&#xD;&#xA;
-    									dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;	
+    		if (parts[\1].matches(&#x22;\\\\\\\\d{1,2}(te|ten|ter)?(,)?&#x22;)){&#xD;&#xA;
+    									dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\D&#x22;, &#x22;&#x22;));&#xD;&#xA;	
     								};&#xD;&#xA;">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
     	
@@ -134,16 +135,38 @@
     	    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
     	        				">
     	        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g"
+    	    	        	        	        	    	  match="&#x3c;NYesterday&#x3e;"
+    	    	        	        	        	    	  replace="
+    	    	        		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    	    	       			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    	    	       			dayNumber = DateCommons.getDayFromAnchorDate()-1;&#xD;&#xA;
+    	    		int hour = 0;&#xD;&#xA;
+    	    		    		   	int minute = 0;&#xD;&#xA;
+    	    	    			
+    	    	    			">
+    	    	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	     	<replaceregexp flags="g"
+    	        	        	        	        	    	  match="&#x3c;NTomorrow&#x3e;"
+    	        	        	        	        	    	  replace="
+    	        	        		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    	        	       			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    	        	       			dayNumber = DateCommons.getDayFromAnchorDate()+1;&#xD;&#xA;
+    	        		int hour = 0;&#xD;&#xA;
+    	        		    		   	int minute = 0;&#xD;&#xA;
+    	        	    			
+    	        	    			">
+    	        	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	<!-- sets the duration in minutes -->
         	<replaceregexp flags="g"
             	    	        	        	    	  match="&#x3c;NLater&#x3e;"
             	    	        	        	    	  replace="
         		int direction = 0;&#xD;&#xA;
-        							if (parts[2].toLowerCase().matches(&#x22;(later|after)&#x22;)){&#xD;&#xA;
+        							if (parts[2].toLowerCase().matches(&#x22;(sp&#xe4;ter)&#x22;)){&#xD;&#xA;
         								direction = 1;&#xD;&#xA;
         							}&#xD;&#xA;
-        							else if (parts[2].toLowerCase().matches(&#x22;(earlier|before)&#x22;)){&#xD;&#xA;
+        							else if (parts[2].toLowerCase().matches(&#x22;(fr&#xfc;her|zuvor|eher)&#x22;)){&#xD;&#xA;
         								direction = -1;&#xD;&#xA;
         							}&#xD;&#xA;
         						    int increment = ${dataclass}.alpha2Number.get(parts[0]) * direction;&#xD;&#xA;
@@ -153,25 +176,25 @@
         								monthNumber += 1;&#xD;&#xA;
         							}&#xD;&#xA;
         							dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
-        							cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);&#xD;&#xA;
+        							cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);&#xD;&#xA;
         							Date anchor = cal.getTime();&#xD;&#xA;
         							//final String day = &#x22;(?i)days?&#x22;;&#xD;&#xA;
         							//final String week = &#x22;(?i)weeks?&#x22;;&#xD;&#xA;
         							//final String month = &#x22;(?i)months?&#x22;;&#xD;&#xA;
         							//final String year = &#x22;(?i)years?&#x22;;&#xD;&#xA;
-        							if (parts[1].toLowerCase().matches(&#x22;(?i)days?&#x22;)){&#xD;&#xA;
+        							if (parts[1].toLowerCase().matches(&#x22;(?i)tage?&#x22;)){&#xD;&#xA;
         								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment, anchor);&#xD;&#xA;
         								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
         							}&#xD;&#xA;
-        							else if (parts[1].toLowerCase().matches(&#x22;(?i)weeks?&#x22;)){&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)wochen?&#x22;)){&#xD;&#xA;
         								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment * 7, anchor);&#xD;&#xA;
         								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1 * 7, normalizedStartDate);&#xD;&#xA;
         							}&#xD;&#xA;
-        							else if (parts[1].toLowerCase().matches(&#x22;(?i)months?&#x22;)){&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)monate?&#x22;)){&#xD;&#xA;
         								normalizedStartDate = DateCommons.increaseCalendar(Calendar.MONTH, increment, anchor);&#xD;&#xA;
         								normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);&#xD;&#xA;
         							}&#xD;&#xA;
-        							else if (parts[1].toLowerCase().matches(&#x22;(?i)years?&#x22;)){&#xD;&#xA;
+        							else if (parts[1].toLowerCase().matches(&#x22;(?i)jahre?&#x22;)){&#xD;&#xA;
         								normalizedStartDate = DateCommons.increaseCalendar(Calendar.YEAR, increment, anchor);&#xD;&#xA;
         								normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, 1, normalizedStartDate);&#xD;&#xA;
         							}&#xD;&#xA;
@@ -180,6 +203,18 @@
         						DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
             				">
             	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NNineteenhundreds_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    	    		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    				if (parts.length > \1){&#xD;&#xA;
+    					yearNumber = 1900+Integer.parseInt(parts[\1].replaceAll(&#x22;\\\\\\\\D&#x22;, &#x22;&#x22;));&#xD;&#xA;
+    				}&#xD;&#xA;
+    				else{&#xD;&#xA;
+    					yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    				}&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	
 
     	

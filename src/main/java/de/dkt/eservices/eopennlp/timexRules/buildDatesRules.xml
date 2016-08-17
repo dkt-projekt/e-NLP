@@ -44,19 +44,6 @@
     								//do nothing&#xD;&#xA;
     							}&#xD;&#xA;">
     	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>   	
-    	<!-- sets the hour -->
-    	<replaceregexp flags="g"
-    	        	        	    	  match="&#x3c;NHour_(.*?)&#x3e;"
-    	        	        	    	  replace="
-    		int hour = 0;&#xD;&#xA;
-    		int minute = 0;&#xD;&#xA;
-    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
-    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
-    							}&#xD;&#xA;
-    		if (parts[2].matches(&#x22;p&#x22;)|parts[1].matches(&#x22;p&#x22;))&#xD;&#xA;{
-    								hour = hour+12;&#xD;&#xA;
-    							}&#xD;&#xA;">
-    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	<replaceregexp flags="g"
     	        	        	    	  match="&#x3c;NDay_(.*?)&#x3e;"
@@ -116,7 +103,7 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;Var1_(.*?)_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    		 String a = parts[\2];&#xD;&#xA;
+    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
     		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
     		           monthNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
     		          }&#xD;&#xA;
@@ -129,7 +116,7 @@
     	<replaceregexp flags="g"
         	    	        	        	    	  match="&#x3c;Var2_(.*?)_(.*?)&#x3e;"
         	    	        	        	    	  replace="
-    		 String a = parts[\2];&#xD;&#xA;
+    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
     		    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
     		    		           dayNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
     		    		          }&#xD;&#xA;
@@ -144,9 +131,13 @@
         		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
        			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
        			dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    			int hour = 0;&#xD;&#xA;
+    		   	int minute = 0;&#xD;&#xA;
     			
     			">
         	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	
 
     	<!-- This is used to set the seasons-->
     	<replaceregexp flags="g"
@@ -155,7 +146,7 @@
     	 match="&#x3c;Var3_(.*?)_(.*?)&#x3e;"
     	 replace="
  
-    		 String a = parts[\2];&#xD;&#xA;
+    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
     		&#xD;&#xA;
     		if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
     						String stringDates = ${dataclass}.\1.get(a);&#xD;&#xA;
@@ -165,27 +156,25 @@
     		&#xD;&#xA;
     	    				">
     	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
-
-    	<!-- variable for the holidays -->
+    	
     	<replaceregexp flags="g"
-            	    	        	        	    	  match="&#x3c;movingHolidays&#x3e;"
-            	    	        	        	    	  replace="
-    							else if (parts[0].toLowerCase().matches(&#x22;labor&#x22;)){&#xD;&#xA;
-    								monthNumber = 9;&#xD;&#xA;
-    								dayNumber = DateCommons.getFirstSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
-    							}&#xD;&#xA;
-    							else if (parts[0].toLowerCase().matches(&#x22;memorial&#x22;)){&#xD;&#xA;
-    								monthNumber = 5;&#xD;&#xA;
-    								dayNumber = DateCommons.getLastSpecificDayOfMonth(yearNumber, monthNumber, &#x22;monday&#x22;);&#xD;&#xA;
-    							}&#xD;&#xA;
-    							else if (parts[0].toLowerCase().matches(&#x22;easter&#x22;)){&#xD;&#xA;
-    								Calendar loCal = Calendar.getInstance();&#xD;&#xA;
-    								loCal.setTime(DateCommons.getEasterDate(yearNumber));&#xD;&#xA;
-    								monthNumber = loCal.get(Calendar.MONTH);&#xD;&#xA;
-    								dayNumber = loCal.get(Calendar.DATE);&#xD;&#xA;
-    							}&#xD;&#xA;
-            				">
-            	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	    	
+    	        												
+    	    	 match="&#x3c;Var4_(.*?)_(.*?)&#x3e;"
+    	    	 replace="
+    	 
+    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
+    		    		    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
+    		    		    		           hour = ${dataclass}.\1.get(a);&#xD;&#xA;
+    		    		    		          }&#xD;&#xA;
+    		    		    		&#xD;&#xA;
+    	    	    				">
+    	    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    
+    	
+    	
+
+    	
 
 
     </target>
@@ -207,8 +196,8 @@
 
     	<replaceregexp flags="g"
         	    	  match="&#x3c;RUL_(.*)&#x3e;:==(.*)&#xD;&#xA;"
-        	    	  replace="counter++;dateRegexMap.put(counter, String.format(&#x22;\\\\\\\\b\2\\\\\\\\b&#x22;));&#xD;&#xA;
-    		patterns.add(Pattern.compile(dateRegexMap.get(counter)));&#xD;&#xA;">
+        	    	  replace="dateRegexMap.put(\1, String.format(&#x22;(?i)\\\\\\\\b\2\\\\\\\\b&#x22;));&#xD;&#xA;
+    		patterns.add(Pattern.compile(dateRegexMap.get(\1)));&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	

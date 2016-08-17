@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<project name="project" default="all" basedir="..">
+    <description>
+            description
+    </description>
+
+   <property name="src" value="src"/>
+   <property name="dirorig" value="timexRules/"/>
+   <property name="dirdest" value="timexRules/"/>
+   <property name="parentclass" value="MotorReglasQA"/>
+   <property name="rulesclass" value="AutomaticGermanDateRules"/>
+   <property name="dataclass" value="AutomaticGermanData"/>
+   <property name="tagsclass" value="EtiquetasES"/>
+   <property name="package" value="de.dkt.eservices.eopennlp.timexRules"/>
+   <property name="build" value="build"/>
+   <property name="classpath" value="src/lib/log4j-1.2.13.jar:src/lib/lucene-core-2.1.0.jar:src/lib/googleapi.jar:src/lib/xapian_jni.jar:src/lib/commons-collections-3.2.jar:src/lib/junit-4.4.jar:src/lib/servlet-api.jar:src/lib/lingpipe-3.2.0.jar:build/"/>
+   <import file="./buildDatesRulesSpecificGerman.xml"/>
+   <import file="./buildDatesRules.xml"/>
+	
+   <import file="./buildData.xml"/>
+    <target name="copyfiles">
+		<copy overwrite ="true" todir="${dirdest}">
+		<fileset dir="${dirorig}" includes="${rulesclass}.in"/>
+		<mapper type="glob" from="*.in" to="*.java"/>
+        </copy>
+		<copy overwrite ="true" todir="${dirdest}">
+		<fileset dir="${dirorig}" includes="${dataclass}.in"/>
+		<mapper type="glob" from="*.in" to="*.java"/>
+        </copy>
+   	</target>
+    <target name="all" depends="copyfiles,prerequisites,normalization,rules,buildData">
+	</target>
+    <target name="normalization" depends="compilenormalization,compilenormalizationSpecific">
+	</target>
+    <target name="rules" depends="compilerulesSpecific,compilerules">
+	</target>
+    <target name="buildData" depends="compiledata">
+	</target>
+</project>

@@ -15,7 +15,7 @@
      import opennlp.tools.util.Span;
      import java.util.Map;
      
-     public class AutomaticEnglishDateRules {
+     public class AutomaticGermanDateRules {
      static HashMap<Integer, String> dateRegexMap = new HashMap<Integer, String>();
           public static RegexNameFinder initDateFinder(){
        int counter = 0;
@@ -29,65 +29,78 @@ String ceroone="0|1";
 String cerofive="0|1|2|3|4|5";
 String onetwo="1|2";
 String ceroonetwo="0|1|2";
+String cerotofour="0|1|2|3|4";
 String daynumber="(0)?("+digit+")|1("+digit+")|2("+digit+")|3("+ceroone+")";
-String monthname="january|february|march|april|may|june|july|august|september|october|november|december";
+String monthname="januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember";
 String yearnumber="("+onetwo+")("+digit+")("+digit+")("+digit+")";
 String monthnumber=" 0|1|2|3|4|5|6|7|8|9|10|11|12";
 String separation=".|/|-";
 String hyphenorwhitespace="-| ";
-String season="summer|winter|spring|autumn|fall";
-String earlymidlate="early|mid|late";
-String beginmiddleend="start|beginning|middle|end";
+String season="sommer|winter|frühling|herbst";
+String earlymidlate="anfang|mitte|ende";
+String beginmiddleend="anfang|mitte|ende";
 String yearnumberbc="("+digit+")(("+digit+")(("+digit+")(("+digit+"))?)?)?";
-String now="today|now|right now|this day|this day";
-String timehours="("+digit+")|0("+digit+")|1("+ceroonetwo+")";
+String now="heute|jetzt|gegenwärtig|am selben tag";
+String timehours="("+digit+")|0("+digit+")|1("+digit+")|2("+cerotofour+")";
 String timetotal="("+timehours+")(.|:)?(("+cerofive+")("+digit+"))?";
-String ampm="a.m|p.m";
-String holiday="christmas( day)?|easter|new year'?s|may day|boxing day|independence day|labor day|memorial day|veteran'?s day|thanksgiving";
-String alphaNumber="one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|twenty-one|twenty-two|twenty-three|twenty-four|twenty-five|twenty-six|twenty-seven|twenty-eight|twenty-nine|thirty|thirty-one|thirty-two|thirty-three|thirty-four|thirty-five|thirty-six|thirty-seven|thirty-eight|thirty-nine|forty|forty-one|forty-two|forty-three|forty-four|forty-five|forty-six|forty-seven|forty-eight|forty-nine|fifty|fifty-one|fifty-two|fifty-three|fifty-four|fifty-five|fifty-six|fifty-seven|fifty-eight|fifty-nine|sixty|sixty-one|sixty-two|sixty-three|sixty-four|sixty-five|sixty-six|sixty-seven|sixty-eight|sixty-nine|seventy|seventy-one|seventy-two|seventy-three|seventy-four|seventy-five|seventy-six|seventy-seven|seventy-eight|seventy-nine|eighty|eighty-one|eighty-two|eighty-three|eighty-four|eighty-five|eighty-six|eighty-seven|eighty-eight|eighty-nine|ninety|ninety-one|ninety-two|ninety-three|ninety-four|ninety-five|ninety-six|ninety-seven|ninety-eight|ninety-nine|(one )?hundred;";
-String dayweekmonthyear="days?|weeks?|months?|years?";
-String later="later|after|earlier|before";
-String dayName="monday|tuesday|wednesday|thursday|friday|saturday|sunday";
+String ampm="uhr";
+String holiday="weihnachten|erster weihnacht(stag)?|ostern|silvester|neujahr|maifeiertag|tag der deutschen einheit|tag der arbeit";
+String alphaNumber="null|eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|dreizehn|vierzehn|fünfzehn|sechzehn|siebzehn|achtzehn|neunzehn|zwanzig|einundzwanzig|zweiundzwanzig|dreiundzwanzig|vierundzwanzig|fünfundzwanzig|sechsundzwanzig|siebenundzwanzig|achtundzwanzig|neunundzwanzig|dreiβig|einunddreiβig|zweiundreißig|dreiunddreißig|vierunddreißig|fünfunddreißig|sechsunddreißig|siebenunddreißig|achtunddreißig|neununddreißig|vierzig|einundvierzig|zweiundvierzig|dreiundvierzig|vierundvierzig|fünfundvierzig|sechsundvierzig|siebenundvierzig|achtundvierzig|neunundvierzig|fünfzig|einundfünfzig|zweiundfünfzig|dreiundfünfzig|vierundfünfzig|fünfundfünfzig|sechsundfünfzig|siebenundfünfzig|achtundfünfzig|neunundfünfzig|sechzig|einundsechzig|zweiundsechzig|dreiundsechzig|vierundsechzig|fünfundsechzig|sechsundsechzig|siebenundsechzig|achtundsechzig|neunundsechzig|siebzig|einundsiebzig|zweiundsiebzig|dreiundsiebzig|vierundsiebzig|fünfundsiebzig|sechsundsiebzig|siebenundsiebzig|achtundsiebzig|neunundsiebzig|achtzig|einundachtzig|zweiundachtzig|dreiundachtzig|vierundachtzig|fünfundachtzig|sechsundachtzig|siebenundachtzig|achtundachtzig|neunundachtzig|neunzig|einundneunzig|zweiundneunzig|dreiundneunzig|vierundneunzig|fünfundneunzig|sechsundneunzig|siebenundneunzig|achtundneunzig|neunundneunzig|hundert";
+String later="später|früher|zuvor|eher";
+String dayweekmonthyear="tage?|wochen?|monate?|jahre?";
+String dayName="montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag";
+String dayPart="morgen|mittag|abend|nacht";
+String yesterday="gestern";
+String tomorrow="morgen";
+String monthRomanNumber="I|II|III|IV|V|VI|VII|VII|IX|X|XI|XII";
+String nineteenHundred_twoDigitYearNumber="("+digit+")("+digit+")";
 
 
 
 
-counter++;dateRegexMap.put(counter, String.format("\\b("+daynumber+") ("+monthname+")((,)? ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+monthname+") ("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+daynumber+")("+separation+")("+monthnumber+")(("+separation+")("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumber+")s\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+earlymidlate+")("+hyphenorwhitespace+")("+monthname+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+season+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+season+") of ("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+monthname+") (the )?("+daynumber+")(st|nd|rd|th)?(,)?( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+yearnumber+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+beginmiddleend+") of ("+monthname+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+yearnumberbc+") b(.)?c(.)?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+now+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+timetotal+") ("+ampm+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+holiday+")( ("+yearnumber+"))?\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+alphaNumber+") ("+dayweekmonthyear+") ("+later+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
-counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
-       patterns.add(Pattern.compile(dateRegexMap.get(counter)));
+dateRegexMap.put(1, String.format("(?i)\\b("+daynumber+"). ("+monthname+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(1)));
+dateRegexMap.put(2, String.format("(?i)\\b("+daynumber+")(te|ten|ter)? ("+monthname+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(2)));
+dateRegexMap.put(3, String.format("(?i)\\b("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(3)));
+dateRegexMap.put(4, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthnumber+")(("+separation+")("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(4)));
+dateRegexMap.put(5, String.format("(?i)\\b("+yearnumber+")er\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(5)));
+dateRegexMap.put(6, String.format("(?i)\\b("+earlymidlate+") ("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(6)));
+dateRegexMap.put(7, String.format("(?i)\\b("+earlymidlate+") ("+monthname+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(7)));
+dateRegexMap.put(8, String.format("(?i)\\b("+season+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(8)));
+
+dateRegexMap.put(13, String.format("(?i)\\b("+yearnumberbc+") v(. )?Chr(.)?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(13)));
+dateRegexMap.put(14, String.format("(?i)\\b("+now+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(14)));
+dateRegexMap.put(15, String.format("(?i)\\b("+timetotal+") ("+ampm+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(15)));
+dateRegexMap.put(16, String.format("(?i)\\b("+holiday+")( ("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(16)));
+dateRegexMap.put(17, String.format("(?i)\\b("+alphaNumber+") ("+dayweekmonthyear+") ("+later+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(17)));
+dateRegexMap.put(18, String.format("(?i)\\b("+dayName+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(18)));
+dateRegexMap.put(19, String.format("(?i)\\b("+monthname+")(,)? (("+yearnumber+"))?\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(19)));
+dateRegexMap.put(20, String.format("(?i)\\b("+monthnumber+")(.|/|-)?("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(20)));
+dateRegexMap.put(21, String.format("(?i)\\b("+dayPart+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(21)));
+dateRegexMap.put(22, String.format("(?i)\\b("+monthname+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(22)));
+dateRegexMap.put(23, String.format("(?i)\\b("+yesterday+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(23)));
+dateRegexMap.put(24, String.format("(?i)\\b("+tomorrow+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(24)));
+dateRegexMap.put(25, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthRomanNumber+")("+separation+")("+nineteenHundred_twoDigitYearNumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(25)));
 
 
              int counter2=0;
@@ -100,8 +113,8 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        return rnf;
        }
                       public static void main(String[] args) {
-         RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
-         String input = "mid september 1990";
+         RegexNameFinder timeFinder= AutomaticGermanDateRules.initDateFinder();
+         String input = "8.VI.90";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){
@@ -136,7 +149,7 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
+        monthNumber = AutomaticGermanData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -156,10 +169,10 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int monthNumber = 1;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
-         if (parts[1].matches("\\d{1,2}(st|nd|rd|th)?(,)?")){
-              dayNumber = Integer.parseInt(parts[1].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
+         if (parts[0].matches("\\d{1,2}(te|ten|ter)?(,)?")){
+              dayNumber = Integer.parseInt(parts[0].replaceAll("\\D", ""));
               };
-        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
+        monthNumber = AutomaticGermanData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -238,9 +251,9 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int monthNumber = 1;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s|-");
-          String a = parts[0];
-        if(AutomaticEnglishData.early2Month.containsKey(a)){
-                  monthNumber = AutomaticEnglishData.early2Month.get(a);
+          String a = parts[0].toLowerCase();
+        if(AutomaticGermanData.early2Month.containsKey(a)){
+                  monthNumber = AutomaticGermanData.early2Month.get(a);
                  }
        
                yearNumber = DateCommons.getYearFromAnchorDate();
@@ -262,12 +275,12 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int monthNumber = 1;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s|-");
-          String a = parts[0];
-              if(AutomaticEnglishData.early2Day.containsKey(a)){
-                        dayNumber = AutomaticEnglishData.early2Day.get(a);
+          String a = parts[0].toLowerCase();
+              if(AutomaticGermanData.early2Day.containsKey(a)){
+                        dayNumber = AutomaticGermanData.early2Day.get(a);
                        }
              
-         monthNumber = AutomaticEnglishData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
+         monthNumber = AutomaticGermanData.monthName2Number.get(parts[1].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -287,10 +300,10 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int monthNumber = 1;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
-            String a = parts[0];
+            String a = parts[0].toLowerCase();
        
-       if(AutomaticEnglishData.season2Dates.containsKey(a)){
-           String stringDates = AutomaticEnglishData.season2Dates.get(a);
+       if(AutomaticGermanData.season2Dates.containsKey(a)){
+           String stringDates = AutomaticGermanData.season2Dates.get(a);
            monthNumber = Integer.parseInt(stringDates.substring(0, 2));
            dayNumber = Integer.parseInt(stringDates.substring(2, 4));
           }
@@ -309,105 +322,8 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
             dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
             DateCommons.updateAnchorDate(normalizedStartDate);
                        }
-    if (key == 9){
-       int dayNumber = 1;
-       int monthNumber = 1;
-       int yearNumber = DateCommons.getYearFromAnchorDate();
-     String[] parts = foundDate.split("\\s");
-            String a = parts[0];
-       
-       if(AutomaticEnglishData.season2Dates.containsKey(a)){
-           String stringDates = AutomaticEnglishData.season2Dates.get(a);
-           monthNumber = Integer.parseInt(stringDates.substring(0, 2));
-           dayNumber = Integer.parseInt(stringDates.substring(2, 4));
-          }
-       
-                      yearNumber = DateCommons.getYearFromAnchorDate();
-    if (parts.length > 2){
-     yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
-    }
-    else{
-     yearNumber = DateCommons.getYearFromAnchorDate();
-    }
-                 cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
-            normalizedStartDate = cal.getTime();
-            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 60, normalizedStartDate);
-            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
-            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
-            DateCommons.updateAnchorDate(normalizedStartDate);
-                         }
-    if (key == 10){
-       int dayNumber = 1;
-       int monthNumber = 1;
-       int yearNumber = DateCommons.getYearFromAnchorDate();
-     String[] parts = foundDate.split("\\s");
-         if (parts[2].matches("\\d{1,2}(st|nd|rd|th)?(,)?")){
-              dayNumber = Integer.parseInt(parts[2].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
-              };
-        monthNumber = AutomaticEnglishData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
-        yearNumber = DateCommons.getYearFromAnchorDate();
-    if (parts.length > 3){
-     yearNumber = Integer.parseInt(parts[3].replaceAll("\\D", ""));
-    }
-    else{
-     yearNumber = DateCommons.getYearFromAnchorDate();
-    }
-                 cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
-            normalizedStartDate = cal.getTime();
-            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
-            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
-            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
-            DateCommons.updateAnchorDate(normalizedStartDate);
-                       }
-    if (key == 11){
-       int dayNumber = 1;
-       int monthNumber = 1;
-       int yearNumber = DateCommons.getYearFromAnchorDate();
-     String[] parts = foundDate.split("\\s");
-          String a = parts[0];
-        if(AutomaticEnglishData.start2Month.containsKey(a)){
-                  monthNumber = AutomaticEnglishData.start2Month.get(a);
-                 }
-       
-               yearNumber = DateCommons.getYearFromAnchorDate();
-    if (parts.length > 2){
-     yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
-    }
-    else{
-     yearNumber = DateCommons.getYearFromAnchorDate();
-    }
-                 cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
-            normalizedStartDate = cal.getTime();
-            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 91, normalizedStartDate);
-            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
-            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
-            DateCommons.updateAnchorDate(normalizedStartDate);
-                       }
-    if (key == 12){
-       int dayNumber = 1;
-       int monthNumber = 1;
-       int yearNumber = DateCommons.getYearFromAnchorDate();
-     String[] parts = foundDate.split("\\s");
-          String a = parts[0];
-              if(AutomaticEnglishData.start2Day.containsKey(a)){
-                        dayNumber = AutomaticEnglishData.start2Day.get(a);
-                       }
-             
-         monthNumber = AutomaticEnglishData.monthName2Number.get(parts[2].toLowerCase().replaceAll("\\p{P}", ""));
-        yearNumber = DateCommons.getYearFromAnchorDate();
-    if (parts.length > 3){
-     yearNumber = Integer.parseInt(parts[3].replaceAll("\\D", ""));
-    }
-    else{
-     yearNumber = DateCommons.getYearFromAnchorDate();
-    }
-                 cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
-            normalizedStartDate = cal.getTime();
-            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 10, normalizedStartDate);
-            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
-            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
-            DateCommons.updateAnchorDate(normalizedStartDate);
-                       }
+  
+
     if (key == 13){
        int dayNumber = 1;
        int monthNumber = 1;
@@ -432,13 +348,15 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
              yearNumber = DateCommons.getYearFromAnchorDate();
            monthNumber = DateCommons.getMonthFromAnchorDate();
            dayNumber = DateCommons.getDayFromAnchorDate();
-                             cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
-            normalizedStartDate = cal.getTime();
-            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
-            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
-            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
-            DateCommons.updateAnchorDate(normalizedStartDate);
-                       }
+        int hour = 0;
+           int minute = 0;
+                           cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+               normalizedStartDate = cal.getTime();
+               normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1, normalizedStartDate);
+               dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+               dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+               DateCommons.updateAnchorDate(normalizedStartDate);
+                           }
     if (key == 15){
        int dayNumber = 1;
        int monthNumber = 1;
@@ -447,15 +365,12 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
              yearNumber = DateCommons.getYearFromAnchorDate();
            monthNumber = DateCommons.getMonthFromAnchorDate();
            dayNumber = DateCommons.getDayFromAnchorDate();
-                        int hour = 0;
-       int minute = 0;
-       if(parts[0].matches("([0-9]|0[0-9]|1[0-2])")){
-             hour = Integer.parseInt(parts[0]);
-            }
-       if (parts[2].matches("p")|parts[1].matches("p"))
-{             hour = hour+12;
-            }
-        if(parts[1].matches("[0-5][0-9]")){
+        int hour = 0;
+           int minute = 0;
+                                         if(parts[0].matches("([0-9]|0[0-9]|1[0-9]|2[0-4])")){
+                  hour = Integer.parseInt(parts[0]);
+                 }
+                    if(parts[1].matches("[0-5][0-9]")){
              minute = Integer.parseInt(parts[1]);
             }
        else{
@@ -473,35 +388,39 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int monthNumber = 1;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
-           String a = parts[0];
-       
-       if(AutomaticEnglishData.fixedHoliday2Dates.containsKey(a)){
-           String stringDates = AutomaticEnglishData.fixedHoliday2Dates.get(a);
-           monthNumber = Integer.parseInt(stringDates.substring(0, 2));
-           dayNumber = Integer.parseInt(stringDates.substring(2, 4));
-          }
-       
-                           else if (parts[0].toLowerCase().matches("labor")){
-             monthNumber = 9;
-             dayNumber = DateCommons.getFirstSpecificDayOfMonth(yearNumber, monthNumber, "monday");
-            }
-            else if (parts[0].toLowerCase().matches("memorial")){
-             monthNumber = 5;
-             dayNumber = DateCommons.getLastSpecificDayOfMonth(yearNumber, monthNumber, "monday");
-            }
-            else if (parts[0].toLowerCase().matches("easter")){
-             Calendar loCal = Calendar.getInstance();
-             loCal.setTime(DateCommons.getEasterDate(yearNumber));
-             monthNumber = loCal.get(Calendar.MONTH);
-             dayNumber = loCal.get(Calendar.DATE);
-            }
-                         if (parts[parts.length-1].matches("^\\d{4}$")){
+        if (parts[parts.length-1].matches("^\\d{4}$")){
                     yearNumber = Integer.parseInt(parts[parts.length-1]);
                    }
                    else{
                     yearNumber = DateCommons.getYearFromAnchorDate();
                    }
-                      cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+                    String a = parts[0].toLowerCase();
+       
+       if(AutomaticGermanData.fixedHoliday2Dates.containsKey(a)){
+           String stringDates = AutomaticGermanData.fixedHoliday2Dates.get(a);
+           monthNumber = Integer.parseInt(stringDates.substring(0, 2));
+           dayNumber = Integer.parseInt(stringDates.substring(2, 4));
+          }
+       
+                                else if (parts[0].toLowerCase().matches("ostern")){
+                  Calendar loCal = Calendar.getInstance();
+                  loCal.setTime(DateCommons.getEasterDate(yearNumber));
+                  monthNumber = loCal.get(Calendar.MONTH);
+                  dayNumber = loCal.get(Calendar.DATE);
+                 }
+            else if (parts[0].toLowerCase().matches("erster")){
+                  monthNumber = 12;
+                  dayNumber = 26;
+                 }
+                 else if (parts.length>2 && parts[2].toLowerCase().matches("arbeit")){
+                  monthNumber = 5;
+                  dayNumber = 1;
+                 }
+            else if (parts.length>2 && parts[2].toLowerCase().matches("deutschen")){
+                             monthNumber = 3;
+                             dayNumber = 10;
+                            }
+                                                    cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
             normalizedStartDate = cal.getTime();
             normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
             dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
@@ -514,38 +433,38 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
             int direction = 0;
-                if (parts[2].toLowerCase().matches("(later|after)")){
+                if (parts[2].toLowerCase().matches("(sp�ter)")){
                  direction = 1;
                 }
-                else if (parts[2].toLowerCase().matches("(earlier|before)")){
+                else if (parts[2].toLowerCase().matches("(fr�her|zuvor|eher)")){
                  direction = -1;
                 }
-                   int increment = AutomaticEnglishData.alpha2Number.get(parts[0]) * direction;
+                   int increment = AutomaticGermanData.alpha2Number.get(parts[0]) * direction;
                 yearNumber = DateCommons.getYearFromAnchorDate();
                 monthNumber = DateCommons.getMonthFromAnchorDate();
                 if (monthNumber == 0){
                  monthNumber += 1;
                 }
                 dayNumber = DateCommons.getDayFromAnchorDate();
-                cal.set(yearNumber,  monthNumber-1, dayNumber,0,0,0);
+                cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
                 Date anchor = cal.getTime();
                 //final String day = "(?i)days?";
                 //final String week = "(?i)weeks?";
                 //final String month = "(?i)months?";
                 //final String year = "(?i)years?";
-                if (parts[1].toLowerCase().matches("(?i)days?")){
+                if (parts[1].toLowerCase().matches("(?i)tage?")){
                  normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment, anchor);
                  normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
                 }
-                else if (parts[1].toLowerCase().matches("(?i)weeks?")){
+                else if (parts[1].toLowerCase().matches("(?i)wochen?")){
                  normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, increment * 7, anchor);
                  normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1 * 7, normalizedStartDate);
                 }
-                else if (parts[1].toLowerCase().matches("(?i)months?")){
+                else if (parts[1].toLowerCase().matches("(?i)monate?")){
                  normalizedStartDate = DateCommons.increaseCalendar(Calendar.MONTH, increment, anchor);
                  normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);
                 }
-                else if (parts[1].toLowerCase().matches("(?i)years?")){
+                else if (parts[1].toLowerCase().matches("(?i)jahre?")){
                  normalizedStartDate = DateCommons.increaseCalendar(Calendar.YEAR, increment, anchor);
                  normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, 1, normalizedStartDate);
                 }
@@ -564,7 +483,7 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
                  cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);
                  int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
                  int daysOfIncrease = 0;
-                 int x = AutomaticEnglishData.dayName2Integer.get(foundDate.trim().toLowerCase());
+                 int x = AutomaticGermanData.dayName2Integer.get(foundDate.trim().toLowerCase());
                  if (x > dayOfWeek){
                   // it is in the rest of the week
                   daysOfIncrease = x - dayOfWeek;
@@ -583,6 +502,140 @@ counter++;dateRegexMap.put(counter, String.format("\\b("+dayName+")\\b"));
                  dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
                  DateCommons.updateAnchorDate(normalizedStartDate);
                                 }
+    if (key == 19){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\s");
+        monthNumber = AutomaticGermanData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
+       yearNumber = DateCommons.getYearFromAnchorDate();
+    if (parts.length > 1){
+     yearNumber = Integer.parseInt(parts[1].replaceAll("\\D", ""));
+    }
+    else{
+     yearNumber = DateCommons.getYearFromAnchorDate();
+    }
+                cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+            normalizedStartDate = cal.getTime();
+            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 30, normalizedStartDate);
+            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+            DateCommons.updateAnchorDate(normalizedStartDate);
+                       }
+    if (key == 20){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\.|/|-");
+        monthNumber = Integer.parseInt(parts[0]);
+       yearNumber = DateCommons.getYearFromAnchorDate();
+    if (parts.length > 1){
+     yearNumber = Integer.parseInt(parts[1].replaceAll("\\D", ""));
+    }
+    else{
+     yearNumber = DateCommons.getYearFromAnchorDate();
+    }
+                cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+            normalizedStartDate = cal.getTime();
+            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 30, normalizedStartDate);
+            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+            DateCommons.updateAnchorDate(normalizedStartDate);
+                       }
+    if (key == 21){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\s");
+            yearNumber = DateCommons.getYearFromAnchorDate();
+           monthNumber = DateCommons.getMonthFromAnchorDate();
+           dayNumber = DateCommons.getDayFromAnchorDate();
+        int hour = 0;
+           int minute = 0;
+                               String a = parts[0].toLowerCase();
+                    if(AutomaticGermanData.dayPart2Hour.containsKey(a)){
+                              hour = AutomaticGermanData.dayPart2Hour.get(a);
+                             }
+                   
+                             cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+               normalizedStartDate = cal.getTime();
+               normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 180, normalizedStartDate);
+               dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+               dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+               DateCommons.updateAnchorDate(normalizedStartDate);
+                           }
+    if (key == 22){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\s");
+        monthNumber = AutomaticGermanData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
+            cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+            normalizedStartDate = cal.getTime();
+            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 30, normalizedStartDate);
+            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+            DateCommons.updateAnchorDate(normalizedStartDate);
+                       }
+    if (key == 23){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\s");
+                      yearNumber = DateCommons.getYearFromAnchorDate();
+                     monthNumber = DateCommons.getMonthFromAnchorDate();
+                     dayNumber = DateCommons.getDayFromAnchorDate()-1;
+            int hour = 0;
+                      int minute = 0;
+                                              cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+               normalizedStartDate = cal.getTime();
+               normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1440, normalizedStartDate);
+               dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+               dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+               DateCommons.updateAnchorDate(normalizedStartDate);
+                           }
+    if (key == 24){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\s");
+                          yearNumber = DateCommons.getYearFromAnchorDate();
+                         monthNumber = DateCommons.getMonthFromAnchorDate();
+                         dayNumber = DateCommons.getDayFromAnchorDate()+1;
+                int hour = 0;
+                          int minute = 0;
+                                                      cal.set(yearNumber,  monthNumber, dayNumber, hour, minute, 0);
+               normalizedStartDate = cal.getTime();
+               normalizedEndDate = DateCommons.increaseCalendar(Calendar.MINUTE, 1440, normalizedStartDate);
+               dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+               dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+               DateCommons.updateAnchorDate(normalizedStartDate);
+                           }
+    if (key == 25){
+       int dayNumber = 1;
+       int monthNumber = 1;
+       int yearNumber = DateCommons.getYearFromAnchorDate();
+     String[] parts = foundDate.split("\\.|/|-");
+        dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
+        String a = parts[1].toLowerCase();
+        if(AutomaticGermanData.romanMonth2Number.containsKey(a)){
+                  monthNumber = AutomaticGermanData.romanMonth2Number.get(a);
+                 }
+       
+                   yearNumber = DateCommons.getYearFromAnchorDate();
+         if (parts.length > 2){
+          yearNumber = 1900+Integer.parseInt(parts[2].replaceAll("\\D", ""));
+         }
+         else{
+          yearNumber = DateCommons.getYearFromAnchorDate();
+         }
+                     cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+            normalizedStartDate = cal.getTime();
+            normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 30, normalizedStartDate);
+            dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
+            dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));
+            DateCommons.updateAnchorDate(normalizedStartDate);
+                       }
 
                }
             }

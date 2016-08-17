@@ -1,0 +1,16 @@
+START_HS(AutomaticGermanData)
+
+HS_season2Dates_String_String:==<"frühling","0331"><"winter","1228"><"sommer","0631"><"herbst","0930">
+HS_monthName2Number_String_Integer:==<"januar",1><"februar",2><"märz",3><"april",4><"mai",5><"juni",6><"juli",7><"august",8><"september",9><"oktober",10><"november",11><"dezember",12>
+HS_dayName2Integer_String_Integer:==<"sonntag",1><"montag",2><"dienstag",3><"mittwoch",4><"donnerstag",5><"freitag",6><"samstag",7>
+HS_early2Month_String_Integer:==<"anfang",1><"mitte",6><"ende",10>
+HS_early2Day_String_Integer:==<"anfang",1><"mitte",10><"ende",20>
+HS_start2Month_String_Integer:==<"anfang",1><"mitte",5><"ende",10>
+HS_start2Day_String_Integer:==<"anfang",1><"mitte",10><"ende",20>
+HS_fixedHoliday2Dates_String_String:==<"weihnachten","1225"><"erster weihnachtstag","2612"><"neujahr","0101"><"silvester","1231"><"maifeiertag","0501"><"tag der arbeit","0105"><"tag der deutschen einheit","0310">
+HS_alpha2Number_String_Integer:==<"null",0><"eins",1><"ein",1><"eine",1><"einer",1><"zwei",2><"drei",3><"vier",4><"fünf",5><"sechs",6><"sieben",7><"acht",8><"neun",9><"zehn",10><"elf",11><"zwölf",12><"dreizehn",13><"vierzehn",14><"fünfzehn",15><"sechzehn",16><"siebzehn",17><"achtzehn",18><"neunzehn",19><"zwanzig",20><"einundzwanzig",21><"zweiundzwanzig",22><"dreiundzwanzig",23><"vierundzwanzig",24><"fünfundzwanzig",25><"sechsundzwanzig",26><"siebenundzwanzig",27><"achtundzwanzig",28><"neunundzwanzig",29><"dreiβig",30><"einunddreiβig",31><"zweiundreißig",32><"dreiunddreißig",33><"vierunddreißig",34><"fünfunddreißig",35><"sechsunddreißig",36><"siebenunddreißig",37><"achtunddreißig",38><"neununddreißig",39><"vierzig",40><"einundvierzig",41><"zweiundvierzig",42><"dreiundvierzig",43><"vierundvierzig",44><"fünfundvierzig",45><"sechsundvierzig",46><"siebenundvierzig",47><"achtundvierzig",48><"neunundvierzig",49><"fünfzig",50><"einundfünfzig",51><"zweiundfünfzig",52><"dreiundfünfzig",53><"vierundfünfzig",54><"fünfundfünfzig",55><"sechsundfünfzig",56><"siebenundfünfzig",57><"achtundfünfzig",58><"neunundfünfzig",59><"sechzig",60><"einundsechzig",61><"zweiundsechzig",62><"dreiundsechzig",63><"vierundsechzig",64><"fünfundsechzig",65><"sechsundsechzig",66><"siebenundsechzig",67><"achtundsechzig",68><"neunundsechzig",69><"siebzig",70><"einundsiebzig",71><"zweiundsiebzig",72><"dreiundsiebzig",73><"vierundsiebzig",74><"fünfundsiebzig",75><"sechsundsiebzig",76><"siebenundsiebzig",77><"achtundsiebzig",78><"neunundsiebzig",79><"achtzig",80><"einundachtzig",81><"zweiundachtzig",82><"dreiundachtzig",83><"vierundachtzig",84><"fünfundachtzig",85><"sechsundachtzig",86><"siebenundachtzig",87><"achtundachtzig",88><"neunundachtzig",89><"neunzig",90><"einundneunzig",91><"zweiundneunzig",92><"dreiundneunzig",93><"vierundneunzig",94><"fünfundneunzig",95><"sechsundneunzig",96><"siebenundneunzig",97><"achtundneunzig",98><"neunundneunzig",99><"hundert",100>
+HS_dayPart2Hour_String_Integer:==<"morgen",6><"mittag",12><"abend",18><"nacht",23>
+HS_dayWeekMonthYear2Variable_String_String:==<"(?i)tage?","dayNumber"><"(?i)wochen?","dayNumber"><"(?i)monate?","monthNumber"><"(?i)jahre?","yearNumber">
+HS_romanMonth2Number_String_Integer:==<"i", 1><"ii", 2><"iii", 3><"iv", 4><"v", 5><"vi", 6><"vii", 7><"viii", 8><"ix", 9><"x", 10><"xi", 11><"xii", 12>
+
+END_HS
