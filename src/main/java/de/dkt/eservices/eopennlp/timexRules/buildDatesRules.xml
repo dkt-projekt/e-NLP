@@ -114,15 +114,27 @@
 
     	<!-- Marks beginning/middle/end of for months -->
     	<replaceregexp flags="g"
-        	    	        	        	    	  match="&#x3c;Var2_(.*?)_(.*?)&#x3e;"
+        	    	        	        	    	  match="&#x3c;Var5_(.*?)_(.*?)_(.*?)&#x3e;"
         	    	        	        	    	  replace="
-    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
+    		 String a = parts[\3].toLowerCase();&#xD;&#xA;
     		    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
-    		    		           dayNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
+    		    		           \2 = dayNumber+${dataclass}.\1.get(a);&#xD;&#xA;
     		    		          }&#xD;&#xA;
     		    		&#xD;&#xA;	">
 
         	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	        	    	        	        	    	  match="&#x3c;Var2_(.*?)_(.*?)&#x3e;"
+    	        	    	        	        	    	  replace="
+    	    		 String a = parts[\2].toLowerCase();&#xD;&#xA;
+    	    		    		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
+    	    		    		           dayNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
+    	    		    		          }&#xD;&#xA;
+    	    		    		&#xD;&#xA;	">
+
+    	        	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
 
        	<!-- variable for "now" -->
     	<replaceregexp flags="g"

@@ -126,28 +126,28 @@ public class GermanDateRules {
 		germanDateRegexMap.put(8, String.format("\\b%s\\b", dayPartName));//automated
 		germanDateRegexMap.put(9, String.format("\\b%s %s( %s)?\\b", anfangMitteEnde, monthName, yearNumber)); //automated;  check this one; add Mitte/End Oktober? // NOTE: linking this one with the one below (just monthName) causes problems. TODO: debug to see what's going on
 		germanDateRegexMap.put(10, String.format("\\b%s\\b", monthName));//automated
-		germanDateRegexMap.put(11, String.format("\\b%s\\b", day));//I don't get why this is useful, so I didn't automate that
+		germanDateRegexMap.put(11, String.format("\\b%s\\b", day));//automated
 		germanDateRegexMap.put(12, String.format("\\b%s( %s)?\\b", season, yearNumber));//automated
 		germanDateRegexMap.put(13, String.format("\\b(%s) (%s|%s|%s|%s) ((zu)?vor|später|danach)\\b", alphaNumber,day, week, month, year));//automated
-		germanDateRegexMap.put(14, String.format("(?i)\\b%s %s vor (jahresende|monatsende)\\b", alphaNumber, day)); // this had to be hard coded in the xml, I have not find a good solution for this yet
+		germanDateRegexMap.put(14, String.format("(?i)\\b%s %s vor (jahresende|monatsende)\\b", alphaNumber, day)); // automated
 		germanDateRegexMap.put(15, String.format("\\b%s\\b", gegenwärtig));// automated
-		germanDateRegexMap.put(16, String.format("\\bnächste(r|s|n)? (%s|%s|%s|%s)\\b", day, week, month, year));// TODO
-		germanDateRegexMap.put(17, String.format("(?i)\\bdiese(s|r|m|n)? (%s|%s|%s|%s)\\b", day, week, month, year));// TODO
+		germanDateRegexMap.put(16, String.format("\\bnächste(r|s|n)? (%s|%s|%s|%s)\\b", day, week, month, year));// automated
+		germanDateRegexMap.put(17, String.format("(?i)\\bdiese(s|r|m|n)? (%s|%s|%s|%s)\\b", day, week, month, year));// automated
 		//germanDateRegexMap.put(18, String.format("\\b(%s|%s)\\b", jetzt, heute));
 		germanDateRegexMap.put(19, String.format("\\b%s( %s)?\\b", holidays, yearNumber));//automated
 		germanDateRegexMap.put(20, String.format("\\b(\\d{1,3}) %s\\b", day));//not done here, so not automated either
 		germanDateRegexMap.put(21, String.format("\\b%s %s\\b", anfangMitteEnde, yearNumber));//automated
-		germanDateRegexMap.put(22, String.format("(?i)\\bnach %s (%s|%s|%s|%s)\\b", alphaNumber, day, week, month, year));// TODO
+		germanDateRegexMap.put(22, String.format("(?i)\\bnach %s (%s|%s|%s|%s)\\b", alphaNumber, day, week, month, year));//automated
 		germanDateRegexMap.put(24, String.format("\\b%s[-/\\.]%s[-/\\.]%s\\b", dayNumber, monthRomanNumber, nineteenHundred_twoDigitYearNumber));//automated
 		germanDateRegexMap.put(25, String.format("\\b%s([- ]?%s)?\\b", dayName, dayPartName));//automated as two different expressions
 		germanDateRegexMap.put(23, String.format("(?i)\\b(am|im) selben (tag|monat)\\b"));//automated "... tag" as now
 		germanDateRegexMap.put(26, String.format("\\b%s\\b", heute)); //automated
 		germanDateRegexMap.put(27, String.format("\\b%s\\b", jetzt)); //automated
 		germanDateRegexMap.put(28, String.format("\\b%s\\b", gestern));//automated
-		germanDateRegexMap.put(29, String.format("\\b%s\\b", morgen));//automated, creates ambiguity with morning
+		germanDateRegexMap.put(29, String.format("\\b%s\\b", morgen));//automated
 		germanDateRegexMap.put(30, String.format("\\b%s Uhr\\b", time));//automated
 		//germanDateRegexMap.put(31, String.format("\\b%s\\b", thisYearWeek));
-		germanDateRegexMap.put(32, String.format("\\b(?i)(vor|seit) (%s|%s) (Jahren|Monaten|Tagen)\\b", maxFourDigitNumber, alphaNumber));//TODO
+		germanDateRegexMap.put(32, String.format("\\b(?i)(vor|seit) (%s|%s) (Jahren|Monaten|Tagen)\\b", maxFourDigitNumber, alphaNumber));//automated
 
 	
 		

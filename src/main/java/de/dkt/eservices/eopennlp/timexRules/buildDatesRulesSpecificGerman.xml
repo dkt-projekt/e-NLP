@@ -60,6 +60,7 @@
         	<replaceregexp flags="g"
             	    	        	        	    	  match="&#x3c;VarM2&#x3e;"
             	    	        	        	    	  replace="
+        		
         		if (parts[0].matches(&#x22;(?i)(start|beginning)&#x22;)){&#xD;&#xA;
         								dayNumber = 1;&#xD;&#xA;
         							}&#xD;&#xA;
@@ -85,7 +86,7 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NDurD_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    		cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
     	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
     	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, \1, normalizedStartDate);&#xD;&#xA;
     	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
@@ -146,6 +147,113 @@
     	    	    			
     	    	    			">
     	    	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<replaceregexp flags="g"
+        	    	        	        	        	    	  match="&#x3c;NThisDayWeekMonthYear&#x3e;"
+        	    	        	        	        	    	  replace="
+    		dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    		&#xD;&#xA;
+    							if(parts[1].matches(&#x22;(?i)jahre?&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+    								cal.set(yearNumber, 0, 1, 0, 0, 0);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								cal.set(yearNumber+1,  0, 1, 0, 0, 0);&#xD;&#xA;
+    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    		&#xD;&#xA;
+    							}&#xD;&#xA;
+    							if(parts[1].matches(&#x22;(?i)monate?&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, 1, 0, 0, 0);&#xD;&#xA;
+    		&#xD;&#xA;&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);&#xD;&#xA;
+    		&#xD;&#xA;
+    							}&#xD;&#xA;
+    		if(parts[1].matches(&#x22;(?i)wochen?&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    								int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);&#xD;&#xA;
+    								int x = 7 - dayOfWeek;&#xD;&#xA;
+    		&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, -dayOfWeek, normalizedStartDate);&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, x, normalizedEndDate);&#xD;&#xA;
+    		&#xD;&#xA;
+    							}if(parts[1].matches(&#x22;(?i)tage?&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    							DateCommons.updateAnchorDate(normalizedEndDate);&#xD;&#xA;
+    						&#xD;&#xA;
+    		&#xD;&#xA;
+        	    	    			">
+        	    	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	
+    	<replaceregexp flags="g"
+    	        	    	        	        	        	    	  match="&#x3c;NNextDayWeekMonthYear&#x3e;"
+    	        	    	        	        	        	    	  replace="
+    	    		dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    	    							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    	    							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    							if(parts[1].matches(&#x22;(?i)jahre?&#x22;)){&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    								cal.set(yearNumber+1, 0, 1, 0, 0, 0);&#xD;&#xA;
+    	    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    								cal.set(yearNumber+2,  0, 1, 0, 0, 0);&#xD;&#xA;
+    	    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							if(parts[1].matches(&#x22;(?i)monate?&#x22;)){&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    								cal.set(yearNumber, monthNumber+1, 1, 0, 0, 0);&#xD;&#xA;
+    	    		&#xD;&#xA;&#xD;&#xA;
+    	    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							if(parts[1].matches(&#x22;(?i)wochen?&#x22;)){&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    								int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);&#xD;&#xA;
+    	    								int x = 7 - dayOfWeek;&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedStartDate = DateCommons.increaseCalendar(Calendar.DATE, -dayOfWeek+7, normalizedStartDate);&#xD;&#xA;
+    	    								cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, x+7, normalizedEndDate);&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    							}if(parts[1].matches(&#x22;(?i)tage?&#x22;)){&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	    								cal.set(yearNumber, monthNumber, dayNumber+1, 0, 0, 0);&#xD;&#xA;
+    	    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedEndDate = cal.getTime();&#xD;&#xA;
+    	    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    	    							}&#xD;&#xA;
+    	    							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    	    							DateCommons.updateAnchorDate(normalizedEndDate);&#xD;&#xA;
+    	    						&#xD;&#xA;
+    	    		&#xD;&#xA;
+    	        	    	    			">
+    	        	    	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	     	<replaceregexp flags="g"
     	        	        	        	        	    	  match="&#x3c;NTomorrow&#x3e;"
     	        	        	        	        	    	  replace="
@@ -158,15 +266,57 @@
     	        	    			">
     	        	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
+    	<replaceregexp flags="g"
+    	    	        	        	        	        	    	  match="&#x3c;NAfterDayWeekMonthYear&#x3e;"
+    	    	        	        	        	        	    	  replace="
+    		&#xD;&#xA;
+    							int number = AutomaticGermanData.alpha2Number.get((parts[1]));&#xD;&#xA;
+    							dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+    							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+    		&#xD;&#xA;
+    							cal.set(yearNumber,  monthNumber, dayNumber,0,0,0);&#xD;&#xA;
+    							final String day = &#x22;(?i)tage?|tagen&#x22;;&#xD;&#xA;
+    							final String week = &#x22;(?i)wochen?&#x22;;&#xD;&#xA;
+    							final String month = &#x22;(?i)monate?|monaten&#x22;;&#xD;&#xA;
+    							final String year = &#x22;(?i)jahre?|jahren&#x22;;&#xD;&#xA;
+    							if (parts[2].matches(day)){&#xD;&#xA;
+    								cal.add(Calendar.DATE, number);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[2].matches(week)){&#xD;&#xA;
+    								cal.add(Calendar.DATE, number * 7);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 7, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[2].matches(month)){&#xD;&#xA;
+    								cal.add(Calendar.MONTH, number);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[2].matches(year)){&#xD;&#xA;
+    								cal.add(Calendar.YEAR, number);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    		&#xD;&#xA;
+    	    	        	    			">
+    	    	        	        	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	
     	<!-- sets the duration in minutes -->
         	<replaceregexp flags="g"
             	    	        	        	    	  match="&#x3c;NLater&#x3e;"
             	    	        	        	    	  replace="
         		int direction = 0;&#xD;&#xA;
-        							if (parts[2].toLowerCase().matches(&#x22;(sp&#xe4;ter)&#x22;)){&#xD;&#xA;
+        							if (parts[2].toLowerCase().matches(AutomaticGermanData.beforeAfter.get(1))){&#xD;&#xA;
         								direction = 1;&#xD;&#xA;
         							}&#xD;&#xA;
-        							else if (parts[2].toLowerCase().matches(&#x22;(fr&#xfc;her|zuvor|eher)&#x22;)){&#xD;&#xA;
+        							else if (parts[2].toLowerCase().matches(AutomaticGermanData.beforeAfter.get(2))){&#xD;&#xA;
         								direction = -1;&#xD;&#xA;
         							}&#xD;&#xA;
         						    int increment = ${dataclass}.alpha2Number.get(parts[0]) * direction;&#xD;&#xA;
@@ -215,6 +365,97 @@
     				}&#xD;&#xA;
     				">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	    	    	        	        	    	  match="&#x3c;NBeforeEnd&#x3e;"
+    	    	    	        	        	    	  replace="
+    		int numberOfDays = AutomaticGermanData.alpha2Number.get(parts[0]);&#xD;&#xA;
+    		&#xD;&#xA;
+    							if (parts[3].matches(&#x22;(?i)jahresende&#x22;)){&#xD;&#xA;
+    								cal.set(yearNumber,  11, 31, 0,0,0); // TODO: DEBUG MONTHNUMBER!!!!&#xD;&#xA;
+    								cal.add(Calendar.DATE, numberOfDays * -1);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							else if (parts[3].matches(&#x22;(?i)monatsende&#x22;)){&#xD;&#xA;
+    								cal.set(yearNumber, monthNumber, DateCommons.getLastDayOfMonth(monthNumber+1, yearNumber), 0,0,0); // +1 for monthNumber here because the monthNumber coming from the anchorDate is zero-based&#xD;&#xA;
+    								cal.add(Calendar.DATE, numberOfDays * -1);&#xD;&#xA;
+    								normalizedStartDate = cal.getTime();&#xD;&#xA;
+    								normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+    							}&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    							dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    							DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    	    				">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	    	    	        	        	    	  match="&#x3c;NSinceBeforeDayWeekMonthYear&#x3e;"
+    	    	    	        	        	    	  replace="
+
+		
+			int number = 0;&#xD;&#xA;
+			if(parts[1].matches(&#x22;[1-9][0-9]?[0-9]?[0-9]?&#x22;)){&#xD;&#xA;
+				number = Integer.parseInt(parts[1]);&#xD;&#xA;
+			}else{&#xD;&#xA;
+				number = AutomaticGermanData.alpha2Number.get(parts[1]);&#xD;&#xA;	
+			}&#xD;&#xA;
+    		&#xD;&#xA;
+			monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
+		yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
+			dayNumber = DateCommons.getDayFromAnchorDate();&#xD;&#xA;
+    		&#xD;&#xA;
+			cal.set(yearNumber, monthNumber, dayNumber, 0,0,0);&#xD;&#xA;
+			Date current = cal.getTime();&#xD;&#xA;
+    		&#xD;&#xA;
+			if (parts[0].matches(&#x22;(i)?vor&#x22;)){&#xD;&#xA;
+				if (parts[2].matches(&#x22;Jahren&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+					cal.set(yearNumber-number, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+				}&#xD;&#xA;
+				if (parts[2].matches(&#x22;Monaten&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+					cal.set(yearNumber, monthNumber-number, dayNumber, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+				}&#xD;&#xA;
+				if (parts[2].matches(&#x22;Tagen&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+					cal.set(yearNumber, monthNumber, dayNumber-number, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+					normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);&#xD;&#xA;
+				}&#xD;&#xA;
+    		&#xD;&#xA;
+			}&#xD;&#xA;
+			else if (parts[0].matches(&#x22;seit&#x22;)){&#xD;&#xA;
+    		&#xD;&#xA;
+				cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+				normalizedEndDate = cal.getTime();&#xD;&#xA;
+    		&#xD;&#xA;
+				if (parts[2].matches(&#x22;Jahren&#x22;)){&#xD;&#xA;
+					cal.set(yearNumber-number, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+				}&#xD;&#xA;
+				if (parts[2].matches(&#x22;Monaten&#x22;)){&#xD;&#xA;
+					cal.set(yearNumber, monthNumber-number, dayNumber, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+				}&#xD;&#xA;
+				if (parts[2].matches(&#x22;Tagen&#x22;)){&#xD;&#xA;
+					cal.set(yearNumber, monthNumber, dayNumber-number, 0, 0, 0);&#xD;&#xA;
+					normalizedStartDate = cal.getTime();&#xD;&#xA;
+				}&#xD;&#xA;
+    		&#xD;&#xA;
+			}&#xD;&#xA;
+			dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+			dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+			DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+			DateCommons.updateAnchorDate(normalizedEndDate);&#xD;&#xA;
+			
+		
+    	    				">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
     	
 
     	

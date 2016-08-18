@@ -8,7 +8,7 @@
   put("frühling","0331");put("winter","1228");put("sommer","0631");put("herbst","0930");  }};
   
   static HashMap<String, Integer> monthName2Number = new HashMap<String, Integer>(){{
-  put("januar",1);put("februar",2);put("märz",3);put("april",4);put("mai",5);put("juni",6);put("juli",7);put("august",8);put("september",9);put("oktober",10);put("november",11);put("dezember",12);  }};
+  put("januar",0);put("februar",1);put("märz",2);put("april",3);put("mai",4);put("juni",5);put("juli",6);put("august",7);put("september",8);put("oktober",9);put("november",10);put("dezember",11);  }};
   
   static HashMap<String, Integer> dayName2Integer = new HashMap<String, Integer>(){{
   put("sonntag",1);put("montag",2);put("dienstag",3);put("mittwoch",4);put("donnerstag",5);put("freitag",6);put("samstag",7);  }};
@@ -35,10 +35,16 @@
   put("morgen",6);put("mittag",12);put("abend",18);put("nacht",23);  }};
   
   static HashMap<String, String> dayWeekMonthYear2Variable = new HashMap<String, String>(){{
-  put("(?i)tage?","dayNumber");put("(?i)wochen?","dayNumber");put("(?i)monate?","monthNumber");put("(?i)jahre?","yearNumber");  }};
+  put("day","dayNumber");put("week","dayNumber");put("month","monthNumber");put("year","yearNumber");  }};
   
   static HashMap<String, Integer> romanMonth2Number = new HashMap<String, Integer>(){{
   put("i", 1);put("ii", 2);put("iii", 3);put("iv", 4);put("v", 5);put("vi", 6);put("vii", 7);put("viii", 8);put("ix", 9);put("x", 10);put("xi", 11);put("xii", 12);  }};
+  
+  static HashMap<String, Integer> thisNext2Number = new HashMap<String, Integer>(){{
+  put("nächste",1);put("nächster",1);put("nächstes",1);put("nächsten",1);put("dieser",0);put("dieses",0);put("diese",0);put("diesen",0);put("diesem",0);  }};
+  
+  static HashMap<Integer, String> beforeAfter = new HashMap<Integer, String>(){{
+  put(1,"später");put(2,"früher|zuvor|eher");  }};
   
 
                     }

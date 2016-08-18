@@ -24,13 +24,21 @@ START_RULES(AutomaticGermanDateRules)
 <holiday>:=="weihnachten"|"erster weihnacht[stag]"|"ostern"|"silvester"|"neujahr"|"maifeiertag"|"tag der deutschen einheit"|"tag der arbeit"
 <alphaNumber>:=="null"|"eins"|"zwei"|"drei"|"vier"|"fünf"|"sechs"|"sieben"|"acht"|"neun"|"zehn"|"elf"|"zwölf"|"dreizehn"|"vierzehn"|"fünfzehn"|"sechzehn"|"siebzehn"|"achtzehn"|"neunzehn"|"zwanzig"|"einundzwanzig"|"zweiundzwanzig"|"dreiundzwanzig"|"vierundzwanzig"|"fünfundzwanzig"|"sechsundzwanzig"|"siebenundzwanzig"|"achtundzwanzig"|"neunundzwanzig"|"dreiβig"|"einunddreiβig"|"zweiundreißig"|"dreiunddreißig"|"vierunddreißig"|"fünfunddreißig"|"sechsunddreißig"|"siebenunddreißig"|"achtunddreißig"|"neununddreißig"|"vierzig"|"einundvierzig"|"zweiundvierzig"|"dreiundvierzig"|"vierundvierzig"|"fünfundvierzig"|"sechsundvierzig"|"siebenundvierzig"|"achtundvierzig"|"neunundvierzig"|"fünfzig"|"einundfünfzig"|"zweiundfünfzig"|"dreiundfünfzig"|"vierundfünfzig"|"fünfundfünfzig"|"sechsundfünfzig"|"siebenundfünfzig"|"achtundfünfzig"|"neunundfünfzig"|"sechzig"|"einundsechzig"|"zweiundsechzig"|"dreiundsechzig"|"vierundsechzig"|"fünfundsechzig"|"sechsundsechzig"|"siebenundsechzig"|"achtundsechzig"|"neunundsechzig"|"siebzig"|"einundsiebzig"|"zweiundsiebzig"|"dreiundsiebzig"|"vierundsiebzig"|"fünfundsiebzig"|"sechsundsiebzig"|"siebenundsiebzig"|"achtundsiebzig"|"neunundsiebzig"|"achtzig"|"einundachtzig"|"zweiundachtzig"|"dreiundachtzig"|"vierundachtzig"|"fünfundachtzig"|"sechsundachtzig"|"siebenundachtzig"|"achtundachtzig"|"neunundachtzig"|"neunzig"|"einundneunzig"|"zweiundneunzig"|"dreiundneunzig"|"vierundneunzig"|"fünfundneunzig"|"sechsundneunzig"|"siebenundneunzig"|"achtundneunzig"|"neunundneunzig"|"hundert"
 <later>:=="später"|"früher"|"zuvor"|"eher"
-<dayweekmonthyear>:=="tage?"|"wochen?"|"monate?"|"jahre?"
+<dayweekmonthyear>:=="tage?"|"wochen?"|"monate?"|"jahre?"|"tagen"|"monaten"|"jahren"
 <dayName>:=="montag"|"dienstag"|"mittwoch"|"donnerstag"|"freitag"|"samstag"|"sonntag"
-<dayPart>:=="morgen"|"mittag"|"abend"|"nacht"
+<dayPart>:=="mittag"|"abend"|"nacht"
 <yesterday>:=="gestern"
 <tomorrow>:=="morgen"
 <monthRomanNumber>:=="I"|"II"|"III"|"IV"|"V"|"VI"|"VII"|"VII"|"IX"|"X"|"XI"|"XII"
 <nineteenHundred_twoDigitYearNumber>:==<digit><digit>
+<dies>:=="dieser"|"dieses"|"diese"|"diesen"|"diesem"
+<next>:=="nächste"|"nächster"|"nächstes"|"nächsten"
+<sincebefore>:=="seit"|"vor"
+<day>:=="tage?"
+<end>:=="jahresende"|"monatsende"
+
+
+
 
 
 
@@ -57,6 +65,14 @@ START_RULES(AutomaticGermanDateRules)
 <RUL_23>:==<yesterday>
 <RUL_24>:==<tomorrow>
 <RUL_25>:==<daynumber><separation><monthRomanNumber><separation><nineteenHundred_twoDigitYearNumber>
+<RUL_26>:==<dies> <dayweekmonthyear>
+<RUL_27>:==<next> <dayweekmonthyear>
+<RUL_28>:==nach <alphaNumber> <dayweekmonthyear>
+<RUL_29>:==<sincebefore> <alphaNumber> <dayweekmonthyear>
+<RUL_30>:==<day>
+<RUL_31>:==<alphaNumber> <day> vor <end>
+
+
 
 
 END_RULES
@@ -83,8 +99,14 @@ BEGIN_NORMALIZATION
 <NR_20_.|/|->:==<NMonth_0><NYear_1><NDurD_30>
 <NR_21_s>:==<NNow><Var4_dayPart2Hour_0><NDurM_180>
 <NR_22_s>:==<NMonthL_0><NDurD_30>
-<NR_23_s>:==<NYesterday><NDurM_1440>
-<NR_24_s>:==<NTomorrow><NDurM_1440>
+<NR_23_s>:==<NYesterday><NDurD_1>
+<NR_24_s>:==<NTomorrow><NDurD_1>
 <NR_25_.|/|->:==<NDay_0><Var1_romanMonth2Number_1><NNineteenhundreds_2><NDurD_30>
+<NR_26_s>:==<NThisDayWeekMonthYear>
+<NR_27_s>:==<NNextDayWeekMonthYear>
+<NR_28_s>:==<NAfterDayWeekMonthYear>
+<NR_29_s>:==<NSinceBeforeDayWeekMonthYear>
+<NR_30_s>:==<NNow><NDurD_1>
+<NR_31_s>:==<NNow><NBeforeEnd>
 
 END_NORMALIZATION
