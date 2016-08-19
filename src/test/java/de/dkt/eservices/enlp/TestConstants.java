@@ -238,6 +238,7 @@ public class TestConstants {
 	static String expectedResponse2= 
 			
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
 					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
@@ -413,6 +414,7 @@ public class TestConstants {
 	
 	static String turtleInput2= 
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
 					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
@@ -427,6 +429,7 @@ public class TestConstants {
 	
 	static String expectedResponse372 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -442,6 +445,7 @@ public class TestConstants {
 					
 	static String expectedResponse22 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -465,6 +469,7 @@ public class TestConstants {
 	
 	static String turtleInput3 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -492,10 +497,11 @@ public class TestConstants {
 	
 	static String expectedResponse3 =
 			
-			"<rdf:RDFxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"xmlns:time=\"http://www.w3.org/2006/time#\"xmlns:itsrdf=\"http://www.w3.org/2005/11/its/rdf#\"xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"xmlns:dktnif=\"http://dkt.dfki.de/ontologies/nif#\"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"xmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=0,26\"><nif:isStringrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">WelcometoBerlinin2016.</nif:isString><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">26</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">0</nif:beginIndex><dktnif:meanDateStartrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T01:00:00</dktnif:meanDateStart><dktnif:meanDateEndrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T01:00:00</dktnif:meanDateEnd><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#Context\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=21,25\"><time:intervalStartsrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T00:00:00</time:intervalStarts><time:intervalFinishesrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T00:00:00</time:intervalFinishes><itsrdf:taClassRefrdf:resource=\"http://www.w3.org/2006/time#TemporalEntity\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">25</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">21</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">2016</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=11,17\"><itsrdf:taClassRefrdf:resource=\"http://dbpedia.org/ontology/Location\"/><nif:referenceContextrdf:resource=\"http://dkt.dfki.de/documents/#char=0,26\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">17</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">11</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Berlin</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/></rdf:Description></rdf:RDF>";
+			"<rdf:RDFxmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"xmlns:time=\"http://www.w3.org/2006/time#\"xmlns:nif-ann=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#\"xmlns:itsrdf=\"http://www.w3.org/2005/11/its/rdf#\"xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"xmlns:dktnif=\"http://dkt.dfki.de/ontologies/nif#\"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"xmlns:nif=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#\"><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=0,26\"><nif:isStringrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">WelcometoBerlinin2016.</nif:isString><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">26</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">0</nif:beginIndex><dktnif:meanDateStartrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T01:00:00</dktnif:meanDateStart><dktnif:meanDateEndrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T01:00:00</dktnif:meanDateEnd><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#Context\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=21,25\"><time:intervalStartsrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2016-01-01T00:00:00</time:intervalStarts><time:intervalFinishesrdf:datatype=\"http://www.w3.org/2001/XMLSchema#dateTime\">2017-01-01T00:00:00</time:intervalFinishes><itsrdf:taClassRefrdf:resource=\"http://www.w3.org/2006/time#TemporalEntity\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">25</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">21</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">2016</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/></rdf:Description><rdf:Descriptionrdf:about=\"http://dkt.dfki.de/documents/#char=11,17\"><itsrdf:taClassRefrdf:resource=\"http://dbpedia.org/ontology/Location\"/><nif:referenceContextrdf:resource=\"http://dkt.dfki.de/documents/#char=0,26\"/><nif:endIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">17</nif:endIndex><nif:beginIndexrdf:datatype=\"http://www.w3.org/2001/XMLSchema#nonNegativeInteger\">11</nif:beginIndex><nif:anchorOfrdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">Berlin</nif:anchorOf><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String\"/><rdf:typerdf:resource=\"http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String\"/></rdf:Description></rdf:RDF>";
 	
 	static String expectedResponse234 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -674,6 +680,7 @@ public class TestConstants {
 			
 	static String expectedResponse371 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -697,6 +704,7 @@ public class TestConstants {
 	
 	static String expectedResponse37 =
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -723,6 +731,8 @@ public class TestConstants {
 	static String expectedResponse5 = 
 			
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+				"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -826,6 +836,7 @@ public class TestConstants {
 	
 	static String expectedResponse83 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -883,6 +894,7 @@ public class TestConstants {
 	
 	static String expectedResponse6 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -1035,6 +1047,7 @@ public class TestConstants {
 	
 	static String expectedResponse8 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -1062,6 +1075,7 @@ public class TestConstants {
 	
 	static String expectedResponse9 = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"+
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"+
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"+
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"+
@@ -1097,6 +1111,7 @@ public class TestConstants {
 					"";
 	
 	static String expectedResponse10 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1168,6 +1183,7 @@ public class TestConstants {
 			+"";
 	
 	static String expectedResponse11 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1213,6 +1229,7 @@ public class TestConstants {
 	
 	static String expectedResponse666 =
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
 					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
 					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
 					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
@@ -1236,6 +1253,7 @@ public class TestConstants {
 					"";
 	
 	static String expectedResponse12 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1298,6 +1316,7 @@ public class TestConstants {
 			+"";
 	
 	static String expectedResponse13 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1351,6 +1370,7 @@ public class TestConstants {
 			+"";
 	
 	static String expectedResponse14 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1404,6 +1424,7 @@ public class TestConstants {
 			+"";
 	
 	static String expectedResponse15 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
@@ -1448,6 +1469,7 @@ public class TestConstants {
 			+"";
 	
 	static String expectedResponse16 = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+			+"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n"
 			+"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
 			+"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
 			+"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
