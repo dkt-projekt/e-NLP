@@ -457,7 +457,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         
         
         String r = service.uploadClassificationModel(data, modelName);
-        String output = "Succesffully uploaded a model with name: " + modelName;
+        String output = "Successfully uploaded a model with name: " + modelName;
         
         
         HttpHeaders responseHeaders = new HttpHeaders();
