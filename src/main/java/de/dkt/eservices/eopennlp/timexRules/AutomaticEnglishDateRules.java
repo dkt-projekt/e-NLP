@@ -96,7 +96,8 @@ dateRegexMap.put(20, String.format("(?i)\\b("+monthname+")\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(20)));
 dateRegexMap.put(21, String.format("(?i)\\b("+monthname+") ("+yearnumber+")\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(21)));
-
+dateRegexMap.put(22, String.format("("+currency+")\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+separation2+")\\d{2})"));
+            patterns.add(Pattern.compile(dateRegexMap.get(22)));
 
 
              int counter2=0;
@@ -110,7 +111,7 @@ dateRegexMap.put(21, String.format("(?i)\\b("+monthname+") ("+yearnumber+")\\b")
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
-         String input = "october 6 1990";
+         String input = "€1995.00";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){

@@ -211,6 +211,12 @@
         	    	  replace="dateRegexMap.put(\1, String.format(&#x22;(?i)\\\\\\\\b\2\\\\\\\\b&#x22;));&#xD;&#xA;
     		patterns.add(Pattern.compile(dateRegexMap.get(\1)));&#xD;&#xA;">
         	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	        	    	  match="&#x3c;RULNOT_(.*)&#x3e;:==(.*)&#xD;&#xA;"
+    	        	    	  replace="dateRegexMap.put(\1, String.format(&#x22;\2&#x22;));&#xD;&#xA;
+    	    		patterns.add(Pattern.compile(dateRegexMap.get(\1)));&#xD;&#xA;">
+    	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
 
     	
     	<replaceregexp flags="g"
