@@ -38,7 +38,7 @@ START_RULES(AutomaticEnglishDateRules)
 <RUL_7>:==<earlymidlate><hyphenorwhitespace><monthname>[ <yearnumber>]
 <RUL_8>:==<season>[ <yearnumber>]
 <RUL_9>:==<season> of <yearnumber>
-<RUL_10>:==<monthname> [the ]<daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
+<RUL_10>:==<monthname> the <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
 <RUL_11>:==<beginmiddleend> of <yearnumber>
 <RUL_12>:==<beginmiddleend> of <monthname>[ <yearnumber>]
 <RUL_13>:==<yearnumberbc> b["."]c["."]
@@ -49,6 +49,7 @@ START_RULES(AutomaticEnglishDateRules)
 <RUL_18>:==<dayName>
 <RUL_19>:==<daynumber><separation><monthnumber><separation><yearnumber>
 <RUL_20>:==<monthname>
+<RUL_21>:==<monthname> <yearnumber>
 
 
 END_RULES
@@ -75,5 +76,6 @@ BEGIN_NORMALIZATION
 <NR_18_s>:==<NWeekday>
 <NR_19_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
 <NR_20_s>:== <NMonthL_0> <NDurMo_1>
+<NR_21_s>:== <NMonthL_0> <NYear_1> <NDurMo_1>
 
 END_NORMALIZATION
