@@ -33,8 +33,8 @@ String daynumber="(0)?("+digit+")|1("+digit+")|2("+digit+")|3("+ceroone+")";
 String monthname="january|february|march|april|may|june|july|august|september|october|november|december";
 String yearnumber="("+onetwo+")("+digit+")("+digit+")("+digit+")";
 String monthnumber=" 0|1|2|3|4|5|6|7|8|9|10|11|12";
-String separation="\\.|/|-";
-String hyphenorwhitespace="-| ";
+String separation="\\.|/|\\-";
+String hyphenorwhitespace="\\-| ";
 String season="summer|winter|spring|autumn|fall";
 String earlymidlate="early|mid|late";
 String beginmiddleend="start|beginning|middle|end";
@@ -48,6 +48,8 @@ String alphaNumber="one|two|three|four|five|six|seven|eight|nine|ten|eleven|twel
 String dayweekmonthyear="days?|weeks?|months?|years?";
 String later="later|after|earlier|before";
 String dayName="monday|tuesday|wednesday|thursday|friday|saturday|sunday";
+String currency="\\$|\\€";
+String separation2="\\.|,";
 
 
 
@@ -94,6 +96,8 @@ dateRegexMap.put(20, String.format("(?i)\\b("+monthname+")\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(20)));
 dateRegexMap.put(21, String.format("(?i)\\b("+monthname+") ("+yearnumber+")\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(21)));
+dateRegexMap.put(21, String.format("(?i)\\b("+currency+")\\d{1,3}(?:("+separation2+")\\d{3})*(?:("+separation2+")\\d{2})\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(21)));
 
 
              int counter2=0;
@@ -107,7 +111,7 @@ dateRegexMap.put(21, String.format("(?i)\\b("+monthname+") ("+yearnumber+")\\b")
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
-         String input = "october 6 1990";
+         String input = "08-10-1990";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){
