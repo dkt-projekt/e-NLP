@@ -53,6 +53,14 @@ START_RULES(AutomaticEnglishDateRules)
 <RUL_20>:==<monthname>
 <RUL_21>:==<monthname> <yearnumber>
 <RULNOT_22>:==<currency>\\d{1,9}(?:<separation2>\\d{3})*(?:<separation2>\\d{2})
+<RUL_23>:==\\d{1,100} <yearnumber>
+<RUL_24>:==\\d{1,100}<separation><yearnumber>
+<RUL_25>:==<yearnumber> \\d{1,100}
+<RUL_26>:==<yearnumber><separation>\\d{1,100}
+<RUL_27>:==<daynumber><separation><monthnumber><separation>\\d{1,100}
+<RUL_28>:==\\d{1,100}<separation><daynumber><separation><monthnumber>
+<RUL_29>:==\\d{1,100}<separation><daynumber><separation><monthnumber><separation><yearnumber>
+<RUL_30>:==<daynumber><separation><monthnumber><separation><yearnumber><separation>\\d{1,100}
 
 
 END_RULES

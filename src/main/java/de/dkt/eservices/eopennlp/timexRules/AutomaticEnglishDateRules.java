@@ -98,6 +98,22 @@ dateRegexMap.put(21, String.format("(?i)\\b("+monthname+") ("+yearnumber+")\\b")
        patterns.add(Pattern.compile(dateRegexMap.get(21)));
 dateRegexMap.put(22, String.format("("+currency+")\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+separation2+")\\d{2})"));
             patterns.add(Pattern.compile(dateRegexMap.get(22)));
+dateRegexMap.put(23, String.format("(?i)\\b\\d{1,100} ("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(23)));
+dateRegexMap.put(24, String.format("(?i)\\b\\d{1,100}("+separation+")("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(24)));
+dateRegexMap.put(25, String.format("(?i)\\b("+yearnumber+") \\d{1,100}\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(25)));
+dateRegexMap.put(26, String.format("(?i)\\b("+yearnumber+")("+separation+")\\d{1,100}\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(26)));
+dateRegexMap.put(27, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthnumber+")("+separation+")\\d{1,100}\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(27)));
+dateRegexMap.put(28, String.format("(?i)\\b\\d{1,100}("+separation+")("+daynumber+")("+separation+")("+monthnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(28)));
+dateRegexMap.put(29, String.format("(?i)\\b\\d{1,100}("+separation+")("+daynumber+")("+separation+")("+monthnumber+")("+separation+")("+yearnumber+")\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(29)));
+dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthnumber+")("+separation+")("+yearnumber+")("+separation+")\\d{1,100}\\b"));
+       patterns.add(Pattern.compile(dateRegexMap.get(30)));
 
 
              int counter2=0;
@@ -111,7 +127,7 @@ dateRegexMap.put(22, String.format("("+currency+")\\d{1,9}(?:("+separation2+")\\
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
-         String input = "€1995.00";
+         String input = "1434324.1232323.8.10.1990.232323.234345";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){
