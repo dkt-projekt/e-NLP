@@ -3,16 +3,11 @@ package de.dkt.eservices.enlp;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -750,27 +745,25 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatPlainTextData";
-//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\complaintsIndividualFiles";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\sentencesOnly";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
-//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\nifsNERModelOutput";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
-////		HttpResponse<String> trainFRONTEO_ORG = trainOpennlpModel()
+////		HttpResponse<String> trainSureNamesEnron = trainOpennlpModel()
 ////				.queryString("analysis", "dict")
 ////				.queryString("language", "en")
-////				.queryString("modelName", "fronteoDict_ORG")
-////				.body(readFile("C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\manuallyCreatedDict.txt", StandardCharsets.UTF_8))
+////				.queryString("modelName", "enronSureNames_PER")
+////				.body(readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\enronSureNames_PER", StandardCharsets.UTF_8))
 ////				.asString();
-////		assertTrue(trainFRONTEO_ORG.getStatus() == 200);
-////		assertTrue(trainFRONTEO_ORG.getBody().length() > 0);
+////		assertTrue(trainSureNamesEnron.getStatus() == 200);
+////		assertTrue(trainSureNamesEnron.getBody().length() > 0);
 ////		HttpResponse<String> trainAllNamesEnron = trainOpennlpModel()
 ////				.queryString("analysis", "dict")
 ////				.queryString("language", "en")
@@ -794,13 +787,11 @@ public class ENLPTest {
 //			
 //			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-//					//.queryString("analysis", "temp")
 //					.queryString("analysis", "ner")
 //					//.queryString("analysis", "dict")
 //					//.queryString("language", "de")
 //					.queryString("language", "en")
 //					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
-//					//.queryString("models", "germanDates")
 //					//.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainPER")
 //					.queryString("informat", "text")
 //					//.queryString("informat", "turtle")
@@ -810,18 +801,6 @@ public class ENLPTest {
 //					.asString();
 //			String turtleModel = debugResponse.getBody();
 ////			
-////			HttpResponse<String> debugResponse3 = analyzeOpennlpRequest()
-////					.queryString("analysis", "dict")
-////					.queryString("language", "en")
-////					.queryString("models", "fronteoDict_ORG")
-////					.queryString("informat", "turtle")
-////					.queryString("outformat", "turtle")
-////					//.queryString("input", turtleModel)
-////					.body(turtleModel)
-////					.asString();
-////			//String turtleModel = debugResponse2.getBody();
-////			turtleModel = debugResponse3.getBody();
-//			
 //			
 //
 //			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
@@ -861,7 +840,7 @@ public class ENLPTest {
 //		
 //		
 //	}	 
-//	
+	
 
 //	@Test
 //	public void dareTestTestTest() throws UnirestException, IOException, Exception {

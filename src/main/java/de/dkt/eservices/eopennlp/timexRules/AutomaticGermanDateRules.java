@@ -136,7 +136,7 @@ dateRegexMap.put(31, String.format("(?i)\\b("+alphaNumber+") ("+day+") vor ("+en
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticGermanDateRules.initDateFinder();
-         String input = "drei Tage vor Jahresende";
+         String input = "october 6 1990";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){

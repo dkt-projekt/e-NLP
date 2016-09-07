@@ -55,7 +55,7 @@ http://api.digitale-kuratierung.de/api/e-nlp/listModels
 A list of available models.
 
 Examle cURL post:
-`curl -X POST "http://dev.digitale-kuratierung.de/api/e-nlp/listModels?analysis=temp"`
+`curl -X POST "http://api.digitale-kuratierung.de/api/e-nlp/listModels?analysis=temp"`
 
 ## Train Model
 

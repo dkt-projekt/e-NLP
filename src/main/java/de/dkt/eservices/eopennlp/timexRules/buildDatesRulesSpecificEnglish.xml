@@ -30,8 +30,7 @@
     	    	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NHour_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    	    		int hour = 0;&#xD;&#xA;
-    	    		int minute = 0;&#xD;&#xA;
+    	    		
     	    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
     	    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
     	    							}&#xD;&#xA;
@@ -92,6 +91,35 @@
     	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
     				">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<!-- sets the duration in years -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NDurY_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, \1, normalizedStartDate);&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	<!-- sets the duration in months -->
+    	<replaceregexp flags="g"
+    	    	        	        	    	  match="&#x3c;NDurMo_(.*?)&#x3e;"
+    	    	        	        	    	  replace="
+    	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.MONTH, \1, normalizedStartDate);&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    				">
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
+    	
+    	
     	<!-- sets the duration in minutes -->
     	<replaceregexp flags="g"
         	    	        	        	    	  match="&#x3c;NDurM_(.*?)&#x3e;"
