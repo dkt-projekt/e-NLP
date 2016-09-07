@@ -535,42 +535,70 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 	
 	public static void main(String[] args) {
 		
-		String nifString = 
-				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-						"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
-						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
-						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
-						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
-						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
-						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
-						"@prefix time:  <http://www.w3.org/2006/time#> .\n" +
-						"<http://freme-project.eu/#char=11,18>\n" +
-						"        a                     nif:String , nif:RFC5147String , nif:Phrase ;\n" +
-						"        nif:anchorOf          \"Antwerp\"@en ;\n" +
-						"        nif:beginIndex        \"11\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:endIndex          \"18\"^^xsd:nonNegativeInteger ;\n" +
-						"        nif:referenceContext  <http://freme-project.eu/#char=0,41> ;\n" +
-						"        itsrdf:translate \"false\";\n" +
-						"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Place> ;\n" +
-						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Antwerp> .\n";
+//		String nifString = 
+//				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+//						"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
+//						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
+//						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+//						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+//						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+//						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+//						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+//						"@prefix time:  <http://www.w3.org/2006/time#> .\n" +
+//						"<http://freme-project.eu/#char=11,18>\n" +
+//						"        a                     nif:String , nif:RFC5147String , nif:Phrase ;\n" +
+//						"        nif:anchorOf          \"Antwerp\"@en ;\n" +
+//						"        nif:beginIndex        \"11\"^^xsd:nonNegativeInteger ;\n" +
+//						"        nif:endIndex          \"18\"^^xsd:nonNegativeInteger ;\n" +
+//						"        nif:referenceContext  <http://freme-project.eu/#char=0,41> ;\n" +
+//						"        itsrdf:translate \"false\";\n" +
+//						"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Place> ;\n" +
+//						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Antwerp> .\n";
+//		
+//		
+//				
+//		try {
+//			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+//			for (String[] sa : NIFReader.extractEntityIndices(nifModel)){
+//				//System.out.println(Arrays.toString(sa));
+//				String arabicLabel = Sparqler.getDBPediaLabelForLanguage(sa[0], "ar");
+//				if (arabicLabel != null){
+//					NIFWriter.addEntityProperty(nifModel, Integer.parseInt(sa[3]), Integer.parseInt(sa[4]), "http://freme-project.eu/", arabicLabel, RDFS.arabicLabel, XSDDatatype.XSDnormalizedString);
+//					System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
+//				}
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		String nifString = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
+				+ "@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
+				+ "@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
+				+ "@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
+				+ "@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"
+				+ "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" + "\n"
+				+ "<http://dkt.dfki.de/documents/#char=0,298>\n"
+				+ "        a               nif:RFC5147String , nif:String , nif:Context ;\n"
+				+ "        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:endIndex    \"298\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:isString    \"Pierre Vinken, 61 years old, will join the board as a nonexecutive director Nov. 29.\\r\\nMr. Vinken is chairman of Elsevier N.V., the Dutch publishing group.\\r\\nRudolph Agnew, 55 years old and former chairman of Consolidated Gold Fields PLC, was named a director of this British industrial conglomerate.\"^^xsd:string .\n"
+				+ "\n" + "<http://dkt.dfki.de/documents/#char=0,13>\n"
+				+ "        a                     nif:RFC5147String , nif:String ;\n"
+				+ "        nif:anchorOf          \"Pierre Vinken\"^^xsd:string ;\n"
+				+ "        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:endIndex          \"13\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
+				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "\n"
+				+ "<http://dkt.dfki.de/documents/#char=156,169>\n"
+				+ "        a                     nif:RFC5147String , nif:String ;\n"
+				+ "        nif:anchorOf          \"Rudolph Agnew\"^^xsd:string ;\n"
+				+ "        nif:beginIndex        \"156\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:endIndex          \"169\"^^xsd:nonNegativeInteger ;\n"
+				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
+				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "";
+			    
 		
 		
-				
-		try {
-			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-			for (String[] sa : NIFReader.extractEntityIndices(nifModel)){
-				//System.out.println(Arrays.toString(sa));
-				String arabicLabel = Sparqler.getDBPediaLabelForLanguage(sa[0], "ar");
-				if (arabicLabel != null){
-					NIFWriter.addEntityProperty(nifModel, Integer.parseInt(sa[3]), Integer.parseInt(sa[4]), "http://freme-project.eu/", arabicLabel, RDFS.arabicLabel, XSDDatatype.XSDnormalizedString);
-					System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
-				}
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 	}
 	
