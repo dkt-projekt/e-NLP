@@ -76,7 +76,18 @@
     		if (parts[\1].matches(&#x22;\\\\\\\\d{1,2}(st|nd|rd|th)?(,)?&#x22;)){&#xD;&#xA;
     									dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;	
     								};&#xD;&#xA;">
-    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<replaceregexp flags="g"
+    	    	    	        	        	    	  match="&#x3c;NDayTheST_(.*?)&#x3e;"
+    	    	    	        	        	    	  replace="
+    		if (parts[\1].matches(&#x22;the&#x22;)){;&#xD;&#xA;
+    		    	dayNumber = Integer.parseInt(parts[\1].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;
+    		    		              }&#xD;&#xA;
+    		    		              else{&#xD;&#xA;
+    		    		                  dayNumber = Integer.parseInt(parts[(\1)].replaceAll(&#x22;(st|nd|rd|th)&#x22;, &#x22;&#x22;).replaceAll(&#x22;,&#x22;,&#x22;&#x22;));&#xD;&#xA;
+    		    		                  };&#xD;&#xA;">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	
     	<!-- sets the duration in days -->
