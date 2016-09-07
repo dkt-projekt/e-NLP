@@ -35,6 +35,7 @@ import de.dkt.common.niftools.GEO;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.niftools.TIME;
+import de.dkt.eservices.eopennlp.timexRules.AutomaticEnglishDateRules;
 import de.dkt.eservices.eopennlp.timexRules.DateCommons;
 import de.dkt.eservices.eopennlp.timexRules.EnglishDateRules;
 import de.dkt.eservices.eopennlp.timexRules.GermanDateRules;
@@ -329,7 +330,7 @@ public class RegexFinder {
 			dateFinder = GermanDateRules.initGermanDateFinder();
 		}
 		else if (language.equalsIgnoreCase("en")){
-			dateFinder = EnglishDateRules.initEnglishDateFinder();
+			dateFinder = AutomaticEnglishDateRules.initDateFinder();
 		}
 		// not sure if this will ever be specified, but if it is available, we can extract timestamp from file to set anchordate
 		if(inputFile!=null){
@@ -359,7 +360,7 @@ public class RegexFinder {
 							normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
 						}
 						else if (language.equalsIgnoreCase("en")){
-							normalizedStartAndEnd = EnglishDateRules.normalizeEnglishDate(foundDate);
+							normalizedStartAndEnd = AutomaticEnglishDateRules.normalizeDate(foundDate);
 						}
 						String normalization = joiner.join(normalizedStartAndEnd); 
 						String entType = TIME.temporalEntity.toString();
@@ -444,7 +445,7 @@ public class RegexFinder {
 	public static void main(String[] args) throws ExternalServiceFailedException, IOException {
 		
 		RegexNameFinder dateFinderDE = GermanDateRules.initGermanDateFinder();
-		RegexNameFinder dateFinderEN = EnglishDateRules.initEnglishDateFinder();
+		RegexNameFinder dateFinderEN = AutomaticEnglishDateRules.initDateFinder();
 		
 		//evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\wikiwarsEN - Copy.txt", "en");
 		//evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\timeMLAquaint_opennlpformat - Copy.txt", "en");

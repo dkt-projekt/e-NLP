@@ -389,8 +389,7 @@ public class ENLPTest {
 	public void turtleInTurtleOutTempAnalysisEn() throws UnirestException, IOException,
 			Exception {
 
-		// plain text as input, turtle as output
-		HttpResponse<String> response371 = analyzeOpennlpRequest()
+				HttpResponse<String> response371 = analyzeOpennlpRequest()
 				.queryString("analysis", "temp")
 				.queryString("language", "en")
 				.queryString("models", "englishDates")

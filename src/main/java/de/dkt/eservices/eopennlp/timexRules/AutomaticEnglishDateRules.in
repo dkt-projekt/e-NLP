@@ -10,7 +10,7 @@ START_RULES(AutomaticEnglishDateRules)
 <monthname>:=="january"|"february"|"march"|"april"|"may"|"june"|"july"|"august"|"september"|"october"|"november"|"december"
 <yearnumber>:==<onetwo><digit><digit><digit>
 <monthnumber>:== "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"|"10"|"11"|"12"
-<separation>:=="."|"/"|"-"
+<separation>:=="\\."|"/"|"-"
 <hyphenorwhitespace>:=="-"|" "
 <season>:=="summer"|"winter"|"spring"|"autumn"|"fall"
 <earlymidlate>:=="early"|"mid"|"late"
@@ -32,7 +32,7 @@ START_RULES(AutomaticEnglishDateRules)
 <RUL_1>:==<daynumber> <monthname>[[","] <yearnumber>]
 <RUL_2>:==<monthname> <daynumber>["st"|"nd"|"rd"|"th"][","][ <yearnumber>]
 <RUL_3>:==<yearnumber>
-<RUL_4>:==<daynumber><separation><monthnumber>[<separation><yearnumber>]
+<RUL_4>:==<daynumber><separation><monthnumber>
 <RUL_5>:==<yearnumber>s
 <RUL_6>:==<earlymidlate><hyphenorwhitespace><yearnumber>
 <RUL_7>:==<earlymidlate><hyphenorwhitespace><monthname>[ <yearnumber>]
@@ -47,6 +47,8 @@ START_RULES(AutomaticEnglishDateRules)
 <RUL_16>:==<holiday>[ <yearnumber>]
 <RUL_17>:==<alphaNumber> <dayweekmonthyear> <later>
 <RUL_18>:==<dayName>
+<RUL_19>:==<daynumber><separation><monthnumber><separation><yearnumber>
+<RUL_20>:==<monthname>
 
 
 END_RULES
@@ -55,8 +57,8 @@ BEGIN_NORMALIZATION
 //we need a variable for duration, we need to say if we split by blanks or by characters
 <NR_1_s>:== <NDay_0> <NMonthL_1> <NYear_2> <NDurD_1>
 <NR_2_s>:== <NDayST_1> <NMonthL_0> <NYear_2> <NDurD_1>
-<NR_3_s>:== <NYear_0> <NDurD_365>
-<NR_4_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
+<NR_3_s>:== <NYear_0> <NDurY_1>
+<NR_4_D>:== <NDay_0> <NMonth_1> <NDurD_1>
 <NR_5_s>:== <NYear_0> <NDurD_3652>
 <NR_6_s|->:== <Var1_early2Month_0> <NYear_1> <NDurD_60>
 <NR_7_s|->:== <Var2_early2Day_0> <NMonthL_1> <NYear_2> <NDurD_10>
@@ -71,5 +73,7 @@ BEGIN_NORMALIZATION
 <NR_16_s>:==<Var3_fixedHoliday2Dates_0> <movingHolidays> <NYearV> <NDurD_1>
 <NR_17_s>:==<NLater> 
 <NR_18_s>:==<NWeekday>
+<NR_19_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
+<NR_20_s>:== <NMonthL_0> <NDurMo_1>
 
 END_NORMALIZATION

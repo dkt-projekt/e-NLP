@@ -8,10 +8,13 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import de.dkt.eservices.eopennlp.modules.RegexFinder;
 import opennlp.tools.namefind.RegexNameFinder;
+import opennlp.tools.util.Span;
 
 public class EnglishDateRules {
 	
@@ -113,6 +116,7 @@ public class EnglishDateRules {
 		return rnf;
 
 	}
+	
 
 
 	public static LinkedList<String> normalizeEnglishDate(String foundDate) {
