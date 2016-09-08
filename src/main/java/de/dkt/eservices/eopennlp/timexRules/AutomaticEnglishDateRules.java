@@ -32,7 +32,7 @@ String ceroonetwo="0|1|2";
 String daynumber="(0)?("+digit+")|1("+digit+")|2("+digit+")|3("+ceroone+")";
 String monthname="january|february|march|april|may|june|july|august|september|october|november|december";
 String yearnumber="("+onetwo+")("+digit+")("+digit+")("+digit+")";
-String monthnumber=" 0|1|2|3|4|5|6|7|8|9|10|11|12";
+String monthnumber="(0)?("+digit+")|1("+ceroonetwo+")";
 String separation="\\.|/|\\-";
 String hyphenorwhitespace="\\-| ";
 String season="summer|winter|spring|autumn|fall";
@@ -106,7 +106,7 @@ dateRegexMap.put(25, String.format("(?i)\\b("+yearnumber+") \\d{1,100}\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(25)));
 dateRegexMap.put(26, String.format("(?i)\\b("+yearnumber+")("+separation+")\\d{1,100}\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(26)));
-dateRegexMap.put(27, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthnumber+")("+separation+")\\d{1,100}\\b"));
+dateRegexMap.put(27, String.format("(?i)\\b("+daynumber+")("+separation+")("+monthnumber+")("+separation+")\\d{5,100}\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(27)));
 dateRegexMap.put(28, String.format("(?i)\\b\\d{1,100}("+separation+")("+daynumber+")("+separation+")("+monthnumber+")\\b"));
        patterns.add(Pattern.compile(dateRegexMap.get(28)));
@@ -127,7 +127,7 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticEnglishDateRules.initDateFinder();
-         String input = "1434324.1232323.8.10.1990.232323.234345";
+         String input = "23-03-2015";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){

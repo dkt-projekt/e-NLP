@@ -127,7 +127,7 @@ public class EnglishDateRules {
   	  
         RegexNameFinder timeFinder= EnglishDateRules.initEnglishDateFinder();
         RegexFinder rf = new RegexFinder();
-        String input = "october 6 1990";
+        String input = "23-03-2015";
         List<Span> timeSpans = rf.filterFind(timeFinder, input);
         for (Span s : timeSpans){
          System.out.println("DEBUGGING:" + s.getStart() + "=--="+s.getEnd());
