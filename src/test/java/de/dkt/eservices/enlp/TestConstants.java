@@ -514,7 +514,7 @@ public class TestConstants {
 					"        nif:anchorOf          \"Irun\"^^xsd:string ;\n" +
 					"        nif:beginIndex        \"543\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex          \"547\"^^xsd:nonNegativeInteger ;\n" +
-					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
+			        "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Location> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=156,163>\n" +
@@ -522,6 +522,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"21 July\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"156\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"163\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-07-22T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-07-21T00:00:00\"^^xsd:dateTime .\n" +
@@ -547,6 +548,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"20 July\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"58\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"65\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-07-21T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-07-20T00:00:00\"^^xsd:dateTime .\n" +
@@ -556,6 +558,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"1936\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1937-01-01T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-01-01T00:00:00\"^^xsd:dateTime .\n" +
@@ -565,6 +568,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"July\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"399\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"403\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-08-01T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-07-01T00:00:00\"^^xsd:dateTime .\n" +
@@ -582,6 +586,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"5 September\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"494\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"505\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-09-06T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-09-05T00:00:00\"^^xsd:dateTime .\n" +
@@ -599,6 +604,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"September\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"407\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"416\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-10-01T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-09-01T00:00:00\"^^xsd:dateTime .\n" +
@@ -664,6 +670,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"end of September\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"788\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"804\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-09-30T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-09-20T00:00:00\"^^xsd:dateTime .\n" +
@@ -673,6 +680,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"13 September\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"598\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"610\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,805> ;\n" +
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"1936-09-14T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"1936-09-13T00:00:00\"^^xsd:dateTime .\n" +
@@ -1068,6 +1076,7 @@ public class TestConstants {
 					"        nif:anchorOf           \"2016\"^^xsd:string ;\n" +
 					"        nif:beginIndex         \"21\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex           \"25\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,26> ;\n" + 
 					"        itsrdf:taClassRef      time:TemporalEntity ;\n" +
 					"        time:intervalFinishes  \"2017-01-01T00:00:00\"^^xsd:dateTime ;\n" +
 					"        time:intervalStarts    \"2016-01-01T00:00:00\"^^xsd:dateTime .\n" +
@@ -1096,6 +1105,7 @@ public class TestConstants {
 					+"        nif:anchorOf           \"Sommer\"^^xsd:string ;\n"
 					+"        nif:beginIndex         \"12\"^^xsd:nonNegativeInteger ;\n"
 					+"        nif:endIndex           \"18\"^^xsd:nonNegativeInteger ;\n"
+					+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,18> ;\n"
 					+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 					+"        time:intervalFinishes  \"2016-08-30T00:00:00\"^^xsd:dateTime ;\n"
 					+"        time:intervalStarts    \"2016-07-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1105,6 +1115,7 @@ public class TestConstants {
 					+"        nif:anchorOf           \"2016\"^^xsd:string ;\n"
 					+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 					+"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n"
+					+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,18> ;\n"
 					+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 					+"        time:intervalFinishes  \"2017-01-01T00:00:00\"^^xsd:dateTime ;\n"
 					+"        time:intervalStarts    \"2016-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1124,6 +1135,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"silvester\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"5\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"14\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2015-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-12-31T00:00:00\"^^xsd:dateTime .\n"
@@ -1133,6 +1145,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"tag der arbeit\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"23\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"37\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2014-05-02T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-05-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1142,6 +1155,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"neujahr\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"15\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"22\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2014-01-02T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1151,6 +1165,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"tag der deutschen einheit\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"50\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"75\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2014-10-04T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-10-03T00:00:00\"^^xsd:dateTime .\n"
@@ -1168,6 +1183,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"2014\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2015-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1177,6 +1193,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"maifeiertag\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"38\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"49\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,75> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2014-05-02T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2014-05-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1196,6 +1213,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"15 Uhr\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"43\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"49\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,61> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2016-12-17T15:01:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2016-12-17T15:00:00\"^^xsd:dateTime .\n"
@@ -1205,6 +1223,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"17.12\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"16\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"21\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,61> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2016-12-18T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2016-12-17T00:00:00\"^^xsd:dateTime .\n"
@@ -1222,6 +1241,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"20.15 Uhr\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"26\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"35\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,61> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2016-12-17T20:16:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2016-12-17T20:15:00\"^^xsd:dateTime .\n"
@@ -1266,6 +1286,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"dieser Tag\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"11\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"21\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,58> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1275,6 +1296,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"diese Woche\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"22\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"33\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,58> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-13T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-06T00:00:00\"^^xsd:dateTime .\n"
@@ -1284,6 +1306,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"08.10.1990\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"10\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,58> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1293,6 +1316,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"dieses Jahr\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"47\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"58\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,58> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1991-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1302,6 +1326,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"dieser Monat\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"34\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"46\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,58> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-11-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1337,6 +1362,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"seit 10 Jahren\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"5\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"19\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,39> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1980-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1346,6 +1372,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"vor 10 Jahren\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"26\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"39\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,39> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2000-01-02T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2000-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1355,6 +1382,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"1990\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"4\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,39> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1991-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1364,6 +1392,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"2010\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"21\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"25\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,39> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"2011-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"2010-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1383,6 +1412,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"monday\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"10\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"16\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,31> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1392,6 +1422,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"friday\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"25\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"31\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,31> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-13T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-12T00:00:00\"^^xsd:dateTime .\n"
@@ -1409,6 +1440,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"8.10.1990\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"9\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,31> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1418,6 +1450,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"tuesday\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"17\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"24\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,31> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-10T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-09T00:00:00\"^^xsd:dateTime .\n"
@@ -1437,6 +1470,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"8.10.1990\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"9\"^^xsd:nonNegativeInteger ;\n"
+	        +"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,30> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1446,6 +1480,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"9.00 a.m\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"21\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"29\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,30> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-08T09:01:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T09:00:00\"^^xsd:dateTime .\n"
@@ -1455,6 +1490,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"10.34 p.m\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"10\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"19\"^^xsd:nonNegativeInteger ;\n"
+	        +"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,30> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-08T22:35:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T22:34:00\"^^xsd:dateTime .\n"
@@ -1490,6 +1526,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"nächste Woche\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"23\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"36\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,65> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-20T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-13T00:00:00\"^^xsd:dateTime .\n"
@@ -1499,6 +1536,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"nächster Monat\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"37\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"51\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,65> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-12-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-11-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1508,6 +1546,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"8.10.1990\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"0\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"9\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,65> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-09T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-08T00:00:00\"^^xsd:dateTime .\n"
@@ -1517,6 +1556,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"nächstes Jahr\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"52\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"65\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,65> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1992-01-01T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1991-01-01T00:00:00\"^^xsd:dateTime .\n"
@@ -1526,6 +1566,7 @@ public class TestConstants {
 			+"        nif:anchorOf           \"nächster Tag\"^^xsd:string ;\n"
 			+"        nif:beginIndex         \"10\"^^xsd:nonNegativeInteger ;\n"
 			+"        nif:endIndex           \"22\"^^xsd:nonNegativeInteger ;\n"
+			+"        nif:referenceContext   <http://dkt.dfki.de/documents/#char=0,65> ;\n"
 			+"        itsrdf:taClassRef      time:TemporalEntity ;\n"
 			+"        time:intervalFinishes  \"1990-10-10T00:00:00\"^^xsd:dateTime ;\n"
 			+"        time:intervalStarts    \"1990-10-09T00:00:00\"^^xsd:dateTime .\n"
