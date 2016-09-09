@@ -16,16 +16,17 @@
     	    								dayNumber = loCal.get(Calendar.DATE);&#xD;&#xA;
     	    							}&#xD;&#xA;
     	    		else if (parts[0].toLowerCase().matches(&#x22;erster&#x22;)){&#xD;&#xA;
-    	    								monthNumber = 12;&#xD;&#xA;
+    	    								monthNumber = 11;&#xD;&#xA;
     	    								dayNumber = 26;&#xD;&#xA;
     	    							}&#xD;&#xA;
     	    							else if (parts.length>2 &#38;&#38; parts[2].toLowerCase().matches(&#x22;arbeit&#x22;)){&#xD;&#xA;
-    	    								monthNumber = 5;&#xD;&#xA;
+    	    								monthNumber = 4;&#xD;&#xA;
     	    								dayNumber = 1;&#xD;&#xA;
     	    							}&#xD;&#xA;
     	    		else if (parts.length>2 &#38;&#38; parts[2].toLowerCase().matches(&#x22;deutschen&#x22;)){&#xD;&#xA;
-    	    		    	    								monthNumber = 3;&#xD;&#xA;
-    	    		    	    								dayNumber = 10;&#xD;&#xA;
+    	    		    	    								monthNumber = 9;&#xD;&#xA;
+    	    		    	    								dayNumber = 3
+    	    		;&#xD;&#xA;
     	    		    	    							}&#xD;&#xA;
     	    							
     	            				">
@@ -46,13 +47,13 @@
     	    	        	        	    	  match="&#x3c;VarY2&#x3e;"
     	    	        	        	    	  replace="
     		if (parts[0].matches(&#x22;(?i)(start|beginning)&#x22;)){&#xD;&#xA;
-    								monthNumber = 1;&#xD;&#xA;
+    								monthNumber = 0;&#xD;&#xA;
     							}&#xD;&#xA;
     							else if (parts[0].matches(&#x22;(?i)middle&#x22;)){&#xD;&#xA;
-    								monthNumber = 5;&#xD;&#xA;
+    								monthNumber = 4;&#xD;&#xA;
     							}&#xD;&#xA;
     							else if (parts[0].matches(&#x22;(?i)end&#x22;)){&#xD;&#xA;
-    								monthNumber = 10;&#xD;&#xA;
+    								monthNumber = 9;&#xD;&#xA;
     							}">
 
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
@@ -93,7 +94,21 @@
     	    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
     	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
     				">
-    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp>
+    	
+    	<!-- sets the duration in days -->
+    	    	<replaceregexp flags="g"
+    	    	    	        	        	    	  match="&#x3c;NDurY_(.*?)&#x3e;"
+    	    	    	        	        	    	  replace="
+    	    	    		cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    	    	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
+    	    	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, \1, normalizedStartDate);&#xD;&#xA;
+    	    	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;
+    	    	    		dates.add(DateCommons.fullDateFormat.format(normalizedEndDate));&#xD;&#xA;
+    	    	    		DateCommons.updateAnchorDate(normalizedStartDate);&#xD;&#xA;
+    	    				">
+    	    	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
+    	
     	<!-- sets the duration in minutes -->
     	<replaceregexp flags="g"
         	    	        	        	    	  match="&#x3c;NDurM_(.*?)&#x3e;"

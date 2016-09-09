@@ -36,6 +36,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.niftools.TIME;
 import de.dkt.eservices.eopennlp.timexRules.AutomaticEnglishDateRules;
+import de.dkt.eservices.eopennlp.timexRules.AutomaticGermanDateRules;
 import de.dkt.eservices.eopennlp.timexRules.DateCommons;
 import de.dkt.eservices.eopennlp.timexRules.EnglishDateRules;
 import de.dkt.eservices.eopennlp.timexRules.GermanDateRules;
@@ -327,7 +328,7 @@ public class RegexFinder {
 		
 		RegexNameFinder dateFinder = null;
 		if (language.equalsIgnoreCase("de")){
-			dateFinder = GermanDateRules.initGermanDateFinder();
+			dateFinder = AutomaticGermanDateRules.initDateFinder();
 		}
 		else if (language.equalsIgnoreCase("en")){
 			dateFinder = AutomaticEnglishDateRules.initDateFinder();
@@ -357,7 +358,7 @@ public class RegexFinder {
 					if (!foundDate.equalsIgnoreCase("may")){
 						LinkedList<String> normalizedStartAndEnd = new LinkedList<String>();
 						if (language.equalsIgnoreCase("de")){
-							normalizedStartAndEnd = GermanDateRules.normalizeGermanDate(foundDate);
+							normalizedStartAndEnd = AutomaticGermanDateRules.normalizeDate(foundDate);
 						}
 						else if (language.equalsIgnoreCase("en")){
 							normalizedStartAndEnd = AutomaticEnglishDateRules.normalizeDate(foundDate);
@@ -444,7 +445,7 @@ public class RegexFinder {
 
 	public static void main(String[] args) throws ExternalServiceFailedException, IOException {
 		
-		RegexNameFinder dateFinderDE = GermanDateRules.initGermanDateFinder();
+		RegexNameFinder dateFinderDE = AutomaticGermanDateRules.initDateFinder();
 		RegexNameFinder dateFinderEN = AutomaticEnglishDateRules.initDateFinder();
 		
 		//evaluateAnnotatedFile(dateFinderEN, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\wikiwarsEN - Copy.txt", "en");
@@ -477,7 +478,7 @@ public class RegexFinder {
 		
 	
 
-		RegexNameFinder timeFinder= GermanDateRules.initGermanDateFinder();
+		RegexNameFinder timeFinder= AutomaticGermanDateRules.initDateFinder();
 		
 		
 
@@ -486,7 +487,7 @@ public class RegexFinder {
 		List<Span> timeSpans = filterFind(timeFinder, input);
 		for (Span s : timeSpans){
 			System.out.println("DEBUGGING:" + input.substring(s.getStart(), s.getEnd()));
-			GermanDateRules.normalizeGermanDate(input.substring(s.getStart(), s.getEnd()));
+			AutomaticGermanDateRules.normalizeDate(input.substring(s.getStart(), s.getEnd()));
 		}
 		
 

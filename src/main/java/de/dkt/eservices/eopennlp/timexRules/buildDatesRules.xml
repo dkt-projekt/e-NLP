@@ -24,7 +24,7 @@
         	    	  replace="
 			if (key == \1){&#xD;&#xA;
     		int dayNumber = 1;&#xD;&#xA;
-    		int monthNumber = 1;&#xD;&#xA;
+    		int monthNumber = 0;&#xD;&#xA;
     		int yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
 				String[] parts = foundDate.split(&#x22;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;&#x5c;\2&#x22;);&#xD;&#xA;
 \3
@@ -54,7 +54,7 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NMonth_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    		monthNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;">
+    		monthNumber = Integer.parseInt(parts[\1])-1;&#xD;&#xA;">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
     	
     	<replaceregexp flags="g"
@@ -105,7 +105,7 @@
     	    	        	        	    	  replace="
     		 String a = parts[\2].toLowerCase();&#xD;&#xA;
     		 if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
-    		           monthNumber = ${dataclass}.\1.get(a);&#xD;&#xA;
+    		           monthNumber = ${dataclass}.\1.get(a)-1;&#xD;&#xA;
     		          }&#xD;&#xA;
     		&#xD;&#xA;	
     	">
@@ -162,7 +162,7 @@
     		&#xD;&#xA;
     		if(${dataclass}.\1.containsKey(a)){&#xD;&#xA;
     						String stringDates = ${dataclass}.\1.get(a);&#xD;&#xA;
-    						monthNumber = Integer.parseInt(stringDates.substring(0, 2));&#xD;&#xA;
+    						monthNumber = Integer.parseInt(stringDates.substring(0, 2))-1;&#xD;&#xA;
     						dayNumber = Integer.parseInt(stringDates.substring(2, 4));&#xD;&#xA;
     					}&#xD;&#xA;
     		&#xD;&#xA;

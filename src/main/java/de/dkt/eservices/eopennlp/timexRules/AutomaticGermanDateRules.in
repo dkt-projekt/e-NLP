@@ -11,15 +11,15 @@ START_RULES(AutomaticGermanDateRules)
 <monthname>:=="januar"|"februar"|"märz"|"april"|"mai"|"juni"|"juli"|"august"|"september"|"oktober"|"november"|"dezember"
 <yearnumber>:==<onetwo><digit><digit><digit>
 <monthnumber>:== "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"|"10"|"11"|"12"
-<separation>:=="."|"/"|"-"
-<hyphenorwhitespace>:=="-"|" "
+<separation>:=="\\."|"/"|"\\-"
+<hyphenorwhitespace>:=="\\-"|" "
 <season>:=="sommer"|"winter"|"frühling"|"herbst"
 <earlymidlate>:=="anfang"|"mitte"|"ende"
 <beginmiddleend>:=="anfang"|"mitte"|"ende"
 <yearnumberbc>:==<digit>[<digit>[<digit>[<digit>]]]
 <now>:=="heute"|"jetzt"|"gegenwärtig"|"am selben tag"
 <timehours>:==<digit>|0<digit>|1<digit>|2<cerotofour>
-<timetotal>:==<timehours>[.|:][<cerofive><digit>]
+<timetotal>:==<timehours>[\\.|:][<cerofive><digit>]
 <ampm>:=="uhr"
 <holiday>:=="weihnachten"|"erster weihnacht[stag]"|"ostern"|"silvester"|"neujahr"|"maifeiertag"|"tag der deutschen einheit"|"tag der arbeit"
 <alphaNumber>:=="null"|"eins"|"zwei"|"drei"|"vier"|"fünf"|"sechs"|"sieben"|"acht"|"neun"|"zehn"|"elf"|"zwölf"|"dreizehn"|"vierzehn"|"fünfzehn"|"sechzehn"|"siebzehn"|"achtzehn"|"neunzehn"|"zwanzig"|"einundzwanzig"|"zweiundzwanzig"|"dreiundzwanzig"|"vierundzwanzig"|"fünfundzwanzig"|"sechsundzwanzig"|"siebenundzwanzig"|"achtundzwanzig"|"neunundzwanzig"|"dreiβig"|"einunddreiβig"|"zweiundreißig"|"dreiunddreißig"|"vierunddreißig"|"fünfunddreißig"|"sechsunddreißig"|"siebenunddreißig"|"achtunddreißig"|"neununddreißig"|"vierzig"|"einundvierzig"|"zweiundvierzig"|"dreiundvierzig"|"vierundvierzig"|"fünfundvierzig"|"sechsundvierzig"|"siebenundvierzig"|"achtundvierzig"|"neunundvierzig"|"fünfzig"|"einundfünfzig"|"zweiundfünfzig"|"dreiundfünfzig"|"vierundfünfzig"|"fünfundfünfzig"|"sechsundfünfzig"|"siebenundfünfzig"|"achtundfünfzig"|"neunundfünfzig"|"sechzig"|"einundsechzig"|"zweiundsechzig"|"dreiundsechzig"|"vierundsechzig"|"fünfundsechzig"|"sechsundsechzig"|"siebenundsechzig"|"achtundsechzig"|"neunundsechzig"|"siebzig"|"einundsiebzig"|"zweiundsiebzig"|"dreiundsiebzig"|"vierundsiebzig"|"fünfundsiebzig"|"sechsundsiebzig"|"siebenundsiebzig"|"achtundsiebzig"|"neunundsiebzig"|"achtzig"|"einundachtzig"|"zweiundachtzig"|"dreiundachtzig"|"vierundachtzig"|"fünfundachtzig"|"sechsundachtzig"|"siebenundachtzig"|"achtundachtzig"|"neunundachtzig"|"neunzig"|"einundneunzig"|"zweiundneunzig"|"dreiundneunzig"|"vierundneunzig"|"fünfundneunzig"|"sechsundneunzig"|"siebenundneunzig"|"achtundneunzig"|"neunundneunzig"|"hundert"
@@ -36,6 +36,10 @@ START_RULES(AutomaticGermanDateRules)
 <sincebefore>:=="seit"|"vor"
 <day>:=="tage?"
 <end>:=="jahresende"|"monatsende"
+<maxfourdigitnumber>:==<digit>[<digit>][<digit>][<digit>]
+<alphaNumOrNum>:==<alphaNumber>|<maxfourdigitnumber>
+<currency>:=="\\$"|"€"
+<separation2>:=="\\."|","
 
 
 
@@ -43,7 +47,7 @@ START_RULES(AutomaticGermanDateRules)
 
 
 
-<RUL_1>:==<daynumber>. <monthname>[ <yearnumber>]
+<RUL_1>:==<daynumber>\\. <monthname>[ <yearnumber>]
 <RUL_2>:==<daynumber>["te"|"ten"|"ter"] <monthname>[ <yearnumber>]
 <RUL_3>:==<yearnumber>
 <RUL_4>:==<daynumber><separation><monthnumber>[<separation><yearnumber>]
@@ -52,14 +56,14 @@ START_RULES(AutomaticGermanDateRules)
 <RUL_7>:==<earlymidlate> <monthname>[ <yearnumber>]
 <RUL_8>:==<season>[ <yearnumber>]
 
-<RUL_13>:==<yearnumberbc> v[". "]Chr["."]
+<RUL_13>:==<yearnumberbc> v["\\. "]Chr["."]
 <RUL_14>:==<now>
 <RUL_15>:==<timetotal> <ampm>
 <RUL_16>:==<holiday>[ <yearnumber>]
 <RUL_17>:==<alphaNumber> <dayweekmonthyear> <later>
 <RUL_18>:==<dayName>
-<RUL_19>:==<monthname>[","] [<yearnumber>]
-<RUL_20>:==<monthnumber>["."|"/"|"-"]<yearnumber>
+<RUL_19>:==<monthname>[","] <yearnumber>
+<RUL_20>:==<monthnumber><separation><yearnumber>
 <RUL_21>:==<dayPart>
 <RUL_22>:==<monthname>
 <RUL_23>:==<yesterday>
@@ -68,9 +72,22 @@ START_RULES(AutomaticGermanDateRules)
 <RUL_26>:==<dies> <dayweekmonthyear>
 <RUL_27>:==<next> <dayweekmonthyear>
 <RUL_28>:==nach <alphaNumber> <dayweekmonthyear>
-<RUL_29>:==<sincebefore> <alphaNumber> <dayweekmonthyear>
+<RUL_29>:==<sincebefore> <alphaNumOrNum> <dayweekmonthyear>
 <RUL_30>:==<day>
 <RUL_31>:==<alphaNumber> <day> vor <end>
+
+<RULNOT_32>:==<currency>\\d{1,9}(?:<separation2>\\d{3})*(?:<separation2>\\d{2})
+<RUL_33>:==\\d{1,100} <yearnumber>
+<RUL_34>:==\\d{1,100}<separation><yearnumber>
+<RUL_35>:==<yearnumber> \\d{1,100}
+<RUL_36>:==<yearnumber><separation>\\d{1,100}
+<RUL_37>:==<daynumber><separation><monthnumber><separation>\\d{5,100}
+<RUL_38>:==\\d{1,100}<separation><daynumber><separation><monthnumber>
+<RUL_39>:==\\d{1,100}<separation><daynumber><separation><monthnumber><separation><yearnumber>
+<RUL_40>:==<daynumber><separation><monthnumber><separation><yearnumber><separation>\\d{1,100}
+<RULNOT_41>:==\\d{1,9}(?:<separation2>\\d{3})*(?:<separation2>\\d{2})<currency>
+
+
 
 
 
@@ -81,7 +98,7 @@ BEGIN_NORMALIZATION
 //we need a variable for duration, we need to say if we split by blanks or by characters
 <NR_1_s>:== <NDay_0> <NMonthL_1> <NYear_2> <NDurD_1>
 <NR_2_s>:== <NDayST_0> <NMonthL_1> <NYear_2> <NDurD_1>
-<NR_3_s>:== <NYear_0> <NDurD_365>
+<NR_3_s>:== <NYear_0> <NDurY_1>
 <NR_4_D>:== <NDay_0> <NMonth_1> <NYear_2> <NDurD_1>
 <NR_5_s>:== <NYear_0> <NDurD_3652>
 <NR_6_s|->:== <Var1_early2Month_0> <NYear_1> <NDurD_60>
@@ -89,8 +106,8 @@ BEGIN_NORMALIZATION
 <NR_8_s>:== <Var3_season2Dates_0> <NYear_1> <NDurD_60>
   
 
-<NR_13_s>:== <NYearBC_0> <NDurD_365>
-<NR_14_s>:== <NNow> <NDurM_1>
+<NR_13_s>:== <NYearBC_0> <NDurY_1>
+<NR_14_s>:== <NNow> <NDurD_1>
 <NR_15_s|:|\\.>:== <NNow> <NHour_0> <NMinute_1> <NDurM_1>
 <NR_16_s>:==<NYearV> <Var3_fixedHoliday2Dates_0> <movingHolidays> <NDurD_1>
 <NR_17_s>:==<NLater> 
