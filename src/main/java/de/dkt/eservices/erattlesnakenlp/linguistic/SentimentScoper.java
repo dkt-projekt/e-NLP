@@ -45,6 +45,8 @@ public class SentimentScoper {
 			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 			GrammaticalStructure gs = parser.predict(tagged);
 			for (String sw : sentimentWords){
+				System.out.println("sw:" + sw);
+				System.out.println("gs:" + gs);
 				List<IndexedWord> swdeps = new LinkedList<IndexedWord>();
 				for (TypedDependency td : gs.typedDependencies()){
 					List<IndexedWord> deps = new LinkedList<IndexedWord>();
@@ -62,7 +64,9 @@ public class SentimentScoper {
 						// TODO: tried a bit with German, and the TypedDependencies seem to be of lower quality, not working in the same way as for English
 					}
 				}
-				sMap.put(sw,  swdeps);
+				if (!swdeps.isEmpty()){
+					sMap.put(sw,  swdeps);
+				}
 			
 			}
 		}
@@ -95,6 +99,7 @@ public class SentimentScoper {
 		
 		List<String> sw = new LinkedList<>();
 		sw.add("admire");
+		sw.add("happy");
 		HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("I admire this bass guitar", sw);
 		System.out.println(sMap);
 		List<String> sw2 = new LinkedList<>();
