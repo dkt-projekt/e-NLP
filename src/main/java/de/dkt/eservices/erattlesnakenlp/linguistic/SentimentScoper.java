@@ -45,12 +45,14 @@ public class SentimentScoper {
 			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 			GrammaticalStructure gs = parser.predict(tagged);
 			for (String sw : sentimentWords){
-				System.out.println("sw:" + sw);
-				System.out.println("gs:" + gs);
+				int beginIndex = 0;
+				int endIndex = 0;
 				List<IndexedWord> swdeps = new LinkedList<IndexedWord>();
 				for (TypedDependency td : gs.typedDependencies()){
 					List<IndexedWord> deps = new LinkedList<IndexedWord>();
 					if (td.gov().word() != null && td.gov().word().equalsIgnoreCase(sw)){ // td.gov().word() equals null if node is root...
+						beginIndex = tagged.get(td.gov().index()-1).beginPosition();
+						endIndex = tagged.get(td.gov().index()-1).endPosition();
 						deps = getDeps(gs, td.gov(), deps);
 						for (IndexedWord id : deps){
 							if (!swdeps.contains(id)){
@@ -65,7 +67,7 @@ public class SentimentScoper {
 					}
 				}
 				if (!swdeps.isEmpty()){
-					sMap.put(sw,  swdeps);
+					sMap.put(sw + "|" + Integer.toString(beginIndex) + "_" + Integer.toString(endIndex),  swdeps);
 				}
 			
 			}
@@ -100,20 +102,22 @@ public class SentimentScoper {
 		List<String> sw = new LinkedList<>();
 		sw.add("admire");
 		sw.add("happy");
-		HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("I admire this bass guitar", sw);
-		System.out.println(sMap);
+		sw.add("awesome");
+		HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("Sentence stop. I admire this bass guitar. I am happy. Yesterday I was also happy.", sw);
+		//HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("admire awesome awesome awesome awesome.", sw);
+		System.out.println("1:" + sMap);
 		List<String> sw2 = new LinkedList<>();
 		sw2.add("happy");
 		HashMap<String, List<IndexedWord>>  sMap2 = getScopeForSentiment("I am happy with this bass guitar", sw2);
-		System.out.println(sMap2);
+		System.out.println("2:" + sMap2);
 		List<String> sw3 = new LinkedList<>();
 		sw3.add("happy");
 		HashMap<String, List<IndexedWord>>  sMap3 = getScopeForSentiment("I am not happy with this bass guitar", sw3);
-		System.out.println(sMap3);
+		System.out.println("3:" + sMap3);
 		List<String> sw4 = new LinkedList<>();
 		sw4.add("admire");
 		HashMap<String, List<IndexedWord>> sMap4 = getScopeForSentiment("I do not admire this bass guitar", sw4);
-		System.out.println(sMap4);
+		System.out.println("4:" + sMap4);
 		
 		
 		Tagger.initTagger("de");
@@ -121,7 +125,8 @@ public class SentimentScoper {
 		List<String> sw5 = new LinkedList<>();
 		sw5.add("gut");
 		HashMap<String, List<IndexedWord>> sMap5 = getScopeForSentiment("Ich find es nicht gut", sw5);
-		System.out.println(sMap5);
+		System.out.println("5:" + sMap5);
+		
 		
 		
 	}
