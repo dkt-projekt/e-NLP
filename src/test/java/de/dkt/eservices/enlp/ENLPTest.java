@@ -999,20 +999,20 @@ public class ENLPTest {
 		
 	}
 	
-	@Test
-	public void relationExtractionTestWithCoferenceNIF() throws UnirestException, IOException,
-		Exception {
-		
-		HttpResponse<String> response = extractRelationsRequest()
-				.queryString("informat", "turtle")
-				.queryString("language", "en")
-				.body(TestConstants.relationExtractionInput)
-				.asString();
-		
-		assertTrue(response.getStatus() == 200);
-		assertTrue(response.getBody().length() > 0);
-		
-		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
-	}
+//	@Test
+//	public void relationExtractionTestWithCoferenceNIF() throws UnirestException, IOException,
+//		Exception {
+//		
+//		HttpResponse<String> response = extractRelationsRequest()
+//				.queryString("informat", "turtle")
+//				.queryString("language", "en")
+//				.body(TestConstants.relationExtractionInput)
+//				.asString();
+//		
+//		assertTrue(response.getStatus() == 200);
+//		assertTrue(response.getBody().length() > 0);
+//		
+//		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
+//	}
 	
 }
