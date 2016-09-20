@@ -4,6 +4,91 @@ public class TestConstants {
 	
 	public static final String pathToPackage = "rdftest/enlp-test-package.xml";
 	
+	static String relationExtractionExpectedOutput = 
+		"{\"http://dbpedia.org/resource/Angela_Merkel\":{\"born\":{\"http://dbpedia.org/resource/Hamburg\":1},\"moved\":{\"http://dbpedia.org/resource/Brandenburg\":1}}}";
+	
+	static String relationExtractionInput =
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
+					"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix owl:   <http://www.w3.org/2002/07/owl#> .\n" +
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,13>\n" +
+					"        a                     nif:String , nif:RFC5147String ;\n" +
+					"        dbo:birthDate         \"1954-07-17\"^^xsd:date ;\n" +
+					"        nif:anchorOf          \"Angela Merkel\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"13\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        itsrdf:taClassRef     dbo:Person ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Angela_Merkel> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=21,29>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"an alien\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"21\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"29\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=56,59>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"She\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"56\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"59\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,86>\n" +
+					"        a                        nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        dktnif:averageLatitude   \"52.96361111111111\"^^xsd:double ;\n" +
+					"        dktnif:averageLongitude  \"11.504722222222222\"^^xsd:double ;\n" +
+					"        dktnif:standardDeviationLatitude\n" +
+					"                \"0.6016666666666666\"^^xsd:double ;\n" +
+					"        dktnif:standardDeviationLongitude\n" +
+					"                \"1.5033333333333339\"^^xsd:double ;\n" +
+					"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex             \"86\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString             \"Angela Merkel is not an alien. She was born in Hamburg. She then moved to Brandenburg.\"^^xsd:string .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=47,54>\n" +
+					"        a                     nif:String , nif:RFC5147String ;\n" +
+					"        nif:anchorOf          \"Hamburg\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"47\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"54\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        geo:lat               \"53.56527777777778\"^^xsd:double ;\n" +
+					"        geo:long              \"10.001388888888888\"^^xsd:double ;\n" +
+					"        itsrdf:taClassRef     dbo:Location ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Hamburg> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=31,34>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"She\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"31\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"34\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=74,85>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Brandenburg\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"74\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"85\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        geo:lat               \"52.36194444444445\"^^xsd:double ;\n" +
+					"        geo:long              \"13.008055555555556\"^^xsd:double ;\n" +
+					"        itsrdf:taClassRef     dbo:Location ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Brandenburg> .\n" +
+					"";
+			
+	
 	static String expectedResponse = 
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
 			"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +

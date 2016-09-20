@@ -9,6 +9,8 @@ import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
 import de.dkt.eservices.erattlesnakenlp.linguistic.EntityCandidateExtractor;
+import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
+import de.dkt.eservices.erattlesnakenlp.linguistic.RelationExtraction;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
 import eu.freme.common.conversion.rdf.RDFConstants;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -78,6 +81,18 @@ public class ERattlesnakeNLPService {
 		LanguageIdentificator.detectLanguageNIF(nifModel);
     	return nifModel;
 	}
+	
+	public JSONObject extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat){
+		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
+
+		ArrayList<EntityRelationTriple> ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam);
+		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = RelationExtraction.convertRelationTripleListToHashMap(ert);
+		JSONObject jsonMap = new JSONObject(m);
+		
+		return jsonMap;
+
+	}
+	
 	
 	public HashMap<String, Double> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
