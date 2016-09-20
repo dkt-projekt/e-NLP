@@ -168,6 +168,17 @@
 	        <id>with-models</id>
             <build>
                 <defaultGoal>clean install package</defaultGoal>
+               <plugins>
+                <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<forkCount>3</forkCount>
+							<reuseForks>true</reuseForks>
+							<argLine>-Xmx5120m -XX:MaxPermSize=5120m</argLine>
+						</configuration>
+					</plugin>
+				</plugins>
             </build>
            	<dependencies>
 				<dependency>
