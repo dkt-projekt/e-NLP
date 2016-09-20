@@ -89,6 +89,7 @@ public class NameFinder {
 				System.out.println("Initializing " + f.getName() + " took " + seconds + " seconds.");
 				System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 				//break;
+				tnfNERModel.close();
 			}
 		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
