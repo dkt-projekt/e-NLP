@@ -72,7 +72,7 @@ public class NameFinder {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
 			int i=0;
 			for (File f : df.listFiles()) {
-				if(i<3){
+				if(i<2){
 					Date start = new Date();
 					System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 					InputStream tnfNERModel = new FileInputStream(f);
