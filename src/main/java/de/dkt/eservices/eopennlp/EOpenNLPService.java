@@ -3,6 +3,8 @@ package de.dkt.eservices.eopennlp;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
@@ -36,9 +38,13 @@ public class EOpenNLPService {
 	Logger logger = Logger.getLogger(EOpenNLPService.class);
 	
 	public EOpenNLPService(){
-		NameFinder.initializeModels();
 	}
 
+	@PostConstruct
+	public void initializeModels(){
+		NameFinder.initializeModels();
+	}
+	
 	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) throws ExternalServiceFailedException, BadRequestException,
 					IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
