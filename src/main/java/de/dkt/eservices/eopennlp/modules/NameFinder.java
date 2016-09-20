@@ -92,6 +92,7 @@ public class NameFinder {
 					System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 					//break;
 					tnfNERModel.close();
+					i++;
 				}
 			}
 		} catch (IOException e) {
