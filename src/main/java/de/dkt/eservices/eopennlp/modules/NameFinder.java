@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -67,19 +68,26 @@ public class NameFinder {
 	
 	
 	public static void initializeModels() {
-	
-
 		try {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
 			for (File f : df.listFiles()) {
 				Date start = new Date();
+				System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 				InputStream tnfNERModel = new FileInputStream(f);
+				System.out.println("STREAM: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+				System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
 				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+				System.out.println("MODEL: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+				System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
 				NameFinderME nameFinder = new NameFinderME(tnfModel);
+				System.out.println("FINDER: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+				System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
 				nameFinderPreLoadedModels.put(f.getName(), nameFinder);
 				Date end = new Date();
 				long seconds = (end.getTime()-start.getTime()) / 1000;
 				logger.info("Initializing " + f.getName() + " took " + seconds + " seconds.");
+				System.out.println("Initializing " + f.getName() + " took " + seconds + " seconds.");
+				System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 				break;
 			}
 		} catch (IOException e) {
@@ -598,7 +606,8 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
 				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "";
 			    
-		
+		System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+		NameFinder.initializeModels();
 		
 		
 	}
