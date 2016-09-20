@@ -216,7 +216,6 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         	//if (mode != null){
         		//throw new BadRequestException("Analysis type " + analysis + " in combination with mode " + mode + " not supported.");
         	//}
-        	
         }
 
 
