@@ -187,7 +187,8 @@ public class RegexFinder {
 			DateCommons.setInitialAnchorDate(Paths.get(f.getPath()));
 			//DateCommons.setInitialAnchorDate(Paths.get(fsr.getPath()));
 			
-			String sentences[] = NameFinder.readLines(f.getPath());
+			NameFinder nf=new NameFinder();
+			String sentences[] = nf.readLines(f.getPath());
 			
 			int c = 1;
 			for (String sentence : sentences){

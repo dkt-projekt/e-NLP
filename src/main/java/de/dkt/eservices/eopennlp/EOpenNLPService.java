@@ -37,12 +37,15 @@ public class EOpenNLPService {
 
 	Logger logger = Logger.getLogger(EOpenNLPService.class);
 	
+	NameFinder nameFinder;
+	
 	public EOpenNLPService(){
+		nameFinder = new NameFinder();
 	}
 
 	@PostConstruct
 	public void initializeModels(){
-		NameFinder.initializeModels();
+		nameFinder.initializeModels();
 	}
 	
 	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) throws ExternalServiceFailedException, BadRequestException,
@@ -82,30 +85,30 @@ public class EOpenNLPService {
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
-            			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
+            			ClassPathResource cprNERModel = new ClassPathResource(nameFinder.modelsDirectory + storedModel);
             			if (!cprNERModel.exists()){
                 			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
                 		}
             			statModels.add(storedModel);
             		}
-            		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
+            		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
         			
         		}
         		else if (mode.equals("link")){
-        			nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
+        			nifModel = nameFinder.linkEntitiesNIF(nifModel, languageParam);
         		}
         		else if (mode.equals("all")){
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
-            			ClassPathResource cprNERModel = new ClassPathResource(NameFinder.modelsDirectory + storedModel);
+            			ClassPathResource cprNERModel = new ClassPathResource(nameFinder.modelsDirectory + storedModel);
             			if (!cprNERModel.exists()){
                 			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
                 		}
             			statModels.add(storedModel);
             		}
-            		nifModel = NameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
-            		nifModel = NameFinder.linkEntitiesNIF(nifModel, languageParam);
+            		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
+            		nifModel = nameFinder.linkEntitiesNIF(nifModel, languageParam);
         		}
         		else{
         			throw new BadRequestException("Unsupported mode: " + mode);
@@ -186,7 +189,7 @@ public class EOpenNLPService {
         		else{
         			throw new BadRequestException("Unsupported language for analysis: "+analysis);
         		}
-        		trainedModelName = NameFinder.trainModel(trainData, modelName, languageParam);
+        		trainedModelName = nameFinder.trainModel(trainData, modelName, languageParam);
         	}
         	
         	else if (analysis.equalsIgnoreCase("dict")){

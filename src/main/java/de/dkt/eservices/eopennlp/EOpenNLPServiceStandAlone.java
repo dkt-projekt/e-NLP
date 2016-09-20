@@ -309,7 +309,8 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
         String models = "";
         if (analysis.equalsIgnoreCase("ner")){
-        	File modelFolder = FileFactory.generateOrCreateDirectoryInstance(NameFinder.modelsDirectory);
+        	NameFinder nf = new NameFinder();
+        	File modelFolder = FileFactory.generateOrCreateDirectoryInstance(nf.modelsDirectory);
         	if(modelFolder.isDirectory()){
             	File [] files = modelFolder.listFiles();
             	for (File ff: files) {

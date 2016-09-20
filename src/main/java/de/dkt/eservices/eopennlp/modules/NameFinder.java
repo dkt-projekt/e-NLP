@@ -60,14 +60,14 @@ import opennlp.tools.util.TrainingParameters;
 public class NameFinder {
 
 	//public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
-	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
+	public String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 //	public static String modelsDirectory = "trainedModels" + File.separator + "ner2" + File.separator;
 	static Logger logger = Logger.getLogger(NameFinder.class);
 
 	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
 	
 	
-	public static void initializeModels() {
+	public void initializeModels() {
 		try {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
 			for (File f : df.listFiles()) {
@@ -100,7 +100,7 @@ public class NameFinder {
 	}
 	
 	
-	public static String[] readLines(String filename) throws IOException {
+	public String[] readLines(String filename) throws IOException {
         FileReader fileReader = new FileReader(filename);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         List<String> lines = new ArrayList<String>();
@@ -237,7 +237,7 @@ public class NameFinder {
 //		
 //	}
 	
-public static Model linkEntitiesNIF(Model nifModel, String language){
+public Model linkEntitiesNIF(Model nifModel, String language){
 	
 	// first loop through to make a list of unique entities, so the slow part (DBPedia lookup) has to be done only once for each entity. If at a later point we use a more sophisticated way of doing disambiguation (e.g. depending on context), this will not be applicable anymore. But for not it should significantly increase response times.
 	List<String[]> nifEntities = NIFReader.extractEntityIndices(nifModel);
@@ -318,7 +318,7 @@ public static Model linkEntitiesNIF(Model nifModel, String language){
 	}
 }
 	
-public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException {
+public Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException {
 		
 		String docURI = NIFReader.extractDocumentURI(nifModel);
 		HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
@@ -368,7 +368,7 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 
 	
 
-	public static HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
+	public HashMap<ArrayList, HashMap<String, Double>> detectEntitiesWithModel(HashMap<ArrayList, HashMap<String, Double>> entityMap, String text, Span[] sentenceSpans, String nerModel){
 		
 		NameFinderME nameFinder = null;
 		// first check preLoadedModels 
@@ -487,7 +487,7 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 	 * @param modelName Name to be assigned to the model
 	 * @return true if the model has been successfully trained
 	 */
-	public static String trainModel(String inputTrainData, String modelName, String language) throws BadRequestException, ExternalServiceFailedException {
+	public String trainModel(String inputTrainData, String modelName, String language) throws BadRequestException, ExternalServiceFailedException {
 		
 		//TODO: do we want to check here for valid syntax of training models? 
 		//Charset charset;				
@@ -608,7 +608,8 @@ public static Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels,
 				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "";
 			    
 		System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-		NameFinder.initializeModels();
+		NameFinder nf = new NameFinder();
+		nf.initializeModels();
 		
 		
 	}
