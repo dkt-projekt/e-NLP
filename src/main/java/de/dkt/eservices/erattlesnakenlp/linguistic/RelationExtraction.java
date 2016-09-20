@@ -49,7 +49,12 @@ public class RelationExtraction {
 	
 	
 	
-	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel){
+	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel, String language){
+		
+		
+		//TODO discuss if we want to do this at broker startup instead
+		Tagger.initTagger(language);
+		DepParserTree.initParser(language);
 		
 		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
 		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
@@ -57,11 +62,16 @@ public class RelationExtraction {
 		
 		String isstr = NIFReader.extractIsString(nifModel);
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		// extract sameAs annotations and add them to the entityMap
+		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
+		entityMap.addAll(sameAsMentions);
+		
+		
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 		if (!(entityMap == null)) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
-				System.out.println("Sentence: " + sentence);
+				//System.out.println("Sentence: " + sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
@@ -116,13 +126,13 @@ public class RelationExtraction {
 //						subjectURI = "Eric";
 //					}
 					
-					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
-					//System.out.println("RELATION FOUND: " + subject + "___" + connectingElement + "___" + object);
 					if (!(subjectURI == null) && !(objectURI == null)){
 						EntityRelationTriple t = new EntityRelationTriple();
-						t.setSubject(String.format("%s(%s)", subject, subjectURI));
+						//t.setSubject(String.format("%s(%s)", subject, subjectURI));
+						t.setSubject(String.format("%s", subjectURI));
 						t.setRelation(connectingElement.word());
-						t.setObject(String.format("%s(%s)", object, objectURI));
+						//t.setObject(String.format("%s(%s)", object, objectURI));
+						t.setObject(String.format("%s", objectURI));
 						ert.add(t);
 					}
 					
@@ -214,15 +224,11 @@ public class RelationExtraction {
 											String object = null;
 
 											if (iPosition < jPosition) {
-												subject = String.format("%s(%s)", sentenceEntities.get(i).getText(),
-														sentenceEntities.get(i).getURI());
-												object = String.format("%s(%s)", sentenceEntities.get(j).getText(),
-														sentenceEntities.get(j).getURI());
+												subject = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
+												object = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
 											} else {
-												subject = String.format("%s(%s)", sentenceEntities.get(j).getText(),
-														sentenceEntities.get(j).getURI());
-												object = String.format("%s(%s)", sentenceEntities.get(i).getText(),
-														sentenceEntities.get(i).getURI());
+												subject = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
+												object = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
 											}
 											//System.out.println(
 													//"result: " + leftWord + "===" + result.value + "===" + rightWord);
@@ -313,41 +319,144 @@ public class RelationExtraction {
 		
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
-
-		File df = new File(docFolder);
-		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
-		Date d3 = new Date();
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
+//
+//		File df = new File(docFolder);
+//		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
+//		Date d3 = new Date();
+//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+//		BufferedWriter brDebug = null;
+//		int c = 0;
+//		for (File f : df.listFiles()) {
+//			c += 1;
+//			String fileContent;
+//			System.out.println("Processing file: " + f.getName());
+//			try {
+//				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+//				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
+//				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel);
+//				
+//				for (EntityRelationTriple t : ert) {
+//					masterList.add(t);
+//				}
+//				brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+//				HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
+//				JSONObject jsonMap = new JSONObject(m);
+//				brDebug.write(jsonMap.toString(4));
+//				brDebug.close();
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		}
+//		
+//		System.out.println("Done."); 
+	    
+		
+		String nifString = 
+				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
+						"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
+						"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+						"@prefix owl:   <http://www.w3.org/2002/07/owl#> .\n" +
+						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=0,13>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        dbo:birthDate         \"1954-07-17\"^^xsd:date ;\n" +
+						"        nif:anchorOf          \"Angela Merkel\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"13\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        itsrdf:taClassRef     dbo:Person ;\n" +
+						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Angela_Merkel> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=21,29>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"an alien\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"21\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"29\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=56,59>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"She\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"56\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"59\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=0,86>\n" +
+						"        a                        nif:RFC5147String , nif:String , nif:Context ;\n" +
+						"        dktnif:averageLatitude   \"52.96361111111111\"^^xsd:double ;\n" +
+						"        dktnif:averageLongitude  \"11.504722222222222\"^^xsd:double ;\n" +
+						"        dktnif:standardDeviationLatitude\n" +
+						"                \"0.6016666666666666\"^^xsd:double ;\n" +
+						"        dktnif:standardDeviationLongitude\n" +
+						"                \"1.5033333333333339\"^^xsd:double ;\n" +
+						"        nif:beginIndex           \"0\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex             \"86\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:isString             \"Angela Merkel is not an alien. She was born in Hamburg. She then moved to Brandenburg.\"^^xsd:string .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=47,54>\n" +
+						"        a                     nif:String , nif:RFC5147String ;\n" +
+						"        nif:anchorOf          \"Hamburg\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"47\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"54\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        geo:lat               \"53.56527777777778\"^^xsd:double ;\n" +
+						"        geo:long              \"10.001388888888888\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location ;\n" +
+						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Hamburg> .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=31,34>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"She\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"31\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"34\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        owl:sameAs            \"http://dkt.dfki.de/documents/#char=0,13\"^^xsd:string .\n" +
+						"\n" +
+						"<http://dkt.dfki.de/documents/#char=74,85>\n" +
+						"        a                     nif:RFC5147String , nif:String ;\n" +
+						"        nif:anchorOf          \"Brandenburg\"^^xsd:string ;\n" +
+						"        nif:beginIndex        \"74\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:endIndex          \"85\"^^xsd:nonNegativeInteger ;\n" +
+						"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+						"        geo:lat               \"52.36194444444445\"^^xsd:double ;\n" +
+						"        geo:long              \"13.008055555555556\"^^xsd:double ;\n" +
+						"        itsrdf:taClassRef     dbo:Location ;\n" +
+						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Brandenburg> .\n" +
+						"\n";
+		ArrayList<EntityRelationTriple> collectionRelationList = new ArrayList<EntityRelationTriple>();
 		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
 		BufferedWriter brDebug = null;
-		int c = 0;
-		for (File f : df.listFiles()) {
-			c += 1;
-			String fileContent;
-			System.out.println("Processing file: " + f.getName());
-			try {
-				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-				//ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel);
-				
-				for (EntityRelationTriple t : ert) {
-					masterList.add(t);
-				}
-				brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-				HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
-				JSONObject jsonMap = new JSONObject(m);
-				brDebug.write(jsonMap.toString(4));
-				brDebug.close();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		try {
+			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+			ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+			for (EntityRelationTriple t : ert) {
+				collectionRelationList.add(t);
 			}
-
+			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
+			JSONObject jsonMap = new JSONObject(m);
+			brDebug.write(jsonMap.toString(4));
+			brDebug.close();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		System.out.println("Done."); 
-	    
+		
+		
 
 	}
 	

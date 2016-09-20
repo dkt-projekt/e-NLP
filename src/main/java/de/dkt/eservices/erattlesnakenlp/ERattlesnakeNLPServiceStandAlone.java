@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -173,6 +174,80 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         }
     }
 
+//	@RequestMapping(value = "/e-nlp/extractRelations", method = {
+//            RequestMethod.POST, RequestMethod.GET })
+//	public ResponseEntity<String> extractRelations(
+//			HttpServletRequest request,
+//			@RequestParam(value = "input", required = false) String input,
+//			   @RequestParam(value = "i", required = false) String i,
+//			   @RequestParam(value = "informat", required = false) String informat,
+//			   @RequestParam(value = "f", required = false) String f,
+//			   @RequestParam(value = "outformat", required = false) String outformat,
+//			   @RequestParam(value = "o", required = false) String o,
+//			   @RequestParam(value = "prefix", required = false) String prefix,
+//			   @RequestParam(value = "p", required = false) String p,
+//			   @RequestParam(value = "language", required = false) String language,
+//			   @RequestHeader(value = "Accept", required = false) String acceptHeader,
+//			   @RequestHeader(value = "Content-Type", required = false) String contentTypeHeader,
+//			   @RequestParam Map<String, String> allParams,
+//			   @RequestBody(required = false) String postBody) throws Exception {
+//		ParameterChecker.checkInList(language, "en;de", "language", logger);
+//		// Check the document or directory parameter.
+//		if (input == null) {
+//			input = i;
+//		}
+//		if (informat == null) {
+//			informat = f;
+//		}
+//		if (outformat == null) {
+//			outformat = o;
+//		}
+//		if (prefix == null) {
+//			prefix = p;
+//		}
+//        if(language == null) {
+//       		logger.error("Parameter language not specified.");
+//       		throw new BadRequestException("Parameter language not specified.");
+//        }
+//        if (language.equalsIgnoreCase("en")){
+//        	// all is well
+//        }
+//        // TODO: add support for German (have to find document collection to get tfIdf serialized hashmap for this
+//        else{
+//        	throw new BadRequestException("Language not supported.");
+//        }
+//        
+//        
+//		NIFParameterSet nifParameters = this.normalizeNif(input, informat, outformat, postBody, acceptHeader, contentTypeHeader, prefix);
+//		Model inModel = null;
+//		//String textForProcessing = null;
+//		String textForProcessing = nifParameters.getInput();
+//        if (nifParameters.getInformat().equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
+//        	// input is sent as value of the input parameter
+//            //textForProcessing = nifParameters.getInput();
+//            inModel = NIFWriter.initializeOutputModel();
+//            NIFWriter.addInitialString(inModel, textForProcessing, DKTNIF.getDefaultPrefix());
+//        }
+//        else {
+//        	try{
+//        		inModel = NIFReader.extractModelFromFormatString(textForProcessing,nifParameters.getInformat());
+//			}
+//			catch(RiotException e){
+//				throw new BadRequestException("Check the input format ["+nifParameters.getInformat()+"]!!");
+//			}
+//        }
+//        
+//        JSONObject jsonMap = service.extractRelations(inModel, language, nifParameters.getInformat());
+//        
+//		HttpHeaders responseHeaders = new HttpHeaders();
+//        responseHeaders.add("Content-Type", "text/plain");
+//        ResponseEntity<String> response = new ResponseEntity<String>(jsonMap.toString(), responseHeaders, HttpStatus.OK);
+//
+//        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "/e-nlp/extractRelations", "Success", "", "", "", "");
+//        
+//        return response;
+//	}
+	
 
 	@RequestMapping(value = "/e-nlp/suggestEntityCandidates", method = {
             RequestMethod.POST, RequestMethod.GET })

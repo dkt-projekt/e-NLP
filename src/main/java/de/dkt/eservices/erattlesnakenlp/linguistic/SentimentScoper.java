@@ -45,10 +45,14 @@ public class SentimentScoper {
 			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 			GrammaticalStructure gs = parser.predict(tagged);
 			for (String sw : sentimentWords){
+				int beginIndex = 0;
+				int endIndex = 0;
 				List<IndexedWord> swdeps = new LinkedList<IndexedWord>();
 				for (TypedDependency td : gs.typedDependencies()){
 					List<IndexedWord> deps = new LinkedList<IndexedWord>();
 					if (td.gov().word() != null && td.gov().word().equalsIgnoreCase(sw)){ // td.gov().word() equals null if node is root...
+						beginIndex = tagged.get(td.gov().index()-1).beginPosition();
+						endIndex = tagged.get(td.gov().index()-1).endPosition();
 						deps = getDeps(gs, td.gov(), deps);
 						for (IndexedWord id : deps){
 							if (!swdeps.contains(id)){
@@ -59,9 +63,12 @@ public class SentimentScoper {
 						if (td.reln().toString().equals("neg")){
 							sw = "negated_" + sw;
 						}
+						// TODO: tried a bit with German, and the TypedDependencies seem to be of lower quality, not working in the same way as for English
 					}
 				}
-				sMap.put(sw,  swdeps);
+				if (!swdeps.isEmpty()){
+					sMap.put(sw + "|" + Integer.toString(beginIndex) + "_" + Integer.toString(endIndex),  swdeps);
+				}
 			
 			}
 		}
@@ -71,33 +78,7 @@ public class SentimentScoper {
 		
 	}
 	
-	//TODO: redo this!
-	public static HashMap<IndexedWord, HashMap<IndexedWord, List<IndexedWord>>> getNegationScope(String text, String language){
 
-		//TODO think currently only EN and DE are supported. Write exception for when language is anything else
-		Tagger.initTagger(language);
-		initParser(language);
-		
-		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(text));
-		List<IndexedWord> deps = new LinkedList<IndexedWord>();
-		HashMap<IndexedWord, HashMap<IndexedWord, List<IndexedWord>>> hm = new HashMap<IndexedWord, HashMap<IndexedWord, List<IndexedWord>>>(); 
-		 
-		for (List<HasWord> sentence : tokenizer) {
-			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
-			GrammaticalStructure gs = parser.predict(tagged);
-			for (TypedDependency td : gs.typedDependencies()) {
-				if (td.reln().toString().equals("neg")){//TODO: tried this for English. Debug which literal it is in German
-					HashMap<IndexedWord, List<IndexedWord>> innerMap = new HashMap<IndexedWord, List<IndexedWord>> ();
-					IndexedWord modified = td.gov();
-					deps = getDeps(gs, modified, deps);
-					innerMap.put(td.gov(), deps);
-					hm.put(td.dep(), innerMap);
-				}
-			}
-		}
-		return hm;
-		
-	}
 	
 	public static List<IndexedWord> getDeps(GrammaticalStructure gs, IndexedWord iw, List<IndexedWord> deps){
 		for (TypedDependency td : gs.typedDependencies()){
@@ -120,20 +101,32 @@ public class SentimentScoper {
 		
 		List<String> sw = new LinkedList<>();
 		sw.add("admire");
-		HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("I admire this bass guitar", sw);
-		System.out.println(sMap);
+		sw.add("happy");
+		sw.add("awesome");
+		HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("Sentence stop. I admire this bass guitar. I am happy. Yesterday I was also happy.", sw);
+		//HashMap<String, List<IndexedWord>> sMap = getScopeForSentiment("admire awesome awesome awesome awesome.", sw);
+		System.out.println("1:" + sMap);
 		List<String> sw2 = new LinkedList<>();
 		sw2.add("happy");
 		HashMap<String, List<IndexedWord>>  sMap2 = getScopeForSentiment("I am happy with this bass guitar", sw2);
-		System.out.println(sMap2);
+		System.out.println("2:" + sMap2);
 		List<String> sw3 = new LinkedList<>();
 		sw3.add("happy");
 		HashMap<String, List<IndexedWord>>  sMap3 = getScopeForSentiment("I am not happy with this bass guitar", sw3);
-		System.out.println(sMap3);
+		System.out.println("3:" + sMap3);
 		List<String> sw4 = new LinkedList<>();
 		sw4.add("admire");
 		HashMap<String, List<IndexedWord>> sMap4 = getScopeForSentiment("I do not admire this bass guitar", sw4);
-		System.out.println(sMap4);
+		System.out.println("4:" + sMap4);
+		
+		
+		Tagger.initTagger("de");
+		initParser("de");
+		List<String> sw5 = new LinkedList<>();
+		sw5.add("gut");
+		HashMap<String, List<IndexedWord>> sMap5 = getScopeForSentiment("Ich find es nicht gut", sw5);
+		System.out.println("5:" + sMap5);
+		
 		
 		
 	}
