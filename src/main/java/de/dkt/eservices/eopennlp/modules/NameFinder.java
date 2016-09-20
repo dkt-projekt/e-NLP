@@ -80,7 +80,7 @@ public class NameFinder {
 				Date end = new Date();
 				long seconds = (end.getTime()-start.getTime()) / 1000;
 				logger.info("Initializing " + f.getName() + " took " + seconds + " seconds.");
-				break;
+				//break;
 			}
 		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
