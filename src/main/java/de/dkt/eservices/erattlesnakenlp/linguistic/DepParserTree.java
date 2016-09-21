@@ -37,8 +37,12 @@ public class DepParserTree {
 	cc(you-14, and-15), conj(you-14, Rice-16), punct(shipped-11, .-17)]*/
 
 	static DependencyParser parser;
+	static String currentLanguage = "none";
 
 	public static void initParser(String language){
+		if(currentLanguage.equalsIgnoreCase(language) && parser!=null){
+			return;
+		}
 		String parserModel = null;
 		if (language.equalsIgnoreCase("en")){
 			parserModel = "edu/stanford/nlp/models/parser/nndep/english_UD.gz";  
@@ -49,6 +53,7 @@ public class DepParserTree {
 		else {
 		}
 		parser = DependencyParser.loadFromModelFile(parserModel);
+		currentLanguage = language;
 	}
 
 

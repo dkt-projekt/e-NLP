@@ -26,13 +26,15 @@ import opennlp.tools.util.Span;
 
 public class Tagger {
 
-	
-	
 	public static MaxentTagger tagger;
+	public static String currentLanguage = "none";
+	
 	static Logger logger = Logger.getLogger(Tagger.class);
 	
 	public static void initTagger(String language){
-
+		if(currentLanguage.equalsIgnoreCase(language) && tagger!=null){
+			return;
+		}
 		String taggersDirectory = "taggers" + File.separator;
 		try {
 			File taggerFolder = FileFactory.generateOrCreateDirectoryInstance(taggersDirectory);
@@ -51,6 +53,7 @@ public class Tagger {
 			} else {
 				throw new BadRequestException("Unsupported language: " + language);
 			}
+			currentLanguage = language;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

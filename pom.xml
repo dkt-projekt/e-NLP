@@ -138,7 +138,8 @@
 						<version>2.19.1</version> 
 						<configuration>
 						      <!--     <skipTests>true</skipTests> -->
-							 <argLine>-Xms1024m -Xmx8g -XX:MaxPermSize=6144m</argLine>
+						<!--	 <argLine>-Xms1024m -Xmx6g -XX:MaxPermSize=6144m</argLine>-->
+						<argLine>-Xms1024m -Xmx6g</argLine>
 						</configuration>
 					</plugin>
 				</plugins>

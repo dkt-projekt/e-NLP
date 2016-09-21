@@ -41,7 +41,7 @@ public class EntityCandidateExtractor {
 	
 	public static HashMap<String, Double> entitySuggest(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels){
 		
-		ArrayList<String> candidates = new ArrayList<String>();
+		ArrayList<String> candidates = new ArrayList<String>();				
 		Tagger.initTagger(language);
 		
 		String str = NIFReader.extractIsString(nifModel);
