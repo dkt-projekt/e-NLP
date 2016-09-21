@@ -104,20 +104,20 @@ public class ENLPTest {
 //	@Rule
 //	public final ExpectedException exception = ExpectedException.none();
 	
-//	@Test
-//	public void sanityCheckOpennlp() throws UnirestException, IOException,
-//			Exception {
-//
-//		// sanity check
-//		HttpResponse<String> response = baseOpennlpRequest()
-//				.queryString("informat", "text")
-//				.queryString("input", "hello world")
-//				.queryString("outformat", "turtle").asString();
-//
-//		assertTrue(response.getStatus() == 200);
-//		assertTrue(response.getBody().length() > 0);
-//		
-//	}
+	@Test
+	public void sanityCheckOpennlp() throws UnirestException, IOException,
+			Exception {
+
+		// sanity check
+		HttpResponse<String> response = baseOpennlpRequest()
+				.queryString("informat", "text")
+				.queryString("input", "hello world")
+				.queryString("outformat", "turtle").asString();
+
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		
+	}
 //	
 //	@Test
 //	public void basicPlainTextInTurtleOut() throws UnirestException, IOException, Exception {
