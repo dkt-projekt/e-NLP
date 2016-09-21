@@ -62,9 +62,9 @@ public class NameFinder {
 	//public static String modelsDirectory = File.separator + "trainedModels" + File.separator + "ner" + File.separator;
 	public String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 //	public static String modelsDirectory = "trainedModels" + File.separator + "ner2" + File.separator;
-	static Logger logger = Logger.getLogger(NameFinder.class);
+	Logger logger = Logger.getLogger(NameFinder.class);
 
-	static HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
+	HashMap<String, Object> nameFinderPreLoadedModels = new HashMap<String, Object>();
 	
 	
 	public void initializeModels() {
@@ -72,7 +72,7 @@ public class NameFinder {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
 			int i=0;
 			for (File f : df.listFiles()) {
-				if(i<2){
+				if(i<6){
 					Date start = new Date();
 					System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 					InputStream tnfNERModel = new FileInputStream(f);
