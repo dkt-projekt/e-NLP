@@ -70,9 +70,7 @@ public class NameFinder {
 	public void initializeModels() {
 		try {
 			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
-			int i=0;
 			for (File f : df.listFiles()) {
-				if(i<6){
 					Date start = new Date();
 					System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 					InputStream tnfNERModel = new FileInputStream(f);
@@ -92,9 +90,6 @@ public class NameFinder {
 					System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 					//break;
 					tnfNERModel.close();
-					System.gc();
-					i++;
-				}
 			}
 		} catch (IOException e) {
 			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
