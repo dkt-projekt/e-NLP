@@ -5,7 +5,7 @@ public class TestConstants {
 	public static final String pathToPackage = "rdftest/enlp-test-package.xml";
 	
 	static String relationExtractionExpectedOutput = 
-		"{\"http://dbpedia.org/resource/Angela_Merkel\":{\"born\":{\"http://dbpedia.org/resource/Hamburg\":1},\"moved\":{\"http://dbpedia.org/resource/Brandenburg\":1}}}";
+		"{\"relations\":[{\"subject\":\"http://dbpedia.org/resource/Angela_Merkel\",\"relation\":\"born\",\"object\":\"http://dbpedia.org/resource/Hamburg\"},{\"subject\":\"http://dbpedia.org/resource/Angela_Merkel\",\"relation\":\"moved\",\"object\":\"http://dbpedia.org/resource/Brandenburg\"}]}";
 	
 	static String relationExtractionInput =
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
