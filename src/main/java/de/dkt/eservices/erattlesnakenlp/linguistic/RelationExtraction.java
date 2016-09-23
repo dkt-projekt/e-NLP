@@ -64,11 +64,13 @@ public class RelationExtraction {
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
-		entityMap.addAll(sameAsMentions);
 		
+		if (entityMap != null && sameAsMentions != null) {
+			entityMap.addAll(sameAsMentions);
+		}
 		
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
-		if (!(entityMap == null)) {
+		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
 				//System.out.println("Sentence: " + sentence);
