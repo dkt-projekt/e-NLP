@@ -237,11 +237,11 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 			}
         }
         
-        JSONObject jsonMap = service.extractRelations(inModel, language, nifParameters.getInformat());
+        String jsonStr = service.extractRelations(inModel, language, nifParameters.getInformat());
         
 		HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", "text/plain");
-        ResponseEntity<String> response = new ResponseEntity<String>(jsonMap.toString(), responseHeaders, HttpStatus.OK);
+        ResponseEntity<String> response = new ResponseEntity<String>(jsonStr, responseHeaders, HttpStatus.OK);
 
         InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "/e-nlp/extractRelations", "Success", "", "", "", "");
         

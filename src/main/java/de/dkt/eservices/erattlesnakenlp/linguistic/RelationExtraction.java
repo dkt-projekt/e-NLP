@@ -107,6 +107,7 @@ public class RelationExtraction {
 				
 				
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
+					//System.out.println("DEBUGGING relation found:" + subject + "___" + connectingElement + "___" + object);
 					String subjectURI = null;
 					String objectURI = null;
 					int subjectStart = tagged.get(subject.index()-1).beginPosition();
@@ -314,6 +315,14 @@ public class RelationExtraction {
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
+		String ts = "Later she moved to Brandenburg with her family.";
+		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(ts));
+		for (List<HasWord> sentence : tokenizer) {
+			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+			System.out.println("DEBUGGING GS:" + gs);
+		}
+		//System.exit(1);
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		
@@ -444,6 +453,8 @@ public class RelationExtraction {
 			for (EntityRelationTriple t : ert) {
 				collectionRelationList.add(t);
 			}
+			
+			System.out.println("DEBUGGING erT:" + ert);
 			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
 			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
 			JSONObject jsonMap = new JSONObject(m);
