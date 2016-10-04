@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.Tuple;
 
@@ -26,14 +27,24 @@ import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 //import de.dkt.eservices.ecorenlp.modules.Tagger;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.nndep.DependencyParser;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalStructure;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.trees.TypedDependency;
+import edu.stanford.nlp.util.CoreMap;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
@@ -480,12 +491,57 @@ public class DepParser_deprecated {
 	
 	public static void main(String args[]){
 		
-		Tagger.initTagger("en");
-		//Tagger.initTagger("de");
-		initParser("en");
-		//initParser("de");
+		//Tagger.initTagger("en");
+		Tagger.initTagger("de");
+		//initParser("en");
+		initParser("de");
 
+		Properties props = new Properties();
+		//props.put("pos.model", "C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\taggers\\german-fast.tagger");
+		try {
+			File taggerFile = FileFactory.generateOrCreateDirectoryInstance(Tagger.taggersDirectory + File.separator + "german-fast.tagger");
+			File parserFile = FileFactory.generateOrCreateFileInstance("parsers" + File.separator + "UD_German.gz");
+		props.put("pos.model", taggerFile.getAbsolutePath());
+		props.put("depparse.model", parserFile.getAbsolutePath());
+		props.put("tokenize.language", "de");
+		//props.put("ner", "german.hgc_175m_600");
+		//props.put("ner", "german.dewac_175m_600");
+		props.setProperty("annotators", "tokenize, ssplit, pos, depparse");
+		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+
+		// read some text in the text variable
+		// String text = "Sein Blick ist im Vorübergehen der Stäbe so müde
+		// geworden, dass er nichts mehr hält.";
+		String text = "Sein Blick ist im Vorübergehen der Stäbe so müde geworden, dass er nichts mehr hält. Robert the squirrel had a narrow escape";
+		// Add your text here!
+
+		// create an empty Annotation just with the given text
+		  Annotation document = new Annotation(text);
+		  pipeline.annotate(document);
+		  List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+		  System.out.println(sentences);
+		  for(CoreMap sentence: sentences) {
+		    // traversing the words in the current sentence
+		    // a CoreLabel is a CoreMap with additional token-specific methods
+		    for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+		      // this is the text of the token
+		      String word = token.get(TextAnnotation.class);
+		      // this is the POS tag of the token
+		      String pos = token.get(PartOfSpeechAnnotation.class);
+		      // this is the NER label of the token
+		      System.out.println("DEBUGGING:" + word + ":" + pos);
+		      
+		      
+		    }
+		    Tree tree = sentence.get(TreeAnnotation.class);
+		    System.out.println(tree.pennString());
+		  }
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
+		System.exit(0);
 		
 //		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the books will be shipped to both you and Rice."));
 //		

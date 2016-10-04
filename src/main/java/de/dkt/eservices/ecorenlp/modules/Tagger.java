@@ -28,6 +28,7 @@ public class Tagger {
 
 	public static MaxentTagger tagger;
 	public static String currentLanguage = "none";
+	public static String taggersDirectory = "taggers" + File.separator;
 	
 	static Logger logger = Logger.getLogger(Tagger.class);
 	
@@ -35,7 +36,7 @@ public class Tagger {
 		if(currentLanguage.equalsIgnoreCase(language) && tagger!=null){
 			return;
 		}
-		String taggersDirectory = "taggers" + File.separator;
+		//String taggersDirectory = "taggers" + File.separator;
 		try {
 			File taggerFolder = FileFactory.generateOrCreateDirectoryInstance(taggersDirectory);
 			if (language.equalsIgnoreCase("en")) {
