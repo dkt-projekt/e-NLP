@@ -107,7 +107,12 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NDurY_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    	    		cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+	    		if(monthNumber>0){&#xD;&#xA;
+    	            cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);&#xD;&#xA;
+    			}&#xD;&#xA;
+    			else{&#xD;&#xA;
+    	            cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);&#xD;&#xA;
+    			}&#xD;&#xA;
     	    		normalizedStartDate = cal.getTime();&#xD;&#xA;
     	    		normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, \1, normalizedStartDate);&#xD;&#xA;
     	    		dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));&#xD;&#xA;

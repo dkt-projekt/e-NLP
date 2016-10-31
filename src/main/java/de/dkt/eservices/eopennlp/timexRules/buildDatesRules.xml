@@ -54,7 +54,7 @@
     	<replaceregexp flags="g"
     	    	        	        	    	  match="&#x3c;NMonth_(.*?)&#x3e;"
     	    	        	        	    	  replace="
-    		monthNumber = Integer.parseInt(parts[\1])-1;&#xD;&#xA;">
+    		monthNumber = Integer.parseInt(parts[\1]);&#xD;&#xA;">
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 	
     	
     	<replaceregexp flags="g"

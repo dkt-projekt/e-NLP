@@ -212,7 +212,12 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
     else{
      yearNumber = DateCommons.getYearFromAnchorDate();
     }
-                 cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+             if(monthNumber>0){
+                  cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
+        }
+        else{
+                  cal.set(yearNumber, monthNumber, dayNumber, 0, 0, 0);
+        }
             normalizedStartDate = cal.getTime();
             normalizedEndDate = DateCommons.increaseCalendar(Calendar.YEAR, 1, normalizedStartDate);
             dates.add(DateCommons.fullDateFormat.format(normalizedStartDate));
@@ -225,7 +230,7 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\D");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = Integer.parseInt(parts[1])-1;
+        monthNumber = Integer.parseInt(parts[1]);
              cal.set(yearNumber, monthNumber-1, dayNumber, 0, 0, 0);
             normalizedStartDate = cal.getTime();
             normalizedEndDate = DateCommons.increaseCalendar(Calendar.DATE, 1, normalizedStartDate);
@@ -613,7 +618,7 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\D");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = Integer.parseInt(parts[1])-1;
+        monthNumber = Integer.parseInt(parts[1]);
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
