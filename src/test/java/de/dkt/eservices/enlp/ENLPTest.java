@@ -487,6 +487,7 @@ public class ENLPTest {
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
 				.body("08.10.1990 dieser Tag diese Woche dieser Monat dieses Jahr")
+				//.body("08.10.2016 dieser Tag diese Woche dieser Monat dieses Jahr")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse12, response12.getBody());
@@ -566,7 +567,8 @@ public class ENLPTest {
 				.queryString("models", "germanDates")
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
-				.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
+				//.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
+				.body("8.10.2015 nächster Tag nächste Woche nächster Monat nächstes Jahr")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse16, response16.getBody());
