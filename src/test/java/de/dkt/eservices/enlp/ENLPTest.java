@@ -10,7 +10,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.validation.constraints.AssertTrue;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
@@ -18,11 +21,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.context.ApplicationContext;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.enlp.TestConstants;
 import eu.freme.bservices.testhelper.TestHelper;
@@ -570,11 +578,52 @@ public class ENLPTest {
 				//.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
 				.body("8.10.2015 nächster Tag nächste Woche nächster Monat nächstes Jahr")
 				.asString();
-		
-		Assert.assertEquals(TestConstants.expectedResponse16, response16.getBody());
 		assertTrue(response16.getStatus() == 200);
 		assertTrue(response16.getBody().length() > 0);
 		
+//		Assert.assertEquals(TestConstants.expectedResponse16, response16.getBody());
+		
+		Model mExp = NIFReader.extractModelFromFormatString(TestConstants.expectedResponse16, RDFSerialization.TURTLE);
+		Model mAct = NIFReader.extractModelFromFormatString(response16.getBody(), RDFSerialization.TURTLE);
+		
+		assertTrue(mExp.isIsomorphicWith(mAct));
+		
+		String es = null;
+		String ee = null;
+		String as = null;
+		String ae = null;
+		
+		NodeIterator nIt1 = mExp.listObjectsOfProperty(NIFReader.extractDocumentResourceURI(mExp), DKTNIF.meanDateStart);
+		while(nIt1.hasNext()){
+			RDFNode n1 = nIt1.next();
+			es = n1.asLiteral().getString();
+		}
+		NodeIterator nIt12 = mExp.listObjectsOfProperty(NIFReader.extractDocumentResourceURI(mExp), DKTNIF.meanDateStart);
+		while(nIt12.hasNext()){
+			RDFNode n1 = nIt12.next();
+			ee = n1.asLiteral().getString();
+		}
+
+		NodeIterator nIt2 = mAct.listObjectsOfProperty(NIFReader.extractDocumentResourceURI(mAct), DKTNIF.meanDateStart);
+		while(nIt2.hasNext()){
+			RDFNode n2 = nIt2.next();
+			as = n2.asLiteral().getString();
+		}
+		NodeIterator nIt22 = mAct.listObjectsOfProperty(NIFReader.extractDocumentResourceURI(mAct), DKTNIF.meanDateStart);
+		while(nIt22.hasNext()){
+			RDFNode n2 = nIt22.next();
+			ae = n2.asLiteral().getString();
+		}
+
+		Date d11 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(es);
+		Date d12 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(ee);
+		Date d21 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(as);
+		Date d22 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(ae);
+		
+//		System.out.println("Initial" + (d11.getTime() - d21.getTime()) );
+//		System.out.println("final" + (d11.getTime() - d21.getTime()) );
+		assertTrue( Math.abs(d11.getTime() - d21.getTime()) < 60000 );
+		assertTrue( Math.abs(d12.getTime() - d22.getTime()) < 60000 );
 	}
 	
 	
