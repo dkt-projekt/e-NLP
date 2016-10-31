@@ -13,9 +13,9 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class Lemmatizer {
 
-    protected StanfordCoreNLP pipeline;
+    protected static StanfordCoreNLP pipeline;
     
-    public Lemmatizer() {
+    public static void initLemmatizer() {
         // Create StanfordCoreNLP object properties, with POS tagging
         // (required for lemmatization), and lemmatization
         Properties props;
@@ -28,19 +28,23 @@ public class Lemmatizer {
          * 
          * See: http://nlp.stanford.edu/software/corenlp.shtml
          */
-        this.pipeline = new StanfordCoreNLP(props);
+        pipeline = new StanfordCoreNLP(props);
     }
     
-    public List<String> lemmatize(String documentText, String languageParam)
+    public static List<String> lemmatize(String documentText, String languageParam)
     {
     	List<String> lemmas = new LinkedList<String>();
         Annotation document = new Annotation(documentText);
 
-        this.pipeline.annotate(document);
+        pipeline.annotate(document);
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 lemmas.add(token.get(LemmaAnnotation.class));
+                System.out.println("Token:" + token);
+                System.out.println("Lemma:" + token.get(LemmaAnnotation.class));
+                String lemma = token.get(LemmaAnnotation.class);
+                
             }
         }
         // convert to string
@@ -106,6 +110,9 @@ public class Lemmatizer {
     
 
     public static void main(String[] args) {
+    	
+    	initLemmatizer();
+    	lemmatize("Julian likes dogs.", "en");
     	
     	
     }

@@ -68,7 +68,6 @@ public class DictionaryNameF {
 	
 	
 	public static Model detectEntitiesNIF(Model nifModel, ArrayList<String> dictionaries, String sentModel) throws ExternalServiceFailedException {
-	
 		for (String dictionary : dictionaries){
 			try {
 				Dictionary dct = new Dictionary();
@@ -78,11 +77,16 @@ public class DictionaryNameF {
 				BufferedReader br = new BufferedReader(new InputStreamReader(dictionaryModelStream, "utf-8"));
 				String line = br.readLine();
 				while (line != null){
-					String parts[] = line.split("\t");
-					String[] tokens = parts[0].split(" ");
-					dct.put(new StringList(tokens));
-					dictHash.put(parts[0].trim().toLowerCase(), parts[1]);
-					line = br.readLine();
+					if (line.contains("\t")){
+						String parts[] = line.split("\t");
+						String[] tokens = parts[0].split(" ");
+						dct.put(new StringList(tokens));
+						dictHash.put(parts[0].trim().toLowerCase(), parts[1]);
+						line = br.readLine();
+					}
+					else{
+						System.err.print("WARNING: skipping " + line + " in dictionary: " + dictionary + " because it does not conform to tab separated format.\n");
+					}
 				}
 				br.close();
 				String[] temp = dictionary.split("_");
