@@ -136,7 +136,6 @@ public class EOpenNLPService {
         			}
     				dictionaries.add(nerModel);
         		}
-        		
         		nifModel = DictionaryNameF.detectEntitiesNIF(nifModel, dictionaries, sentModel);
         		return nifModel;
         		

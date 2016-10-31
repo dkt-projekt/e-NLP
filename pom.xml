@@ -150,6 +150,7 @@
 							<excludes>
 								<exclude>**/taggers/**</exclude>
 								<exclude>**/trainedModels/**</exclude>
+								<exclude>**/parsers/**</exclude>
 							</excludes>
 						</configuration>
 					</plugin>

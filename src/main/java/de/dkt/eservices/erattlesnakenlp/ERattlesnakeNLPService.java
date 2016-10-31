@@ -20,9 +20,12 @@ import eu.freme.common.exception.ExternalServiceFailedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -82,14 +85,22 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
-	public JSONObject extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat){
+	public String extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat){
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
 		ArrayList<EntityRelationTriple> ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam);
-		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = RelationExtraction.convertRelationTripleListToHashMap(ert);
-		JSONObject jsonMap = new JSONObject(m);
-		
-		return jsonMap;
+		JSONObject jsonOutput = new JSONObject();
+		JSONArray jsonArrayRelations = new JSONArray();
+
+		for (EntityRelationTriple erti : ert) {
+			JSONObject jsonRelation = new JSONObject();
+			jsonRelation.put("subject",erti.getSubject());
+			jsonRelation.put("relation",erti.getRelation());
+			jsonRelation.put("object",erti.getObject());
+			jsonArrayRelations.put(jsonRelation);
+		}
+		jsonOutput.put("relations", jsonArrayRelations);
+		return jsonOutput.toString();
 
 	}
 	

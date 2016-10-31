@@ -23,10 +23,12 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
 
+import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.enlp.TestConstants;
 import eu.freme.bservices.testhelper.TestHelper;
 import eu.freme.bservices.testhelper.ValidationHelper;
 import eu.freme.bservices.testhelper.api.IntegrationTestSetup;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import junit.framework.Assert;
 
 /**
@@ -485,6 +487,7 @@ public class ENLPTest {
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
 				.body("08.10.1990 dieser Tag diese Woche dieser Monat dieses Jahr")
+				//.body("08.10.2016 dieser Tag diese Woche dieser Monat dieses Jahr")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse12, response12.getBody());
@@ -564,7 +567,8 @@ public class ENLPTest {
 				.queryString("models", "germanDates")
 				//.queryString("informat", "turtle")
 				//.queryString("outformat", "turtle")
-				.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
+				//.body("8.10.1990 nächster Tag nächste Woche nächster Monat nächstes Jahr")
+				.body("8.10.2015 nächster Tag nächste Woche nächster Monat nächstes Jahr")
 				.asString();
 		
 		Assert.assertEquals(TestConstants.expectedResponse16, response16.getBody());
@@ -754,14 +758,16 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nif";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\in";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\complaintsIndividualFiles";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\complaintsIndividualFiles";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNIFs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\RelationExtractionPlayground\\artComData\\nifAppended";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\nifs";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNIFsNEROutput";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
@@ -785,7 +791,7 @@ public class ENLPTest {
 //		
 //		
 //		for (File f : df.listFiles()){
-//			//System.out.println("Trying to read file:" + f.getAbsolutePath());
+//			System.out.println("Processing file:" + f.getAbsolutePath());
 //			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 //			Date d1 = new Date();
 //			//Model nifModel = NIFWriter.initializeOutputModel();
@@ -796,14 +802,15 @@ public class ENLPTest {
 //			
 //			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
-//					.queryString("analysis", "ner")
-//					//.queryString("analysis", "dict")
+//					//.queryString("analysis", "ner")
+//					.queryString("analysis", "dict")
 //					//.queryString("language", "de")
 //					.queryString("language", "en")
-//					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					//.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
+//					.queryString("models", "mendelson_LOC;mendelson_ORG;mendelson_PER")
 //					//.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainPER")
-//					.queryString("informat", "text")
-//					//.queryString("informat", "turtle")
+//					//.queryString("informat", "text")
+//					.queryString("informat", "turtle")
 //					.queryString("outformat", "turtle")
 //					//.queryString("input", fileContent)
 //					.body(fileContent)
@@ -812,19 +819,19 @@ public class ENLPTest {
 //			
 //			
 //
-//			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
-//					.queryString("analysis", "temp")
-//					.queryString("language", "en")
-//					.queryString("models", "englishDates")
-//					//.queryString("informat", "turtle")
-//					.queryString("informat", "text")
-//					.queryString("outformat", "turtle")
-//					//.queryString("input", turtleModel)
-//					//.body(fileContent)
-//					.body(turtleModel)
-//					.asString();
-//			//String turtleModel = debugResponse2.getBody();
-//			turtleModel = debugResponse2.getBody();
+////			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
+////					.queryString("analysis", "temp")
+////					.queryString("language", "en")
+////					.queryString("models", "englishDates")
+////					//.queryString("informat", "turtle")
+////					.queryString("informat", "text")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", turtleModel)
+////					//.body(fileContent)
+////					.body(turtleModel)
+////					.asString();
+////			//String turtleModel = debugResponse2.getBody();
+////			turtleModel = debugResponse2.getBody();
 //			
 //			Date d2 = new Date();
 //			//out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);

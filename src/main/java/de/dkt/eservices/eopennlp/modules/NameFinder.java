@@ -68,32 +68,32 @@ public class NameFinder {
 	
 	
 	public void initializeModels() {
-//		try {
-//			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
-//			for (File f : df.listFiles()) {
-//					Date start = new Date();
-//					System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-//					InputStream tnfNERModel = new FileInputStream(f);
-//					System.out.println("STREAM: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-//					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
-//					TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-//					System.out.println("MODEL: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-//					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
-//					NameFinderME nameFinder = new NameFinderME(tnfModel);
-//					System.out.println("FINDER: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-//					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
-//					nameFinderPreLoadedModels.put(f.getName(), nameFinder);
-//					Date end = new Date();
-//					long seconds = (end.getTime()-start.getTime()) / 1000;
-//					logger.info("Initializing " + f.getName() + " took " + seconds + " seconds.");
-//					System.out.println("Initializing " + f.getName() + " took " + seconds + " seconds.");
-//					System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-//					//break;
-//					tnfNERModel.close();
-//			}
-//		} catch (IOException e) {
-//			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
-//		}
+		try {
+			File df = FileFactory.generateOrCreateDirectoryInstance(modelsDirectory);
+			for (File f : df.listFiles()) {
+					Date start = new Date();
+					System.out.println("DATA: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+					InputStream tnfNERModel = new FileInputStream(f);
+					System.out.println("STREAM: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
+					TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+					System.out.println("MODEL: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
+					NameFinderME nameFinder = new NameFinderME(tnfModel);
+					System.out.println("FINDER: "+ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+					System.out.println(((new Date()).getTime()-start.getTime()) / 1000 + " seconds");
+					nameFinderPreLoadedModels.put(f.getName(), nameFinder);
+					Date end = new Date();
+					long seconds = (end.getTime()-start.getTime()) / 1000;
+					logger.info("Initializing " + f.getName() + " took " + seconds + " seconds.");
+					System.out.println("Initializing " + f.getName() + " took " + seconds + " seconds.");
+					System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+					//break;
+					tnfNERModel.close();
+			}
+		} catch (IOException e) {
+			logger.error("Failed to initialize models in modelsDirectory:" + modelsDirectory);
+		}
 	}
 	
 	
