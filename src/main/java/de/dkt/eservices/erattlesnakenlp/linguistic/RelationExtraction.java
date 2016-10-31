@@ -1,14 +1,17 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,14 +64,16 @@ public class RelationExtraction {
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
-		entityMap.addAll(sameAsMentions);
 		
+		if (entityMap != null && sameAsMentions != null) {
+			entityMap.addAll(sameAsMentions);
+		}
 		
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
-		if (!(entityMap == null)) {
+		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
-				//System.out.println("Sentence: " + sentence);
+				System.out.println("Sentence: " + sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
@@ -104,6 +109,7 @@ public class RelationExtraction {
 				
 				
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
+					//System.out.println("DEBUGGING relation found:" + subject + "___" + connectingElement + "___" + object);
 					String subjectURI = null;
 					String objectURI = null;
 					int subjectStart = tagged.get(subject.index()-1).beginPosition();
@@ -161,6 +167,7 @@ public class RelationExtraction {
 				HashMap<IndexedWord, Integer> swm = new HashMap<IndexedWord, Integer>();
 				for (TypedDependency td : list){
 					swm.put(td.dep(), td.dep().index()-1);
+					
 				}
 				DPTreeNode tree =  DepParserTree.generateTreeFromList(list);
 				List<DPTreeNode> list2 = new LinkedList<DPTreeNode>();
@@ -293,63 +300,182 @@ public class RelationExtraction {
 	public static void main(String args[]){
 		
 		
+		
+		
+		Tagger.initTagger("de");
+		DepParserTree.initParser("de");
+		
+		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Seit zwei Wochen haben sie sich dort vor islamistischen Rebellen verschanzt."));
+		for (List<HasWord> sentence : tokenizer) {
+			System.out.println("Sentence: " + sentence);
+			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+			Collection<TypedDependency> list = gs.allTypedDependencies();
+			
+		}
+		System.exit(1);
+		
 		//String tempString = "This is a sentence; with a semi-colon in it.";
-//		String tempString = 
-//				"Across the promontoire the lake is blue\n" +
-//				"like the Atlantic in sunlight, its colour\n"+
-//				"lightened by the white salt deposits.\n"+
-//				"Behind the prom, the water is open, wavy\n"+
-//				"like an ocean, and we cross it on a bridge.\n"+
-//				"You really feel like crossing the ocean\n"+
-//				"on a bridge of wood - air and salt-conditio-\n"+
-//				"ned! An hour long!";
+		String tempString = 
+				"\n" +
+						"[Datumsstempel: MAR 16 1942]\n" +
+						" \n" +
+						"Mrs. Luise Mendelsohn\n" +
+						"The Alden\n" +
+						"225 Central Park West\n" +
+						"New York City\n" +
+						"[Absender]\n" +
+						"The Drake\n" +
+						"Lake Shore Drive\n" +
+						"Chicago\n" +
+						"[Anmerkung: 1b, 21/III 42.]\n" +
+						"\n" +
+						"The Drake\n" +
+						"Chicago\n" +
+						"III.21.42.\n" +
+						"\n" +
+						"The flowers came and your\n" +
+						"letter, and I feel not totally\n" +
+						"cut off from where I came and\n" +
+						"shall go back to. They deserve a\n" +
+						"special reply tomorrow. -\n" +
+						"After a very lively luncheon\n" +
+						"with Prof. Lorch and family at\n" +
+						"Ann Arbor I streamlined to\n" +
+						"Chicago into the Drake fossil. The\n" +
+						"technical details I admired 18\n" +
+						"years ago have become either\n" +
+						"loose or dusty and the seclusive\n" +
+						"refinement has made place a\n" +
+						"\n" +
+						"humdrum of incentives for\n" +
+						"lady-battleships or pre-war jeunesse-\n" +
+						"chromée. \n" +
+						"I had oyster dinner with Mies\n" +
+						"and later at his flat much serious\n" +
+						"talk and laughter. Hilbersheimer\n" +
+						"came joining us.\n" +
+						"My lecture at Mies&apos;s department,\n" +
+						"for students only, was tremendously\n" +
+						"cheered and Mies regretted not having\n" +
+						"invited the architects and the public.\n" +
+						"Dinner at a Greek Restaurant, invited\n" +
+						"by Hilbersh. \n" +
+						"Today, I went to the Arts Club, where\n" +
+						"in the \"Wrigley\" Bldg. my work refuses\n" +
+						"to be chewed, a posthumous sight for\n" +
+						"me and an unborn for Chicago.\n" +
+						"Met a French (Baronesse of course)\n" +
+						"infected by Jenny de Margerie with\n" +
+						"Mendelsohnitis,\n" +
+						"\n" +
+						"and the Lady President of the Club\n" +
+						"looking like a cluster of overpainted\n" +
+						"too late autumn apples.\n" +
+						"Badly hung and no critics. Sealed\n" +
+						"lips because of unopened brass-heads. \n" +
+						"Then, the Sulzbergers came. Too rich as\n" +
+						"not to be conceated. They don&apos;t think\n" +
+						"that modern Architecture and World Wars\n" +
+						"have any connection or George III any\n" +
+						"with war reverses!\n" +
+						"I think to cancel their invitation for\n" +
+						"supper tomorrow night - 7 miles bus-\n" +
+						"ride for, certainly, cold meat.\n" +
+						"In an hour&apos;s time, Cocktail Party\n" +
+						"at Mies - apparently for Bach, no\n" +
+						"Mass or remembrance visible.\n" +
+						"After that my counter invitation for\n" +
+						"dinner - Mies and friend. Did&apos;nt see\n" +
+						"her yet:\n" +
+						"\n" +
+						"Monday night - Marc gentlemen\n" +
+						"Dinner.\n" +
+						"Tuesday night - Dinner &amp; Lecture\n" +
+						"of the Institute within my exhibition.\n" +
+						"An embar[r]assing background.\n" +
+						"Wednesday to Ann Arbor - 2nd lecture\n" +
+						"on Thursday.\n" +
+						"Thursday night, may be Dinner with\n" +
+						"Albert Kahn&apos;s in Detroit and Friday\n" +
+						"morning to New York. There is, of course,\n" +
+						"a day train and Plant&apos;s office has\n" +
+						"just wasted money. Nevertheless,\n" +
+						"your spring costume is certain.\n" +
+						"Weather in Chicago changes from\n" +
+						"late spring to deep winter. I am\n" +
+						"transpiring and caughing.\n" +
+						"An impossible climate, a depressing\n" +
+						"vista to my sensitive eyes - a world\n" +
+						"untouched by a 30 years fight! Mr. benedicted\n" +
+						"by\n" +
+						"Benedictus\n";
 //		
 //		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(tempString));
 //		for (List<HasWord> sentence : tokenizer) {
 //			System.out.println("Sentence: " + sentence);
 //		}
+//		System.exit(1);
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
+//		String ts = "Later she moved to Brandenburg with her family.";
+//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(ts));
+//		for (List<HasWord> sentence : tokenizer) {
+//			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+//			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+//			System.out.println("DEBUGGING GS:" + gs);
+//		}
+		//System.exit(1);
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\UniLeipzig_eng_news_2015_10k\\eng_news_2015_10K\\nifOfSentences";
-//
-//		File df = new File(docFolder);
-//		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
-//		Date d3 = new Date();
-//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
-//		BufferedWriter brDebug = null;
-//		int c = 0;
-//		for (File f : df.listFiles()) {
-//			c += 1;
-//			String fileContent;
-//			System.out.println("Processing file: " + f.getName());
-//			try {
-//				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-//				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-//				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel);
-//				
-//				for (EntityRelationTriple t : ert) {
-//					masterList.add(t);
-//				}
-//				brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-//				HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
-//				JSONObject jsonMap = new JSONObject(m);
-//				brDebug.write(jsonMap.toString(4));
-//				brDebug.close();
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//
-//		}
-//		
-//		System.out.println("Done."); 
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\artComSampleFilesDBPediaTimeouts\\nifsCorefinized";
+		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNifsCorefinized";
+		
+
+		File df = new File(docFolder);
+		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
+		Date d3 = new Date();
+		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		BufferedWriter brDebug = null;
+		int c = 0;
+		for (File f : df.listFiles()) {
+			c += 1;
+			String fileContent;
+			System.out.println("Processing file: " + f.getName());
+			try {
+				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
+				//ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+				
+				for (EntityRelationTriple t : ert) {
+					masterList.add(t);
+				}
+		
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		try {
+			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
+			JSONObject jsonMap = new JSONObject(m);
+			brDebug.write(jsonMap.toString(4));
+			brDebug.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		System.out.println("Done."); 
+		System.exit(1);
 	    
 		
 		String nifString = 
@@ -432,26 +558,28 @@ public class RelationExtraction {
 						"        itsrdf:taClassRef     dbo:Location ;\n" +
 						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Brandenburg> .\n" +
 						"\n";
-		ArrayList<EntityRelationTriple> collectionRelationList = new ArrayList<EntityRelationTriple>();
-		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
-		BufferedWriter brDebug = null;
-		try {
-			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-			ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
-			for (EntityRelationTriple t : ert) {
-				collectionRelationList.add(t);
-			}
-			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
-			JSONObject jsonMap = new JSONObject(m);
-			brDebug.write(jsonMap.toString(4));
-			brDebug.close();
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+//		ArrayList<EntityRelationTriple> collectionRelationList = new ArrayList<EntityRelationTriple>();
+//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+//		BufferedWriter brDebug = null;
+//		try {
+//			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+//			ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+//			for (EntityRelationTriple t : ert) {
+//				collectionRelationList.add(t);
+//			}
+//			
+//			System.out.println("DEBUGGING erT:" + ert);
+//			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+//			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
+//			JSONObject jsonMap = new JSONObject(m);
+//			brDebug.write(jsonMap.toString(4));
+//			brDebug.close();
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
 		
 		
 
