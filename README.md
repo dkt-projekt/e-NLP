@@ -78,6 +78,8 @@ A trained model which is stored and can directly be used in the namedEntityRecog
 Examle cURL post:
 `curl "http://api.digitale-kuratierung.de/api/e-nlp/trainModel?modelName=testModel&language=en&analysis=ner" --data-urlencode "trainingData= <START:person> Pierre Vinken <END> , 61 years old , will join the board as a nonexecutive director Nov. 29 ."`
 
+##Suggesting entity candidates
+A random text can be uploaded to this endpoint (in plain text format). This text will be processed and every word in it is referenced to a background corpus, resulting in a TF/IDF value for every term. Depending on this value and the threshold that is used, the term will end up in the output. The output, in list format, will then contain terms that can be considered as descriptive for the uploaded text in particular. The user can manually go through the list, delete irrelevant entries, and use the list as a source for a dictionary that can be uploaded for dictionary-based NER.
 
 ### Endpoint
 
