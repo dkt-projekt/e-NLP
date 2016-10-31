@@ -78,3 +78,21 @@ A trained model which is stored and can directly be used in the namedEntityRecog
 Examle cURL post:
 `curl "http://api.digitale-kuratierung.de/api/e-nlp/trainModel?modelName=testModel&language=en&analysis=ner" --data-urlencode "trainingData= <START:person> Pierre Vinken <END> , 61 years old , will join the board as a nonexecutive director Nov. 29 ."`
 
+
+### Endpoint
+
+http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates
+
+### Input
+`language`: The language of the input text.
+
+`threshold`: The minimum value that candidates have to have to be shown in the output list. The list of candidates is already sorted by value as it appears in the output (from highest to lowest).
+
+### Output
+A list of terms that can be manually checked and then made into a dictionary for dictionary-based NER.
+
+Examle cURL post:
+```
+curl -X POST -d "Born on 15 October 1844, Nietzsche grew up in the small town of Röcken, near Leipzig, in the Prussian Province of Saxony. He was named after King Frederick William IV of Prussia, who turned forty-nine on the day of Nietzsche'\"'\"'s birth. (Nietzsche later dropped his middle name \"Wilhelm\".[18]) Nietzsche's parents, Carl Ludwig Nietzsche (1813–49), a Lutheran pastor and former teacher, and Franziska Oehler (1826–97), married in 1843, the year before their son's birth. They had two other children: a daughter, Elisabeth Förster-Nietzsche, born in 1846, and a second son, Ludwig Joseph, born in 1848. Nietzsche's father died from a brain ailment in 1849; Ludwig Joseph died six months later, at age two.[19] The family then moved to Naumburg, where they lived with Nietzsche's maternal grandmother and his father's two unmarried sisters. After the death of Nietzsche's grandmother in 1856, the family moved into their own house, now Nietzsche-Haus, a museum and Nietzsche study centre." "http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates?language=en&threshold=0.1"
+```
+
