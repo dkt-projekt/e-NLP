@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dkt</groupId>
 	<artifactId>e-NLP</artifactId>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.4</version>
 	<properties>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -137,7 +137,7 @@
         <connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
         <url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
         <developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>e-NLP-0.4</tag>
 	</scm>
 	
     <profiles>
