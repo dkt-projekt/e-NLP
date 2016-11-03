@@ -89,7 +89,7 @@ http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates
 ### Input
 `language`: The language of the input text.
 
-`threshold`: The minimum value that candidates have to have to be shown in the output list. The list of candidates is already sorted by value as it appears in the output (from highest to lowest).
+`threshold`: The minimum value that candidates have to have to be shown in the output list. The list of candidates is already sorted by value as it appears in the output (from highest to lowest). The optimal value for the threshold very much depends on the type and amount of input used. Generally, a value of 0.1 is to be advised. But depending on the desired length of the list of suggestions, much smaller values (0.01) can also be useful.
 
 ### Output
 A list of terms that can be manually checked and then made into a dictionary for dictionary-based NER.
