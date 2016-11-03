@@ -16,13 +16,14 @@ http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
+
 In addition to the input, informat and outformat parameters, the following parameters have to be set to perform Named Entity Recognition on the input:  
   
 `language`: The language of the input text. For now, only German (`de`) and English (`en`) are supported.  
   
 `analysis`: The type of analysis to perform. Specify `ner` for performing NER based on a trained model. Specify `dict` to perform NER based on an uploaded dictionary. Specify `temp` to perform NER for temporal expressions.  
   
-`models`: Specify the name of the models to be used for performing the analysis. Make sure that this model is available (see listModels endpoint), and that you select the right combination of language and model.
+`models`: Specify the name of the models to be used for performing the analysis. Make sure that this model is available (see listModels endpoint) and that you select the right combination of language and model. When using multiple models, they should be separated by a semi-colon (`;`)
   
 
 `mode`: Works for the `ner` analysis only. Possible values are `spot` (for entity spotting only), `link` (for entity linking only, e.g. looking up the entity label on DBPedia to retrieve a URI) or `all` (for both). Default is `all`.
@@ -64,11 +65,11 @@ Examle cURL post:
 http://api.digitale-kuratierung.de/api/e-nlp/trainModel
 
 ### Input
-`language`: The language of the input model.
+`language`: The language of the input model. (Also here, only German and English are currently supported)
 
 `analysis`: Specify the type of analysis that this model is suitable for. Currently only `dict` and `ner` are supported. For `dict`, a tab-separated file containing two columns is expected, where the first column contains the names that have to be recognized, and the second column contains a URI in some specific ontology. For `ner`, an annotated corpus is expected in the format documented in https://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.namefind.training.tool
 
-`modelName`: Specify the desired name of the output model. For `dict`, this should end on _&lt;TYPE&gt; to implicitly communicate the type that any entity recognized with this model should get in the output NIF. e.g. a valid model name is 'Mendelsohn_PER'. For `ner`, there is no restriction on the model name and the type of the entity is inferred from the annotation itself (annotations should like like ```"Former president <START:person> Bill Clinton <END> appeared on stage ."``` or ```"The <START:organization> German Reichstag <END> responded to the claim ."```, where every token should be surrounded by whitespace so that splitting the input on whitespace results in a correctly tokenized text (e.g. tokenization is assumed to be done already)). 
+`modelName`: Specify the desired name of the output model. For `dict`, this should end on _&lt;TYPE&gt; to implicitly communicate the type that any entity recognized with this model should get in the output NIF. E.g. a valid model name is 'Mendelsohn_PER'. For `ner`, there is no restriction on the model name and the type of the entity is inferred from the annotation itself (annotations should look like ```"Former president <START:person> Bill Clinton <END> appeared on stage ."``` or ```"The <START:organization> German Reichstag <END> responded to the claim ."```, where every token should be surrounded by whitespace so that splitting the input on whitespace results in a correctly tokenized text (e.g. tokenization is assumed to be done already)). 
 
 **Note that the model is overwritten every time a new call is made with the same model name and analysis type.**
 
@@ -95,6 +96,6 @@ A list of terms that can be manually checked and then made into a dictionary for
 
 Examle cURL post:
 ```
-curl -X POST -d "Born on 15 October 1844, Nietzsche grew up in the small town of Röcken, near Leipzig, in the Prussian Province of Saxony. He was named after King Frederick William IV of Prussia, who turned forty-nine on the day of Nietzsche'\"'\"'s birth. (Nietzsche later dropped his middle name \"Wilhelm\".[18]) Nietzsche's parents, Carl Ludwig Nietzsche (1813–49), a Lutheran pastor and former teacher, and Franziska Oehler (1826–97), married in 1843, the year before their son's birth. They had two other children: a daughter, Elisabeth Förster-Nietzsche, born in 1846, and a second son, Ludwig Joseph, born in 1848. Nietzsche's father died from a brain ailment in 1849; Ludwig Joseph died six months later, at age two.[19] The family then moved to Naumburg, where they lived with Nietzsche's maternal grandmother and his father's two unmarried sisters. After the death of Nietzsche's grandmother in 1856, the family moved into their own house, now Nietzsche-Haus, a museum and Nietzsche study centre." "http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates?language=en&threshold=0.1"
+curl -X POST -d "Born on 15 October 1844, Nietzsche grew up in the small town of Röcken, near Leipzig, in the Prussian Province of Saxony. He was named after King Frederick William IV of Prussia, who turned forty-nine on the day of Nietzsche'\"'\"'s birth. (Nietzsche later dropped his middle name \"Wilhelm\".[18]) Nietzsche's parents, Carl Ludwig Nietzsche (1813–49), a Lutheran pastor and former teacher, and Franziska Oehler (1826–97), married in 1843, the year before their son's birth. They had two other children: a daughter, Elisabeth Förster-Nietzsche, born in 1846, and a second son, Ludwig Joseph, born in 1848. Nietzsche's father died from a brain ailment in 1849; Ludwig Joseph died six months later, at age two.[19] The family then moved to Naumburg, where they lived with Nietzsche's maternal grandmother and his father's two unmarried sisters. After the death of Nietzsche's grandmother in 1856, the family moved into their own house, now Nietzsche-Haus, a museum and Nietzsche study centre." "http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates?language=en&threshold=0.2"
 ```
 
