@@ -365,11 +365,11 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
        int monthNumber = 0;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\s");
-         if (parts[1].matches("the")){;
-            dayNumber = Integer.parseInt(parts[1].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
+         if (parts[2].matches("the")){;
+            dayNumber = Integer.parseInt(parts[2].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
                            }
                            else{
-                               dayNumber = Integer.parseInt(parts[(1)].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
+                               dayNumber = Integer.parseInt(parts[(2)].replaceAll("(st|nd|rd|th)", "").replaceAll(",",""));
                                };
         monthNumber = AutomaticEnglishData.monthName2Number.get(parts[0].toLowerCase().replaceAll("\\p{P}", ""));
         yearNumber = DateCommons.getYearFromAnchorDate();
@@ -481,8 +481,9 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
                                          if(parts[0].matches("([0-9]|0[0-9]|1[0-2])")){
                   hour = Integer.parseInt(parts[0]);
                  }
-            if (parts[2].matches("p")|parts[1].matches("p"))
+            if(parts.length > 2){            if (parts[2].toLowerCase().matches("p")|parts[1].toLowerCase().matches("p"))
 {                  hour = hour+12;
+            }
                  }
         if(parts[1].matches("[0-5][0-9]")){
              minute = Integer.parseInt(parts[1]);
@@ -549,7 +550,7 @@ dateRegexMap.put(30, String.format("(?i)\\b("+daynumber+")("+separation+")("+mon
                 else if (parts[2].toLowerCase().matches("(earlier|before)")){
                  direction = -1;
                 }
-                   int increment = AutomaticEnglishData.alpha2Number.get(parts[0]) * direction;
+                   int increment = AutomaticEnglishData.alpha2Number.get(parts[0].toLowerCase()) * direction;
                 yearNumber = DateCommons.getYearFromAnchorDate();
                 monthNumber = DateCommons.getMonthFromAnchorDate();
                 if (monthNumber == 0){

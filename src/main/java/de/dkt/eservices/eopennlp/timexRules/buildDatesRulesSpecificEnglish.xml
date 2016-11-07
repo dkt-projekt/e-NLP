@@ -34,9 +34,12 @@
     	    		if(parts[\1].matches(&#x22;([0-9]|0[0-9]|1[0-2])&#x22;)){&#xD;&#xA;
     	    								hour = Integer.parseInt(parts[\1]);&#xD;&#xA;
     	    							}&#xD;&#xA;
-    	    		if (parts[2].matches(&#x22;p&#x22;)|parts[1].matches(&#x22;p&#x22;))&#xD;&#xA;{
+    	    		if(parts.length > 2){
+    	    		if (parts[2].toLowerCase().matches(&#x22;p&#x22;)|parts[1].toLowerCase().matches(&#x22;p&#x22;))&#xD;&#xA;{
     	    								hour = hour+12;&#xD;&#xA;
+    	    		}&#xD;&#xA;
     	    							}&#xD;&#xA;">
+    	    		
     	    	        	        	    	<fileset dir="${dirdest}" includes="${rulesclass}.java"/></replaceregexp> 
     	
     	<!-- Marks beginning/middle/end of for years -->
@@ -190,7 +193,7 @@
         							else if (parts[2].toLowerCase().matches(&#x22;(earlier|before)&#x22;)){&#xD;&#xA;
         								direction = -1;&#xD;&#xA;
         							}&#xD;&#xA;
-        						    int increment = ${dataclass}.alpha2Number.get(parts[0]) * direction;&#xD;&#xA;
+        						    int increment = ${dataclass}.alpha2Number.get(parts[0].toLowerCase()) * direction;&#xD;&#xA;
         							yearNumber = DateCommons.getYearFromAnchorDate();&#xD;&#xA;
         							monthNumber = DateCommons.getMonthFromAnchorDate();&#xD;&#xA;
         							if (monthNumber == 0){&#xD;&#xA;
