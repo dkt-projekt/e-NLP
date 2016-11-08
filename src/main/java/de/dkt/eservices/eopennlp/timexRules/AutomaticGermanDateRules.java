@@ -33,7 +33,7 @@ String cerotofour="0|1|2|3|4";
 String daynumber="(0)?("+digit+")|1("+digit+")|2("+digit+")|3("+ceroone+")";
 String monthname="januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember";
 String yearnumber="("+onetwo+")("+digit+")("+digit+")("+digit+")";
-String monthnumber=" 0|1|2|3|4|5|6|7|8|9|10|11|12";
+String monthnumber="0|1|2|3|4|5|6|7|8|9|10|11|12";
 String separation="\\.|/|\\-";
 String hyphenorwhitespace="\\-| ";
 String season="sommer|winter|frühling|herbst";
@@ -163,7 +163,7 @@ dateRegexMap.put(41, String.format("\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+se
        }
                       public static void main(String[] args) {
          RegexNameFinder timeFinder= AutomaticGermanDateRules.initDateFinder();
-         String input = "34,12€";
+         String input = "october 6 1990";
          RegexFinder rf = new RegexFinder();
          List<Span> timeSpans = rf.filterFind(timeFinder, input);
          for (Span s : timeSpans){
@@ -261,7 +261,7 @@ dateRegexMap.put(41, String.format("\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+se
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\D");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = Integer.parseInt(parts[1])-1;
+        monthNumber = Integer.parseInt(parts[1]);
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -576,7 +576,7 @@ dateRegexMap.put(41, String.format("\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+se
        int monthNumber = 0;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\.|/|-");
-        monthNumber = Integer.parseInt(parts[0])-1;
+        monthNumber = Integer.parseInt(parts[0]);
        yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 1){
      yearNumber = Integer.parseInt(parts[1].replaceAll("\\D", ""));
