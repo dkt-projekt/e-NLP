@@ -261,7 +261,7 @@ dateRegexMap.put(41, String.format("\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+se
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\D");
          dayNumber = Integer.parseInt(parts[0].replaceAll("\\p{P}", ""));;
-        monthNumber = Integer.parseInt(parts[1]);
+        monthNumber = Integer.parseInt(parts[1])-1;
         yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 2){
      yearNumber = Integer.parseInt(parts[2].replaceAll("\\D", ""));
@@ -576,7 +576,7 @@ dateRegexMap.put(41, String.format("\\d{1,9}(?:("+separation2+")\\d{3})*(?:("+se
        int monthNumber = 0;
        int yearNumber = DateCommons.getYearFromAnchorDate();
      String[] parts = foundDate.split("\\.|/|-");
-        monthNumber = Integer.parseInt(parts[0]);
+        monthNumber = Integer.parseInt(parts[0])-1;
        yearNumber = DateCommons.getYearFromAnchorDate();
     if (parts.length > 1){
      yearNumber = Integer.parseInt(parts[1].replaceAll("\\D", ""));
