@@ -45,7 +45,7 @@ public class EOpenNLPService {
 
 	@PostConstruct
 	public void initializeModels(){
-//		nameFinder.initializeModels();
+		nameFinder.initializeModels();
 	}
 	
 	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) 
