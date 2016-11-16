@@ -68,7 +68,6 @@ public class DictionaryNameF {
 	
 	
 	public static Model detectEntitiesNIF(Model nifModel, ArrayList<String> dictionaries, String sentModel) throws ExternalServiceFailedException {
-	
 		for (String dictionary : dictionaries){
 			try {
 				Dictionary dct = new Dictionary();
@@ -78,12 +77,18 @@ public class DictionaryNameF {
 				BufferedReader br = new BufferedReader(new InputStreamReader(dictionaryModelStream, "utf-8"));
 				String line = br.readLine();
 				while (line != null){
-					String parts[] = line.split("\t");
-					String[] tokens = parts[0].split(" ");
-					dct.put(new StringList(tokens));
-					dictHash.put(parts[0].trim().toLowerCase(), parts[1]);
-					line = br.readLine();
+					if (line.contains("\t")){
+						String parts[] = line.split("\t");
+						String[] tokens = parts[0].split(" ");
+						dct.put(new StringList(tokens));
+						dictHash.put(parts[0].trim().toLowerCase(), parts[1]);
+						line = br.readLine();
+					}
+					else{
+						System.err.print("WARNING: skipping " + line + " in dictionary: " + dictionary + " because it does not conform to tab separated format.\n");
+					}
 				}
+				dictionaryModelStream.close();
 				br.close();
 				String[] temp = dictionary.split("_");
 				String dictionaryAnnotationType = temp[temp.length-1];
@@ -108,12 +113,8 @@ public class DictionaryNameF {
 						}
 						String foundName = content.substring(nameStartIndex, nameEndIndex);
 						String uri = dictHash.get(foundName.toLowerCase());
-						
 
-						//List<String> entURIs = new LinkedList<String>();
-						//entURIs.add(uri);
 						String entityType = null;
-						// TODO: put in docs for dictionary upload that it HAS TO BE one the the following three:
 						if (dictionaryAnnotationType.equalsIgnoreCase("PER")){
 							entityType = DBO.person.toString();
 						}
@@ -127,55 +128,9 @@ public class DictionaryNameF {
 							// added because we want to allow the flexibility to add any types in dictionary uploading
 							entityType = DKTNIF.property(dictionaryAnnotationType).toString();
 						}
-						//NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, DFKINIF.resource(dictionaryAnnotationType).toString());
 						NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri, entityType);
-						
-						/*
-						 * This part is just for temporary purposes (paper ACL). Improve this!
-						 */
-						
-//						if (dictionary.equals("clean_mendelsohn_LOC")){
-//							if (!(uri == null)){
-//								String geoId = uri.substring(uri.lastIndexOf("/")+1);
-//								String sparqlQuery = 
-//									"PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos/>\n" +
-//									//"PREFIX sws: <http://sws.geonames.org/>\n" +
-//									"SELECT ?lat ?long WHERE { \n" +
-//									"?geoNameId geo:lat ?lat . \n" +
-//									"?geoNameId geo:long ?long . \n" +
-//									"FILTER (?geoNameId = <http://sws.geonames.org/" + geoId + "/>) \n" +
-//									"}";	
-//								SesameStorage.setStorageDirectory("C:\\Users\\pebo01\\workspace\\e-Sesame\\target\\test-classes\\ontologies\\");
-//								List<BindingSet> sets = SesameStorage.retrieveTQRTripletsFromSPARQL("geoFinal", sparqlQuery);
-//								
-//								String lat = null;
-//								String lon = null;
-//								for (BindingSet bs : sets) {
-//									lat = bs.getValue("lat").toString().replaceAll("\"", "");
-//									lon = bs.getValue("long").toString().replaceAll("\"", "");
-//								}
-//								if (!(lat == null) && !(lon == null)){
-//									Sparqler.latitudes.add(Double.parseDouble(lat));
-//									Sparqler.longitudes.add(Double.parseDouble(lon));
-//									NIFWriter.addPrefixToModel(nifModel, "geo", GEO.uri);
-//									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lat, GEO.latitude, XSDDatatype.XSDdouble);
-//									NIFWriter.addEntityProperty(nifModel, nameStartIndex, nameEndIndex, NIFReader.extractDocumentURI(nifModel), lon, GEO.longitude, XSDDatatype.XSDdouble);
-//								}
-//							}
-//						}
-						
-
-						
 					}
-					
-						
 				}
-//				// if there was a location in there, add document stats for geopoints
-//				if (Sparqler.latitudes.size() > 0 || Sparqler.longitudes.size() > 0){
-//					Sparqler.addGeoStats(nifModel, content, NIFReader.extractDocumentURI(nifModel));
-//				}
-
-	
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				throw new ExternalServiceFailedException("ERROR while analyzing text. Model not found in:" + dictionariesDirectory + dictionary);
@@ -184,11 +139,6 @@ public class DictionaryNameF {
 				throw new ExternalServiceFailedException("ERROR while analyzing text...");
 			}
 		}
-		//HttpHeaders responseHeaders = new HttpHeaders();
-        //responseHeaders.add("Content-Type", "RDF/XML");
-        //String nifString = NIFReader.model2String(nifModel, "TTL"); // TODO: probably don't want to have this hardcoded in here (as in many other places)
-       	//return new ResponseEntity<String>(nifString, responseHeaders, HttpStatus.OK);
-		
 		return nifModel;
 		
 	}

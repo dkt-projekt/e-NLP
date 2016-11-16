@@ -76,7 +76,7 @@ BEGIN_NORMALIZATION
 <NR_7_s|->:== <Var2_early2Day_0> <NMonthL_1> <NYear_2> <NDurD_10>
 <NR_8_s>:== <Var3_season2Dates_0> <NYear_1> <NDurD_60>
 <NR_9_s>:== <Var3_season2Dates_0> <NYear_2> <NDurD_60>  
-<NR_10_s>:== <NDayTheST_1> <NMonthL_0> <NYear_3> <NDurD_1>
+<NR_10_s>:== <NDayTheST_2> <NMonthL_0> <NYear_3> <NDurD_1>
 <NR_11_s>:== <Var1_start2Month_0> <NYear_2> <NDurD_91>
 <NR_12_s>:== <Var2_start2Day_0> <NMonthL_2> <NYear_3> <NDurD_10>
 <NR_13_s>:== <NYearBC_0> <NDurD_365>

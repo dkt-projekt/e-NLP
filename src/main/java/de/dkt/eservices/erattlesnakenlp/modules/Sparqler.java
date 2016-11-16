@@ -36,25 +36,25 @@ public class Sparqler {
 	//public static List<String> georssPoints = new ArrayList<String>();
 	private List<Double> longitudes = new ArrayList<Double>();
 	private List<Double> latitudes = new ArrayList<Double>();
-	
+
 	public static String getDBPediaLabelForLanguage(String URI, String targetLang){
-		
+
 		String targetLabel = null;
-		
+
 		ParameterizedSparqlString sQuery = new ParameterizedSparqlString(
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-				"SELECT ?label\n" +
-				"WHERE {\n" +
-				"?uri rdfs:label ?label\n" +
-				"}"
-		);
+						"SELECT ?label\n" +
+						"WHERE {\n" +
+						"?uri rdfs:label ?label\n" +
+						"}"
+				);
 		sQuery.setIri("uri", URI);
 		String service = "http://dbpedia.org/sparql";
 		//System.out.println("dEBUGGINg\n" + sQuery);
 		ResultSet res = null;
 		QueryExecution exec = QueryExecutionFactory.sparqlService(service, sQuery.asQuery());
 		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
-		
+
 		try{
 			res = exec.execSelect();
 			while (res.hasNext()) {
@@ -64,27 +64,27 @@ public class Sparqler {
 				if (labelLanguage.equalsIgnoreCase(targetLang)){
 					targetLabel = uri.toString().substring(0, uri.toString().lastIndexOf("@"));
 				}
-				
+
 			}
-			
+
 		}catch(Exception e){
 			logger.info("Unable to retrieve label for URI: " + URI + " in language: " + targetLang + ". Skipping.");
-	}
-		
+		}
+		exec.close();
 		return targetLabel;
 	}
-	
+
 	public static String getDBPediaURI(String label, String language, String service, String defaultGraph){
-		
+
 		String URI = null;
 		// may want to keep some database/structure somewhere to store queries like these, instead of having them hardcoded
 		// NOTE that this method just returns all URIs found (given base URI). May want to do some kind of disambiguation at some point.
 		ParameterizedSparqlString sQuery = new ParameterizedSparqlString(
 				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-				"SELECT ?uri WHERE {\n" +
-					"?uri rdfs:label ?label@" + language + ".\n" + // this is stupid, but couldn't figure out how to properly add this (e.g. setLiteral surrounds it with quotes, setIri with hooks...
-					//"FILTER NOT EXISTS { ?uri rdf:type rdf:Property } \n" +
-				"}"
+						"SELECT ?uri WHERE {\n" +
+						"?uri rdfs:label ?label@" + language + ".\n" + // this is stupid, but couldn't figure out how to properly add this (e.g. setLiteral surrounds it with quotes, setIri with hooks...
+						//"FILTER NOT EXISTS { ?uri rdf:type rdf:Property } \n" +
+						"}"
 				);
 		sQuery.setLiteral("label", label);
 		//System.out.println("DEBUGGING QUERY:" + sQuery.toString());
@@ -116,11 +116,11 @@ public class Sparqler {
 		}catch(Exception e){
 			logger.info("Unable to retrieve DBPedia URI for: " + label + ". Skipping.");
 		}
-
+		exec.close();
 		return URI;
 	}
 
-	
+
 	public void queryDBPedia(Model nifModel, String docURI, int nifStartIndex, int nifEndIndex, String infoURL, Property nifProp, String sparqlService){
 
 		ParameterizedSparqlString sQuery = new ParameterizedSparqlString( "" +
@@ -188,6 +188,7 @@ public class Sparqler {
 			}catch(Exception e){
 				logger.info("Unable to retrieve " + infoURL + " for: " + dbPediaURI+ ". Skipping.");
 			}
+			exec.close();
 		}
 	}
 
@@ -239,7 +240,7 @@ public class Sparqler {
 		//System.out.println("uri:" + uri);
 		//String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
 		//System.out.println(targetLabel);
-		
+
 	}
 
 }

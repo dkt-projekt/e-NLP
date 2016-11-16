@@ -65,9 +65,7 @@ public class SentenceDetector {
 		try {
 			SentenceModel model = new SentenceModel(modelIn);
 			SentenceDetectorME sentenceDetector = new SentenceDetectorME(model);
-
 			sentenceSpans = sentenceDetector.sentPosDetect(inputText);
-
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -77,8 +75,10 @@ public class SentenceDetector {
 			if (modelIn != null) {
 				try {
 					modelIn.close();
+					cpr=null;
 				}
 				catch (IOException e) {
+					throw new ExternalServiceFailedException("Error closing modelInputStream.");
 				}
 			}
 		}
@@ -136,6 +136,7 @@ public class SentenceDetector {
 			if (modelIn != null) {
 				try {
 					modelIn.close();
+					cpr=null;
 				}
 				catch (IOException e) {
 				}
@@ -246,6 +247,7 @@ public class SentenceDetector {
 			if (modelIn != null) {
 				try {
 					modelIn.close();
+					cpr=null;
 				}
 				catch (IOException e) {
 				}
