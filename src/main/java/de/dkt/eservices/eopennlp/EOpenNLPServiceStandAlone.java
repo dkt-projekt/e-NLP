@@ -137,8 +137,6 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         }
 	}
 	
-
-
 	@RequestMapping(value = "/e-nlp/namedEntityRecognition", method = {
             RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> analyzeText(
@@ -174,16 +172,14 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 				} else {
 	    			String msg = "Unsupported mode: " + m;
 	    			logger.error(msg);
-	    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
-	    					"", "Exception", msg, "");
+	    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, "", "Exception", msg, "");
 	    			throw new BadRequestException(msg);
 				}
 			}
 			if (rMode.contains("link") && (!rMode.contains("spot")) && informat.equals("text")) {
     			String msg = "Unsupported mode combination: Either provide NIF input or use link in combination with spot.";
     			logger.error(msg);
-    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
-    					"", "Exception", msg, "");
+    			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, "", "Exception", msg, "");
     			throw new BadRequestException(msg);
 			}
 
@@ -191,7 +187,6 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 				rMode.clear();
 				rMode.add("all");
 			}
-
 		} else { // if none specified, default is to do all
 			rMode.add("all");
 		}
@@ -207,8 +202,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         if(analysis == null) {
 			String msg = "Unspecified analysis type.";
 			logger.error(msg);
-			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, 
-					"", "Exception", msg, "");
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, "", "Exception", msg, "");
 			throw new BadRequestException(msg);
         }
         else if (analysis.equalsIgnoreCase("dict") || analysis.equalsIgnoreCase("temp")){
@@ -217,8 +211,6 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         		//throw new BadRequestException("Analysis type " + analysis + " in combination with mode " + mode + " not supported.");
         	//}
         }
-
-
         
         if(allParams.get("input")==null){
         	allParams.put("input", input);
@@ -235,13 +227,9 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
         NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
         
-        Model inModel = ModelFactory.createDefaultModel();
-
         String textForProcessing = null;
         if (nifParameters.getInformat().equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
-        	// input is sent as value of the input parameter
             textForProcessing = nifParameters.getInput();
-            //rdfConversionService.plaintextToRDF(inModel, textForProcessing,language, nifParameters.getPrefix());
         } else {
             //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
         	textForProcessing = postBody;
@@ -256,12 +244,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
         
         try {
-        	//ResponseEntity<String> result = service.analyze(textForProcessing, language, analysis, models, informat, nifParameters.getOutformat().toString());
         	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode);
-            //Model outModel = getRdfConversionService().unserializeRDF(result.getBody(), nifParameters.getOutformat());
-        	//outModel.read(new ByteArrayInputStream(result.getBody().getBytes()), null, informat);
-            outModel.add(inModel);
-            // remove unwanted info
             outModel.removeAll(null, RDF.type, OWL.ObjectProperty);
             outModel.removeAll(null, RDF.type, OWL.DatatypeProperty);
             outModel.removeAll(null, RDF.type, OWL.Class);
@@ -272,9 +255,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
                 outModel.removeAll(res, null, (RDFNode) null);
             }
     		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/openNLP/namedEntityRecognition", "Success", "", "", "", "");
-
             return createSuccessResponse(outModel, nifParameters.getOutformat());
-            
         } catch (BadRequestException e) {
 			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", e.getMessage(), "", "Exception", e.getMessage(), "");
         	logger.error(e.getMessage());

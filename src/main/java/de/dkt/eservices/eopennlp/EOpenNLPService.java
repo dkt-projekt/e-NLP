@@ -48,8 +48,8 @@ public class EOpenNLPService {
 		nameFinder.initializeModels();
 	}
 	
-	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) throws ExternalServiceFailedException, BadRequestException,
-					IOException, Exception {
+	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) 
+			throws ExternalServiceFailedException, BadRequestException,IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 		ParameterChecker.checkNotNullOrEmpty(analysisType, "analysis type", logger);
         try {
@@ -80,7 +80,6 @@ public class EOpenNLPService {
     		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
     		
         	if(analysisType.equalsIgnoreCase("ner")){
-        		
         		if (mode.equals("spot")){
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
@@ -89,6 +88,7 @@ public class EOpenNLPService {
             			if (!cprNERModel.exists()){
                 			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
                 		}
+        				cprNERModel =null;
             			statModels.add(storedModel);
             		}
             		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
@@ -105,6 +105,7 @@ public class EOpenNLPService {
             			if (!cprNERModel.exists()){
                 			throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
                 		}
+        				cprNERModel =null;
             			statModels.add(storedModel);
             		}
             		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
@@ -113,7 +114,6 @@ public class EOpenNLPService {
         		else{
         			throw new BadRequestException("Unsupported mode: " + mode);
         		}
-        		
 //        		ArrayList<String> statModels = new ArrayList<String>();
 //        		for (String nerModel : nerModels){
 //        			String storedModel = nerModel + ".bin";
@@ -134,6 +134,7 @@ public class EOpenNLPService {
     				if (!cprNERModel.exists()){
         				throw new BadRequestException("Unsupported model name for analysis: " + analysisType + " and model: " + nerModel + ". Please train a model with this name first.");
         			}
+    				cprNERModel =null;
     				dictionaries.add(nerModel);
         		}
         		nifModel = DictionaryNameF.detectEntitiesNIF(nifModel, dictionaries, sentModel);
@@ -145,16 +146,8 @@ public class EOpenNLPService {
         			if (nerModel.equalsIgnoreCase("germanDates") || nerModel.equalsIgnoreCase("englishDates")){
         				nifModel = RegexFinder.detectEntitiesNIF(nifModel, sentModel, languageParam, null);
         			}
-        			else if (nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_LOC") || // TODO: change these hardcoded references
-        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
-        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
-        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
-        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ||
-        				nerModel.equalsIgnoreCase("ner-de_aij-wikinerTrain_ORG") ){
-        				throw new BadRequestException("Please use germanDates or englishDates");
-        			}
         			else{
-        				throw new BadRequestException("Temporal analysis not supported for language: " + languageParam + " and model: " + nerModel);
+        				throw new BadRequestException("Please use germanDates or englishDates: temporal analysis not supported for other model names");
         			}
         		}
         		return nifModel;

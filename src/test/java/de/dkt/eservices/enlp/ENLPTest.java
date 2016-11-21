@@ -709,7 +709,7 @@ public class ENLPTest {
 		System.out.println(response16.getBody());
 		
 		System.out.println("Initial_33_" + (d11.getTime() - d21.getTime()) );
-		System.out.println("final_33_" + (d11.getTime() - d21.getTime()) );
+		System.out.println("final_33_" + (d12.getTime() - d22.getTime()) );
 		assertTrue( Math.abs(d11.getTime() - d21.getTime()) < 60000 );
 		assertTrue( Math.abs(d12.getTime() - d22.getTime()) < 60000 );
 	}

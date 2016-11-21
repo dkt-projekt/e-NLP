@@ -304,52 +304,6 @@ public class NameFinder {
 		return entityMap;
 	}
 
-	
-	
-
-	
-	//	try {
-	//		ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
-	//		InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
-	//		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-	//		NameFinderME nameFinder = new NameFinderME(tnfModel);
-	//		for (Span sentenceSpan : sentenceSpans){
-	//			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-	//			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-	//			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-	//			Span nameSpans[] = nameFinder.find(tokens);
-	//			for (Span s : nameSpans){
-	//				int nameStartIndex = 0;
-	//				int nameEndIndex = 0;
-	//				for (int i = 0; i <= tokenSpans.length ; i++){
-	//					if (i == s.getStart()){
-	//						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-	//					}
-	//					else if (i == s.getEnd()){
-	//						nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
-	//					}
-	//				}
-	//				ArrayList<Integer> se = new ArrayList<Integer>();
-	//				se.add(nameStartIndex);
-	//				se.add(nameEndIndex);
-	//				// if there was another enitity of this type found at this token-span, this will not be null
-	//				HashMap<String, Double> spanMap = entityMap.get(se);
-	//				//otherwise:
-	//				if (spanMap == null){
-	//					spanMap = new HashMap<String, Double>();
-	//				}
-	//				spanMap.put(s.getType(), s.getProb());
-	//				//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
-	//				entityMap.put(se, spanMap);
-	//			}
-	//		}
-	//	}
-	//	catch(IOException e) {
-	//		e.printStackTrace();
-	//	}
-	//	//System.out.println("DEBUGGING entityMap:" + entityMap);
-	//	return entityMap;
-	//}
 
 
 	/**
@@ -391,11 +345,6 @@ public class NameFinder {
 				TokenNameFinderFactory tnff = new TokenNameFinderFactory();
 				model = NameFinderME.train(language, modelName, sampleStream, tp, tnff);
 
-			}catch (Exception e) {
-	        	logger.error(e.getMessage());
-				//InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/trainModel", e.getMessage(), "", "Exception", e.getMessage(), "");
-	        	System.out.println("DEBUGGING HERE:" + e.getMessage());
-	        	throw e;
 			}
 			finally {
 				sampleStream.close();
@@ -422,12 +371,12 @@ public class NameFinder {
 	}
 
 
-	static String readFile(String path, Charset encoding) 
-			  throws IOException 
-			{
-			  byte[] encoded = Files.readAllBytes(Paths.get(path));
-			  return new String(encoded, encoding);
-			}
+//	static String readFile(String path, Charset encoding) 
+//			  throws IOException 
+//			{
+//			  byte[] encoded = Files.readAllBytes(Paths.get(path));
+//			  return new String(encoded, encoding);
+//			}
 	
 	public static void main(String[] args) {
 		
@@ -491,212 +440,7 @@ public class NameFinder {
 		//		}
 //		System.out.println("Done!");
 				
-		try {
-			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
-			String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\cleanTest.txt", StandardCharsets.UTF_8);
-			String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
-			ArrayList<NameFinderME> nfList = new ArrayList<NameFinderME>();
-			NameFinderME nameFinder = null;
-			HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
-			//Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, "de-sent.bin");
-			ArrayList<Span> ss = new ArrayList<Span>();
-			String[] sentenceList = content.split("\n");
-			Span[] sentenceSpans = new Span[sentenceList.length];
-			int j = 0;
-			for (int l = 0; l < sentenceList.length; l++){
-				String sent = sentenceList[l];
-				Span s = new Span(j, j + sent.length());
-				j = j + sent.length() + 1;
-				sentenceSpans[l] = s;
-			}
-			
-			try {
-				ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + "parzival_PER.bin");
-				InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
-				TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-				nameFinder = new NameFinderME(tnfModel);
-				nfList.add(nameFinder);
-//				ClassPathResource cprNERModel2 = new ClassPathResource(modelsDirectory + "bundestagDebattenTest_ORG.bin");
-//				InputStream tnfNERModel2 = new FileInputStream(cprNERModel2.getFile());
-//				TokenNameFinderModel tnfModel2 = new TokenNameFinderModel(tnfNERModel2);
-//				nameFinder = new NameFinderME(tnfModel2);
-//				nfList.add(nameFinder);
-				ClassPathResource cprNERModel3 = new ClassPathResource(modelsDirectory + "parzival_LOC.bin");
-				InputStream tnfNERModel3 = new FileInputStream(cprNERModel3.getFile());
-				TokenNameFinderModel tnfModel3 = new TokenNameFinderModel(tnfNERModel3);
-				nameFinder = new NameFinderME(tnfModel3);
-				nfList.add(nameFinder);
-//				ClassPathResource cprNERModel4 = new ClassPathResource(modelsDirectory + "ner-wikinerEn_LOC.bin");
-//				InputStream tnfNERModel4 = new FileInputStream(cprNERModel4.getFile());
-//				TokenNameFinderModel tnfModel4 = new TokenNameFinderModel(tnfNERModel4);
-//				nameFinder = new NameFinderME(tnfModel4);
-//				nfList.add(nameFinder);
-//				ClassPathResource cprNERModel5 = new ClassPathResource(modelsDirectory + "ner-wikinerEn_ORG.bin");
-//				InputStream tnfNERModel5 = new FileInputStream(cprNERModel5.getFile());
-//				TokenNameFinderModel tnfModel5 = new TokenNameFinderModel(tnfNERModel5);
-//				nameFinder = new NameFinderME(tnfModel5);
-//				nfList.add(nameFinder);
-//				ClassPathResource cprNERModel6 = new ClassPathResource(modelsDirectory + "ner-wikinerEn_PER.bin");
-//				InputStream tnfNERModel6 = new FileInputStream(cprNERModel6.getFile());
-//				TokenNameFinderModel tnfModel6 = new TokenNameFinderModel(tnfNERModel6);
-//				nameFinder = new NameFinderME(tnfModel6);
-//				nfList.add(nameFinder);
-				
-			} catch (Exception e) {
-				 e.printStackTrace();
-			}
-			
-			for (NameFinderME nfModel : nfList){
-				for (Span sentenceSpan : sentenceSpans) {
-					String sentence = content.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-					//Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-					//String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-					String[] tokens = sentence.split(" ");
-					Span[] tokenSpans = new Span[tokens.length];
-					int k = 0;
-					for (int m = 0; m < tokens.length; m++){
-						String token = tokens[m];
-						Span s = new Span(k, k + token.length());
-						k = k + token.length() + 1;
-						tokenSpans[m] = s;
-					}
-					
-					Span nameSpans[];
-					synchronized (nameFinder) {
-						nameSpans = nfModel.find(tokens);
-					}
-					for (Span s : nameSpans) {
-						int nameStartIndex = 0;
-						int nameEndIndex = 0;
-						for (int i = 0; i <= tokenSpans.length; i++) {
-							if (i == s.getStart()) {
-								nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-							} else if (i == s.getEnd()) {
-								nameEndIndex = tokenSpans[i - 1].getEnd() + sentenceSpan.getStart();
-							}
-						}
-						ArrayList<Integer> se = new ArrayList<Integer>();
-						se.add(nameStartIndex);
-						se.add(nameEndIndex);
-						HashMap<String, Double> spanMap = entityMap.get(se);
-						if (spanMap == null) {
-							spanMap = new HashMap<String, Double>();
-						}
-						spanMap.put(s.getType(), s.getProb());
-						entityMap.put(se, spanMap);
-					}
-				}
-
-			}
-			
-			
-			// now do the conll style printing
-			for (Span sentenceSpan : sentenceSpans) {
-				String sentence = content.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-				String[] tokens = sentence.split(" ");
-				Span[] tokenSpans = new Span[tokens.length];
-				int k = 0;
-				for (int m = 0; m < tokens.length; m++){
-					String token = tokens[m];
-					Span s = new Span(k, k + token.length());
-					k = k + token.length() + 1;
-					tokenSpans[m] = s;
-				}
-				String prevType = "O";
-				for (int i = 0; i < tokenSpans.length; i++) {
-					int tokenStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-					int tokenEndIndex = tokenSpans[i].getEnd() + sentenceSpan.getStart(); 
-					ArrayList<Integer> tl = new ArrayList<Integer>();
-					tl.add(tokenStartIndex);
-					tl.add(tokenEndIndex);
-					String type = "O";
-					if (entityMap.containsKey(tl)){
-						if (entityMap.get(tl).keySet().size() == 1){
-							for (String key : entityMap.get(tl).keySet()){
-								if (prevType.equals(key)){
-									type = "I-" + key;
-								}
-								else{
-									type = "B-" + key;
-								}
-								prevType = key;
-							}
-						}
-						else{
-							// for now, just taking the one with the highest probability, not considering secondary types. (currently, this is essentially the same as what happens above, but keeping it separate for when I want to assign secondary types)
-							Double highestProb = 0.0;
-						    String finalType = null;
-						    HashMap<String, Double> innerMap = entityMap.get(tl); 
-						    for (String key : innerMap.keySet()) {
-						        String sType = key;
-						        Double prob = innerMap.get(key);
-						        if (prob > highestProb){
-						        	finalType = sType;
-						        	highestProb = prob;
-						        }
-						    }
-						    if (prevType.equals(finalType)){
-						    	type = "I-" + finalType;
-						    }
-						    else{
-						    	type = "B-" + finalType;
-						    }
-						    prevType = finalType;
-						}
-					}
-					else{
-						prevType = "O";
-						}
-					String token = content.substring(tokenStartIndex, tokenEndIndex);
-					out.write(token + "\t" + type + "\n");
-					//System.out.println(token + "\t" + type);
-				}
-				out.write("\n");
-				
-				//System.out.println("\n");
-			}
-			System.out.println("Done.");
-			out.close();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String nifString = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
-				+ "@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
-				+ "@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
-				+ "@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
-				+ "@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"
-				+ "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" + "\n"
-				+ "<http://dkt.dfki.de/documents/#char=0,298>\n"
-				+ "        a               nif:RFC5147String , nif:String , nif:Context ;\n"
-				+ "        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex    \"298\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:isString    \"Pierre Vinken, 61 years old, will join the board as a nonexecutive director Nov. 29.\\r\\nMr. Vinken is chairman of Elsevier N.V., the Dutch publishing group.\\r\\nRudolph Agnew, 55 years old and former chairman of Consolidated Gold Fields PLC, was named a director of this British industrial conglomerate.\"^^xsd:string .\n"
-				+ "\n" + "<http://dkt.dfki.de/documents/#char=0,13>\n"
-				+ "        a                     nif:RFC5147String , nif:String ;\n"
-				+ "        nif:anchorOf          \"Pierre Vinken\"^^xsd:string ;\n"
-				+ "        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex          \"13\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
-				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "\n"
-				+ "<http://dkt.dfki.de/documents/#char=156,169>\n"
-				+ "        a                     nif:RFC5147String , nif:String ;\n"
-				+ "        nif:anchorOf          \"Rudolph Agnew\"^^xsd:string ;\n"
-				+ "        nif:beginIndex        \"156\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex          \"169\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
-				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "";
-
-		System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-		NameFinder nf = new NameFinder();
-		nf.initializeModels();
 		
-//		
-
-
-
-
 	}
 
 
