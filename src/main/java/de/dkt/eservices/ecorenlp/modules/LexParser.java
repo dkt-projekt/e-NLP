@@ -103,11 +103,12 @@ class LexParser {
     
     public static void main(String[] args) throws IOException { 
 
-       
-    	String everything = new String();
+       String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt";
+    	//String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\data\\140.txt";
+    	//String everything = new String();
         
         //Find out the span of the document
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+        /*ileInputStream inputStream = new FileInputStream(inputFile);
         try {
             everything = IOUtils.toString(inputStream);
             int docLength = everything.length();
@@ -118,8 +119,10 @@ class LexParser {
         
           SpanWord span = new SpanWord(everything, 0, everything.length());
     	  System.out.println("DEBUG document span: "+span.getStartSpan()+" "+span.getEndSpan());
-    	  
+    	  */
+       SpanWord span = getDocumentSpan(inputFile);
     	  //find out the number of words
+       		String everything = span.getText();
     	  String modEv = everything.replaceAll("\\."," .");
     	  List<String> list = Arrays.asList(modEv.split(" |\n"));
     	  int numberOfWords = list.size();
@@ -130,7 +133,7 @@ class LexParser {
            int value = 1;
            map.put(-1, 0);
            PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\output.txt");
-     	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt"),
+     	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader(inputFile),
                    new CoreLabelTokenFactory(), "");
            while (ptbt.hasNext()) {
              CoreLabel label = ptbt.next(); 
@@ -147,6 +150,8 @@ class LexParser {
     	  
     	  //start Lexical Parser out of the loop so it won't start for every sentence  
         initLexParser("de");
+        
+        //initializing some sentence maps for later use
         String sent = new String();
         HashMap<SpanWord,String[]> genderNumberMap= new HashMap<SpanWord,String[]>();
         LinkedHashMap<Integer,HashMap<SpanWord,String[]>> sentenceMap = new LinkedHashMap<Integer,HashMap<SpanWord,String[]>>();
@@ -156,8 +161,6 @@ class LexParser {
         int sentenceCounter = 0;
         
         //do sentence splitting in for loop 
-       
-        
         Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
         
         for (Span sentenceSpan : sentenceSpans){
@@ -188,7 +191,7 @@ class LexParser {
         ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
         for (Object s : a){
         	LabeledScoredTreeNode t = (LabeledScoredTreeNode)s;
-        	if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")){
+        	if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")||t.label().toString().equalsIgnoreCase("cnp")){
         	//if (t.label().toString().equalsIgnoreCase("np")){
         		ArrayList<String> npAsList = new ArrayList<String>();
         		for (Tree it : t.flatten()){
@@ -265,7 +268,7 @@ class LexParser {
         	List<String> list2 = Arrays.asList(word.split(" "));
         	List<String> wordTags = new ArrayList<String>();
       	  	int numberOfWords2 = list2.size();
-      	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15.txt")).get(wordNumber-1);
+      	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
       	  	
       	  	//cleanup of the result of the RFTagger
       	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
@@ -279,7 +282,7 @@ class LexParser {
         	
         	
         	for(int i=0; i<numberOfWords2; i++){
-        		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15.txt")).get(wordNumber-1+i);
+        		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
         		System.out.println("DEBUG wordTag: "+line32);
         		wordTags.add(line32);
         	}
@@ -343,7 +346,6 @@ class LexParser {
         	//System.out.println("LEVEL 1: sent1 "+key+Arrays.toString(indexes));
         	
         	//get the nps from the sentences and put them in mnps
-        	
         	ArrayList<SpanWord> mnps = stringToNpListwIndex(indexes);
         	
         	//loop per next 5 sentences, get nps for next sentence and put them in mnps
@@ -354,17 +356,19 @@ class LexParser {
         			mnps.add(abc);
         		}
         	}
+        	//the nps of six consecutive sentences are in mnps now
         	for(SpanWord t : mnps){
-        		System.out.println("DEBUG mnps: "+t.getText()+" "+t.getStartSpan());
+        		//System.out.println("DEBUG mnps: "+t.getText()+" "+t.getStartSpan());
         	}
+        	//System.out.println("------------------------------------------------------------------");
         	// loop through mnps and compare the single items
         	for (int k = 0; k < mnps.size(); k++){
         		for (int l = k+1; l < mnps.size(); l++){
         			SpanWord r = mnps.get(k);
         			SpanWord s = mnps.get(l);
-        			//System.out.println("np1:"+mnps.get(k));
+        			//System.out.println("DEBUG loop compare: "+r.getText()+r.getStartSpan()+"\t"+s.getText()+s.getStartSpan());
         			
-        			if (compareListsSpan(mnps.get(k),mnps.get(l))){
+        			if (compareListsSpan(r,s)){
         				
         				//System.out.println("FOUND MATCHING ITEMS:" + r.getText() + '\t'+s.getText());
         				String sent1 = everything.substring(indexes[0], indexes[1]);
@@ -380,7 +384,7 @@ class LexParser {
         					contextAsString += "\n" + ssss;
         				}
         				//System.out.println("in context:" + contextAsString);
-        				System.out.println("--------------------------------------------------------------------------------");
+        				//System.out.println("--------------------------------------------------------------------------------");
         				
         			}
         			//if edit distance is smaller than X, also print/consider as referring to the same thing
@@ -391,6 +395,27 @@ class LexParser {
         
    
     }
+    
+    
+    public static SpanWord getDocumentSpan(String inputFile) throws IOException{
+    	
+    	String everything = new String();
+    	FileInputStream inputStream = new FileInputStream(inputFile);
+        try {
+            everything = IOUtils.toString(inputStream);
+            int docLength = everything.length();
+            System.out.println("document length :"+docLength);
+        } finally {
+            inputStream.close();
+        }
+        
+          SpanWord span = new SpanWord(everything, 0, everything.length());
+    	  System.out.println("DEBUG document span: "+span.getStartSpan()+" "+span.getEndSpan());
+		return span;
+    	
+    }
+    
+    
     
     public static boolean compareLists(ArrayList<String> list1, ArrayList<String> list2){
     	if(list1.size()!=list2.size()){
@@ -409,9 +434,12 @@ class LexParser {
     	
     	String w1 = s1.getText();
     	String w2 = s2.getText();
+    	int i1 = s1.getStartSpan();
+    	int i2 = s2.getStartSpan();
     	boolean retValue = false;
     	if (w1.equalsIgnoreCase(w2)){
     		retValue = true;
+    		System.out.println("FOUND IT: "+w1+i1+"\t"+w2+i2);
     	}
 
     	else if (!w1.contains(" ") && !w2.contains(" ")&&w1.length() > 4 && w2.length()> 4){
@@ -422,7 +450,8 @@ class LexParser {
     			retValue = true;
     		}
     	}
-    	else if ((w1.split(" ").length==2 && w1.matches("(?i)(.*)\\b(der|die|das|dem|den|des|ein|eine|einen|einem|eines|einer)\\b(.*)"))){
+    	
+    	else if ((w2.split(" ").length!=2 && w1.split(" ").length==2 && w1.matches("(?i)(.*)\\b(der|die|das|dem|den|des|ein|eine|einen|einem|eines|einer)\\b(.*)"))){
     		String [] w1AsArray = w1.split(" ");
     		
     		w1 = w1AsArray[1];
@@ -435,7 +464,7 @@ class LexParser {
         			retValue = true;
         		}
     	} }
-    	else if ((w2.split(" ").length==2 && w2.matches("(?i)(.*)\\b(der|die|das|dem|den|des|ein|eine|einen|einem|eines|einer)\\b(.*)"))){
+    	else if ((w1.split(" ").length!=2 && w2.split(" ").length==2 && w2.matches("(?i)(.*)\\b(der|die|das|dem|den|des|ein|eine|einen|einem|eines|einer)\\b(.*)"))){
     		
     		String [] w2AsArray = w2.split(" ");
     		
