@@ -28,6 +28,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 import de.dkt.common.feedback.InteractionManagement;
 import de.dkt.common.filemanagement.FileFactory;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.tools.ParameterChecker;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
@@ -161,6 +162,21 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 		// Check the language parameter.
 		ParameterChecker.checkInList(language, "en;de", "language", logger);
         ParameterChecker.checkNotNullOrEmpty(models, "models", logger);
+        if (input == null) {
+			input = i;
+		}
+		if (informat == null) {
+			informat = f;
+		}
+		if (outformat == null) {
+			outformat = o;
+		}
+		if (prefix == null) {
+			prefix = p;
+		}
+        if (prefix == null || prefix.equalsIgnoreCase("")){
+			prefix = DKTNIF.getDefaultPrefix();
+		}
 
 		ArrayList<String> rMode = new ArrayList<>();
 
@@ -225,6 +241,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         	allParams.put("prefix", prefix);
         }
         
+        
         NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
         
         String textForProcessing = null;
@@ -244,7 +261,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
         
         
         try {
-        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode);
+        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode, nifParameters.getPrefix());
             outModel.removeAll(null, RDF.type, OWL.ObjectProperty);
             outModel.removeAll(null, RDF.type, OWL.DatatypeProperty);
             outModel.removeAll(null, RDF.type, OWL.Class);

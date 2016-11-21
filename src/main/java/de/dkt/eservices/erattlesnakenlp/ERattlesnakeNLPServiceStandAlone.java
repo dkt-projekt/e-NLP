@@ -124,6 +124,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         if(allParams.get("prefix")==null){
         	allParams.put("prefix", prefix);
         }
+        if (prefix == null || prefix.equalsIgnoreCase("")){
+			prefix = DKTNIF.getDefaultPrefix();
+		}
         
         NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
         
@@ -216,6 +219,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         else{
         	throw new BadRequestException("Language not supported.");
         }
+        if (prefix == null || prefix.equalsIgnoreCase("")){
+			prefix = DKTNIF.getDefaultPrefix();
+		}
         
         
 		NIFParameterSet nifParameters = this.normalizeNif(input, informat, outformat, postBody, acceptHeader, contentTypeHeader, prefix);
@@ -295,7 +301,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         else{
         	throw new BadRequestException("Language not supported.");
         }
-        
+        if (prefix == null || prefix.equalsIgnoreCase("")){
+			prefix = DKTNIF.getDefaultPrefix();
+		}
         double t;
         if (thresholdValue != null) {
 			//try to parse to double and check if in between 0 and 1.
@@ -334,7 +342,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         	// input is sent as value of the input parameter
             textForProcessing = nifParameters.getInput();
             inModel = NIFWriter.initializeOutputModel();
-            NIFWriter.addInitialString(inModel, textForProcessing, DKTNIF.getDefaultPrefix());
+            NIFWriter.addInitialString(inModel, textForProcessing, prefix);
         }
         else {
         	try{
@@ -418,6 +426,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         else{
         	throw new BadRequestException("Language not supported.");
         }
+        if (prefix == null || prefix.equalsIgnoreCase("")){
+			prefix = DKTNIF.getDefaultPrefix();
+		}
         
         double t;
         if (thresholdValue != null) {
@@ -454,7 +465,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 		Model inModel = null;
 		//TODO: debug the thing below, got a nullpointerexception last time I tried
 		if (nifParameters.getInformat().equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
-			rdfConversionService.plaintextToRDF(inModel, nifParameters.getInput(),language, nifParameters.getPrefix());
+			NIFWriter.addInitialString(inModel, nifParameters.getInput(), DKTNIF.getDefaultPrefix());
 		} else {
 			inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
 		}
