@@ -12,7 +12,7 @@ The system is setup so that the output of one component can directly be used as 
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition
+https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition
 
 ### Input
 The API conforms to the general NIF API specifications. For more details, see: http://persistence.uni-leipzig.org/nlp2rdf/specification/api.html
@@ -34,20 +34,20 @@ In addition to the input, informat and outformat parameters, the following param
 A document in NIF format annotated with entities depending on the type of analysis selected.
 
 Example cURL post for using the `ner` analysis:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=ner&models=ner-wikinerEn_PER;ner-wikinerEn_LOC&informat=text&outformat=turtle&mode=all&input=Welcome+to+Berlin+in+2016."`
+`curl -X POST "https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=ner&models=ner-wikinerEn_PER;ner-wikinerEn_LOC&informat=text&outformat=turtle&mode=all&input=Welcome+to+Berlin+in+2016."`
 
 Example of cURL post for using `dict` analysis:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=dict&models=testDummyDict_PER&informat=text&input=wer+weiß,+wo+Herbert+Eulenberg+ging?"`
+`curl -X POST "https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=dict&models=testDummyDict_PER&informat=text&input=wer+weiß,+wo+Herbert+Eulenberg+ging?"`
 
 
 Example of cURL post for using `temp` analysis:  
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=temp&models=englishDates&informat=text&outformat=turtle&input=Welcome+to+Berlin+in+2016."`
+`curl -X POST "https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition?language=en&analysis=temp&models=englishDates&informat=text&outformat=turtle&input=Welcome+to+Berlin+in+2016."`
 
 ##List of Models
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-nlp/listModels
+https://api.digitale-kuratierung.de/api/e-nlp/listModels
 
 ### Input
 `analysis`: Specify `ner` to return a list of all available models for the `ner` analysis (for the namedEntityRecognition endpoint), `dict` to return a list of all available models for the `dict` analysis or `temp` to return a list of all available models for the `temp` analysis.
@@ -56,13 +56,13 @@ http://api.digitale-kuratierung.de/api/e-nlp/listModels
 A list of available models.
 
 Examle cURL post:
-`curl -X POST "http://api.digitale-kuratierung.de/api/e-nlp/listModels?analysis=temp"`
+`curl -X POST "https://api.digitale-kuratierung.de/api/e-nlp/listModels?analysis=temp"`
 
 ## Train Model
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-nlp/trainModel
+https://api.digitale-kuratierung.de/api/e-nlp/trainModel
 
 ### Input
 `language`: The language of the input model. (Also here, only German and English are currently supported)
@@ -77,14 +77,14 @@ http://api.digitale-kuratierung.de/api/e-nlp/trainModel
 A trained model which is stored and can directly be used in the namedEntityRecognition endpoint.
 
 Examle cURL post:
-`curl "http://api.digitale-kuratierung.de/api/e-nlp/trainModel?modelName=testModel&language=en&analysis=ner" --data-urlencode "trainingData= <START:person> Pierre Vinken <END> , 61 years old , will join the board as a nonexecutive director Nov. 29 ."`
+`curl "https://api.digitale-kuratierung.de/api/e-nlp/trainModel?modelName=testModel&language=en&analysis=ner" --data-urlencode "trainingData= <START:person> Pierre Vinken <END> , 61 years old , will join the board as a nonexecutive director Nov. 29 ."`
 
 ##Suggesting entity candidates
 A random text can be uploaded to this endpoint (in plain text format). This text will be processed and every word in it is referenced to a background corpus, resulting in a TF/IDF value for every term. Depending on this value and the threshold that is used, the term will end up in the output. The output, in list format, will then contain terms that can be considered as descriptive for the uploaded text in particular. The user can manually go through the list, delete irrelevant entries, and use the list as a source for a dictionary that can be uploaded for dictionary-based NER.
 
 ### Endpoint
 
-http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates
+https://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates
 
 ### Input
 `language`: The language of the input text.
@@ -96,6 +96,6 @@ A list of terms that can be manually checked and then made into a dictionary for
 
 Examle cURL post:
 ```
-curl -X POST -d "Born on 15 October 1844, Nietzsche grew up in the small town of Röcken, near Leipzig, in the Prussian Province of Saxony. He was named after King Frederick William IV of Prussia, who turned forty-nine on the day of Nietzsche'\"'\"'s birth. (Nietzsche later dropped his middle name \"Wilhelm\".[18]) Nietzsche's parents, Carl Ludwig Nietzsche (1813–49), a Lutheran pastor and former teacher, and Franziska Oehler (1826–97), married in 1843, the year before their son's birth. They had two other children: a daughter, Elisabeth Förster-Nietzsche, born in 1846, and a second son, Ludwig Joseph, born in 1848. Nietzsche's father died from a brain ailment in 1849; Ludwig Joseph died six months later, at age two.[19] The family then moved to Naumburg, where they lived with Nietzsche's maternal grandmother and his father's two unmarried sisters. After the death of Nietzsche's grandmother in 1856, the family moved into their own house, now Nietzsche-Haus, a museum and Nietzsche study centre." "http://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates?language=en&threshold=0.2"
+curl -X POST -d "Born on 15 October 1844, Nietzsche grew up in the small town of Röcken, near Leipzig, in the Prussian Province of Saxony. He was named after King Frederick William IV of Prussia, who turned forty-nine on the day of Nietzsche'\"'\"'s birth. (Nietzsche later dropped his middle name \"Wilhelm\".[18]) Nietzsche's parents, Carl Ludwig Nietzsche (1813–49), a Lutheran pastor and former teacher, and Franziska Oehler (1826–97), married in 1843, the year before their son's birth. They had two other children: a daughter, Elisabeth Förster-Nietzsche, born in 1846, and a second son, Ludwig Joseph, born in 1848. Nietzsche's father died from a brain ailment in 1849; Ludwig Joseph died six months later, at age two.[19] The family then moved to Naumburg, where they lived with Nietzsche's maternal grandmother and his father's two unmarried sisters. After the death of Nietzsche's grandmother in 1856, the family moved into their own house, now Nietzsche-Haus, a museum and Nietzsche study centre." "https://api.digitale-kuratierung.de/api/e-nlp/suggestEntityCandidates?language=en&threshold=0.2"
 ```
 
