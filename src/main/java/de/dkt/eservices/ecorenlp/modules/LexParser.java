@@ -104,31 +104,18 @@ class LexParser {
     public static void main(String[] args) throws IOException { 
 
        String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt";
-    	//String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\data\\140.txt";
-    	//String everything = new String();
-        
-        //Find out the span of the document
-        /*ileInputStream inputStream = new FileInputStream(inputFile);
-        try {
-            everything = IOUtils.toString(inputStream);
-            int docLength = everything.length();
-            System.out.println("document length :"+docLength);
-        } finally {
-            inputStream.close();
-        }
-        
-          SpanWord span = new SpanWord(everything, 0, everything.length());
-    	  System.out.println("DEBUG document span: "+span.getStartSpan()+" "+span.getEndSpan());
-    	  */
+
        SpanWord span = getDocumentSpan(inputFile);
-    	  //find out the number of words
+       
+    	  //find out the number of words (just for debugging)
        		String everything = span.getText();
     	  String modEv = everything.replaceAll("\\."," .");
     	  List<String> list = Arrays.asList(modEv.split(" |\n"));
     	  int numberOfWords = list.size();
     	
           
-    	  // Map to match word number and word span
+    	  // Create a map to match word number and word index. We will need that later, when we match gender and number info from RFTagger
+    	  //output.txt contains the tokenized text. I feed the output.txt to the RFTagger, to keep the tokenization as consistent as possible
     	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
            int value = 1;
            map.put(-1, 0);
@@ -142,16 +129,19 @@ class LexParser {
        	   map.put(newIndex,value);
        	   
        	   out.println(label);
-       	   //System.out.println("DEBUG map: "+label+" Value: "+value+" Key: "+newIndex);
        	   value++;
            }
            out.close();
     	  
     	  
-    	  //start Lexical Parser out of the loop so it won't start for every sentence  
+    	 //start Lexical Parser out of the loop so it won't start for every sentence  
         initLexParser("de");
         
         //initializing some sentence maps for later use
+        //genderNumberMap contains the Noun Phrase as SpanWord and the gender and number information as String Array. 
+        //sentenceMap maps each sentence number to the genderNumberMap of the sentence
+        //sentenceMap2 maps the sentence number to the sentence as String
+        //sentenceMap3 maps the sentence number to the sentence Indexes
         String sent = new String();
         HashMap<SpanWord,String[]> genderNumberMap= new HashMap<SpanWord,String[]>();
         LinkedHashMap<Integer,HashMap<SpanWord,String[]>> sentenceMap = new LinkedHashMap<Integer,HashMap<SpanWord,String[]>>();
@@ -160,7 +150,7 @@ class LexParser {
         
         int sentenceCounter = 0;
         
-        //do sentence splitting in for loop 
+        //do sentence splitting in for loop. Fill the sentence Maps. 
         Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
         
         for (Span sentenceSpan : sentenceSpans){
@@ -175,39 +165,17 @@ class LexParser {
       sentenceSpans2[1]=sentenceEnd;
       sentenceMap3.put(sentenceCounter, sentenceSpans2);
       sentenceCounter++;
-      System.out.println("DEBUG sentenceMap3 :"+sentenceCounter+Arrays.toString(sentenceSpans2));
-      //System.out.println("begins at:" + sentenceStart);
-      //System.out.println("ends at:" + sentenceEnd);
-     
+      //System.out.println("DEBUG sentenceMap3 :"+sentenceCounter+Arrays.toString(sentenceSpans2));
+
             
-      //do parsing on the splitted sentence, this is where the magic happens
-        Tree tree = parser.parse(sent);
-        parser.setOptionFlags();
-       System.out.println("DEBUG tree: ");
-       tree.pennPrint();
-        
-        //Extract NPs and PPERs and adds them to list nps
-        Object[] a = tree.toArray();
-        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
-        for (Object s : a){
-        	LabeledScoredTreeNode t = (LabeledScoredTreeNode)s;
-        	if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")||t.label().toString().equalsIgnoreCase("cnp")){
-        	//if (t.label().toString().equalsIgnoreCase("np")){
-        		ArrayList<String> npAsList = new ArrayList<String>();
-        		for (Tree it : t.flatten()){
-        			if ((it.isLeaf())){
-        				npAsList.add(it.pennString().trim());
-        			}
-        		}
-        		
-        		nps.add(npAsList);
-        	}
-        }
-        
-         //iterates trough nps and extracts the phrase spans, matches them with gender and number info from RFTagger, puts them in genderNumberMap
-        
-        int counter = 0;
+      //do parsing on the split sentence
+      Tree tree = getTreeFromSentence(sent);
        
+        
+        //Extract NPs and PPERs and add them to list nps
+       ArrayList<ArrayList<String>> nps = extractNPs(tree);
+        
+         //iterate trough nps and extract the phrase spans
         List<SpanWord> wordSpans = new ArrayList<SpanWord>();
        
         for (ArrayList<String> subl : nps){
@@ -221,7 +189,7 @@ class LexParser {
         
         	
         	List<Integer> pos = new ArrayList<Integer>();
-        	
+        	int counter = 0;
         	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
         		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
         		    counter++;
@@ -259,78 +227,13 @@ class LexParser {
         	    	}
         		System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
         	}
-        	//get number and gender of nps and pps from RFTagger tagged document
         	
-        	int y = d.getStartSpan();
-        	int wordNumber = map.get(y);
-        	System.out.println("DEBUG wordNumber: "+wordNumber);
+        	//get number and gender of single words in Noun Phrases from RFTagger tagged document
+        	List<String> wordTags = getWordTags(d, map, word);
         	
-        	List<String> list2 = Arrays.asList(word.split(" "));
-        	List<String> wordTags = new ArrayList<String>();
-      	  	int numberOfWords2 = list2.size();
-      	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
-      	  	
-      	  	//cleanup of the result of the RFTagger
-      	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
-        	for(int i=0; i<numberOfWords2; i++){
-        		if (!line32.equals("")) // don't write out blank lines
-        	    {
-        	        fw.write(line32, 0, line32.length());
-        	    }
-        	}
-        	fw.close();*/
+        	// compute gender and number for Noun Phrases, put them in the empty genderNumberMap
+        	genderNumberMap = fillGenderNumberMap(genderNumberMap, wordTags, d);        
         	
-        	
-        	for(int i=0; i<numberOfWords2; i++){
-        		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
-        		System.out.println("DEBUG wordTag: "+line32);
-        		wordTags.add(line32);
-        	}
-        	int masc = 0;
-        	int fem = 0;
-        	int neut = 0;
-        	int sg = 0;
-        	int pl = 0;
-        	String[] genNum = new String[2];
-        	genNum[0] = "unkn";
-        	genNum[1] = "unkn";
-        	
-        	for(int i=0; i<wordTags.size(); i++){
-        		if (wordTags.get(i).contains("Sg")){
-        			sg++;
-        		}
-        		if (wordTags.get(i).contains("Pl")){
-        			pl++;
-        		}
-        		if (wordTags.get(i).contains("Masc")){
-        			masc++;
-        		}
-        		if (wordTags.get(i).contains("Fem")){
-        			fem++;
-        		}
-        		if (wordTags.get(i).contains("Neut")){
-        			neut++;
-        		}
-        	}
-        	if (masc>0 && fem<=0 && neut<=0){
-        		
-        		genNum[0] = "masc";
-        	}if (fem>0 && masc<=0&& neut<=0){
-        	
-        		genNum[0] = "fem";
-        	}if (neut>0 && masc<=0&& fem<=0){
-        		
-        		genNum[0] = "neut";
-        	}
-        	if (sg>0 && pl<=0){
-        		
-        		genNum[1] = "sg";
-        	}if (pl>0 && sg<=0){
-        	
-        		genNum[1] = "pl";
-        	}
-        	
-        	genderNumberMap.put(d, genNum);
         	
         }
         
@@ -339,7 +242,8 @@ class LexParser {
         }
       
         
-        // I put a map of the number of the sentence and the sentence indexes in here
+        //Here is where the matching begins
+        // To match the Noun Phrases put a map of the number of the sentence and the sentence indexes in here
         for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
         	int[] indexes= a.getValue();
         	int key = a.getKey();
@@ -394,6 +298,118 @@ class LexParser {
         }
         
    
+    }
+    
+    public static HashMap<SpanWord,String[]> fillGenderNumberMap (HashMap<SpanWord,String[]> genderNumberMap, List<String> wordTags, SpanWord d){
+    	
+    	int masc = 0;
+    	int fem = 0;
+    	int neut = 0;
+    	int sg = 0;
+    	int pl = 0;
+    	String[] genNum = new String[2];
+    	genNum[0] = "unkn";
+    	genNum[1] = "unkn";
+    	
+    	for(int i=0; i<wordTags.size(); i++){
+    		if (wordTags.get(i).contains("Sg")){
+    			sg++;
+    		}
+    		if (wordTags.get(i).contains("Pl")){
+    			pl++;
+    		}
+    		if (wordTags.get(i).contains("Masc")){
+    			masc++;
+    		}
+    		if (wordTags.get(i).contains("Fem")){
+    			fem++;
+    		}
+    		if (wordTags.get(i).contains("Neut")){
+    			neut++;
+    		}
+    	}
+    	if (masc>0 && fem<=0 && neut<=0){
+    		
+    		genNum[0] = "masc";
+    	}if (fem>0 && masc<=0&& neut<=0){
+    	
+    		genNum[0] = "fem";
+    	}if (neut>0 && masc<=0&& fem<=0){
+    		
+    		genNum[0] = "neut";
+    	}
+    	if (sg>0 && pl<=0){
+    		
+    		genNum[1] = "sg";
+    	}if (pl>0 && sg<=0){
+    	
+    		genNum[1] = "pl";
+    	}
+    	
+    	genderNumberMap.put(d, genNum);
+    	return genderNumberMap;
+    
+    }
+    
+    public static List<String> getWordTags(SpanWord d, HashMap<Integer, Integer> map, String word) throws IOException{
+    	int y = d.getStartSpan();
+    	int wordNumber = map.get(y);
+    	System.out.println("DEBUG wordNumber: "+wordNumber);
+    	
+    	List<String> list2 = Arrays.asList(word.split(" "));
+    	List<String> wordTags = new ArrayList<String>();
+  	  	int numberOfWords2 = list2.size();
+  	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
+  	  	
+  	  	//cleanup of the result of the RFTagger
+  	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
+    	for(int i=0; i<numberOfWords2; i++){
+    		if (!line32.equals("")) // don't write out blank lines
+    	    {
+    	        fw.write(line32, 0, line32.length());
+    	    }
+    	}
+    	fw.close();*/
+    	
+    	
+    	for(int i=0; i<numberOfWords2; i++){
+    		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
+    		System.out.println("DEBUG wordTag: "+line32);
+    		wordTags.add(line32);
+    	}
+    	return wordTags;
+    }
+    
+    
+    
+    public static ArrayList<ArrayList<String>> extractNPs(Tree tree){
+    	Object[] a = tree.toArray();
+        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
+        for (Object s : a){
+        	LabeledScoredTreeNode t = (LabeledScoredTreeNode)s;
+        	if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")||t.label().toString().equalsIgnoreCase("cnp")){
+        	//if (t.label().toString().equalsIgnoreCase("np")){
+        		ArrayList<String> npAsList = new ArrayList<String>();
+        		for (Tree it : t.flatten()){
+        			if ((it.isLeaf())){
+        				npAsList.add(it.pennString().trim());
+        			}
+        		}
+        		
+        		nps.add(npAsList);
+        	}
+        }
+		return nps;
+    	
+    }
+    
+    public static Tree getTreeFromSentence(String sent){
+        Tree tree = parser.parse(sent);
+        parser.setOptionFlags();
+       System.out.println("DEBUG tree: ");
+       tree.pennPrint();
+		return tree;
+    	
     }
     
     
