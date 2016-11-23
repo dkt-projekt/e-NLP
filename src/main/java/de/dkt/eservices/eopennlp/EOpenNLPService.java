@@ -48,7 +48,7 @@ public class EOpenNLPService {
 		nameFinder.initializeModels();
 	}
 	
-	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode) 
+	public Model analyze(String textToProcess, String languageParam, String analysisType, String models,  RDFConstants.RDFSerialization inFormat, String mode, String prefix) 
 			throws ExternalServiceFailedException, BadRequestException,IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 		ParameterChecker.checkNotNullOrEmpty(analysisType, "analysis type", logger);
@@ -56,7 +56,7 @@ public class EOpenNLPService {
         	Model nifModel = null;
         	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
     			nifModel = NIFWriter.initializeOutputModel();
-    			NIFWriter.addInitialString(nifModel, textToProcess, DKTNIF.getDefaultPrefix());
+    			NIFWriter.addInitialString(nifModel, textToProcess, prefix);
     		}
     		else {
     			try{

@@ -304,48 +304,6 @@ public class NameFinder {
 		return entityMap;
 	}
 
-	//	try {
-	//		ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
-	//		InputStream tnfNERModel = new FileInputStream(cprNERModel.getFile());
-	//		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-	//		NameFinderME nameFinder = new NameFinderME(tnfModel);
-	//		for (Span sentenceSpan : sentenceSpans){
-	//			String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-	//			Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-	//			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-	//			Span nameSpans[] = nameFinder.find(tokens);
-	//			for (Span s : nameSpans){
-	//				int nameStartIndex = 0;
-	//				int nameEndIndex = 0;
-	//				for (int i = 0; i <= tokenSpans.length ; i++){
-	//					if (i == s.getStart()){
-	//						nameStartIndex = tokenSpans[i].getStart() + sentenceSpan.getStart();
-	//					}
-	//					else if (i == s.getEnd()){
-	//						nameEndIndex = tokenSpans[i-1].getEnd() + sentenceSpan.getStart();
-	//					}
-	//				}
-	//				ArrayList<Integer> se = new ArrayList<Integer>();
-	//				se.add(nameStartIndex);
-	//				se.add(nameEndIndex);
-	//				// if there was another enitity of this type found at this token-span, this will not be null
-	//				HashMap<String, Double> spanMap = entityMap.get(se);
-	//				//otherwise:
-	//				if (spanMap == null){
-	//					spanMap = new HashMap<String, Double>();
-	//				}
-	//				spanMap.put(s.getType(), s.getProb());
-	//				//spanMap.put("LOC", 0.5); // hacking in entity of another type for testing disambiguation
-	//				entityMap.put(se, spanMap);
-	//			}
-	//		}
-	//	}
-	//	catch(IOException e) {
-	//		e.printStackTrace();
-	//	}
-	//	//System.out.println("DEBUGGING entityMap:" + entityMap);
-	//	return entityMap;
-	//}
 
 
 	/**
@@ -357,7 +315,8 @@ public class NameFinder {
 	 */
 	public String trainModel(String inputTrainData, String modelName, String language) throws BadRequestException, ExternalServiceFailedException {
 
-		//TODO: do we want to check here for valid syntax of training models? 
+		//TODO: find a way to validate the format of the training data and provide some intelligible error message when it's not right 
+		
 		//Charset charset;				
 		ObjectStream<String> lineStream;
 		ObjectStream<NameSample> sampleStream;
@@ -411,7 +370,37 @@ public class NameFinder {
 		return FilenameUtils.removeExtension(newModel.getName());//newModel.getName();//.getPath();
 	}
 
+
+//	static String readFile(String path, Charset encoding) 
+//			  throws IOException 
+//			{
+//			  byte[] encoded = Files.readAllBytes(Paths.get(path));
+//			  return new String(encoded, encoding);
+//			}
+	
 	public static void main(String[] args) {
+		
+//		try {
+//			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+//			for (int i = 0; i < 1000; i++){
+//				//System.out.println(i);
+//				System.gc();
+//				MemoryUsage m_inter_initial = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+//				String text = "aap noot mies";
+//				Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(text, "en-sent.bin");
+//				for (Span sentenceSpan : sentenceSpans) {
+//					String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+//					Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
+//				}
+//				MemoryUsage m_inter_end = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+//				out.println(i + "\t" + m_inter_initial.getUsed() +"\t"+ m_inter_end.getUsed());
+//				System.gc();
+//			}
+//			out.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		//		String nifString = 
 		//				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
@@ -449,37 +438,9 @@ public class NameFinder {
 		//			// TODO Auto-generated catch block
 		//			e.printStackTrace();
 		//		}
-		String nifString = "@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n"
-				+ "@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n"
-				+ "@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n"
-				+ "@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n"
-				+ "@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n"
-				+ "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" + "\n"
-				+ "<http://dkt.dfki.de/documents/#char=0,298>\n"
-				+ "        a               nif:RFC5147String , nif:String , nif:Context ;\n"
-				+ "        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex    \"298\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:isString    \"Pierre Vinken, 61 years old, will join the board as a nonexecutive director Nov. 29.\\r\\nMr. Vinken is chairman of Elsevier N.V., the Dutch publishing group.\\r\\nRudolph Agnew, 55 years old and former chairman of Consolidated Gold Fields PLC, was named a director of this British industrial conglomerate.\"^^xsd:string .\n"
-				+ "\n" + "<http://dkt.dfki.de/documents/#char=0,13>\n"
-				+ "        a                     nif:RFC5147String , nif:String ;\n"
-				+ "        nif:anchorOf          \"Pierre Vinken\"^^xsd:string ;\n"
-				+ "        nif:beginIndex        \"0\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex          \"13\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
-				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "\n"
-				+ "<http://dkt.dfki.de/documents/#char=156,169>\n"
-				+ "        a                     nif:RFC5147String , nif:String ;\n"
-				+ "        nif:anchorOf          \"Rudolph Agnew\"^^xsd:string ;\n"
-				+ "        nif:beginIndex        \"156\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:endIndex          \"169\"^^xsd:nonNegativeInteger ;\n"
-				+ "        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,298> ;\n"
-				+ "        itsrdf:taClassRef     <http://dbpedia.org/ontology/Person> .\n" + "";
-
-		System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-		NameFinder nf = new NameFinder();
-		nf.initializeModels();
-
-
+//		System.out.println("Done!");
+				
+		
 	}
 
 
