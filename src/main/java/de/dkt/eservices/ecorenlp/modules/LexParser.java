@@ -31,6 +31,7 @@ import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.process.TokenizerFactory;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.process.CoreLabelTokenFactory;
@@ -132,6 +133,18 @@ class LexParser {
        	   value++;
            }
            out.close();
+           
+           //other tokenization; unused right now
+           ArrayList<HasWord> hwl = new ArrayList<HasWord>();
+           String[] tokens = "I can't do that .".split(" ");
+           for (String t : tokens){
+            HasWord hw = new Word();
+            hw.setWord(t);
+            hwl.add(hw);
+           }
+           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+           Tree tree2 = lexParser.parse(hwl);
+           System.out.println("tree2:" + tree2);
     	  
     	  
     	 //start Lexical Parser out of the loop so it won't start for every sentence  
@@ -150,7 +163,7 @@ class LexParser {
         
         int sentenceCounter = 0;
         
-        //do sentence splitting in for loop. Fill the sentence Maps. 
+        //do sentence splitting. Fill the sentence Maps. 
         Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
         
         for (Span sentenceSpan : sentenceSpans){
@@ -165,7 +178,7 @@ class LexParser {
       sentenceSpans2[1]=sentenceEnd;
       sentenceMap3.put(sentenceCounter, sentenceSpans2);
       sentenceCounter++;
-      //System.out.println("DEBUG sentenceMap3 :"+sentenceCounter+Arrays.toString(sentenceSpans2));
+
 
             
       //do parsing on the split sentence
@@ -261,10 +274,6 @@ class LexParser {
         		}
         	}
         	//the nps of six consecutive sentences are in mnps now
-        	for(SpanWord t : mnps){
-        		//System.out.println("DEBUG mnps: "+t.getText()+" "+t.getStartSpan());
-        	}
-        	//System.out.println("------------------------------------------------------------------");
         	// loop through mnps and compare the single items
         	for (int k = 0; k < mnps.size(); k++){
         		for (int l = k+1; l < mnps.size(); l++){
@@ -274,7 +283,6 @@ class LexParser {
         			
         			if (compareListsSpan(r,s)){
         				
-        				//System.out.println("FOUND MATCHING ITEMS:" + r.getText() + '\t'+s.getText());
         				String sent1 = everything.substring(indexes[0], indexes[1]);
         				String[] context = new String[5];
         				int g = 0;
@@ -282,16 +290,12 @@ class LexParser {
         					context[g] = everything.substring(sentenceMap3.get(h)[0],sentenceMap3.get(h)[1]); 
         					g++;
         				}
-        				//System.out.println("INFO:                  Found matching items:" + r.getText()+" "+r.getStartSpan()+ "\t"+s.getText()+" "+s.getStartSpan());
         				String contextAsString = sent1;
         				for (String ssss : context){
         					contextAsString += "\n" + ssss;
         				}
-        				//System.out.println("in context:" + contextAsString);
-        				//System.out.println("--------------------------------------------------------------------------------");
         				
         			}
-        			//if edit distance is smaller than X, also print/consider as referring to the same thing
         		}
         	}
         	
@@ -359,6 +363,8 @@ class LexParser {
     	List<String> list2 = Arrays.asList(word.split(" "));
     	List<String> wordTags = new ArrayList<String>();
   	  	int numberOfWords2 = list2.size();
+  	  	
+  	  	//This is the tokenized file created by RFTagger
   	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
   	  	
   	  	//cleanup of the result of the RFTagger
@@ -511,8 +517,6 @@ class LexParser {
     }
         
         
-    // do it with indexes only, not with the texts
-    
     public static  ArrayList<ArrayList<String>> stringToNpList (String sent){
     Tree tree = parser.parse(sent);
     parser.setOptionFlags();
