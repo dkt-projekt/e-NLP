@@ -27,7 +27,7 @@ public class sandbox {
 	
     public static void main(String[] args) throws IOException{
     	
-    	//And then you call it like this:
+    
            LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
         String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
            //String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
@@ -40,90 +40,7 @@ public class sandbox {
         	 System.out.println("HEAD:" + npHash.get(sp));
         	}
    
-    /*String sent = "er er.";
-    String newWord = "er";
-    String word = "er";
-//    if (sent.matches(newWord) && sent.indexOf(newWord) != sent.lastIndexOf(newWord)){
-		//what happens if a word is in the sentence more than once?
-		/*int index = sent.indexOf(word);
-		while (index >= 0) {
-		    System.out.println("---------------------------------------DEBUG yamyam: ----------------------------\n"+index);
-		    System.out.println(word);
-		    index = sent.indexOf(word, index + 1);
-		}
-//	}
-    
-    //Str = "Er gilt als der Mann dem die schwierigsten Missionen gelingen: Blitzschnell erobert er Gebiete zurück die das syrische Regime schon verloren glaubt.";
-    String str = "Er er er Tiger";
-    int res = 0;
-    Pattern p = Pattern.compile("(?i)\\b"+word+"\\b");
-    Matcher m = p.matcher(str);
-    while (m.find()) {
-      res= m.groupCount();
-    }
-    System.out.println(res);
-    
-    if (str.contains(word) && str.indexOf(word) != str.lastIndexOf(word)){
-    Matcher n = Pattern.compile("(?i)\\b"+word+"\\b").matcher(str);
-    List<Integer> pos = new ArrayList<Integer>();
-    while (n.find())
-    {
-        pos.add(n.start());
-    }
-    System.out.println(pos);
-    
-    sent = "Der 49-Jährige weiß warum er warnt.";
-    word = "er";
-    int begin = 0 + sent.indexOf(word);
-	int end = begin +word.length();
-	SpanWord d = new SpanWord(word,begin,end);
-	
-	System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
-	
-	 String inputStr = sent;
-	    String patternStr = word;
-	    Pattern pattern = Pattern.compile("\\b"+patternStr+"\\b");
-	    Matcher matcher = pattern.matcher(inputStr);
-	    if(matcher.find()){
 
-	    System.out.println(matcher.start());//this will give you index
-	    }
-    
-    }*/
-    //boolean a = compareListsSpan("ein Labrador","der Labrador");
-    //System.out.println(a);
-    	
-   /* initLexParser("de");
-    tree = parser.parse("Barack Obama, Präsident der vereinigten Staaten, besuchte heute Berlin.");
-    parser.setOptionFlags();
-   System.out.println("DEBUG tree: ");
-   tree.pennPrint();
-   
-   Object[] a = tree.toArray();
-   ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
-   for (Object s : a){
-   	LabeledScoredTreeNode t = (LabeledScoredTreeNode)s;
-   	if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")||t.label().toString().equalsIgnoreCase("cnp")){
-   	//if (t.label().toString().equalsIgnoreCase("np")){
-   		ArrayList<String> npAsList = new ArrayList<String>();
-   		for (Tree it : t.flatten()){
-   			if ((it.isLeaf())){
-   				npAsList.add(it.pennString().trim());
-   			}
-   		}
-   		
-   		nps.add(npAsList);
-   	}
-   	
-     for (ArrayList<String> subl : nps){
-   	//System.out.println("DEBUG subl: "+subl); 
-   	String word = new String(); 
-   	word =(subl.get(0));
-   	for(int x=1; x<subl.size(); x++){
-   		word = word + " " +(subl.get(x));
-   	System.out.println("word: "+word);    
-   	}}}*/
- 
    
     }
   public static HashMap<Span, String> traverseTreeForNPs(Tree tree, HashMap<Span, String> npHash){
@@ -148,10 +65,7 @@ public class sandbox {
     	 }
     
     	
-    
-    private static void detectAppositive(String sent){
-    	
-    }
+ 
     
     private static void initLexParser(String lang){
     	if (lang.equalsIgnoreCase("en")){
