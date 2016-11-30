@@ -16,12 +16,33 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.io.IOUtils;
+import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.core.io.ClassPathResource;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.query.ParameterizedSparqlString;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+
+import de.dkt.common.niftools.DBO;
+import de.dkt.common.niftools.GEO;
+import de.dkt.common.niftools.ITSRDF;
+import de.dkt.common.niftools.NIF;
+import de.dkt.common.niftools.NIFReader;
+import de.dkt.common.niftools.NIFWriter;
+import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 //import de.dkt.eservices.erattlesnakenlp.modules.Span;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
@@ -49,6 +70,7 @@ public class CRETASharedTask2017 {
 	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 	static Integer NPLenghtThreshold = 10;
 	static Integer NPLenghtThresholdForMinisterCases = 6;
+	static Double learningThreshold = 5.0;
 	
 	static String readFile(String path, Charset encoding) 
 			  throws IOException 
@@ -104,7 +126,22 @@ public class CRETASharedTask2017 {
 		return npHash;
 	}
 	
-	public static ArrayList<String> getPersonFullNameList(String filePath){
+	
+	public static ArrayList<String> appendToNameList(ArrayList<String> l, String filePath){
+		String content;
+		try {
+			content = readFile(filePath, StandardCharsets.UTF_8);
+			for (String line : content.split("\n")){
+				l.add(line.trim());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return l;
+	}
+	
+	public static ArrayList<String> getFullNameList(String filePath){
 		ArrayList<String> personNames = new ArrayList<String>();
 		String content;
 		try {
@@ -117,6 +154,109 @@ public class CRETASharedTask2017 {
 			e.printStackTrace();
 		}
 		return personNames;
+	}
+	
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findTypedTokensIncludeChunking(ArrayList<String> typeTokens, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String checkType, HashMap<String, HashMap<String, HashMap<String, HashMap<String, Double>>>> qnh){
+
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			String[] tokens = sent.split(" ");
+			Span[] tokenSpans = new Span[tokens.length];
+			int k = 0;
+			for (int m = 0; m < tokens.length; m++){
+				String token = tokens[m];
+				Span sp = new Span(k, k + token.length());
+				k = k + token.length() + 1;
+				tokenSpans[m] = sp;
+			}
+			for (int i = 0; i < tokenSpans.length; i++) {
+				int tokenStartIndex = tokenSpans[i].getStart() + s.getStart();
+				int tokenEndIndex = tokenSpans[i].getEnd() + s.getStart(); 
+				ArrayList<Integer> tl = new ArrayList<Integer>();
+				tl.add(tokenStartIndex);
+				tl.add(tokenEndIndex);
+				String token = content.substring(tokenStartIndex, tokenEndIndex);
+				if (typeTokens.contains(token)){
+					HashMap<String, Double> im = new HashMap<String, Double>();
+					im.put(checkType,  1.0);
+					if (qnh.containsKey(token)){
+						HashMap<String, HashMap<String, Double>> ilm = qnh.get(token).get("LEFT");
+						HashMap<String, HashMap<String, Double>> irm = qnh.get(token).get("RIGHT");
+						// this is just looking one step back. If this works, go further back
+						if (i > 1){
+							String leftToken = content.substring(tokenSpans[i-1].getStart() + s.getStart(), tokenSpans[i-1].getEnd() + s.getStart());
+							String preLeftToken = content.substring(tokenSpans[i-2].getStart() + s.getStart(), tokenSpans[i-2].getEnd() + s.getStart());
+							if (ilm.containsKey(leftToken) && irm.containsKey(leftToken)){
+								if(ilm.get(leftToken).containsKey(preLeftToken) && ilm.get(leftToken).containsKey(token) && irm.get(leftToken).containsKey(preLeftToken) && irm.get(leftToken).containsKey(token)){
+									System.out.println("GETTING HERE");
+								}
+							}
+						}
+					}
+					entityMap.put(tl, im);
+				}
+			}
+		}
+		
+		return entityMap;
+	}
+	
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findTypedTokensAugmented(ArrayList<String> typeTokens, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String checkType, ArrayList<String> excludeTokens){
+		
+		ArrayList<String> tokenListwithoutExcludeTokens = new ArrayList<String>();
+		for (String s : typeTokens){
+			if (!(excludeTokens.contains(s))){
+				tokenListwithoutExcludeTokens.add(s);
+			}
+		}
+		
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			String[] tokens = sent.split(" ");
+			Span[] tokenSpans = new Span[tokens.length];
+			int k = 0;
+			for (int m = 0; m < tokens.length; m++){
+				String token = tokens[m];
+				Span sp = new Span(k, k + token.length());
+				k = k + token.length() + 1;
+				tokenSpans[m] = sp;
+			}
+			for (int i = 0; i < tokenSpans.length; i++) {
+				int tokenStartIndex = tokenSpans[i].getStart() + s.getStart();
+				int tokenEndIndex = tokenSpans[i].getEnd() + s.getStart(); 
+				ArrayList<Integer> tl = new ArrayList<Integer>();
+				tl.add(tokenStartIndex);
+				tl.add(tokenEndIndex);
+				String token = content.substring(tokenStartIndex, tokenEndIndex);
+				if (typeTokens.contains(token)){
+					// check if it is in excludetokens, and if so, if there are other words around
+					boolean b = false;
+					if (excludeTokens.contains(token)){
+						// taking a window size of 3, experiment with making it smaller or bigger
+						int startOfWindow = tokenSpans[Math.max(0,  i-3)].getStart() + s.getStart();
+						int endOfWindow = tokenSpans[Math.min(tokenSpans.length-1, i+3)].getEnd() + s.getStart();
+						String windowStr = content.substring(startOfWindow, endOfWindow);
+						System.out.println("DEBUGGING windowString:" + windowStr);
+						for (String str : tokenListwithoutExcludeTokens){
+							if (windowStr.contains(str)){
+								System.out.println("REALNAME FOUND:" + str);
+								b = true;
+							}
+						}
+					}
+					if (b){
+						HashMap<String, Double> im = new HashMap<String, Double>();
+						im.put(checkType,  1.0);
+						entityMap.put(tl, im);
+					}
+				}
+			}
+			
+		}
+		
+		return entityMap;
 	}
 	
 	public static HashMap<ArrayList, HashMap<String, Double>> findTypedTokens(ArrayList<String> typeTokens, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String checkType){
@@ -152,12 +292,179 @@ public class CRETASharedTask2017 {
 	}
 	
 	
-	public static HashMap<ArrayList, HashMap<String, Double>> findPersonNamesWithList(HashMap<ArrayList, HashMap<String, Double>> entityMap, ArrayList<String> personFullNames, String content, Span[] sentenceSpans){
+	public static ArrayList<String> getUppercaseTokens(Span[] sentenceSpans, String content){
+		
+		ArrayList<String> uct = new ArrayList<String>();
+		
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			Pattern pattern = Pattern.compile("[A-Z]\\S+");
+		    Matcher matcher = pattern.matcher(sent);
+		    while (matcher.find()) {
+		    	int startInd = matcher.start() + s.getStart();
+		    	int endInd = matcher.end() + s.getStart();
+		    	if (startInd != s.getStart()){ // to correct for sentence-initial words
+		    		String token = content.substring(startInd, endInd);
+		    		uct.add(token);
+		    	}
+		    }
+			
+		}
+		
+		return uct;
+		
+	}
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findUppercaseTokens(Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String type){
+		
+		
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			Pattern pattern = Pattern.compile("[A-Z]\\S+");
+		    Matcher matcher = pattern.matcher(sent);
+		    while (matcher.find()) {
+		    	int startInd = matcher.start() + s.getStart();
+		    	int endInd = matcher.end() + s.getStart();
+		    	ArrayList<Integer> temp = new ArrayList<Integer>();
+		    	temp.add(startInd);
+		    	temp.add(endInd);
+		    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
+		    	tempMap.put(type, 1.0);
+		    	if (startInd != s.getStart()){ // to correct for sentence-initial words
+		    		//System.out.println("ADDING SOMETHING HERE:" + sent + "\t" + content.substring(startInd, endInd));
+		    		entityMap.put(temp,  tempMap);
+		    	}
+		    }
+			
+		}
+		
+		return entityMap;
+	}
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findAbbrevs(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans, String type){
+		
+		
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			Pattern pattern = Pattern.compile("[A-Z]{2,}");
+		    Matcher matcher = pattern.matcher(sent);
+		    while (matcher.find()) {
+		    	int startInd = matcher.start() + s.getStart();
+		    	int endInd = matcher.end() + s.getStart();
+		    	ArrayList<Integer> temp = new ArrayList<Integer>();
+		    	temp.add(startInd);
+		    	temp.add(endInd);
+		    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
+		    	tempMap.put(type, 1.0);
+		    	entityMap.put(temp,  tempMap);
+		    }
+			
+		}
+		
+		return entityMap;
+	}
+	
+	public static ArrayList<Span> chunkInputText(Span[] sentenceSpans, String content, ArrayList<HashMap> chunkProbs){
+	
+		ArrayList<Span> returnSpans = new ArrayList<Span>();
+		
+		HashMap<String, HashMap<String, Double>> leftMap = chunkProbs.get(0);
+		HashMap<String, HashMap<String, Double>> rightMap = chunkProbs.get(1);
+		
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			//System.out.println("DEBUGGING sent:" + sent);
+			String[] tokens = sent.split(" ");
+			Span[] tokenSpans = new Span[tokens.length];
+			int k = 0;
+			for (int m = 0; m < tokens.length; m++){
+				String token = tokens[m];
+				Span sp = new Span(k, k + token.length());
+				k = k + token.length() + 1;
+				tokenSpans[m] = sp;
+			}
+			int spanStart = s.getStart();
+			int spanEnd = s.getStart();
+			for (int i = 1; i < tokenSpans.length-1; i++) {
+				String token = content.substring(tokenSpans[i].getStart() + s.getStart(), tokenSpans[i].getEnd() + s.getStart());
+				String leftToken = content.substring(tokenSpans[i-1].getStart() + s.getStart(), tokenSpans[i-1].getEnd() + s.getStart());
+				String rightToken = content.substring(tokenSpans[i+1].getStart() + s.getStart(), tokenSpans[i+1].getEnd() + s.getStart());
+				Double leftProb = 0.0;
+				Double rightProb = 0.0;
+				if (leftMap.containsKey(token)){
+					if (leftMap.get(token).containsKey(leftToken)){
+						leftProb = leftMap.get(token).get(leftToken);
+					}
+				}
+				if (rightMap.containsKey(token)){
+					if (rightMap.get(token).containsKey(rightToken)){
+						rightProb = rightMap.get(token).get(rightToken);
+					}
+				}
+				
+				if (leftProb < rightProb || token.matches("[\\.,:;\\?\'\"!]")){
+					spanEnd = tokenSpans[i].getEnd() + s.getStart();
+					Span newSpan = new Span(spanStart, spanEnd);
+					//System.out.println("Chunk found:" + content.substring(newSpan.getStart(), newSpan.getEnd()));
+					returnSpans.add(newSpan);
+					spanStart = spanEnd + 1;
+				}
+				
+				else{
+					// do nothing
+				}
+				
+			}
+		}
+		
+		return returnSpans;
+		
+	}
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findNamesInChunks(ArrayList<String> typeTokens, ArrayList<Span> chunks, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String type){
+		
+		for (Span c : chunks){
+			String chunk = content.substring(c.getStart(), c.getEnd());
+			boolean b = false;
+			for (String name : typeTokens){
+				if (chunk.toLowerCase().contains(name.toLowerCase())){
+					b = true;
+				}
+			}
+			if (b){
+				String[] tokens = chunk.split(" ");
+				Span[] tokenSpans = new Span[tokens.length];
+				int k = 0;
+				for (int m = 0; m < tokens.length; m++){
+					String token = tokens[m];
+					Span sp = new Span(k, k + token.length());
+					k = k + token.length() + 1;
+					tokenSpans[m] = sp;
+				}
+				for (int i = 0; i < tokenSpans.length; i++) {
+					ArrayList<Integer> temp = new ArrayList<Integer>();
+			    	temp.add(tokenSpans[i].getStart() + c.getStart());
+			    	temp.add(tokenSpans[i].getEnd() + c.getStart());
+			    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
+			    	tempMap.put(type, 1.0);
+			    	entityMap.put(temp,  tempMap);
+				}
+				
+			}
+		}
+		
+		return entityMap;
+	}
+	
+
+	// only difference with the other one (findFullNamesWithList) is that here I'm also considering an 's' after the name. Perhaps I should include that in the default case....
+	public static HashMap<ArrayList, HashMap<String, Double>> findFullNamesWithListGenitiveCases(HashMap<ArrayList, HashMap<String, Double>> entityMap, ArrayList<String> fullNames, String content, Span[] sentenceSpans, String type){
 		
 		// using sentenceSpans here, but could do it directly on content as well, I think....
 		for (Span s : sentenceSpans){
 			String sent = content.substring(s.getStart(), s.getEnd());
-			for (String name : personFullNames){
+			for (String name : fullNames){
+				name = name + "s";
 				int lastIndex = 0;
 				while(lastIndex != -1){
 				    lastIndex = sent.indexOf(name,lastIndex);
@@ -169,7 +476,7 @@ public class CRETASharedTask2017 {
 				    	temp.add(start);
 				    	temp.add(end);
 				    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
-				    	tempMap.put("PER", 1.0); // putting dummy value, TODO: check type (PER or Person?)
+				    	tempMap.put(type, 1.0);
 				    	entityMap.put(temp,  tempMap);
 				    	//System.out.println("DEBUGGING: adding literal name here: " + content.substring(start, end));
 				    }
@@ -180,6 +487,36 @@ public class CRETASharedTask2017 {
 		return entityMap;
 	}
 	
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findFullNamesWithList(HashMap<ArrayList, HashMap<String, Double>> entityMap, ArrayList<String> fullNames, String content, Span[] sentenceSpans, String type){
+		
+		// using sentenceSpans here, but could do it directly on content as well, I think....
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			for (String name : fullNames){
+				int lastIndex = 0;
+				while(lastIndex != -1){
+				    lastIndex = sent.indexOf(name,lastIndex);
+				    if(lastIndex != -1){
+				    	int start = lastIndex + s.getStart();
+				    	int end = lastIndex + name.length() + s.getStart();
+				    	lastIndex += name.length();
+				    	ArrayList<Integer> temp = new ArrayList<Integer>(); // hrrr, this is why I don't like Java
+				    	temp.add(start);
+				    	temp.add(end);
+				    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
+				    	tempMap.put(type, 1.0);
+				    	entityMap.put(temp,  tempMap);
+				    	//System.out.println("DEBUGGING: adding literal name here: " + content.substring(start, end));
+				    }
+				}
+			}
+		}
+		
+		return entityMap;
+	}
+	
+
 	public static ArrayList<String> splitFullNames(ArrayList<String> fullNames){
 		ArrayList<String> retList = new ArrayList<String>();
 		for (String name : fullNames){
@@ -191,7 +528,43 @@ public class CRETASharedTask2017 {
 		return retList;
 	}
 	
-	public static HashMap<ArrayList, HashMap<String, Double>> findSubstringsInNPs(ArrayList<String> personIndicatorSubstrings, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap){
+	public static HashMap<ArrayList, HashMap<String, Double>> findAbbrevsInNPs(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans, String type){
+		
+		LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+		ArrayList<String> cTypes = new ArrayList<String>();
+		cTypes.add("NP");
+//		cTypes.add("PP"); // maybe exclude this is precision is getting too low
+//		cTypes.add("CNP"); // maybe exclude this is precision is getting too low
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			Tree tree = lexParser.parse(sent);
+			HashMap<Span, String> npHash = traverseTreeForCTypes(tree, new HashMap<Span, String>(), cTypes);
+			for (Span sp : npHash.keySet()) {
+				String npString = sent.substring(sp.getStart(), sp.getEnd());
+				Pattern pattern = Pattern.compile("[A-Z]{2,}$"); // try with other word characters (to also capture EU-Rat)
+			    Matcher matcher = pattern.matcher(npString);
+			    while (matcher.find()) {
+//			    	int startInd = matcher.start() + sp.getStart() + s.getStart();
+//			    	int endInd = matcher.end() + sp.getStart() + s.getStart();
+			    	ArrayList<Integer> temp = new ArrayList<Integer>();
+			    	temp.add(s.getStart() + sp.getStart());
+			    	temp.add(s.getStart() + sp.getEnd());
+			    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
+			    	tempMap.put(type, 1.0);
+			    	if (npString.split(" ").length < NPLenghtThresholdForMinisterCases) {
+			    		//System.out.println("DEBUGIN adding:" + content.substring(temp.get(0), temp.get(1)));
+						entityMap.put(temp, tempMap);
+					}
+			    }
+			}
+		}
+		
+		return entityMap;
+	}
+	
+	
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findSubstringsInNPs(ArrayList<String> nameIndicatorSubstrings, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String type){
 		
 		LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
 		ArrayList<String> cTypes = new ArrayList<String>();
@@ -202,12 +575,12 @@ public class CRETASharedTask2017 {
 			String sent = content.substring(s.getStart(), s.getEnd());
 			Tree tree = lexParser.parse(sent);
 			HashMap<Span, String> npHash = traverseTreeForCTypes(tree, new HashMap<Span, String>(), cTypes);
-			for (String substr : personIndicatorSubstrings) {
+			for (String substr : nameIndicatorSubstrings) {
 				for (Span sp : npHash.keySet()) {
 					String npString = sent.substring(sp.getStart(), sp.getEnd());
-					if (npString.toLowerCase().contains(substr)) {
+					if (npString.toLowerCase().contains(substr.toLowerCase())) {
 						HashMap<String, Double> tempMap = new HashMap<String, Double>();
-						tempMap.put("PER", 1.0);
+						tempMap.put(type, 1.0);
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + s.getStart());
 						tl.add(sp.getEnd() + s.getStart());
@@ -223,9 +596,77 @@ public class CRETASharedTask2017 {
 		return entityMap;
 	}
 	
+	public static boolean customSparqlr(String infoURL, String sparqlService){
+		ParameterizedSparqlString sQuery = new ParameterizedSparqlString(
+				"select ?uri ?info where {\n" +
+				" ?uri ?infoURL ?info.\n" + 
+				" FILTER (?uri = ?dbpediaURI)" + "}");
+		sQuery.setIri("dbpediaURI", infoURL);
+		sQuery.setIri("infoURL", "http://www.georss.org/georss/point");
+		//System.out.println("DEBUGGING qyuery:" + sQuery.toString());
+		QueryExecution exec = QueryExecutionFactory.sparqlService(sparqlService, sQuery.asQuery());
+		// System.out.println("DEBUGGING final sparql query:" +
+		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+		try {
+			ResultSet res = exec.execSelect();
+			while (res.hasNext()) {
+				return true;
 
+			}
+		} catch (Exception e) {
+			//TODO
+		}
+		exec.close();
+		return false;
+		
+	}
+
+	public static HashMap<ArrayList, HashMap<String, Double>> findPPsStartingWithIn(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans, String type){
+		
+		LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+		ArrayList<String> cTypes = new ArrayList<String>();
+		cTypes.add("PP");
+		for (Span s : sentenceSpans){
+			String sent = content.substring(s.getStart(), s.getEnd());
+			Tree tree = lexParser.parse(sent);
+			HashMap<Span, String> ppHash = traverseTreeForCTypes(tree, new HashMap<Span, String>(), cTypes);
+			for (Span sp : ppHash.keySet()){
+				String ppString = sent.substring(sp.getStart(), sp.getEnd());
+				if (ppString.toLowerCase().startsWith("in ")){
+					if (ppString.split(" ").length < 4){
+						HashMap<String, Double> tempMap = new HashMap<String, Double>();
+						tempMap.put(type, 1.0);
+						ArrayList<Integer> tl = new ArrayList<Integer>();
+						tl.add(sp.getStart() + 3 + s.getStart()); // NOTE: this is very ugly and dangerous; hardcoding the +3, because I do not want to that the preceding "in" itself. Breaks if there are, for some reasons, two whitespaces, a punctuation mark, or whatever else.
+						tl.add(sp.getEnd() + s.getStart());
+						String entURI = Sparqler.getDBPediaURI(sent.substring(sp.getStart() + 3, sp.getEnd()), "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+						//Modify this so I get return type or something that I can use
+						if (entURI != null){
+							boolean location = customSparqlr(entURI, "http://de.dbpedia.org/sparql");
+							if (location == true){
+								entityMap.put(tl,  tempMap);
+								//System.out.println("DEBUG adding:" + ppString);
+							}
+							
+						}
+						//TODO combine to make more sense! This one gets high P and low R. Fix!
+						
+//						if (location == true){
+//							entityMap.put(tl,  tempMap);
+//							System.out.println("DEBUG adding:" + ppString);
+//						}
+					}
+
+				}
+				
+			}
+		}
+		
+		return entityMap;
+	}
 	
-	public static HashMap<ArrayList, HashMap<String, Double>> findPersonsInNPs(ArrayList<String> personNames, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap){
+	
+	public static HashMap<ArrayList, HashMap<String, Double>> findNamesInNPs(ArrayList<String> names, Span[] sentenceSpans, String content, HashMap<ArrayList, HashMap<String, Double>> entityMap, String type){
 		
 		LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
 		ArrayList<String> cTypes = new ArrayList<String>();
@@ -236,12 +677,12 @@ public class CRETASharedTask2017 {
 			String sent = content.substring(s.getStart(), s.getEnd());
 			Tree tree = lexParser.parse(sent);
 			HashMap<Span, String> npHash = traverseTreeForCTypes(tree, new HashMap<Span, String>(), cTypes);
-			for (String name : personNames){
+			for (String name : names){
 				for (Span sp : npHash.keySet()){
 					String npString = sent.substring(sp.getStart(), sp.getEnd());
 					if (npString.toLowerCase().matches(String.format(".*\\b%s\\b.*", name.toLowerCase()))){
 						HashMap<String, Double> tempMap = new HashMap<String, Double>();
-						tempMap.put("PER", 1.0);
+						tempMap.put(type, 1.0);
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + s.getStart());
 						tl.add(sp.getEnd() + s.getStart());
@@ -256,6 +697,17 @@ public class CRETASharedTask2017 {
 		
 		
 		return entityMap;
+	}
+	
+	public static ArrayList<String> cleanList(ArrayList<String> ml, ArrayList<String> excludeList){
+		
+		ArrayList<String> retList = new ArrayList<String>();
+		for (String s : ml){
+			if (!(excludeList.contains(s.toLowerCase()))){
+				retList.add(s);
+			}
+		}
+		return retList;
 	}
 	
 	public static ArrayList<String> cleanList(ArrayList<String> l){
@@ -374,7 +826,7 @@ public class CRETASharedTask2017 {
 	public static void evalNER(ArrayList<String> testLines, ArrayList<String> goldLines, boolean strict, String entityType){
 		
 		if (testLines.size() != goldLines.size()){
-			System.err.println("ERROR: test and gold sets are not of same length. Exiting now.\n");
+			System.err.println(String.format("ERROR: test and gold sets are not of same length (%s != %s). Exiting now.\n", testLines.size(), goldLines.size()));
 			return;
 		}
 		
@@ -402,10 +854,11 @@ public class CRETASharedTask2017 {
 				}
 				else if(testType.equalsIgnoreCase(entityType) && !(goldType.equalsIgnoreCase(entityType))){
 					fp += 1;
-					System.out.println("FALSE POSITIVE: " + Arrays.toString(testparts).replaceAll("\n", "").trim());
+					System.out.println("FALSE POSITIVE\ttest type: " + Arrays.toString(testparts).replaceAll("\n", "").trim() + "\t gold type: " + Arrays.toString(goldparts).replaceAll("\n", "").trim());
 				}
 				else if (!(testType.equalsIgnoreCase(entityType)) && goldType.equalsIgnoreCase(entityType)){
 					fn += 1;
+					//System.out.println("FALSE NEGATIVE\ttest type: " + Arrays.toString(testparts).replaceAll("\n", "").trim() + "\t gold type: " + Arrays.toString(goldparts).replaceAll("\n", "").trim());
 				}
 				else if (!(testType.equalsIgnoreCase(entityType)) && !(goldType.equalsIgnoreCase(entityType))){
 					tn += 1;
@@ -431,22 +884,25 @@ public class CRETASharedTask2017 {
 		if (p + r != 0){
 			f = 2 * ((p * r) / (p + r));
 		}
+		System.out.println("Scores for type:" + entityType);
 		System.out.println("P: " + p);
 		System.out.println("R: " + r);
 		System.out.println("F: " + f);
 	}
 	
-	public static ArrayList<String> learnFromCONLLData(String filePath, String checkType){
+	public static ArrayList<String> learnFromCONLLData(String filePath, String checkType, ArrayList<String> extraData){
 		
 		ArrayList<String> perTokens = new ArrayList<String>(); // this ArrayList<String> structure only allows for one definitive type. If I want to include probabilities, have to go for a nested map (i.e. just return probMap below)
-		Double threshold = 5.0;
+		
 		try {
 			ArrayList<String> trainingLines = (ArrayList)IOUtils.readLines(new FileInputStream(filePath));
-			HashMap<String, HashMap<String, Double>> probMap = new HashMap<String, HashMap<String, Double>>(); 
+			HashMap<String, HashMap<String, Double>> probMap = new HashMap<String, HashMap<String, Double>>();
+			ArrayList<String> trainingVocab = new ArrayList<String>();
 			for (String s : trainingLines){
 				if (s.contains("\t")){
 					String[] parts = s.split("\t");
 					String word = parts[0];
+					trainingVocab.add(word);
 					String type = parts[1].replaceAll("^[BI]\\-", "");
 					HashMap<String, Double> tm = new HashMap<String, Double>();
 					Double score = 1.0;
@@ -465,7 +921,7 @@ public class CRETASharedTask2017 {
 				if (im.containsKey(checkType) && im.containsKey("O")){
 					Double perScore = im.get(checkType);
 					Double oScore = im.get("O");
-					if (perScore > oScore * threshold){
+					if (perScore > oScore * learningThreshold){
 						perTokens.add(word);
 					}
 				}
@@ -473,6 +929,14 @@ public class CRETASharedTask2017 {
 					perTokens.add(word);					
 				}
 			}
+			if (!extraData.isEmpty()){
+				for (String str : extraData){
+					if (!trainingVocab.contains(str)){
+						perTokens.add(str);
+					}
+				}
+			}
+			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -483,6 +947,79 @@ public class CRETASharedTask2017 {
 		
 	}
 	
+	public static ArrayList<HashMap> getChunkProbs(String filepath){
+		
+		ArrayList<HashMap> retList = new ArrayList<HashMap>();
+		HashMap<String, HashMap<String, Double>> leftMap = new HashMap<String, HashMap<String, Double>>();
+		HashMap<String, HashMap<String, Double>> rightMap = new HashMap<String, HashMap<String, Double>>();
+		
+		try {
+			HashMap<String, Integer> tokenCount = new HashMap<String, Integer>();
+			ArrayList<String> trainingLines = (ArrayList)IOUtils.readLines(new FileInputStream(filepath));
+			for (String line : trainingLines){
+				String[] tokens = line.split(" ");
+				for (int i = 0; i < tokens.length; i++){
+					String token = tokens[i];
+					int tc = 1;
+					if (tokenCount.containsKey(token)){
+						tc += tokenCount.get(token);
+					}
+					tokenCount.put(token, tc);
+					String leftToken = ((i > 0) ? tokens[i-1] : "SOS");
+					HashMap<String, Double> ilm = new HashMap<String, Double>();
+					Double v = 1.0;
+					if (leftMap.containsKey(token)){
+						ilm = leftMap.get(token);
+						if (ilm.containsKey(leftToken)){
+							v += ilm.get(leftToken);
+						}
+					}
+					ilm.put(leftToken, v);
+					leftMap.put(token,  ilm);
+					
+					String rightToken = ((i < tokens.length-1) ? tokens[i+1] : "EOS");
+					HashMap<String, Double> irm = new HashMap<String, Double>();
+					Double w = 1.0;
+					if (rightMap.containsKey(token)){
+						irm = rightMap.get(token);
+						if (irm.containsKey(rightToken)){
+							w += irm.get(rightToken);
+						}
+					}
+					irm.put(rightToken,  w);
+					rightMap.put(token, irm);
+					
+				}
+			}
+			
+			// normalize
+			for (String token : leftMap.keySet()){
+				HashMap<String, Double> lim = leftMap.get(token);
+				for (String st : lim.keySet()){
+					lim.put(st,  lim.get(st) / tokenCount.get(token));
+				}
+			}
+			
+			for (String token : rightMap.keySet()){
+				HashMap<String, Double> rim = rightMap.get(token);
+				for (String st : rim.keySet()){
+					rim.put(st,  rim.get(st) / tokenCount.get(token));
+				}
+			}
+			
+			retList.add(leftMap);
+			retList.add(rightMap);
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return retList;
+	}
 	
 	public static void bundestagDebattenExperiment(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans){
 		
@@ -490,15 +1027,21 @@ public class CRETASharedTask2017 {
 		 BUNDESTAGDEBATTEN EXPERIMENTS
 		 *****************************/
 		
+		
+		/*
+		 * PER SECTION
+		 */
+		
+		/*
 		//First Sieve: find names based on nameList
-		ArrayList<String> personFullNames = getPersonFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\BundestagmitgliederListeManuallyFiltered.txt");
-		entityMap = findPersonNamesWithList(entityMap, personFullNames, content, sentenceSpans);
+		ArrayList<String> personFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\BundestagmitgliederListeManuallyFiltered.txt");
+		entityMap = findFullNamesWithList(entityMap, personFullNames, content, sentenceSpans, "PER");
 		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
 		//Second Sieve: split fullname list into firstname lastname, extract NPs, any NP with a name in it, tag that whole NP. (probably will only find stuff based on lastname, but there may be chinese/other names in there for which it is not immediately obvious which is the first and last name (at least to me), middle names, etc.
 		ArrayList<String> personNames = splitFullNames(personFullNames);
 		// doing some cleaning up of personNames to exclude stopwords, middle name abbrevs (A., which, due to the dot, are especially nasty for regex matching), etc.
 		personNames = cleanList(personNames);
-		entityMap = findPersonsInNPs(personNames, sentenceSpans, content, entityMap);
+		entityMap = findNamesInNPs(personNames, sentenceSpans, content, entityMap, "PER");
 		System.out.println("INFO: Size after NP-based name spotting: " + entityMap.keySet().size());
 		//Third Sieve: use some keywords that indicate a person in the bundestag-domain specifically
 		ArrayList<String> personIndicatorSubstrings = new ArrayList<String>();
@@ -520,27 +1063,98 @@ public class CRETASharedTask2017 {
 		personPrefixes.add("frau");
 		
 		// Fourth Sieve: using prefixes and tag the whole NP as PER 
-		entityMap = findPersonsInNPs(personPrefixes, sentenceSpans, content, entityMap); // this is an abuse of the findPersonsInNPs method, because I'm not feeding it names but prefixes, but procedure is the same
+		entityMap = findNamesInNPs(personPrefixes, sentenceSpans, content, entityMap); // this is an abuse of the findPersonsInNPs method, because I'm not feeding it names but prefixes, but procedure is the same
 		System.out.println("INFO: Size after NP-based prefix spotting: " + entityMap.keySet().size());
 		
 		System.out.println("entityMap:" + entityMap);
-		for (ArrayList<Integer> entSpan : entityMap.keySet()){
-			System.out.println("entSpan:" + content.substring(entSpan.get(0), entSpan.get(1)));
-		}
+//		for (ArrayList<Integer> entSpan : entityMap.keySet()){
+//			System.out.println("entSpan:" + content.substring(entSpan.get(0), entSpan.get(1)));
+//		}
 		
 		
 		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
 		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
-		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll", "PER");
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "PER", new ArrayList<String>());
 		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "PER");
-		//TODO on monday: debug this learnFromCONLLData and findTypedTokens. Then check how much f increases (or decreases :). 	
-		// then move on with parzival
+
+		*/
+		/*
+		 * END OF PER SECTION
+		 */
 		
+		/*
+		 * LOC SECTION
+		 */
+		/*
+		ArrayList<String> locationFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\worldCountriesAugmented.txt");
+//		entityMap = findFullNamesWithList(entityMap, locationFullNames, content, sentenceSpans, "LOC");
+//		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
 		
+		ArrayList<String> locationNames = splitFullNames(locationFullNames);
+		// doing some cleaning up of personNames to exclude stopwords, middle name abbrevs (A., which, due to the dot, are especially nasty for regex matching), etc.
+//		locationNames = cleanList(locationNames);
+//		entityMap = findNamesInNPs(locationNames, sentenceSpans, content, entityMap, "LOC");
+//		System.out.println("INFO: Size after NP-based name spotting: " + entityMap.keySet().size());
+		
+		entityMap = findPPsStartingWithIn(entityMap, content, sentenceSpans, "LOC");
+		System.out.println("INFO: Size after in-initial NPs: " + entityMap.keySet().size());
+		
+		// semi-cheat sieve: take all names in locationfullNames, then filter out stuff that can be discarded with the cheat-stuff (like Turkey, which is often an organisation instead of a location)
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "LOC", locationFullNames);
+		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "LOC");
 		
 //		String[] modelNames = {"goethe_PER.bin", "goethe_LOC.bin"};
 //		ArrayList<NameFinderME> nfList = populateNameFinderList(modelNames);
 //		
+ 
+		 */
+		/*
+		 * END OF LOC SECTION
+		 */
+		
+		
+		/*
+		 * ORG SECTION
+		 */
+		
+//		entityMap = findAbbrevs(entityMap, content, sentenceSpans, "ORG");
+//		System.out.println("INFO: Size after abbrev spotting: " + entityMap.keySet().size());
+//		
+//		
+//		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+//		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "ORG", new ArrayList<String>());
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "ORG");
+//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+//		
+//		
+		/*
+		 * END OF ORG SECTION
+		 */
+		
+		/*
+		 * WRK SECTION
+		 */
+		
+		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
+		werkIndicatorSubstrings.add("vertrag");
+		werkIndicatorSubstrings.add("verträge");
+		werkIndicatorSubstrings.add("charta");
+		werkIndicatorSubstrings.add("verfassung");
+		werkIndicatorSubstrings.add("kriterien");
+		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
+		
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "WRK", new ArrayList<String>());
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "WRK");
+//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		
+		/*
+		 * END OF WRK SECTION
+		 */
+		
 //		for (NameFinderME nfModel : nfList){
 //			for (Span sentenceSpan : sentenceSpans) {
 //				String sentence = content.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
@@ -596,8 +1210,9 @@ public class CRETASharedTask2017 {
 		try {
 			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll"));
 			
-					
-			evalNER(testLines, goldLines, false, "PER");
+			
+			evalNER(testLines, goldLines, false, "WRK");
+			
 			
 			
 			
@@ -616,9 +1231,216 @@ public class CRETASharedTask2017 {
 	
 	public static void parzivalExperiment(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans){
 		
+		// only types in training data here are LOC and PER
+		
+		/*
+		 * PER SECTION
+		 */
+		// NOTE: here I'm not cheating, but actually separated training and test data (because there is a bit more in total than in the bundestagdomain
+		
+		//ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\train.conll", "PER", new ArrayList<String>());
+		// cleaning list of typeTokens because of too many false poasitives.
+//		ArrayList<String> excludeTokens = new ArrayList<String>();
+//		excludeTokens.add("des");
+//		excludeTokens.add("der");
+//		excludeTokens.add("dem");
+//		excludeTokens.add("man");
+//		excludeTokens.add("diu");
+//		excludeTokens.add("sîn");
+//		excludeTokens.add("de");
+//		excludeTokens.add("la");
+//		
+//		//typeTokens = cleanList(typeTokens, excludeTokens);
+//		
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "PER");
+//		System.out.println("INFO: Size after non-cheat sieve: " + entityMap.keySet().size());
+//		
+////		entityMap = findNamesInNPs(typeTokens, sentenceSpans, content, entityMap, "PER");
+////		System.out.println("INFO: Size after NP-based spotting: " + entityMap.keySet().size());
+//		
+//		//NOTE: maybe for this I want to cleanList on typeTokens before!
+////		ArrayList<HashMap> chunkProbs = getChunkProbs("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.txt");
+////		ArrayList<Span> chunks = chunkInputText(sentenceSpans, content, chunkProbs);
+////		ArrayList<String> uppercaseTokens = getUppercaseTokens(sentenceSpans, content);
+////		entityMap = findNamesInChunks(uppercaseTokens, chunks, content, entityMap, "PER");
+//		
+//		
+//		// simple uppercase spotting (since in mittelhochdeutsch, it seems that nouns are not capitalized by default)
+//		entityMap = findUppercaseTokens(sentenceSpans, content, entityMap, "PER");
+//		System.out.println("INFO: size after uppercase spotting: " + entityMap.keySet().size());
+		
+		
+		/*
+		 * END OF PER SECTION
+		 */
+		
+		/*
+		 * LOC SECTION
+		 */
+		
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\train.conll", "LOC", new ArrayList<String>());
+		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "LOC");
+		System.out.println("INFO: Size after non-cheat sieve: " + entityMap.keySet().size());
+		
+//		entityMap = findUppercaseTokens(sentenceSpans, content, entityMap, "LOC");
+//		System.out.println("INFO: size after uppercase spotting: " + entityMap.keySet().size());
+//		
+		
+		/*
+		 * END OF LOC SECTION
+		 */
+		
+		
+		
+		// now do the conll style printing
+		ArrayList<String> testLines = populateTestLines(sentenceSpans, content, entityMap);
+		
+		//System.out.println("Done.");
+//		ArrayList<String> goldLines = new ArrayList<String>();
+		
+		ArrayList<String> goldLines;
+		try {
+			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\gold.conll"));
+			
+			
+			evalNER(testLines, goldLines, false, "LOC");
+			
+			
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+	}
+	
+	
+	
+	
+	
+	public static void adornoExperiment(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans){
+		
+		
+		/*
+		 * PER SECTION
+		 */
+		
+//		//First Sieve: find names based on nameList
+//		ArrayList<String> personFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\adorno\\listOfFullNames.txt");
+//		entityMap = findFullNamesWithList(entityMap, personFullNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
+//		
+//		
+//		//Second Sieve: split fullname list into firstname lastname, extract NPs, any NP with a name in it, tag that whole NP. (probably will only find stuff based on lastname, but there may be chinese/other names in there for which it is not immediately obvious which is the first and last name (at least to me), middle names, etc.
+//		ArrayList<String> personNames = splitFullNames(personFullNames);
+//		// doing some cleaning up of personNames to exclude stopwords, middle name abbrevs (A., which, due to the dot, are especially nasty for regex matching), etc.
+//		personNames = cleanList(personNames);
+//		ArrayList<String> excludeTokens = new ArrayList<String>();
+//		excludeTokens.add("ernst");
+//		excludeTokens.add("de"); // may not be in german stopwords, but is in list of names plenty of times
+//		excludeTokens.add("la");
+//		personNames = cleanList(personNames, excludeTokens);
+//		
+//		//entityMap = findNamesInNPs(personNames, sentenceSpans, content, entityMap, "PER");
+//		entityMap = findFullNamesWithList(entityMap, personNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after second try with splitted name spotting: " + entityMap.keySet().size());
+//		
+//		
+//		entityMap = findFullNamesWithListGenitiveCases(entityMap, personNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after genitive cases: " + entityMap.keySet().size());
+//		
+//		// adding a few more people
+//		personFullNames = appendToNameList(personFullNames, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\famousAuthors.txt");
+//		personFullNames = appendToNameList(personFullNames, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\famousComposers.txt");
+//		personFullNames = appendToNameList(personFullNames, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\famousPhilosophers.txt");
+//		personFullNames = appendToNameList(personFullNames, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\famousPainters.txt");
+//		personNames = splitFullNames(personFullNames);
+//		personNames = cleanList(personNames);
+//		personNames = cleanList(personNames, excludeTokens);
+//		
+//		entityMap = findFullNamesWithList(entityMap, personNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after adding some more names: " + entityMap.keySet().size());
+//		
+//		entityMap = findFullNamesWithListGenitiveCases(entityMap, personNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after genitive cases with extra names: " + entityMap.keySet().size());
+//		
+//		
+//		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+//		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll", "PER", new ArrayList<String>());
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "PER");
+//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+//		
+//		
+		
+		/*
+		 * END OF PER SECTION
+		 */
+		
+		
+		
+		/*
+		 * WRK SECTION
+		 */
+//		
+		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
+		werkIndicatorSubstrings.add("gedicht");
+		werkIndicatorSubstrings.add("appasionata");
+		//werkIndicatorSubstrings.add("kritik");
+		werkIndicatorSubstrings.add("oper");
+		werkIndicatorSubstrings.add("erzählung");
+		werkIndicatorSubstrings.add("sonate");
+		werkIndicatorSubstrings.add("quartett");
+		werkIndicatorSubstrings.add("symphonie");
+		//werkIndicatorSubstrings.add("werk");
+		werkIndicatorSubstrings.add("orchesterwerk");
+		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
+		
+		//cheat sieve:
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll", "WRK", new ArrayList<String>());
+		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		
+		
+		/*
+		 * END OF WRK SECTION
+		 */
+		
+		
+		
+		
+		// now do the conll style printing
+		ArrayList<String> testLines = populateTestLines(sentenceSpans, content, entityMap);
+
+		// System.out.println("Done.");
+		// ArrayList<String> goldLines = new ArrayList<String>();
+
+		ArrayList<String> goldLines;
+		try {
+			goldLines = (ArrayList) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll"));
+
+			evalNER(testLines, goldLines, false, "WRK");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		
 	}
+	
 	
 	
 	public static void main(String[] args) {
@@ -626,7 +1448,7 @@ public class CRETASharedTask2017 {
 						
 		try {
 			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
-			String content = readFile("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\test.plaintext", StandardCharsets.UTF_8);
+			String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\test.txt", StandardCharsets.UTF_8);
 			String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 			NameFinderME nameFinder = null;
 			HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
@@ -642,10 +1464,11 @@ public class CRETASharedTask2017 {
 				sentenceSpans[l] = s;
 			}
 
-			bundestagDebattenExperiment(entityMap, content, sentenceSpans);
+			//bundestagDebattenExperiment(entityMap, content, sentenceSpans);
 			
 			//parzivalExperiment(entityMap, content, sentenceSpans);
 			
+			adornoExperiment(entityMap, content, sentenceSpans);
 			
 			
 		} catch (IOException e) {
