@@ -541,6 +541,11 @@ public class CRETASharedTask2017 {
 			HashMap<Span, String> npHash = traverseTreeForCTypes(tree, new HashMap<Span, String>(), cTypes);
 			for (Span sp : npHash.keySet()) {
 				String npString = sent.substring(sp.getStart(), sp.getEnd());
+				int realEnd = sp.getEnd();
+				if (npString.matches("^.*\\s\\W$")){ // if the NP ends on punctuation, do not consider that
+					realEnd = sp.getEnd()-2;
+					npString = npString.substring(0,  npString.length()-2);
+				}
 				Pattern pattern = Pattern.compile("[A-Z]{2,}$"); // try with other word characters (to also capture EU-Rat)
 			    Matcher matcher = pattern.matcher(npString);
 			    while (matcher.find()) {
@@ -548,7 +553,7 @@ public class CRETASharedTask2017 {
 //			    	int endInd = matcher.end() + sp.getStart() + s.getStart();
 			    	ArrayList<Integer> temp = new ArrayList<Integer>();
 			    	temp.add(s.getStart() + sp.getStart());
-			    	temp.add(s.getStart() + sp.getEnd());
+			    	temp.add(s.getStart() + realEnd);
 			    	HashMap<String, Double> tempMap = new HashMap<String, Double>();
 			    	tempMap.put(type, 1.0);
 			    	if (npString.split(" ").length < NPLenghtThresholdForMinisterCases) {
@@ -578,12 +583,17 @@ public class CRETASharedTask2017 {
 			for (String substr : nameIndicatorSubstrings) {
 				for (Span sp : npHash.keySet()) {
 					String npString = sent.substring(sp.getStart(), sp.getEnd());
+					int realEnd = sp.getEnd();
+					if (npString.matches("^.*\\s\\W$")){ // if the NP ends on punctuation, do not consider that
+						realEnd = sp.getEnd()-2;
+						npString = npString.substring(0,  npString.length()-2);
+					}
 					if (npString.toLowerCase().contains(substr.toLowerCase())) {
 						HashMap<String, Double> tempMap = new HashMap<String, Double>();
 						tempMap.put(type, 1.0);
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + s.getStart());
-						tl.add(sp.getEnd() + s.getStart());
+						tl.add(realEnd + s.getStart());
 						if (npString.split(" ").length < NPLenghtThresholdForMinisterCases) { // this check to exclude too long nounphrases. Hopefully, the lexparser will have found the smaller, embedded nounphrase as well. And in nay case, these very long ones are not likely to be a person (as a whole)
 							entityMap.put(tl, tempMap);
 							//System.out.println("DEBUGGING: adding substringbased match here: " + content.substring(tl.get(0), tl.get(1)));
@@ -634,12 +644,16 @@ public class CRETASharedTask2017 {
 				String ppString = sent.substring(sp.getStart(), sp.getEnd());
 				if (ppString.toLowerCase().startsWith("in ")){
 					if (ppString.split(" ").length < 4){
+						int realEnd = sp.getEnd();
+						if (ppString.matches("^.*\\s\\W$")){ // if the NP ends on punctuation, do not consider that
+							realEnd = sp.getEnd()-2;
+						}
 						HashMap<String, Double> tempMap = new HashMap<String, Double>();
 						tempMap.put(type, 1.0);
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + 3 + s.getStart()); // NOTE: this is very ugly and dangerous; hardcoding the +3, because I do not want to that the preceding "in" itself. Breaks if there are, for some reasons, two whitespaces, a punctuation mark, or whatever else.
-						tl.add(sp.getEnd() + s.getStart());
-						String entURI = Sparqler.getDBPediaURI(sent.substring(sp.getStart() + 3, sp.getEnd()), "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
+						tl.add(realEnd + s.getStart());
+						String entURI = Sparqler.getDBPediaURI(sent.substring(sp.getStart() + 3, realEnd), "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
 						//Modify this so I get return type or something that I can use
 						if (entURI != null){
 							boolean location = customSparqlr(entURI, "http://de.dbpedia.org/sparql");
@@ -680,12 +694,17 @@ public class CRETASharedTask2017 {
 			for (String name : names){
 				for (Span sp : npHash.keySet()){
 					String npString = sent.substring(sp.getStart(), sp.getEnd());
+					int realEnd = sp.getEnd();
+					if (npString.matches("^.*\\s\\W$")){ // if the NP ends on punctuation, do not consider that
+						realEnd = sp.getEnd()-2;
+						npString = npString.substring(0,  npString.length()-2);
+					}
 					if (npString.toLowerCase().matches(String.format(".*\\b%s\\b.*", name.toLowerCase()))){
 						HashMap<String, Double> tempMap = new HashMap<String, Double>();
 						tempMap.put(type, 1.0);
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + s.getStart());
-						tl.add(sp.getEnd() + s.getStart());
+						tl.add(realEnd + s.getStart());
 						if (npString.split(" ").length < NPLenghtThreshold){ // this check is here to exclude too long nounphrases. Hopefully, the lexparser will have found the smaller, embedded nounphrase as well. And in nay case, these very long ones are not likely to be a person (as a whole)
 							entityMap.put(tl,  tempMap);
 							//System.out.println("DEBUGGING: adding NPNamebased match here: " + content.substring(tl.get(0), tl.get(1)));
@@ -1442,13 +1461,133 @@ public class CRETASharedTask2017 {
 	}
 	
 	
+	public static void wertherExperiment(HashMap<ArrayList, HashMap<String, Double>> entityMap, String content, Span[] sentenceSpans){
+		
+		/*
+		 * PER SECTION
+		 */
+		
+//		//First Sieve: find names based on nameList
+//		ArrayList<String> personFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\sortOfNames.txt");
+//		entityMap = findFullNamesWithList(entityMap, personFullNames, content, sentenceSpans, "PER");
+//		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
+//		
+////		
+////		
+////		
+//////		ArrayList<String> personWords = new ArrayList<String>();
+//////		personWords.add("tante");
+//////		personWords.add("mutter");
+//////		personWords.add("weib");
+//////		personWords.add("frau");
+//////		personWords.add("freund");
+//////		personWords.add("leute");
+//////		personWords.add("mein bester");
+//////		personWords.add("mein lieber");
+//////		personWords.add("kinder");
+//////		personWords.add("mädchen");
+//////		personWords.add("herr");
+//////		personWords.add("menschen");
+//////		personWords.add("freundin");
+//////		personWords.add("jungen");
+//////		personWords.add("mann");
+//////		personWords.add("tochter");
+//////		personWords.add("sohn");
+//////		personWords.add("knabe");
+//////		personWords.add("kind");
+//////		personWords.add("kindern");
+//////		personWords.add("weibe");
+//////		personWords.add("hernn");
+//////		personWords.add("leuten");
+//////		personWords.add("frauenzimmer");
+//////		personWords.add("vater");
+//////		personWords.add("magd");
+//////		personWords.add("dame");
+//////		
+//		// Fourth Sieve: using prefixes and tag the whole NP as PER 
+//		entityMap = findNamesInNPs(personFullNames, sentenceSpans, content, entityMap, "PER");
+//		System.out.println("INFO: Size after NP-based prefix spotting: " + entityMap.keySet().size());
+//		
+		
+//		//cheat sieve:
+//		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+//		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll", "PER", new ArrayList<String>());
+//		typeTokens = cleanList(typeTokens);
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "PER");
+//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+//		
+//		
+		
+		/*
+		 * END OF PER SECTION
+		 */
+
+		/*
+		 * LOC SECTION
+		 */
+		
+		//cheat sieve:
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll", "LOC", new ArrayList<String>());
+//		typeTokens = cleanList(typeTokens);
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "LOC");
+//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		
+		/*
+		 * END OF LOC SECTION
+		 */
+		
+		
+		
+		
+		/*
+		 * WRK SECTION
+		 */
+		
+		//cheat sieve:
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll", "WRK", new ArrayList<String>());
+		typeTokens = cleanList(typeTokens);
+		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+ 
+		/*
+		 * END OF WRK SECTION
+		 */
+		// now do the conll style printing
+		ArrayList<String> testLines = populateTestLines(sentenceSpans, content, entityMap);
+
+		// System.out.println("Done.");
+		// ArrayList<String> goldLines = new ArrayList<String>();
+
+		ArrayList<String> goldLines;
+		try {
+			goldLines = (ArrayList<String>) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll"));
+
+			evalNER(testLines, goldLines, false, "WRK");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
 	
 	public static void main(String[] args) {
 		
 						
 		try {
 			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
-			String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\test.txt", StandardCharsets.UTF_8);
+			String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\test.txt", StandardCharsets.UTF_8);
 			String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 			NameFinderME nameFinder = null;
 			HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
@@ -1468,7 +1607,9 @@ public class CRETASharedTask2017 {
 			
 			//parzivalExperiment(entityMap, content, sentenceSpans);
 			
-			adornoExperiment(entityMap, content, sentenceSpans);
+			//adornoExperiment(entityMap, content, sentenceSpans);
+			
+			wertherExperiment(entityMap, content, sentenceSpans);
 			
 			
 		} catch (IOException e) {
