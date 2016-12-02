@@ -69,6 +69,7 @@ public class CRETASharedTask2017 {
 	
 	public static String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 	static Integer NPLenghtThreshold = 10;
+	//static Integer NPLenghtThreshold = 8;
 	static Integer NPLenghtThresholdForMinisterCases = 6;
 	static Double learningThreshold = 5.0;
 	
@@ -290,7 +291,11 @@ public class CRETASharedTask2017 {
 					tl.add(tokenEndIndex);
 					HashMap<String, Double> im = new HashMap<String, Double>();
 					im.put(checkType,  1.0);
-					entityMap.put(tl, im);
+					if (!(token.toLowerCase().startsWith("letzte"))){
+						if (!(excludeTokens.contains(token))){ // I added this one for Goethe, since it kept annotating "meinem", even though I put it in the excludeList before. DEBUG!
+							entityMap.put(tl, im);
+						}
+					}
 				}
 			}
 			
@@ -647,9 +652,11 @@ public class CRETASharedTask2017 {
 						ArrayList<Integer> tl = new ArrayList<Integer>();
 						tl.add(sp.getStart() + s.getStart());
 						tl.add(realEnd + s.getStart());
-						if (npString.split(" ").length < NPLenghtThresholdForMinisterCases) { // this check to exclude too long nounphrases. Hopefully, the lexparser will have found the smaller, embedded nounphrase as well. And in nay case, these very long ones are not likely to be a person (as a whole)
-							entityMap.put(tl, tempMap);
-							//System.out.println("DEBUGGING: adding substringbased match here: " + content.substring(tl.get(0), tl.get(1)));
+						if (!(npString.contains(substr + "schaft"))){ //to exclude presidentschaft-cases
+							if (npString.split(" ").length < NPLenghtThresholdForMinisterCases) { // this check to exclude too long nounphrases. Hopefully, the lexparser will have found the smaller, embedded nounphrase as well. And in nay case, these very long ones are not likely to be a person (as a whole)
+								entityMap.put(tl, tempMap);
+								//System.out.println("DEBUGGING: adding substringbased match here: " + content.substring(tl.get(0), tl.get(1)));
+							}
 						}
 					}
 				}
@@ -760,7 +767,8 @@ public class CRETASharedTask2017 {
 						tl.add(realEnd + s.getStart());
 						if (npString.split(" ").length < NPLenghtThreshold){ // this check is here to exclude too long nounphrases. Hopefully, the lexparser will have found the smaller, embedded nounphrase as well. And in nay case, these very long ones are not likely to be a person (as a whole)
 							entityMap.put(tl,  tempMap);
-							//System.out.println("DEBUGGING: adding NPNamebased match here: " + content.substring(tl.get(0), tl.get(1)));
+//							System.out.println("DEBUGGING: adding NPNamebased match here: " + content.substring(tl.get(0), tl.get(1)));
+//							System.out.println("DEBUG culprit:" + name);
 						}
 					}
 				}
@@ -1105,15 +1113,21 @@ public class CRETASharedTask2017 {
 		 */
 		
 		
-//		//First Sieve: find names based on nameList
+		//First Sieve: find names based on nameList
 //		ArrayList<String> personFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\BundestagmitgliederListeManuallyFiltered.txt");
 //		entityMap = findFullNamesWithList(entityMap, personFullNames, content, sentenceSpans, "PER");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
 //		//Second Sieve: split fullname list into firstname lastname, extract NPs, any NP with a name in it, tag that whole NP. (probably will only find stuff based on lastname, but there may be chinese/other names in there for which it is not immediately obvious which is the first and last name (at least to me), middle names, etc.
 //		ArrayList<String> personNames = splitFullNames(personFullNames);
 //		// doing some cleaning up of personNames to exclude stopwords, middle name abbrevs (A., which, due to the dot, are especially nasty for regex matching), etc.
 //		personNames = cleanList(personNames);
 //		entityMap = findNamesInNPs(personNames, sentenceSpans, content, entityMap, "PER");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 2:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after NP-based name spotting: " + entityMap.keySet().size());
 //		//Third Sieve: use some keywords that indicate a person in the bundestag-domain specifically
 //		ArrayList<String> personIndicatorSubstrings = new ArrayList<String>();
@@ -1125,6 +1139,9 @@ public class CRETASharedTask2017 {
 //		personIndicatorSubstrings.add("kommisar");
 //		personIndicatorSubstrings.add("richter");
 //		entityMap = findSubstringsInNPs(personIndicatorSubstrings, sentenceSpans, content, entityMap, "PER");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 3:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
 //		
 //		ArrayList<String> personPrefixes = new ArrayList<String>();
@@ -1137,11 +1154,13 @@ public class CRETASharedTask2017 {
 //		// Fourth Sieve: using prefixes and tag the whole NP as PER 
 //		entityMap = findNamesInNPs(personPrefixes, sentenceSpans, content, entityMap, "PER"); // this is an abuse of the findPersonsInNPs method, because I'm not feeding it names but prefixes, but procedure is the same
 //		System.out.println("INFO: Size after NP-based prefix spotting: " + entityMap.keySet().size());
-//		
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 4:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("entityMap:" + entityMap);
-////		for (ArrayList<Integer> entSpan : entityMap.keySet()){
-////			System.out.println("entSpan:" + content.substring(entSpan.get(0), entSpan.get(1)));
-////		}
+//		for (ArrayList<Integer> entSpan : entityMap.keySet()){
+//			System.out.println("entSpan:" + content.substring(entSpan.get(0), entSpan.get(1)));
+//		}
 //		
 //		
 //		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
@@ -1158,28 +1177,33 @@ public class CRETASharedTask2017 {
 		 * LOC SECTION
 		 */
 		
-		ArrayList<String> locationFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\worldCountriesAugmented.txt");
-		
-		ArrayList<String> locationNames = splitFullNames(locationFullNames);
-		
-		entityMap = findPPsStartingWithIn(entityMap, content, sentenceSpans, "LOC");
-		System.out.println("INFO: Size after in-initial NPs: " + entityMap.keySet().size());
-		
-		// semi-cheat sieve: take all names in locationfullNames, then filter out stuff that can be discarded with the cheat-stuff (like Turkey, which is often an organisation instead of a location)
-		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "LOC", locationFullNames);
-		ArrayList<String> excludeTokens = new ArrayList<String>();
-		excludeTokens.add("kein");
-		typeTokens = cleanList(typeTokens, excludeTokens);
-		typeTokens.add("Türkei"); // these tokens that are added here, in the training data appear mostly as organisation, hence they are not considered locations. For the final version however, just given them econdary type, should be better.
-		// find a strategy to decide on primary and secondary type. 
-		// update: f-score drops a lot when these are considered locations. Proposed solution: keep them in, but give them ORG type as primary always
-		typeTokens.add("Europa");
-		typeTokens.add("Deutschland");
-		typeTokens.add("EU");
-		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "LOC");
-		
-		String[] modelNames = {"goethe_PER.bin", "goethe_LOC.bin"};
-		ArrayList<NameFinderME> nfList = populateNameFinderList(modelNames);
+//		ArrayList<String> locationFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\worldCountriesAugmented.txt");
+//		
+//		ArrayList<String> locationNames = splitFullNames(locationFullNames);
+//		
+//		entityMap = findPPsStartingWithIn(entityMap, content, sentenceSpans, "LOC");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+//		}
+//		System.out.println("INFO: Size after in-initial NPs: " + entityMap.keySet().size());
+//		
+//		// semi-cheat sieve: take all names in locationfullNames, then filter out stuff that can be discarded with the cheat-stuff (like Turkey, which is often an organisation instead of a location)
+//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "LOC", locationFullNames);
+//		ArrayList<String> excludeTokens = new ArrayList<String>();
+//		excludeTokens.add("kein");
+//		typeTokens = cleanList(typeTokens, excludeTokens);
+//		typeTokens.add("Türkei"); // these tokens that are added here, in the training data appear mostly as organisation, hence they are not considered locations. For the final version however, just given them econdary type, should be better.
+//		// find a strategy to decide on primary and secondary type. 
+//		// update: f-score drops a lot when these are considered locations. Proposed solution: keep them in, but give them ORG type as primary always
+//		typeTokens.add("Europa");
+//		typeTokens.add("Deutschland");
+//		typeTokens.add("EU");
+//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "LOC");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 2:" + content.substring(tl.get(0), tl.get(1)));
+//		}
+//		String[] modelNames = {"goethe_PER.bin", "goethe_LOC.bin"};
+//		ArrayList<NameFinderME> nfList = populateNameFinderList(modelNames);
 	
  
 		 
@@ -1194,7 +1218,9 @@ public class CRETASharedTask2017 {
 		
 //		entityMap = findAbbrevs(entityMap, content, sentenceSpans, "ORG");
 //		System.out.println("INFO: Size after abbrev spotting: " + entityMap.keySet().size());
-//		
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		
 //		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
 //		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
@@ -1203,6 +1229,9 @@ public class CRETASharedTask2017 {
 //		//entityMap = findNamesInNPs(typeTokens, sentenceSpans, content, entityMap, "ORG"); // this increases recall a lot, but drops precision a lot
 //		
 //		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "ORG");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 2:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
 		
 		
@@ -1214,24 +1243,30 @@ public class CRETASharedTask2017 {
 		 * WRK SECTION
 		 */
 		
-//		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
-//		werkIndicatorSubstrings.add("vertrag");
-//		werkIndicatorSubstrings.add("verträge");
-//		werkIndicatorSubstrings.add("charta");
-//		werkIndicatorSubstrings.add("verfassung");
-//		werkIndicatorSubstrings.add("kriterien");
-//		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
-//		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
-//		
-//		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
-//		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
-//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "WRK", new ArrayList<String>());
-//		typeTokens = cleanList(typeTokens);
-//		ArrayList<String> excludeTokens = new ArrayList<String>();
-//		excludeTokens.add("europäischen");
-//		typeTokens = cleanList(typeTokens, excludeTokens);
-//		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "WRK");
-//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
+		werkIndicatorSubstrings.add("vertrag");
+		werkIndicatorSubstrings.add("verträge");
+		werkIndicatorSubstrings.add("charta");
+		werkIndicatorSubstrings.add("verfassung");
+		werkIndicatorSubstrings.add("kriterien");
+		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
+		for (ArrayList<Integer> tl : entityMap.keySet()){
+			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+		}
+		
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll", "WRK", new ArrayList<String>());
+		typeTokens = cleanList(typeTokens);
+		ArrayList<String> excludeTokens = new ArrayList<String>();
+		excludeTokens.add("europäischen");
+		typeTokens = cleanList(typeTokens, excludeTokens);
+		entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		for (ArrayList<Integer> tl : entityMap.keySet()){
+			System.out.println("Added in sieve 2:" + content.substring(tl.get(0), tl.get(1)));
+		}
 		
 		/*
 		 * END OF WRK SECTION
@@ -1246,23 +1281,23 @@ public class CRETASharedTask2017 {
 		//System.out.println("Done.");
 //		ArrayList<String> goldLines = new ArrayList<String>();
 		
-		ArrayList<String> goldLines;
-		try {
-			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll"));
-			
-			
-			evalNER(testLines, goldLines, false, "LOC");
-			
-			
-			
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		ArrayList<String> goldLines;
+//		try {
+//			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\conll\\gold.conll"));
+//			
+//			
+//			evalNER(testLines, goldLines, false, "LOC");
+//			
+//			
+//			
+//			
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 
 		
@@ -1285,14 +1320,17 @@ public class CRETASharedTask2017 {
 //		excludeTokens.add("dem");
 //		excludeTokens.add("den");
 //		excludeTokens.add("man");
+//		excludeTokens.add("mal");
 //		excludeTokens.add("mîn");
 //		excludeTokens.add("diu");
 //		excludeTokens.add("sîn");
+//		excludeTokens.add("sîne");
 //		excludeTokens.add("sîner");
 //		excludeTokens.add("de");
 //		excludeTokens.add("la");
 //		excludeTokens.add("rôt");
 //		excludeTokens.add("ein");
+//		excludeTokens.add("âne");
 //		
 //		
 //		
@@ -1324,24 +1362,24 @@ public class CRETASharedTask2017 {
 		 * LOC SECTION
 		 */
 		
-//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.conll", "LOC", new ArrayList<String>());
-//		ArrayList<String> excludeTokens = new ArrayList<String>();
-//		excludeTokens.add("des");
-//		excludeTokens.add("der");
-//		excludeTokens.add("dem");
-//		excludeTokens.add("den");
-//		excludeTokens.add("man");
-//		excludeTokens.add("mîn");
-//		excludeTokens.add("diu");
-//		excludeTokens.add("sîn");
-//		excludeTokens.add("sîner");
-//		excludeTokens.add("de");
-//		excludeTokens.add("la");
-//		excludeTokens.add("rôt");
-//		excludeTokens.add("ein");
-//		typeTokens = cleanList(typeTokens, excludeTokens);
-//		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "LOC", excludeTokens);
-//		System.out.println("INFO: Size after non-cheat sieve: " + entityMap.keySet().size());
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.conll", "LOC", new ArrayList<String>());
+		ArrayList<String> excludeTokens = new ArrayList<String>();
+		excludeTokens.add("des");
+		excludeTokens.add("der");
+		excludeTokens.add("dem");
+		excludeTokens.add("den");
+		excludeTokens.add("man");
+		excludeTokens.add("mîn");
+		excludeTokens.add("diu");
+		excludeTokens.add("sîn");
+		excludeTokens.add("sîner");
+		excludeTokens.add("de");
+		excludeTokens.add("la");
+		excludeTokens.add("rôt");
+		excludeTokens.add("ein");
+		typeTokens = cleanList(typeTokens, excludeTokens);
+		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "LOC", excludeTokens);
+		System.out.println("INFO: Size after non-cheat sieve: " + entityMap.keySet().size());
 		
 //		entityMap = findUppercaseTokens(sentenceSpans, content, entityMap, "LOC");
 //		System.out.println("INFO: size after uppercase spotting: " + entityMap.keySet().size());
@@ -1359,23 +1397,23 @@ public class CRETASharedTask2017 {
 		//System.out.println("Done.");
 //		ArrayList<String> goldLines = new ArrayList<String>();
 		
-		ArrayList<String> goldLines;
-		try {
-			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.conll"));
-			
-			
-			evalNER(testLines, goldLines, false, "LOC");
-			
-			
-			
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		ArrayList<String> goldLines;
+//		try {
+//			goldLines = (ArrayList)IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.conll"));
+//			
+//			
+//			evalNER(testLines, goldLines, false, "LOC");
+//			
+//			
+//			
+//			
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		
 	}
@@ -1447,36 +1485,36 @@ public class CRETASharedTask2017 {
 		/*
 		 * WRK SECTION
 		 */
-//		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
-//		werkIndicatorSubstrings.add("gedicht");
-//		werkIndicatorSubstrings.add("appasionata");
-//		//werkIndicatorSubstrings.add("kritik");
-//		werkIndicatorSubstrings.add("oper");
-//		werkIndicatorSubstrings.add("erzählung");
-//		werkIndicatorSubstrings.add("sonate");
-//		werkIndicatorSubstrings.add("quartett");
-//		werkIndicatorSubstrings.add("symphonie");
-//		//werkIndicatorSubstrings.add("werk");
-//		werkIndicatorSubstrings.add("orchesterwerk");
-//		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
-//		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
-//		
-//		//cheat sieve:
-//		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
-//		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
-//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll", "WRK", new ArrayList<String>());
-//		typeTokens = cleanList(typeTokens);
-//		ArrayList<String> excludeList = new ArrayList<String>();
-//		excludeList.add("den");
-//		excludeList.add("der");
-//		excludeList.add("von");
-//		excludeList.add("die");
-//		excludeList.add("ein");
-//		excludeList.add("einer");
-//		excludeList.add("einem");
-//		excludeList.add("einen");
-//		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "WRK", excludeList);
-//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		ArrayList<String> werkIndicatorSubstrings = new ArrayList<String>();
+		werkIndicatorSubstrings.add("gedicht");
+		werkIndicatorSubstrings.add("appasionata");
+		//werkIndicatorSubstrings.add("kritik");
+		werkIndicatorSubstrings.add("oper");
+		werkIndicatorSubstrings.add("erzählung");
+		werkIndicatorSubstrings.add("sonate");
+		werkIndicatorSubstrings.add("quartett");
+		werkIndicatorSubstrings.add("symphonie");
+		//werkIndicatorSubstrings.add("werk");
+		werkIndicatorSubstrings.add("orchesterwerk");
+		entityMap = findSubstringsInNPs(werkIndicatorSubstrings, sentenceSpans, content, entityMap, "WRK");
+		System.out.println("INFO: Size after NP-based substring spotting: " + entityMap.keySet().size());
+		
+		//cheat sieve:
+		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
+		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll", "WRK", new ArrayList<String>());
+		typeTokens = cleanList(typeTokens);
+		ArrayList<String> excludeList = new ArrayList<String>();
+		excludeList.add("den");
+		excludeList.add("der");
+		excludeList.add("von");
+		excludeList.add("die");
+		excludeList.add("ein");
+		excludeList.add("einer");
+		excludeList.add("einem");
+		excludeList.add("einen");
+		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "WRK", excludeList);
+		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
 		
 		
 		/*
@@ -1492,19 +1530,19 @@ public class CRETASharedTask2017 {
 		// System.out.println("Done.");
 		// ArrayList<String> goldLines = new ArrayList<String>();
 
-		ArrayList<String> goldLines;
-		try {
-			goldLines = (ArrayList) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll"));
-
-			evalNER(testLines, goldLines, false, "WRK");
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		ArrayList<String> goldLines;
+//		try {
+//			goldLines = (ArrayList) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\gold.conll"));
+//
+//			evalNER(testLines, goldLines, false, "WRK");
+//
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		
 		
@@ -1520,10 +1558,16 @@ public class CRETASharedTask2017 {
 //		//First Sieve: find names based on nameList
 //		ArrayList<String> personFullNames = getFullNameList("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\sortOfNames.txt");
 //		entityMap = findFullNamesWithList(entityMap, personFullNames, content, sentenceSpans, "PER");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after strict name spotting: " + entityMap.keySet().size());
 //		
 //		// Fourth Sieve: using prefixes and tag the whole NP as PER 
 //		entityMap = findNamesInNPs(personFullNames, sentenceSpans, content, entityMap, "PER");
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 2:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after NP-based prefix spotting: " + entityMap.keySet().size());
 //		
 //		
@@ -1543,12 +1587,23 @@ public class CRETASharedTask2017 {
 //		excludeList.add("einer");
 //		excludeList.add("einen");
 //		excludeList.add("einem");
+//		excludeList.add("seine");
+//		excludeList.add("seiner");
+//		excludeList.add("seinen");
+//		excludeList.add("seinem");
+//		excludeList.add("meiner");
+//		excludeList.add("meinen");
+//		excludeList.add("meinem");
+//		excludeList.add("meine");
 //		excludeList.add("von");
 //		excludeList.add("aus");
 //		excludeList.add("ihr");
 //		excludeList.add("ihre");
 //		
 //		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "PER", excludeList);
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 3:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		//entityMap = findTypedTokens(typeTokens, sentenceSpans, content, entityMap, "PER");
 //		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
 	
@@ -1578,12 +1633,17 @@ public class CRETASharedTask2017 {
 //		excludeList.add("einer");
 //		excludeList.add("einen");
 //		excludeList.add("einem");
+//		excludeList.add("meines");
 //		excludeList.add("von");
 //		excludeList.add("vom");
 //		excludeList.add("aus");
 //		excludeList.add("ihr");
 //		excludeList.add("ihre");
+//		excludeList.add("liebe");
 //		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "LOC", excludeList);
+//		for (ArrayList<Integer> tl : entityMap.keySet()){
+//			System.out.println("Added in sieve 1:" + content.substring(tl.get(0), tl.get(1)));
+//		}
 //		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
 		
 		/*
@@ -1600,36 +1660,36 @@ public class CRETASharedTask2017 {
 		//cheat sieve:
 		// sort of Fifth Sieve: using the annotated data to extract word frequencies and consider any word of which the likelihood of it being a PER is x times higher than it being O (or any other type?) as entity.
 		// This means (unless I split the data) that I'm testing on seen data. But doing it here just as an indication of how much it would improve upon the current stand)
-//		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll", "WRK", new ArrayList<String>());
-//		typeTokens = cleanList(typeTokens);
-//		ArrayList<String> excludeList = new ArrayList<String>();
-//		excludeList.add("die");
-//		excludeList.add("dieser");
-//		excludeList.add("der");
-//		excludeList.add("das");
-//		excludeList.add("den");
-//		excludeList.add("dem");
-//		excludeList.add("ein");
-//		excludeList.add("eine");
-//		excludeList.add("einer");
-//		excludeList.add("einen");
-//		excludeList.add("einem");
-//		excludeList.add("von");
-//		excludeList.add("vom");
-//		excludeList.add("aus");
-//		excludeList.add("ihr");
-//		excludeList.add("ihre");
-//		excludeList.add("ihren");
-//		excludeList.add("meine");
-//		excludeList.add("meiner");
-//		excludeList.add("meinen");
-//		excludeList.add("meinem");
-//		excludeList.add("seine");
-//		excludeList.add("seiner");
-//		excludeList.add("seinen");
-//		excludeList.add("seinem");
-//		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "WRK", excludeList);
-//		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
+		ArrayList<String> typeTokens = learnFromCONLLData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll", "WRK", new ArrayList<String>());
+		typeTokens = cleanList(typeTokens);
+		ArrayList<String> excludeList = new ArrayList<String>();
+		excludeList.add("die");
+		excludeList.add("dieser");
+		excludeList.add("der");
+		excludeList.add("das");
+		excludeList.add("den");
+		excludeList.add("dem");
+		excludeList.add("ein");
+		excludeList.add("eine");
+		excludeList.add("einer");
+		excludeList.add("einen");
+		excludeList.add("einem");
+		excludeList.add("von");
+		excludeList.add("vom");
+		excludeList.add("aus");
+		excludeList.add("ihr");
+		excludeList.add("ihre");
+		excludeList.add("ihren");
+		excludeList.add("meine");
+		excludeList.add("meiner");
+		excludeList.add("meinen");
+		excludeList.add("meinem");
+		excludeList.add("seine");
+		excludeList.add("seiner");
+		excludeList.add("seinen");
+		excludeList.add("seinem");
+		entityMap = findTypedTokensWithExcludeList(typeTokens, sentenceSpans, content, entityMap, "WRK", excludeList);
+		System.out.println("INFO: Size after cheat sieve: " + entityMap.keySet().size());
  
 		/*
 		 * END OF WRK SECTION
@@ -1640,22 +1700,92 @@ public class CRETASharedTask2017 {
 		// System.out.println("Done.");
 		// ArrayList<String> goldLines = new ArrayList<String>();
 
-		ArrayList<String> goldLines;
+//		ArrayList<String> goldLines;
+//		try {
+//			goldLines = (ArrayList<String>) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll"));
+//
+//			evalNER(testLines, goldLines, false, "WRK");
+//
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		
+		
+	}
+	
+	
+	public static ArrayList<String> combineAnnotatedFiles(String fp1, String fp2){
+		
+		ArrayList<String> newlines=  new ArrayList<String>();
+		
 		try {
-			goldLines = (ArrayList<String>) IOUtils.readLines(new FileInputStream("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\gold.conll"));
-
-			evalNER(testLines, goldLines, false, "WRK");
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String content1 = readFile(fp1, StandardCharsets.UTF_8);
+			ArrayList<String> content1Lines = new ArrayList<String>();
+			for (String line : content1.split("\n")){
+				content1Lines.add(line.trim());
+			}
+			String content2 = readFile(fp2, StandardCharsets.UTF_8);
+			ArrayList<String> content2Lines = new ArrayList<String>();
+			for (String line : content2.split("\n")){
+				content2Lines.add(line.trim());
+			}
+			
+			if (content1Lines.size() != content2Lines.size()){
+				System.out.println("ERROR: files do not have the same length. Dying now.");
+				System.exit(1);
+			}
+			
+			for (int i = 0; i < content1Lines.size(); i++){
+				String[] leftParts = content1Lines.get(i).split("\t");
+				String[] rightParts = content2Lines.get(i).split("\t");
+				String leftType = leftParts[leftParts.length-1];
+				String rightType = rightParts[rightParts.length-1];
+				if (leftType.equalsIgnoreCase("o") && rightType.equalsIgnoreCase("o")){
+					// both are not annotated. Do nothing.
+					newlines.add(content1Lines.get(i));
+				}
+				else if (leftType.equalsIgnoreCase("o") && !(rightType.equalsIgnoreCase("o"))){
+					// left is not annotated but right is. Take the type from right.
+					newlines.add(content2Lines.get(i));
+				}
+				else if (!(leftType.equalsIgnoreCase("o")) && rightType.equalsIgnoreCase("o")){
+					// left is annotated but right is not. Take the type from left.
+					newlines.add(content1Lines.get(i));
+				}
+				else if (leftType.startsWith("B") && !(rightType.startsWith("B"))){
+					// now we have a conflict. The entity type that had already started gets precedence.
+					String newline = content2Lines.get(i) + "\t" + leftType;
+					newlines.add(newline);
+				}
+				else if (!(leftType.startsWith("B")) && rightType.startsWith("B")){
+					// now we have a conflict. The entity type that had already started gets precedence.
+					String newline = content1Lines.get(i) + "\t" + rightType;
+					newlines.add(newline);
+				}
+				else if((leftType.startsWith("B") && rightType.startsWith("B")) || (leftType.startsWith("I") && rightType.startsWith("I"))){
+					// both are starting at the same point (or; not here, and both are already going on). In this case, just taking the left one first. Maybe this should be a bit more sophisticated. (Now it depends on which is fp1 and which is fp1, so it is left to the user, when providing the args)
+					String newline = content1Lines.get(i) + "\t" + rightType;
+					newlines.add(newline);
+				}
+				else{
+					newlines.add("");
+				}
+				
+			}
+			
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		
-		
+		return newlines;
 	}
 	
 	
@@ -1668,7 +1798,7 @@ public class CRETASharedTask2017 {
 			//String content = readFile("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\Bundestagdebatten\\test.plaintext", StandardCharsets.UTF_8);
 			//String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\parzival\\all.txt", StandardCharsets.UTF_8);
 			//String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\adorno\\test.txt", StandardCharsets.UTF_8);
-			String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\test.txt", StandardCharsets.UTF_8);
+			String content = readFile("C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\evaluationData\\goethe\\3_34_12_eval.conll", StandardCharsets.UTF_8);
 			String modelsDirectory = "trainedModels" + File.separator + "ner" + File.separator;
 			NameFinderME nameFinder = null;
 			HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
@@ -1690,8 +1820,26 @@ public class CRETASharedTask2017 {
 			
 			//adornoExperiment(entityMap, content, sentenceSpans);
 			
-			wertherExperiment(entityMap, content, sentenceSpans);
+			//wertherExperiment(entityMap, content, sentenceSpans);
 			
+			
+			
+			
+			/*
+			 * This section is to combine two annotated files. Whenever a token has more than one annotation type, add extra column and define which one has precedence.
+			 * 
+			 */
+			
+			ArrayList<String> combinedLines = combineAnnotatedFiles("C:\\Users\\pebo01\\Desktop\\workingFile.txt", "C:\\Users\\pebo01\\Desktop\\data\\CRETA2017\\evaluationData\\goethe\\annotated\\3_34_12_eval_WRK.txt");
+			for (String l : combinedLines){
+				out.write(l + "\n");
+			}
+			out.close(); // TODO: line numbers of 
+			// 3_27_26 from bundestag
+			// 3_34_12_eval from goethe
+			// had to be fixed manually.
+			 
+			System.out.println("done.");
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
