@@ -14,10 +14,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,7 +123,7 @@ class LexParser {
     	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
            int value = 1;
            map.put(-1, 0);
-           PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.output.txt");
+           PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\output.txt");
      	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader(inputFile),
                    new CoreLabelTokenFactory(), "");
            while (ptbt.hasNext()) {
@@ -254,10 +256,14 @@ class LexParser {
         sentenceMap.put(sentenceCounter, genderNumberMap);
         
         }
-      
+        
+        //Initialize the coreferenceChain structure here:
+        List<HashMap<Integer, SpanWord>> corefChainList = new ArrayList<HashMap<Integer, SpanWord>>(); 
+        
         
         //Here is where the matching begins
         // To match the Noun Phrases put a map of the number of the sentence and the sentence indexes in here
+        //This can count as first sieve
         for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
         	int[] indexes= a.getValue();
         	int key = a.getKey();
@@ -283,6 +289,93 @@ class LexParser {
         			//System.out.println("DEBUG loop compare: "+r.getText()+r.getStartSpan()+"\t"+s.getText()+s.getStartSpan());
         			
         			if (compareListsSpan(r,s)){
+        				//Put r and s in the coreference chain structure
+        				HashMap<Integer, SpanWord> cc = new HashMap<Integer, SpanWord>();
+        				cc.put(r.getStartSpan(), r);
+        				cc.put(s.getStartSpan(), s);
+        				corefChainList.add(cc);
+        				//do something else
+        				String sent1 = everything.substring(indexes[0], indexes[1]);
+        				String[] context = new String[5];
+        				int g = 0;
+        				for (int h = key+1; h < Math.min(key+5, sentenceMap2.size()); h++){
+        					context[g] = everything.substring(sentenceMap3.get(h)[0],sentenceMap3.get(h)[1]); 
+        					g++;
+        				}
+        				/*String contextAsString = sent1;
+        				for (String ssss : context){
+        					contextAsString += "\n" + ssss;
+        				}*/
+        				
+        			}
+        		}
+        	}
+        	
+        }
+        
+        //ANKIT
+        /*System.out.println("==========DEBUG NP HEAD PERCOLATION========");
+        String sentence = new String("Barack Obama, Präsident der U.S.A, besuchte heute Berlin.");
+        HashMap<Span, String> npHash = getNPHeads(sentence);
+        for (Span sp : npHash.keySet()){
+      	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+      	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+      	  System.out.println("HEAD:" + npHash.get(sp));
+      	}*/
+       
+        
+        //This can count as second sieve, its the strict matching of heads and matching of stemmed heads
+        for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
+        	int[] indexes= a.getValue();
+        	int key = a.getKey();
+        	//System.out.println("LEVEL 1: sent1 "+key+Arrays.toString(indexes));
+        	
+        	//get the heads from the sentences and put them in mnps
+        	 String sentence = everything.substring(indexes[0],indexes[1]);
+        	HashMap<Span, String> npHash1 = getNPHeads(sentence);
+        	ArrayList<SpanWord> mnps = new ArrayList();
+            for (Span sp : npHash1.keySet()){
+            	String np = sentence.substring(sp.getStart(), sp.getEnd());
+            	int startIndexOfHead = indexes[0]+np.indexOf(npHash1.get(sp));
+            	int endIndexOfHead = startIndexOfHead + npHash1.get(sp).length();
+				SpanWord r = new SpanWord(npHash1.get(sp),startIndexOfHead,endIndexOfHead);
+          	  mnps.add(r);}
+            
+        	
+        	//loop per next 5 sentences, get heads of nps for next sentence and put them in mnps
+        	for (int j = key+1; j < Math.min(sentenceMap3.size(), key+5); j++){
+        		int[] indexes2 = sentenceMap3.get(j);
+        		//System.out.println("LEVEL 2: sent2" + Arrays.toString(indexes2));
+        		String sentence2 = everything.substring(indexes2[0],indexes2[1]);
+        		
+        		HashMap<Span, String> npHash2 = getNPHeads(sentence2);
+        		 for (Span sp : npHash2.keySet()){
+        			String np = everything.substring(sp.getStart(), sp.getEnd());
+                 	int startIndexOfHead = indexes2[0]+np.indexOf(npHash2.get(sp));
+                 	int endIndexOfHead = startIndexOfHead + npHash2.get(sp).length();
+     				SpanWord r = new SpanWord(npHash2.get(sp),startIndexOfHead,endIndexOfHead);
+               	  mnps.add(r);}
+        	}
+        	 for (SpanWord x : mnps){
+        		 System.out.println("DEBUG mnps: " + x.getText()+ " "+x.getStartSpan()+ " "+ x.getEndSpan()+"\t");
+        		 
+        	 }
+        	System.out.println("---------------------------------------------------------------");
+        	//the heads of nps of six consecutive sentences are in mnps now
+        	// loop through mnps and compare the single items
+        	for (int k = 0; k < mnps.size(); k++){
+        		for (int l = k+1; l < mnps.size(); l++){
+        			SpanWord r = mnps.get(k);
+        			SpanWord s = mnps.get(l);
+        			//System.out.println("DEBUG loop compare: "+r.getText()+r.getStartSpan()+"\t"+s.getText()+s.getStartSpan());
+        			
+        			if (compareListsSpan(r,s)){
+        				//Put r and s in the coreference chain structure
+        				HashMap<Integer, SpanWord> cc = new HashMap<Integer, SpanWord>();
+        				cc.put(r.getStartSpan(), r);
+        				cc.put(s.getStartSpan(), s);
+        				corefChainList.add(cc);
+        				//do something else here
         				
         				String sent1 = everything.substring(indexes[0], indexes[1]);
         				String[] context = new String[5];
@@ -301,17 +394,39 @@ class LexParser {
         	}
         	
         }
+        // Merge the little coreference chains to larger ones here
         
-        //ANKIT
-        System.out.println("==========DEBUG NP HEAD PERCOLATION========");
-        String sentence = new String("Barack Obama, Präsident der U.S.A, besuchte heute Berlin.");
-        HashMap<Span, String> npHash = getNPHeads(sentence);
-        for (Span sp : npHash.keySet()){
-      	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
-      	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
-      	  System.out.println("HEAD:" + npHash.get(sp));
-      	}
-        
+        List<HashMap<Integer, SpanWord>> newCorefChainList = new ArrayList<HashMap<Integer, SpanWord>>();
+        HashMap<Integer, SpanWord> dummy = new HashMap<Integer, SpanWord>();
+        for (HashMap<Integer, SpanWord> cc : corefChainList){
+        	
+        	
+        	
+        	for (int j = 1; j < corefChainList.size(); j++){
+        		//new HashMap, Add the two hashmaps to there, if they are combined smaller then the sum of both toghether add to new corefChainList
+        		
+        		Set<Integer> s = new HashSet<>(cc.keySet());
+        		s.retainAll(corefChainList.get(j).keySet());
+        		if(!s.isEmpty()){
+        			System.out.println("BINGO!!!!!");
+        			
+        			dummy.putAll(cc);
+            		dummy.putAll(corefChainList.get(j));
+        			
+        		}
+        	}newCorefChainList.add(dummy);
+        	
+        	/*for(SpanWord sp : cc.values()){
+        		System.out.println("DEBUG corefChainList: " + sp.getText()+" "+sp.getStartSpan()+" "+sp.getEndSpan());
+        	} System.out.println("---------------------------------------------------------");*/
+        }
+        System.out.println("DEBUG CorefChainListSize OLD: "+ corefChainList.size());
+        System.out.println("DEBUG newCorefChainListSize NEW: "+ newCorefChainList.size());
+       /* for (HashMap<Integer, SpanWord> cc : newCorefChainList){
+        	for(SpanWord sp : cc.values()){
+    		System.out.println("DEBUG newCorefChainList: " + sp.getText()+" "+sp.getStartSpan()+" "+sp.getEndSpan());
+    	} System.out.println("---------------------------------------------------------");
+        }*/
    
     }
     
@@ -423,8 +538,8 @@ class LexParser {
     public static Tree getTreeFromSentence(String sent){
         Tree tree = parser.parse(sent);
         parser.setOptionFlags();
-       System.out.println("DEBUG tree: ");
-       tree.pennPrint();
+       //System.out.println("DEBUG tree: ");
+       //tree.pennPrint();
 		return tree;
     	
     }
@@ -669,10 +784,10 @@ class LexParser {
     public static HashMap<Span, String> getNPHeads(String sentence){
        	// Get constituency parse tree for the sentence
     	Tree t = getTreeFromSentence(sentence);
-    	System.out.println("DEBUG: Sentence:");
-    	System.out.println(sentence);
-    	System.out.println("DEBUG: Tree:");
-    	t.pennPrint();
+    	//System.out.println("DEBUG: Sentence:");
+    	//System.out.println(sentence);
+    	//System.out.println("DEBUG: Tree:");
+    	//t.pennPrint();
     	
     	// Get a list of NPs and head of each NP using methods from sandbox.java
     	//TODO: Merge the associated methods from sandbox.java herein
