@@ -17,27 +17,34 @@ import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.SemanticHeadFinder;
+import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import opennlp.tools.util.Span;
 
 public class sandbox {
 	public static LexicalizedParser parser = null;
-	private final static String EN_PCG_MODEL = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";        
-    private final static String DE_PCG_MODEL = "edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz";
+	private final static String EN_PCFG_MODEL = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";        
+    private final static String DE_PCFG_MODEL = "edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz";
 	
     public static void main(String[] args) throws IOException{
     	
     
            LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-        String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-           //String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-        	Tree tree = lexParser.parse(sentence);
+           //String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+           String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+           Tree tree = lexParser.parse(sentence);
+           
+           ///** debugging
+           System.out.println("The Parse Tree for " + sentence + " is: ");
+           tree.pennPrint();
+           //**/
+        	
 
         	HashMap<Span, String> npHash = traverseTreeForNPs(tree, new HashMap<Span, String>());
         	for (Span sp : npHash.keySet()){
-        	 //System.out.println("NP:" + sentence.substring(sp.getBegin(), sp.getEnd()));
-        	 //System.out.println("Indices:" + sp.getBegin() + "|" + sp.getEnd());
-        	 System.out.println("HEAD:" + npHash.get(sp));
+        	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+        	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+        	  System.out.println("HEAD:" + npHash.get(sp));
         	}
    
 
@@ -48,12 +55,13 @@ public class sandbox {
     	  
     	  for (Tree subtree : tree.getChildrenAsList()){
     	   
-    	   if (subtree.label().toString().equals("NP")){ // conjoined NPs have the label CNP. Do I want to include these here too? And I probably want to include PPs and some other stuff as well
+    	   if (subtree.label().toString().equals("NP") || subtree.label().toString().equals("MPN") || subtree.label().toString().equals("CNP")){ // conjoined NPs have the label CNP. Do I want to include these here too? And I probably want to include PPs and some other stuff as well
     	    List<Word> wl = subtree.yieldWords();
     	    int begin = wl.get(0).beginPosition();
     	    int end = wl.get(wl.size()-1).endPosition();
     	    Span sp = new Span(begin, end);
-    	    HeadFinder hf = new SemanticHeadFinder(); // may want to experiment here with different types of headfinders (http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/trees/HeadFinder.html)
+    	    //HeadFinder hf = new SemanticHeadFinder(); // may want to experiment here with different types of headfinders (http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/trees/HeadFinder.html)
+    	    HeadFinder hf = new NegraHeadFinder();
     	    npHash.put(sp, subtree.headTerminal(hf).toString());
     	   }
     	   if (!(subtree.isPreTerminal())){
@@ -69,10 +77,10 @@ public class sandbox {
     
     private static void initLexParser(String lang){
     	if (lang.equalsIgnoreCase("en")){
-    		parser = LexicalizedParser.loadModel(EN_PCG_MODEL);
+    		parser = LexicalizedParser.loadModel(EN_PCFG_MODEL);
     	}
     	else if (lang.equalsIgnoreCase("de")){
-    		parser = LexicalizedParser.loadModel(DE_PCG_MODEL,"-maxLength", "70");
+    		parser = LexicalizedParser.loadModel(DE_PCFG_MODEL,"-maxLength", "70");
     	}
     	
     }
