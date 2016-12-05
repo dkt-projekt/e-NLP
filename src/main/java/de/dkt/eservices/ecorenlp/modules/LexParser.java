@@ -105,7 +105,7 @@ class LexParser {
     
     public static void main(String[] args) throws IOException { 
 
-       String inputFile = "/Users/ansr01/Research/coref/14cleaned.txt";
+       String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt";
 
        SpanWord span = getDocumentSpan(inputFile);
        
@@ -121,7 +121,7 @@ class LexParser {
     	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
            int value = 1;
            map.put(-1, 0);
-           PrintWriter out = new PrintWriter("/Users/ansr01/Research/coref/14cleaned.output.txt");
+           PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.output.txt");
      	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader(inputFile),
                    new CoreLabelTokenFactory(), "");
            while (ptbt.hasNext()) {
@@ -376,7 +376,7 @@ class LexParser {
   	  	int numberOfWords2 = list2.size();
   	  	
   	  	//This is the tokenized file created by RFTagger
-  	  	String line32 = Files.readAllLines(Paths.get("/Users/ansr01/Research/coref/15_old3.txt")).get(wordNumber-1);
+  	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
   	  	
   	  	//cleanup of the result of the RFTagger
   	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
@@ -390,7 +390,7 @@ class LexParser {
     	
     	
     	for(int i=0; i<numberOfWords2; i++){
-    		line32 = Files.readAllLines(Paths.get("/Users/ansr01/Research/coref/15_old3.txt")).get(wordNumber-1+i);
+    		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
     		System.out.println("DEBUG wordTag: "+line32);
     		wordTags.add(line32);
     	}
@@ -562,7 +562,7 @@ class LexParser {
     	ArrayList<SpanWord> bla = new ArrayList<SpanWord>();
     	String everything = new String();
         
-        FileInputStream inputStream = new FileInputStream("/Users/ansr01/Research/coref/14cleaned.txt");
+        FileInputStream inputStream = new FileInputStream("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
         try {
             everything = IOUtils.toString(inputStream);
            
