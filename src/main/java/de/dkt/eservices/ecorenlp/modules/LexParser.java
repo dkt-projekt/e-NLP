@@ -40,6 +40,7 @@ import edu.stanford.nlp.process.PTBTokenizer;
 import edu.stanford.nlp.process.Tokenizer;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.GrammaticalStructureFactory;
+import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.Tree;
@@ -104,7 +105,7 @@ class LexParser {
     
     public static void main(String[] args) throws IOException { 
 
-       String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt";
+       String inputFile = "/Users/ansr01/Research/coref/14cleaned.txt";
 
        SpanWord span = getDocumentSpan(inputFile);
        
@@ -120,7 +121,7 @@ class LexParser {
     	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
            int value = 1;
            map.put(-1, 0);
-           PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\output.txt");
+           PrintWriter out = new PrintWriter("/Users/ansr01/Research/coref/14cleaned.output.txt");
      	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader(inputFile),
                    new CoreLabelTokenFactory(), "");
            while (ptbt.hasNext()) {
@@ -301,6 +302,16 @@ class LexParser {
         	
         }
         
+        //ANKIT
+        System.out.println("==========DEBUG NP HEAD PERCOLATION========");
+        String sentence = new String("Barack Obama, Präsident der U.S.A, besuchte heute Berlin.");
+        HashMap<Span, String> npHash = getNPHeads(sentence);
+        for (Span sp : npHash.keySet()){
+      	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+      	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+      	  System.out.println("HEAD:" + npHash.get(sp));
+      	}
+        
    
     }
     
@@ -365,7 +376,7 @@ class LexParser {
   	  	int numberOfWords2 = list2.size();
   	  	
   	  	//This is the tokenized file created by RFTagger
-  	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
+  	  	String line32 = Files.readAllLines(Paths.get("/Users/ansr01/Research/coref/15_old3.txt")).get(wordNumber-1);
   	  	
   	  	//cleanup of the result of the RFTagger
   	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
@@ -379,7 +390,7 @@ class LexParser {
     	
     	
     	for(int i=0; i<numberOfWords2; i++){
-    		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
+    		line32 = Files.readAllLines(Paths.get("/Users/ansr01/Research/coref/15_old3.txt")).get(wordNumber-1+i);
     		System.out.println("DEBUG wordTag: "+line32);
     		wordTags.add(line32);
     	}
@@ -551,7 +562,7 @@ class LexParser {
     	ArrayList<SpanWord> bla = new ArrayList<SpanWord>();
     	String everything = new String();
         
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+        FileInputStream inputStream = new FileInputStream("/Users/ansr01/Research/coref/14cleaned.txt");
         try {
             everything = IOUtils.toString(inputStream);
            
@@ -647,4 +658,27 @@ class LexParser {
                        
     }
     
+    
+    /**
+     * ANKIT
+     * Method to label head words in a tree using Stanford NLP NegraHeadFinder
+     * Help from de.dkt.eservices.ecorenlp.modules.sandbox
+     * pre: Input Tree
+     * post: Output list of head NPs
+     */
+    public static HashMap<Span, String> getNPHeads(String sentence){
+       	// Get constituency parse tree for the sentence
+    	Tree t = getTreeFromSentence(sentence);
+    	System.out.println("DEBUG: Sentence:");
+    	System.out.println(sentence);
+    	System.out.println("DEBUG: Tree:");
+    	t.pennPrint();
+    	
+    	// Get a list of NPs and head of each NP using methods from sandbox.java
+    	//TODO: Merge the associated methods from sandbox.java herein
+    	HashMap<Span, String> npHash = sandbox.traverseTreeForNPs(t, new HashMap<Span, String>());
+    	
+    	
+    	return npHash;
+    }
 }
