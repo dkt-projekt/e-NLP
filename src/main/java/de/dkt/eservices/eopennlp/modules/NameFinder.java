@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.niftools.TIME;
 import de.dkt.common.niftools.RDFS;
+import de.dkt.eservices.enlp.ENLPPerformanceTest;
 //import de.dkt.eservices.eopennlp.TestConstants;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -191,15 +193,40 @@ public class NameFinder {
 		}
 	}
 
-	public Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException {
+	public Model spotEntitiesNIF(Model nifModel, ArrayList<String> nerModels, String sentModel, String language) throws ExternalServiceFailedException, IOException, Exception  {
 		//		String docURI = NIFReader.extractDocumentURI(nifModel);
+		
+		Date d_inter_initial1 = new Date();
+		MemoryUsage m_inter_initial1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
 		HashMap<ArrayList, HashMap<String, Double>> entityMap = new HashMap<>();
 		String content = NIFReader.extractIsString(nifModel);
 		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
 
+		
+		System.gc();
+		Date d_inter_final1 = new Date();
+		MemoryUsage m_inter_final1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Sentence Detector", d_inter_initial1, d_inter_final1, m_inter_initial1, m_inter_final1);
+
+		Date d_inter_initial2 = new Date();
+		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
+		
 		for (String nerModel : nerModels){
 			entityMap = detectEntitiesWithModel(entityMap, content, sentenceSpans, nerModel);
 		}
+
+		
+		System.gc();
+		Date d_inter_final2 = new Date();
+		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Detect Entities With models", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
+
+		Date d_inter_initial3 = new Date();
+		MemoryUsage m_inter_initial3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
+
 		// filter hashmap for duplicates and keep the one with highest probability
 		for (Entry<ArrayList, HashMap<String, Double>> outerMap : entityMap.entrySet()) {
 			ArrayList<Integer> spanList = outerMap.getKey();
@@ -234,6 +261,11 @@ public class NameFinder {
 
 			NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
 		}		    
+
+		System.gc();
+		Date d_inter_final3 = new Date();
+		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Adding annotation to model", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
 		return nifModel;
 

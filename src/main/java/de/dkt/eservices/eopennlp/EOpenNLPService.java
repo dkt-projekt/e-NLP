@@ -1,7 +1,10 @@
 package de.dkt.eservices.eopennlp;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
@@ -17,6 +20,7 @@ import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.ParameterChecker;
+import de.dkt.eservices.enlp.ENLPPerformanceTest;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
@@ -52,6 +56,10 @@ public class EOpenNLPService {
 			throws ExternalServiceFailedException, BadRequestException,IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 		ParameterChecker.checkNotNullOrEmpty(analysisType, "analysis type", logger);
+		
+		Date d_inter_initial = new Date();
+		MemoryUsage m_inter_initial = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
         try {
         	Model nifModel = null;
         	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
@@ -77,10 +85,22 @@ public class EOpenNLPService {
     			throw new BadRequestException("Unsupported combination of language ["+languageParam+"] and analysis: "+ analysisType);
     		}
 
+    		System.gc();
+    		Date d_inter_final = new Date();
+    		MemoryUsage m_inter_final = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Initialization", d_inter_initial, d_inter_final, m_inter_initial, m_inter_final);
+
     		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
+    		
+    		Date d_inter_initial2 = new Date();
+    		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
     		
         	if(analysisType.equalsIgnoreCase("ner")){
         		if (mode.equals("spot")){
+        			
+            		Date d_inter_initial3 = new Date();
+            		MemoryUsage m_inter_initial3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
         			ArrayList<String> statModels = new ArrayList<String>();
             		for (String nerModel : nerModels){
             			String storedModel = nerModel + ".bin";
@@ -91,8 +111,23 @@ public class EOpenNLPService {
         				cprNERModel =null;
             			statModels.add(storedModel);
             		}
+            		
+            		System.gc();
+            		Date d_inter_final3 = new Date();
+            		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
+
+            		Date d_inter_initial4 = new Date();
+            		MemoryUsage m_inter_initial4 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+
             		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
-        			
+
+            		System.gc();
+            		Date d_inter_final4 = new Date();
+            		MemoryUsage m_inter_final4 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Spoting Processing", d_inter_initial4, d_inter_final4, m_inter_initial4, m_inter_final4);
+
+
         		}
         		else if (mode.equals("link")){
         			nifModel = nameFinder.linkEntitiesNIF(nifModel, languageParam);
@@ -124,8 +159,6 @@ public class EOpenNLPService {
 //        			statModels.add(storedModel);
 //        		}
 //        		nifModel = NameFinder.detectEntitiesNIF(nifModel, statModels, sentModel, languageParam, link);
-        		
-        		return nifModel;
         	}
         	else if(analysisType.equalsIgnoreCase("dict")){
         		ArrayList<String> dictionaries = new ArrayList<String>();
@@ -138,8 +171,6 @@ public class EOpenNLPService {
     				dictionaries.add(nerModel);
         		}
         		nifModel = DictionaryNameF.detectEntitiesNIF(nifModel, dictionaries, sentModel);
-        		return nifModel;
-        		
         	}
         	else if (analysisType.equalsIgnoreCase("temp")){
         		for (String nerModel : nerModels){
@@ -150,12 +181,18 @@ public class EOpenNLPService {
         				throw new BadRequestException("Please use germanDates or englishDates: temporal analysis not supported for other model names");
         			}
         		}
-        		return nifModel;
         	}
         	else{
         		logger.error("Unsupported analysis: "+analysisType);
         		throw new BadRequestException("Unsupported analysis: "+analysisType);
         	}
+        	
+    		System.gc();
+    		Date d_inter_final2 = new Date();
+    		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
+
+    		return nifModel;
         } catch (BadRequestException e) {
         	logger.error(e.getMessage());
             throw e;
