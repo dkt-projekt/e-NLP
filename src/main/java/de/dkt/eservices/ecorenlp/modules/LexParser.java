@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,7 +114,8 @@ class LexParser {
     
     
     
-    public static void main(String[] args) throws IOException { 
+    @SuppressWarnings("unchecked")
+	public static void main(String[] args) throws IOException { 
 
       
 
@@ -127,7 +130,8 @@ class LexParser {
           
     	  // Create a map to match word number and word index. We will need that later, when we match gender and number info from RFTagger
     	  //output.txt contains the tokenized text. I feed the output.txt to the RFTagger, to keep the tokenization as consistent as possible
-    	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+    	   TreeMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
+    	   TreeMap<Integer, Integer> theOtherMap = new TreeMap<Integer,Integer>();
            int value = 1;
            map.put(-1, 0);
            PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\output.txt");
@@ -138,6 +142,7 @@ class LexParser {
 
              int newIndex = label.beginPosition();
        	   map.put(newIndex,value);
+       	   theOtherMap.put(value, newIndex);
        	   
        	   out.println(label);
        	   value++;
@@ -200,7 +205,12 @@ class LexParser {
          //iterate trough nps and extract the phrase spans
         List<SpanWord> wordSpans = new ArrayList<SpanWord>();
         
-       // !!DONT DELETE THAT, ITS JUST TURNED OFF FOR TESTING!!
+        
+        //////////////////////////////////////////////////////////
+       // !!DONT DELETE THAT, ITS JUST TURNED OFF FOR TESTING!!///
+        /////////////////////////////////////////////////////////
+        
+        
         
         /*for (ArrayList<String> subl : nps){
         	////System.out.println("DEBUG subl: "+subl); 
@@ -355,15 +365,18 @@ class LexParser {
        
         
         //This can count as second sieve, its the strict matching of heads and matching of stemmed heads
-        /*for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
+        for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
         	int[] indexes= a.getValue();
         	int key = a.getKey();
         	
         	
         	//get the heads from the sentences and put them in mnps
         	 String sentence = everything.substring(indexes[0],indexes[1]);
+        	 
+        	 //System.out.println("DEBUG sentence in second sieve: "+sentence);
+        	 
         	HashMap<Span, String> npHash1 = getNPHeads(sentence);
-        	ArrayList<SpanWord> mnps = new ArrayList();
+        	ArrayList<SpanWord> mnps = new ArrayList<SpanWord>();
             for (Span sp : npHash1.keySet()){
             	String np = sentence.substring(sp.getStart(), sp.getEnd());
             	int startIndexOfHead = indexes[0]+np.indexOf(npHash1.get(sp));
@@ -421,7 +434,7 @@ class LexParser {
         		}
         	}
         	
-        }*/
+        }
         
         mastermap = deleteDuplicatesInCorefChain(mastermap);
         ArrayList<SpanWord> deleteSpans = new ArrayList<SpanWord>();
@@ -453,11 +466,87 @@ class LexParser {
 //    		System.out.println(f.getText()+"\t"+f.getStartSpan()+"\t"+f.getEndSpan());
 //    		
 //    	}
+    	
+   	HashMap<String,String> corefChainsForConLL = corefChainsForConLL (mastermap, sentenceMap3, map);
+   	
+   	SortedSet<String> keys = new TreeSet<String>(corefChainsForConLL.keySet());
+    	int wordCounter = 1;
+//    	   	
+   	PrintWriter out2 = new PrintWriter(new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\outputConLL.txt", false), false);
+   	for (String key : keys) { 
+   	   String value2 = corefChainsForConLL.get(key); 
+   	 out2.write(key+"- - - - - - - - - - - - - - - - "+value2+"\n");
+    	 wordCounter++;
+   	}
+       out2.close();
+
+
     }
     
-    public static HashMap<String,String> corefChainsForConLL (HashMap<SpanWord,ArrayList<SpanWord>> mastermap, LinkedHashMap<Integer, int[]> sentenceMap3, String everything){
+    public static HashMap<String,String> corefChainsForConLL (HashMap<SpanWord,ArrayList<SpanWord>> mastermap, LinkedHashMap<Integer, int[]> sentenceMap3, TreeMap <Integer,Integer> map) throws FileNotFoundException{
+    	HashMap<Integer,String> index2PosMap = new HashMap<Integer, String>();
+    	HashMap<String,String> corefChainMap = new HashMap<String,String>();
     	
-    	return null;
+    	for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
+    		int wordNumber = 1;
+        	int[] indexes= a.getValue();
+        	int sentenceNumber = a.getKey();
+        
+        	//here goes the tokenization of the sentence into words
+        	for (int i=indexes[0]; i<=indexes[1]; i++){
+        		
+        	
+        		if (map.containsKey(i)){
+        			if(sentenceNumber<10&&wordNumber<10){
+        				index2PosMap.put(i,"0"+sentenceNumber+"_"+"0"+wordNumber);
+        				wordNumber++;
+        			}
+        			else if(sentenceNumber>=10&&wordNumber<10){
+        				index2PosMap.put(i,sentenceNumber+"_"+"0"+wordNumber);
+        				wordNumber++;
+        			}
+        			else if(sentenceNumber<10&&wordNumber>=10){
+        				index2PosMap.put(i,"0"+sentenceNumber+"_"+wordNumber);
+        				wordNumber++;
+        			}
+        			else if(sentenceNumber>=10&&wordNumber>=10){
+        				index2PosMap.put(i,sentenceNumber+"_"+wordNumber);
+        				wordNumber++;
+        				}
+        			
+        		
+        		}
+        	}
+        	
+        	}
+    	
+    	for (String s : index2PosMap.values()){
+    		corefChainMap.put(s, "-");
+    	}
+    	
+//    	for (Entry<Integer,String> s : index2PosMap.entrySet()){
+//    		System.out.println("DEBUG index2PosMap: "+s.getKey()+"\t"+s.getValue());
+//    	}
+    	
+    	int counterOfCorefChains = 1;
+    	for(Entry<SpanWord,ArrayList<SpanWord>> k : mastermap.entrySet()){
+    		for ( SpanWord j : k.getValue()){
+    			String position=index2PosMap.get((j.getStartSpan()+1));
+    			if(corefChainMap.get(position)==null){
+    				System.out.println("Oh no, index " + j.getStartSpan() +" is missing in index2PosMap!");
+    			}
+    			else if(corefChainMap.get(position).equals("-")){
+    				corefChainMap.put(position, Integer.toString(counterOfCorefChains));
+    			}else{
+    				String whatsInThere = corefChainMap.get(position);
+    				corefChainMap.put(position, whatsInThere+"|"+Integer.toString(counterOfCorefChains));
+    			}
+    		}
+    		counterOfCorefChains++;
+    		
+    	}
+    	
+    	return corefChainMap;
     }
     
     
@@ -791,11 +880,12 @@ class LexParser {
         
         
         	String sent = everything.substring(indexes[0], indexes[1]);
+        	//System.out.println("DEBUG sentence in first sieve: "+sent);
         
         	Tree tree = parser.parse(sent);
         	parser.setOptionFlags();
         	//System.out.println("DEBUG tree: ");
-        	System.out.println(tree.flatten().toString());
+        	//System.out.println(tree.flatten().toString());
         
         	//Extract NPs and PPERs and adds them to list nps
         	Object[] a = tree.toArray();
