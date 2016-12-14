@@ -55,6 +55,9 @@ import opennlp.tools.util.Span;
 
 class LexParser {
 	
+	//private final static String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt";
+	private final static String inputFile = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\ConLLde.txt";
+	
 	private final static String EN_PCG_MODEL = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";        
     private final static String DE_PCG_MODEL = "edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz";
 
@@ -111,7 +114,7 @@ class LexParser {
     
     public static void main(String[] args) throws IOException { 
 
-       String inputFile = "C:\\Users\\pebo01\\AppData\\Roaming\\Skype\\My Skype Received Files\\14cleaned.txt";
+      
 
        SpanWord span = getDocumentSpan(inputFile);
        
@@ -127,7 +130,7 @@ class LexParser {
     	   HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
            int value = 1;
            map.put(-1, 0);
-           PrintWriter out = new PrintWriter("C:\\Users\\pebo01\\Desktop\\debug.txt");
+           PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\output.txt");
      	   PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new FileReader(inputFile),
                    new CoreLabelTokenFactory(), "");
            while (ptbt.hasNext()) {
@@ -178,8 +181,7 @@ class LexParser {
         int sentenceStart = sentenceSpan.getStart();
         int sentenceEnd = sentenceSpan.getEnd();
        sent = everything.substring(sentenceStart, sentenceEnd);
-       ////System.out.println("--------------------------------------------------------------------");
-      ////System.out.println("DEBUG sent: "+sent);
+       
       sentenceMap2.put(sentenceCounter,sent);
       sentenceSpans2[0]=sentenceStart;
       sentenceSpans2[1]=sentenceEnd;
@@ -197,8 +199,10 @@ class LexParser {
         
          //iterate trough nps and extract the phrase spans
         List<SpanWord> wordSpans = new ArrayList<SpanWord>();
-       
-        for (ArrayList<String> subl : nps){
+        
+       // !!DONT DELETE THAT, ITS JUST TURNED OFF FOR TESTING!!
+        
+        /*for (ArrayList<String> subl : nps){
         	////System.out.println("DEBUG subl: "+subl); 
         	String word = new String(); 
         	word =(subl.get(0));
@@ -255,101 +259,89 @@ class LexParser {
         	genderNumberMap = fillGenderNumberMap(genderNumberMap, wordTags, d);        
         	
         	
+        }*/
+        
+        //sentenceMap.put(sentenceCounter, genderNumberMap);
+        
         }
         
-        sentenceMap.put(sentenceCounter, genderNumberMap);
         
-        }
         
         //Initialize the coreferenceChain structure here:
-        List<HashMap<Integer, SpanWord>> corefChainList = new ArrayList<HashMap<Integer, SpanWord>>(); 
+    
         
         HashMap<SpanWord, ArrayList<SpanWord>> mastermap = new HashMap<SpanWord, ArrayList<SpanWord>>();
+        List<SpanWord> alreadyTested = new ArrayList<SpanWord>();
+        
+        
         //Here is where the matching begins
         // To match the Noun Phrases put a map of the number of the sentence and the sentence indexes in here
         //This can count as first sieve
         for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
         	int[] indexes= a.getValue();
         	int key = a.getKey();
-        	////System.out.println("LEVEL 1: sent1 "+key+Arrays.toString(indexes));
+        	
         	
         	//get the nps from the sentences and put them in mnps
         	ArrayList<SpanWord> mnps = stringToNpListwIndex(indexes);
         	
+        	
+        	
         	//loop per next 5 sentences, get nps for next sentence and put them in mnps
         	for (int j = key+1; j < Math.min(sentenceMap3.size(), key+5); j++){
         		int[] indexes2 = sentenceMap3.get(j);
-        		////System.out.println("LEVEL 2: sent2" + Arrays.toString(indexes2));
+        		
         		for (SpanWord abc : stringToNpListwIndex(indexes2)){
         			mnps.add(abc);
         		}
         	}
         	
-        	//HashMap<SpanWord, ArrayList<SpanWord>> mastermap = new HashMap<SpanWord, ArrayList<SpanWord>>(); 
+//        	PrintWriter out2 = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\outputNPS.txt");
+//        	for (SpanWord b : mnps){
+//        		System.out.println(b.getText());
+//        		out2.println(b.getText());
+//        	}
+//        	out2.close();
+//        	
         	//the nps of six consecutive sentences are in mnps now
         	// loop through mnps and compare the single items
         	for (int k = 0; k < mnps.size(); k++){
-        		//for (int l = k+1; l < mnps.size(); l++){
-        		for (int l = 0; l < mnps.size(); l++){
+        		for (int l = k+1; l < mnps.size(); l++){
+        		
         			SpanWord r = mnps.get(k);
         			SpanWord s = mnps.get(l);
-        			//System.out.println("DEBUG COMPARING: " + r.getText() +"|"+ s.getText());
+        			
+        			
         			if (compareListsSpan(r,s)){
-        				//System.out.println("WE HAVE A MATCH!!!!!!!!!!!!!!!!!!");
-        				if (mastermap.containsKey(r)){
+        				
+        				if (mastermap.containsKey(r)&& !alreadyTested.contains(s)){
+        				
         					ArrayList<SpanWord> innerList = mastermap.get(r);
         					innerList.add(s);
-        					innerList.add(r);
+        					if (!innerList.contains(r)){
+        					innerList.add(r);}
         					mastermap.put(r,  sortByOrderOfAppearance(innerList));
         				}
-        				else {
+        				else if ( !mastermap.containsKey(r)&& !alreadyTested.contains(s)) {
+        				
         					ArrayList<SpanWord> templist = new ArrayList<SpanWord>();
         					templist.add(s);
         					templist.add(r);
         					mastermap.put(r, sortByOrderOfAppearance(templist));
         				}
-//        				String[] context = new String[5];
-//        				int g = 0;
-//        				for (int h = key+1; h < Math.min(key+5, sentenceMap2.size()); h++){
-//        					context[g] = everything.substring(sentenceMap3.get(h)[0],sentenceMap3.get(h)[1]); 
-//        					g++;
-//        				}
+        				alreadyTested.add(r);
+        				alreadyTested.add(s);       			
         				
         			}
         		}
         	}
-        	//System.out.println("DEBUGGING length of mastermap before:" + mastermap.size());
+        	
         	
         	
         	
         }
-        mastermap = deleteDuplicatesInCorefChain(mastermap);
-        ArrayList<SpanWord> deleteSpans = new ArrayList<SpanWord>();
-    	//SpanWord[] compareList = (SpanWord[])mastermap.keySet().toArray();
-    	Set<SpanWord> setkeys = mastermap.keySet();
-    	SpanWord[] mapkeys = setkeys.toArray(new SpanWord[setkeys.size()]);
-    	for (int q = 0; q < mapkeys.length; q++){
-    		for (int w = q+1; w < mapkeys.length; w++){
-    			if (mastermap.get(mapkeys[q]).equals(mastermap.get(mapkeys[w]))){
-    				deleteSpans.add(mapkeys[q]);
-    			}
-    		}
-    	}
-    	
-    	for (SpanWord q : deleteSpans){
-    		mastermap.remove(q);
-    	}
-    	
-    	
-    	
-    	//System.out.println("DEBUGGING length of mastermap after:" + mastermap.size());
-    	for (SpanWord sw : mastermap.keySet()){
-    		System.out.println(String.format("DEBUG key: %s\twith index(%s,%s)", sw.getText(), sw.getStartSpan(), sw.getEndSpan()));
-    		for (SpanWord sw2 : mastermap.get(sw)){
-    			System.out.println(String.format("is in the chain: %s\twith index (%s,%s)", sw2.getText(), sw2.getStartSpan(), sw2.getEndSpan()));
-    		}
-    	}
         
+    
         
         //ANKIT
         /*//System.out.println("==========DEBUG NP HEAD PERCOLATION========");
@@ -363,10 +355,10 @@ class LexParser {
        
         
         //This can count as second sieve, its the strict matching of heads and matching of stemmed heads
-        for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
+        /*for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
         	int[] indexes= a.getValue();
         	int key = a.getKey();
-        	////System.out.println("LEVEL 1: sent1 "+key+Arrays.toString(indexes));
+        	
         	
         	//get the heads from the sentences and put them in mnps
         	 String sentence = everything.substring(indexes[0],indexes[1]);
@@ -383,7 +375,7 @@ class LexParser {
         	//loop per next 5 sentences, get heads of nps for next sentence and put them in mnps
         	for (int j = key+1; j < Math.min(sentenceMap3.size(), key+5); j++){
         		int[] indexes2 = sentenceMap3.get(j);
-        		////System.out.println("LEVEL 2: sent2" + Arrays.toString(indexes2));
+        		
         		String sentence2 = everything.substring(indexes2[0],indexes2[1]);
         		
         		HashMap<Span, String> npHash2 = getNPHeads(sentence2);
@@ -394,96 +386,80 @@ class LexParser {
      				SpanWord r = new SpanWord(npHash2.get(sp),startIndexOfHead,endIndexOfHead);
                	  mnps.add(r);}
         	}
-        	 for (SpanWord x : mnps){
-        		 //System.out.println("DEBUG mnps: " + x.getText()+ " "+x.getStartSpan()+ " "+ x.getEndSpan()+"\t");
-        		 
-        	 }
-        	//System.out.println("---------------------------------------------------------------");
+        	
+        	
         	//the heads of nps of six consecutive sentences are in mnps now
         	// loop through mnps and compare the single items
         	for (int k = 0; k < mnps.size(); k++){
         		for (int l = k+1; l < mnps.size(); l++){
+        		
         			SpanWord r = mnps.get(k);
         			SpanWord s = mnps.get(l);
-        			////System.out.println("DEBUG loop compare: "+r.getText()+r.getStartSpan()+"\t"+s.getText()+s.getStartSpan());
+        			
         			
         			if (compareListsSpan(r,s)){
-        				//Put r and s in the coreference chain structure
-        				HashMap<Integer, SpanWord> cc = new HashMap<Integer, SpanWord>();
-        				cc.put(r.getStartSpan(), r);
-        				cc.put(s.getStartSpan(), s);
-        				corefChainList.add(cc);
-        				//do something else here
         				
-        				String sent1 = everything.substring(indexes[0], indexes[1]);
-        				String[] context = new String[5];
-        				int g = 0;
-        				for (int h = key+1; h < Math.min(key+5, sentenceMap2.size()); h++){
-        					context[g] = everything.substring(sentenceMap3.get(h)[0],sentenceMap3.get(h)[1]); 
-        					g++;
-        				}
-        				String contextAsString = sent1;
-        				for (String ssss : context){
-        					contextAsString += "\n" + ssss;
-        				}
+        				if (mastermap.containsKey(r)&& !alreadyTested.contains(s)){
         				
-        			}
-        		}
-        	}
-        	
-        }
-        // Merge the little coreference chains to larger ones here
-        
-        List<HashMap<Integer, SpanWord>> newCorefChainList = new ArrayList<HashMap<Integer, SpanWord>>();
-        HashMap<Integer, SpanWord> dummy = new HashMap<Integer, SpanWord>();
-        for (int i = 0; i < corefChainList.size(); i++){
-        	for (int j = i+1; j<corefChainList.size(); j++){
-        		HashMap<Integer, SpanWord> imap = corefChainList.get(i);
-        		HashMap<Integer, SpanWord> jmap = corefChainList.get(j);
-        		for (Integer ii : imap.keySet()){
-        			for (Integer jj : jmap.keySet()){
-        				if (ii.equals(jj)){
-        					//System.out.println("i:" + imap.get(ii).getText());
-        					//System.out.println("j:" + jmap.get(jj).getText());
+        					ArrayList<SpanWord> innerList = mastermap.get(r);
+        					innerList.add(s);
+        					if (!innerList.contains(r)){
+        					innerList.add(r);}
+        					mastermap.put(r,  sortByOrderOfAppearance(innerList));
         				}
+        				else if ( !mastermap.containsKey(r)&& !alreadyTested.contains(s)) {
+        				
+        					ArrayList<SpanWord> templist = new ArrayList<SpanWord>();
+        					templist.add(s);
+        					templist.add(r);
+        					mastermap.put(r, sortByOrderOfAppearance(templist));
+        				}
+        				alreadyTested.add(r);
+        				alreadyTested.add(s);
         				
         			}
         		}
         	}
-        }
-        
-        
-        for (HashMap<Integer, SpanWord> cc : corefChainList){
         	
-        	
-        	
-        	for (int j = 1; j < corefChainList.size(); j++){
-        		//new HashMap, Add the two hashmaps to there, if they are combined smaller then the sum of both toghether add to new corefChainList
-        		
-        		Set<Integer> s = new HashSet<>(cc.keySet());
-        		s.retainAll(corefChainList.get(j).keySet());
-        		if(!s.isEmpty()){
-        			//System.out.println("BINGO!!!!!");
-        			
-        			dummy.putAll(cc);
-            		dummy.putAll(corefChainList.get(j));
-        			
-        		}
-        	}newCorefChainList.add(dummy);
-        	
-        	/*for(SpanWord sp : cc.values()){
-        		//System.out.println("DEBUG corefChainList: " + sp.getText()+" "+sp.getStartSpan()+" "+sp.getEndSpan());
-        	} //System.out.println("---------------------------------------------------------");*/
-        }
-        //System.out.println("DEBUG CorefChainListSize OLD: "+ corefChainList.size());
-        //System.out.println("DEBUG newCorefChainListSize NEW: "+ newCorefChainList.size());
-       /* for (HashMap<Integer, SpanWord> cc : newCorefChainList){
-        	for(SpanWord sp : cc.values()){
-    		//System.out.println("DEBUG newCorefChainList: " + sp.getText()+" "+sp.getStartSpan()+" "+sp.getEndSpan());
-    	} //System.out.println("---------------------------------------------------------");
         }*/
-   
+        
+        mastermap = deleteDuplicatesInCorefChain(mastermap);
+        ArrayList<SpanWord> deleteSpans = new ArrayList<SpanWord>();
+    	Set<SpanWord> setkeys = mastermap.keySet();
+    	SpanWord[] mapkeys = setkeys.toArray(new SpanWord[setkeys.size()]);
+    	for (int q = 0; q < mapkeys.length; q++){
+    		for (int w = q+1; w < mapkeys.length; w++){
+    			if (mastermap.get(mapkeys[q]).equals(mastermap.get(mapkeys[w]))){
+    				deleteSpans.add(mapkeys[q]);
+    			}
+    		}
+    	}
+    	
+    	for (SpanWord q : deleteSpans){
+    		mastermap.remove(q);
+    	}
+    	
+    	
+    	
+    	for (SpanWord sw : mastermap.keySet()){
+    		System.out.println("-----------------------------------------------------------------");
+    		for (SpanWord sw2 : mastermap.get(sw)){
+    			System.out.println(String.format("is in the chain: %s\twith index (%s,%s)", sw2.getText(), sw2.getStartSpan(), sw2.getEndSpan()));
+    		}
+    	}
+    	//ArrayList<SpanWord> allTheNPs = getAllTheNPs();
+    	
+//    	for(SpanWord f : allTheNPs){
+//    		System.out.println(f.getText()+"\t"+f.getStartSpan()+"\t"+f.getEndSpan());
+//    		
+//    	}
     }
+    
+    public static HashMap<String,String> corefChainsForConLL (HashMap<SpanWord,ArrayList<SpanWord>> mastermap, LinkedHashMap<Integer, int[]> sentenceMap3, String everything){
+    	
+    	return null;
+    }
+    
     
     public static HashMap<SpanWord, ArrayList<SpanWord>> deleteDuplicatesInCorefChain(HashMap<SpanWord, ArrayList<SpanWord>> mm){
     	
@@ -587,7 +563,7 @@ class LexParser {
   	  	int numberOfWords2 = list2.size();
   	  	
   	  	//This is the tokenized file created by RFTagger
-  	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\pebo01\\AppData\\Roaming\\Skype\\My Skype Received Files\\15_old3.txt")).get(wordNumber-1);
+  	  	String line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1);
   	  	
   	  	//cleanup of the result of the RFTagger
   	  	/*FileWriter fw = new FileWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\16.txt"); 
@@ -601,7 +577,7 @@ class LexParser {
     	
     	
     	for(int i=0; i<numberOfWords2; i++){
-    		line32 = Files.readAllLines(Paths.get("C:\\Users\\pebo01\\AppData\\Roaming\\Skype\\My Skype Received Files\\15_old3.txt")).get(wordNumber-1+i);
+    		line32 = Files.readAllLines(Paths.get("C:\\Users\\Sabine\\Desktop\\WörkWörk\\15_old3.txt")).get(wordNumber-1+i);
     		////System.out.println("DEBUG wordTag: "+line32);
     		wordTags.add(line32);
     	}
@@ -745,8 +721,8 @@ class LexParser {
     public static  ArrayList<ArrayList<String>> stringToNpList (String sent){
     Tree tree = parser.parse(sent);
     parser.setOptionFlags();
-   // //System.out.println("DEBUG tree: ");
-   // tree.pennPrint();
+   //System.out.println("DEBUG tree: ");
+   //tree.flatten().pennPrint();
     
     //Extract NPs and PPERs and adds them to list nps
     Object[] a = tree.toArray();
@@ -770,13 +746,42 @@ class LexParser {
     
 	return nps;}
     
+    //gets all the NPs from a text
+    public static ArrayList<SpanWord> getAllTheNPs() throws IOException{
+    	ArrayList<SpanWord> allNPs = new ArrayList<SpanWord>();
+    	SpanWord span = getDocumentSpan(inputFile);
+    	String everything = span.getText();
+    	Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
+    	LinkedHashMap<Integer, int[]> sentenceMap3 = new LinkedHashMap<Integer,int[]>(); 
+    	int sentenceCounter = 0;
+    	
+         for (Span sentenceSpan : sentenceSpans){
+        	 int[] sentenceSpans2 = new int[2];
+        	 int sentenceStart = sentenceSpan.getStart();
+        	 int sentenceEnd = sentenceSpan.getEnd();
+        	 sentenceSpans2[0]=sentenceStart;
+        	 sentenceSpans2[1]=sentenceEnd;
+        	 sentenceMap3.put(sentenceCounter, sentenceSpans2);
+        	 sentenceCounter++;}
+       
+    	 for( Entry<Integer, int[]> a :sentenceMap3.entrySet()){
+         	int[] indexes= a.getValue();
+         	allNPs.addAll(stringToNpListwIndex(indexes));
+         	}
+  	
+     	
+     	
+		return allNPs;
+    	
+    }
+    
     
     //gets the sentence indexes, returns the NPs with indexes
     public static  ArrayList<SpanWord> stringToNpListwIndex(int[] indexes) throws IOException{
     	ArrayList<SpanWord> bla = new ArrayList<SpanWord>();
     	String everything = new String();
         
-        FileInputStream inputStream = new FileInputStream("C:\\Users\\pebo01\\AppData\\Roaming\\Skype\\My Skype Received Files\\14cleaned.txt");
+        FileInputStream inputStream = new FileInputStream(inputFile);
         try {
             everything = IOUtils.toString(inputStream);
            
@@ -789,8 +794,8 @@ class LexParser {
         
         	Tree tree = parser.parse(sent);
         	parser.setOptionFlags();
-        	// //System.out.println("DEBUG tree: ");
-        	// tree.pennPrint();
+        	//System.out.println("DEBUG tree: ");
+        	System.out.println(tree.flatten().toString());
         
         	//Extract NPs and PPERs and adds them to list nps
         	Object[] a = tree.toArray();
@@ -838,7 +843,7 @@ class LexParser {
       		    
       		    }
       	
-      	
+      	//System.out.println("Counter :"+counter+"\nPosSize :"+pos.size());
       	SpanWord d = new SpanWord("",0,0);
       	
       	if(pos.size()>1){
