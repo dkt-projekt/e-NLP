@@ -991,3 +991,4 @@ class LexParser {
     	return npHash;
     }
 }
+
