@@ -35,7 +35,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.niftools.TIME;
 import de.dkt.common.niftools.RDFS;
-import de.dkt.eservices.enlp.ENLPPerformanceTest;
+//import de.dkt.eservices.enlp.ENLPPerformanceTest;
 //import de.dkt.eservices.eopennlp.TestConstants;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -207,7 +207,7 @@ public class NameFinder {
 		System.gc();
 		Date d_inter_final1 = new Date();
 		MemoryUsage m_inter_final1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Sentence Detector", d_inter_initial1, d_inter_final1, m_inter_initial1, m_inter_final1);
+//		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Sentence Detector", d_inter_initial1, d_inter_final1, m_inter_initial1, m_inter_final1);
 
 		Date d_inter_initial2 = new Date();
 		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
@@ -221,7 +221,7 @@ public class NameFinder {
 		System.gc();
 		Date d_inter_final2 = new Date();
 		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Detect Entities With models", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
+//		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Detect Entities With models", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
 
 		Date d_inter_initial3 = new Date();
 		MemoryUsage m_inter_initial3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
@@ -265,7 +265,7 @@ public class NameFinder {
 		System.gc();
 		Date d_inter_final3 = new Date();
 		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Adding annotation to model", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
+//		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Adding annotation to model", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
 		return nifModel;
 
