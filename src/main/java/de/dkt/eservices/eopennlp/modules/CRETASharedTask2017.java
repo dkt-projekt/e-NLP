@@ -15,43 +15,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.event.PopupMenuListener;
-
 import org.apache.commons.io.IOUtils;
-import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
 import org.springframework.core.io.ClassPathResource;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-
-import de.dkt.common.niftools.DBO;
-import de.dkt.common.niftools.GEO;
-import de.dkt.common.niftools.ITSRDF;
-import de.dkt.common.niftools.NIF;
-import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
-//import de.dkt.eservices.erattlesnakenlp.modules.Span;
-import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.trees.Constituent;
-import edu.stanford.nlp.trees.Dependency;
 import edu.stanford.nlp.trees.HeadFinder;
-import edu.stanford.nlp.trees.LeftHeadFinder;
 import edu.stanford.nlp.trees.SemanticHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import opennlp.tools.namefind.NameFinderME;
@@ -1029,10 +1007,9 @@ public class CRETASharedTask2017 {
 	
 	public static ArrayList<HashMap> getChunkProbs(String filepath){
 		
-		ArrayList<HashMap> retList = new ArrayList<HashMap>();
 		HashMap<String, HashMap<String, Double>> leftMap = new HashMap<String, HashMap<String, Double>>();
 		HashMap<String, HashMap<String, Double>> rightMap = new HashMap<String, HashMap<String, Double>>();
-		
+		ArrayList<HashMap> retList = new ArrayList<HashMap>();
 		try {
 			HashMap<String, Integer> tokenCount = new HashMap<String, Integer>();
 			ArrayList<String> trainingLines = (ArrayList)IOUtils.readLines(new FileInputStream(filepath));
@@ -1787,11 +1764,11 @@ public class CRETASharedTask2017 {
 		
 		return newlines;
 	}
-	
+
 	
 	public static void main(String[] args) {
-		
-						
+
+					
 		try {
 			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
 			//String content = readFile("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\goethe\\test.txt", StandardCharsets.UTF_8);

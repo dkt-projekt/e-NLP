@@ -65,7 +65,7 @@ public class ENLPTest {
 	
 	private HttpRequestWithBody analyzeOpennlpRequest() {
 		String url = testHelper.getAPIBaseUrl() + "/e-nlp/namedEntityRecognition";
-		Unirest.setTimeouts(10000, 10000000);
+		Unirest.setTimeouts(999999999, 999999999);
 		return Unirest.post(url);
 	}
 	
@@ -897,7 +897,10 @@ public class ENLPTest {
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\subfolderWithSameContent";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\complaintsIndividualFiles";
 //		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNIFs";
-//		String docFolder = "C:\\Users\\pebo01\\Desktop\\PerformanceTest\\de\\collection4\\raw";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\PerformanceTest\\de\\collection4\\raw";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\biographyAnnotation\\biographies";
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\30000_rest_plaintext";
+//		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\ESWC2017\\manuallyAugmentedJsonLDs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\Condat_Data\\condatNIFs";
 //		
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\clean\\out\\NER_NIFS_EN";
@@ -906,7 +909,9 @@ public class ENLPTest {
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\FRONTEO\\nifs";
 //		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNIFsNEROutput";
-//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\PerformanceTest\\de\\collection4\\analized";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\PerformanceTest\\de\\collection4\\analized";
+//		//String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\30000_rest_nifs";
+//		String outputFolder = "C:\\Users\\pebo01\\Desktop\\data\\ESWC2017\\manuallyAugmentedJsonLDsLinked";
 //		File df = new File(docFolder);
 //		//PrintWriter out = new PrintWriter(new File(outputFolder, "temp.txt"));
 //		
@@ -931,6 +936,7 @@ public class ENLPTest {
 //		
 //		for (File f : df.listFiles()){
 //			System.out.println("Processing file:" + f.getAbsolutePath());
+//			//System.out.println("DEBUGGINg name:" + f.getName());
 //			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 //			Date d1 = new Date();
 //			//Model nifModel = NIFWriter.initializeOutputModel();
@@ -938,40 +944,51 @@ public class ENLPTest {
 //			//LanguageIdentificator.detectLanguageNIF(nifModel);
 //			//Model nifModel = identifyInputLanguage(fileContent, RDFSerialization.PLAINTEXT);
 //			
-//			
-//			
 //			HttpResponse<String> debugResponse = analyzeOpennlpRequest()
 //					.queryString("analysis", "ner")
 //					//.queryString("analysis", "dict")
 //					//.queryString("language", "de")
 //					.queryString("language", "en")
+//					//.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
 //					.queryString("models", "ner-wikinerEn_LOC;ner-wikinerEn_ORG;ner-wikinerEn_PER")
 //					//.queryString("models", "mendelson_LOC;mendelson_ORG;mendelson_PER")
 //					//.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainPER")
-//					.queryString("informat", "text")
+//					.queryString("informat", "json-ld")
 //					//.queryString("informat", "turtle")
-//					.queryString("outformat", "turtle")
-//					.queryString("mode", "spot")
+//					.queryString("outformat", "json-ld")
+//					//.queryString("prefix", "http://dkt.dfki.de/clintonCorpus/" + FilenameUtils.removeExtension(f.getName()))
+//					.queryString("mode", "link")
 //					//.queryString("input", fileContent)
 //					.body(fileContent)
 //					.asString();
 //			String turtleModel = debugResponse.getBody();
 //			
+////			HttpResponse<String> debugResponse3 = analyzeOpennlpRequest()
+////					.queryString("analysis", "dict")
+////					.queryString("language", "en")
+////					.queryString("models", "clinton_PER;clinton_LOC;clinton_ORG")
+////					.queryString("informat", "turtle")
+////					.queryString("outformat", "turtle")
+////					.body(turtleModel)
+////					.asString();
+////			String turtleModel3 = debugResponse3.getBody();
+//			
 //			
 //
-//			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
-//					.queryString("analysis", "temp")
-//					.queryString("language", "en")
-//					.queryString("models", "englishDates")
-//					.queryString("informat", "turtle")
-//					//.queryString("informat", "text")
-//					.queryString("outformat", "turtle")
-//					//.queryString("input", turtleModel)
-//					//.body(fileContent)
-//					.body(turtleModel)
-//					.asString();
-//			//String turtleModel = debugResponse2.getBody();
-//			turtleModel = debugResponse2.getBody();
+////			HttpResponse<String> debugResponse2 = analyzeOpennlpRequest()
+////					.queryString("analysis", "temp")
+////					.queryString("language", "en")
+////					.queryString("models", "englishDates")
+////					.queryString("informat", "turtle")
+////					//.queryString("informat", "text")
+////					//.queryString("outformat", "json-ld")
+////					.queryString("outformat", "turtle")
+////					//.queryString("input", turtleModel)
+////					//.body(fileContent)
+////					.body(turtleModel3)
+////					.asString();
+////			//String turtleModel = debugResponse2.getBody();
+////			turtleModel = debugResponse2.getBody();
 //			
 //			Date d2 = new Date();
 //			//out.println("File: " + f.getName() + " took in seconds: " + (d2.getTime() - d1.getTime()) / 10000);
