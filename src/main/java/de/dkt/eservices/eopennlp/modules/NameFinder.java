@@ -203,7 +203,7 @@ public class NameFinder {
 		String content = NIFReader.extractIsString(nifModel);
 		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
 
-		
+		   
 		System.gc();
 		Date d_inter_final1 = new Date();
 		MemoryUsage m_inter_final1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
