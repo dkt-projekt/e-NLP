@@ -20,7 +20,7 @@ import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.ParameterChecker;
-import de.dkt.eservices.enlp.ENLPPerformanceTest;
+//import de.dkt.eservices.enlp.ENLPPerformanceTest;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
@@ -88,7 +88,7 @@ public class EOpenNLPService {
     		System.gc();
     		Date d_inter_final = new Date();
     		MemoryUsage m_inter_final = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Initialization", d_inter_initial, d_inter_final, m_inter_initial, m_inter_final);
+//    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Initialization", d_inter_initial, d_inter_final, m_inter_initial, m_inter_final);
 
     		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
     		
@@ -115,7 +115,7 @@ public class EOpenNLPService {
             		System.gc();
             		Date d_inter_final3 = new Date();
             		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
+//            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
             		Date d_inter_initial4 = new Date();
             		MemoryUsage m_inter_initial4 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
@@ -125,7 +125,7 @@ public class EOpenNLPService {
             		System.gc();
             		Date d_inter_final4 = new Date();
             		MemoryUsage m_inter_final4 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Spoting Processing", d_inter_initial4, d_inter_final4, m_inter_initial4, m_inter_final4);
+//            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Spoting Processing", d_inter_initial4, d_inter_final4, m_inter_initial4, m_inter_final4);
 
 
         		}
@@ -190,7 +190,7 @@ public class EOpenNLPService {
     		System.gc();
     		Date d_inter_final2 = new Date();
     		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
+//    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
 
     		return nifModel;
         } catch (BadRequestException e) {
