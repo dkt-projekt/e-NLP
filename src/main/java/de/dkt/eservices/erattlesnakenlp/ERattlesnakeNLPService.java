@@ -105,15 +105,18 @@ public class ERattlesnakeNLPService {
 	}
 	
 	
-	public HashMap<String, Double> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
+	public HashMap<String, String> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
-		HashMap<String, Double> entityCandidates = new HashMap<String, Double>();
+		HashMap<String, String> entityCandidates = new HashMap<String, String>();
 		try {
 			String referenceCorpus=  null;
 			if (languageParam.equalsIgnoreCase("en")){
 				referenceCorpus = "englishReuters";
+			}
+			else if (languageParam.equalsIgnoreCase("de")){
+				referenceCorpus = "germanZeitungMTCorp";
 			}
 			else { //TODO: add more ref corpora for other languages and modify here
 				throw new BadRequestException("No reference corpus available yet for language: " + languageParam);
@@ -132,6 +135,47 @@ public class ERattlesnakeNLPService {
 
 		return entityCandidates;
 	
+	}
+	
+	
+	public Model annotateEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
+			throws ExternalServiceFailedException, BadRequestException, IOException, Exception{
+		
+		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
+		
+		String sentModel = null;
+		if (languageParam.equals("en") || languageParam.equals("de")){
+			sentModel = languageParam + "-sent.bin";
+		}
+		else{
+			logger.error("No sentence model language: "+ languageParam);
+			throw new BadRequestException("No sentence model language: "+ languageParam);
+		}
+
+		try {
+			String referenceCorpus=  null;
+			if (languageParam.equalsIgnoreCase("en")){
+				referenceCorpus = "englishReuters";
+			}
+			else if (languageParam.equalsIgnoreCase("de")){
+				referenceCorpus = "germanZeitungMTCorp";
+			}
+			else { //TODO: add more ref corpora for other languages and modify here
+				throw new BadRequestException("No reference corpus available yet for language: " + languageParam);
+			}
+			
+			nifModel = EntityCandidateExtractor.entityAnnotate(nifModel, languageParam, referenceCorpus, thresholdValue, classificationModels, sentModel);
+			
+		} catch (BadRequestException e) {
+			logger.error(e.getMessage());
+			throw e;
+		} catch (ExternalServiceFailedException e2) {
+			logger.error(e2.getMessage());
+			throw e2;
+		}
+
+		
+		return nifModel;
 	}
 	
 	

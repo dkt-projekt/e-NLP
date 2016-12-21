@@ -24,6 +24,7 @@ import de.dkt.common.tools.ParameterChecker;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
+import de.dkt.eservices.erattlesnakenlp.linguistic.EntityCandidateExtractor;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.exception.BadRequestException;

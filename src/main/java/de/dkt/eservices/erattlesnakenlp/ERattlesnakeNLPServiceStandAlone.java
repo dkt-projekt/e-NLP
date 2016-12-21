@@ -42,6 +42,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.ParameterChecker;
 import eu.freme.common.conversion.rdf.RDFConstants;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.conversion.rdf.RDFConversionService;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
@@ -271,7 +272,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 			   @RequestHeader(value = "Accept", required = false) String acceptHeader,
 			   @RequestHeader(value = "Content-Type", required = false) String contentTypeHeader,
 
-
+			@RequestParam(value = "output-mode", required = false) String outputMode,
 			@RequestParam(value = "threshold", required = false) String thresholdValue,
 			@RequestParam(value = "classificationModels", required = false) String classificationModels,
             @RequestParam Map<String, String> allParams,
@@ -294,10 +295,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
        		logger.error("Parameter language not specified.");
        		throw new BadRequestException("Parameter language not specified.");
         }
-        if (language.equalsIgnoreCase("en")){
+        if (language.equalsIgnoreCase("en") || language.equalsIgnoreCase("de")){
         	// all is well
         }
-        // TODO: add support for German (have to find document collection to get tfIdf serialized hashmap for this
         else{
         	throw new BadRequestException("Language not supported.");
         }
@@ -334,6 +334,24 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 				cm.add(m);
 			}
 		}
+		
+		if (outputMode !=null){
+			if (outputMode.equalsIgnoreCase("nif")){
+				//ok
+			}
+			else if (outputMode.equalsIgnoreCase("list")){
+				//ok
+			}
+			else{
+				logger.error("outputMode not supported: " + outputMode);
+				throw new BadRequestException("outputMode not supported: " + outputMode);
+			}
+		}
+		else{
+			outputMode = "list"; // the default, check with ART+COM, maybe they rather have nif as default
+		}
+		
+		
 
 		NIFParameterSet nifParameters = this.normalizeNif(input, informat, outformat, postBody, acceptHeader, contentTypeHeader, prefix);
 		Model inModel = null;
@@ -353,27 +371,50 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 			}
         }
         
+        
+        ResponseEntity<String> response = new ResponseEntity<String>(null);
 			        
-		HashMap<String, Double> suggestionMap = service.suggestEntityCandidates(inModel, language, nifParameters.getInformat(), t, cm);
-	    Set<Entry<String, Double>> set = suggestionMap.entrySet();
-        List<Entry<String, Double>> list = new ArrayList<Entry<String, Double>>(set);
-        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
-            public int compare(Map.Entry<String, Double> o1,
-                    Map.Entry<String, Double> o2) {
-                return o2.getValue().compareTo(o1.getValue());
-            }
-        });
+        // list case (returning an ordered list of candidates
+        if (outputMode.equalsIgnoreCase("list")){
+			HashMap<String, String> suggestionMap = service.suggestEntityCandidates(inModel, language,
+					nifParameters.getInformat(), t, cm);
+			HashMap<String, Double> suggestionMapDoublesParsed = new HashMap<String, Double>();
+			for (String s : suggestionMap.keySet()){
+				if (classificationModels != null){
+					String key = s + "\t" + suggestionMap.get(s).split("\t")[0]; // not very elegant, but this way I can sort and keep the class in the output...
+					Double value = Double.parseDouble(suggestionMap.get(s).split("\t")[1]);
+					suggestionMapDoublesParsed.put(key,  value);
+				}
+				else{
+					Double value = Double.parseDouble(suggestionMap.get(s));
+					suggestionMapDoublesParsed.put(s,  value);
+				}
+			}
+			Set<Entry<String, Double>> set = suggestionMapDoublesParsed.entrySet();
+			List<Entry<String, Double>> list = new ArrayList<Entry<String, Double>>(set);
+			Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
+				public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+					return o2.getValue().compareTo(o1.getValue());
+				}
+			});
 
-	    String output = "";
-        for (Entry<String, Double> s: list){
-        	output += s.getKey() + "\n";
+			String output = "";
+			for (Entry<String, Double> s : list) {
+				output += s.getKey() + "\n";
+			}
+
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.add("Content-Type", "text/plain");
+			response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
+			InteractionManagement.sendInteraction("dkt-usage@" + request.getRemoteAddr(), "usage", "/e-nlp/suggestEntityCandidates", "Success", "", "", "", "");
         }
         
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add("Content-Type", "text/plain");
-        ResponseEntity<String> response = new ResponseEntity<String>(output, responseHeaders, HttpStatus.OK);
-
-        InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "/e-nlp/suggestEntityCandidates", "Success", "", "", "", "");
+        // nif case: annotating the candidates in the nif straight away
+        if (outputMode.equalsIgnoreCase("nif")){
+        	Model nifModel = service.annotateEntityCandidates(inModel, language, nifParameters.getInformat(), t, cm);
+        	response = createSuccessResponse(nifModel, nifParameters.getOutformat());
+        	InteractionManagement.sendInteraction("dkt-usage@" + request.getRemoteAddr(), "usage", "/e-nlp/suggestEntityCandidates", "Success", "", "", "", "");
+        }
         
         return response;
 	}
@@ -475,8 +516,20 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         
         String output = "";
         for (Model m : documents) {
-        	HashMap<String, Double> suggestionMap = service.suggestEntityCandidates(m, language, nifParameters.getInformat(), t, cm);
-        	Set<Entry<String, Double>> set = suggestionMap.entrySet();
+        	HashMap<String, String> suggestionMap = service.suggestEntityCandidates(m, language, nifParameters.getInformat(), t, cm);
+        	HashMap<String, Double> suggestionMapDoublesParsed = new HashMap<String, Double>();
+			for (String s : suggestionMap.keySet()){
+				if (classificationModels != null){
+					String key = s + "\t" + suggestionMap.get(s).split("\t")[0]; // not very elegant, but this way I can sort and keep the class in the output...
+					Double value = Double.parseDouble(suggestionMap.get(s).split("\t")[1]);
+					suggestionMapDoublesParsed.put(key,  value);
+				}
+				else{
+					Double value = Double.parseDouble(suggestionMap.get(s));
+					suggestionMapDoublesParsed.put(s,  value);
+				}
+			}
+			Set<Entry<String, Double>> set = suggestionMapDoublesParsed.entrySet();
             List<Entry<String, Double>> list = new ArrayList<Entry<String, Double>>(set);
             Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
                 public int compare(Map.Entry<String, Double> o1,

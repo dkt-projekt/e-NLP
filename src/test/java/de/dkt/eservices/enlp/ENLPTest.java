@@ -1129,6 +1129,30 @@ public class ENLPTest {
 		Assert.assertEquals(expectedResp, response.getBody());
 		
 	}
+
+	@Test
+	public void entitySuggestTestEnglishNifOutput() throws UnirestException, IOException,
+			Exception {
+
+		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
+		HttpResponse<String> response = entitySuggestRequest()
+				.queryString("informat", "text")
+				.queryString("language", "en")
+				.queryString("threshold", "0.2")
+				.queryString("output-mode", "nif")
+				.body(TestConstants.englishPlaintextInput)
+				.asString();
+			
+
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		String expectedResp = TestConstants.expectedEntitySuggestResponseEnglish;
+				
+		Assert.assertEquals(expectedResp, response.getBody());
+		
+	}
+	
 	
 	@Test
 	public void entitySuggestTestWithClassification() throws UnirestException, IOException,
@@ -1137,9 +1161,9 @@ public class ENLPTest {
 		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
 		HttpResponse<String> response = entitySuggestRequest()
 				.queryString("informat", "text")
-				.queryString("language", "en")
+				.queryString("language", "de")
 				.queryString("threshold", "0.5")
-				.queryString("classificationModels", "dummyLM;dummy2LM")
+				//.queryString("classificationModels", "dummyLM;dummy2LM")
 				.body(TestConstants.germanPlainTextInput)
 				.asString();
 			
@@ -1148,14 +1172,59 @@ public class ENLPTest {
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 		String expectedResp = 
-				"und	dummyLM\n"+
-				"nicht	dummyLM\n"+
-				"ist	dummy2LM\n"+
-				"auch	dummyLM\n"+
-				"das	dummy2LM\n"+
-				"sie	dummy2LM\n"+
-				"den	dummy2LM\n"+
+				"Feki\n"+
+				"El\n"+
 				"";
+
+		Assert.assertEquals(expectedResp, response.getBody());
+		
+	}
+	
+	@Test
+	public void entitySuggestGermanNifOut() throws UnirestException, IOException,
+			Exception {
+
+		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
+		HttpResponse<String> response = entitySuggestRequest()
+				.queryString("informat", "text")
+				.queryString("language", "de")
+				.queryString("threshold", "0.5")
+				.queryString("output-mode", "nif")
+				//.queryString("classificationModels", "dummyLM;dummy2LM")
+				.body(TestConstants.germanPlainTextInputShortened)
+				.asString();
+			
+
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		String expectedResp = TestConstants.expectedResponse658;
+
+		Assert.assertEquals(expectedResp, response.getBody());
+		
+	}
+	
+
+	
+	@Test
+	public void entitySuggestTestWithClassificationNIFout() throws UnirestException, IOException, // NOTE: this unit test includes DBpedia lookup and can fail because of that (if dbpedia does not respond). If so, perhaps get rid of it (or build in a link(=no) param)
+			Exception {
+
+		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
+		HttpResponse<String> response = entitySuggestRequest()
+				.queryString("informat", "text")
+				.queryString("language", "en")
+				.queryString("threshold", "0.2")
+				.queryString("classificationModels", "dummyLM;dummy2LM")
+				.queryString("output-mode", "nif")
+				.body(TestConstants.englishPlaintextInput)
+				.asString();
+			
+
+		//System.out.println("DEBUGGING response:" + response.getBody());
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		String expectedResp = TestConstants.expectedResponse57;
 
 		Assert.assertEquals(expectedResp, response.getBody());
 		

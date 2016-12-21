@@ -143,7 +143,7 @@ public class EOpenNLPServiceStandAlone extends BaseRestController {
 	public ResponseEntity<String> analyzeText(
 			HttpServletRequest request,
 			@RequestParam(value = "input", required = false) String input,
-			@RequestParam(value = "analysis", required = false) String analysis, // either ner or dict
+			@RequestParam(value = "analysis", required = false) String analysis, // either ner or dict or temp or tfidf
 			@RequestParam(value = "models", required = false) String models,
 			@RequestParam(value = "language", required = false) String language,
 			@RequestParam(value = "i", required = false) String i,

@@ -1,24 +1,42 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.ClassPathResource;
+
 import com.hp.hpl.jena.rdf.model.Model;
 
+import de.dkt.common.niftools.NIFManagement;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
+import de.dkt.eservices.eopennlp.modules.Tokenizer;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.SemanticHeadFinder;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import eu.freme.common.exception.BadRequestException;
 import edu.stanford.nlp.trees.Tree;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.util.Span;
 
 public class sandbox {
@@ -29,27 +47,71 @@ public class sandbox {
     public static void main(String[] args) throws IOException{
     	
     
-           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-           //String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-           String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-           Tree tree = lexParser.parse(sentence);
-           
-           ///** debugging
-           System.out.println("The Parse Tree for " + sentence + " is: ");
-           tree.pennPrint();
-           //**/
-        	
+//           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+//           //String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+//           String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+//           Tree tree = lexParser.parse(sentence);
+//           
+//           ///** debugging
+//           System.out.println("The Parse Tree for " + sentence + " is: ");
+//           tree.pennPrint();
+//           //**/
+//        	
+//
+//        	HashMap<Span, String> npHash = traverseTreeForNPs(tree, new HashMap<Span, String>());
+//        	for (Span sp : npHash.keySet()){
+//        	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+//        	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+//        	  System.out.println("HEAD:" + npHash.get(sp));
+//        	}
+    	
+//    	String modelsDirectory = "trainedModels/";
+//		InputStream modelIn = null;
+//		ClassPathResource cpr;
+//		POSModel POSModel = null;
+//		try{
+//			//cpr = new ClassPathResource("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
+//			File f = new File("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
+//			modelIn = new FileInputStream(f);
+//			POSModel = new POSModel(modelIn);
+//		}
+//		catch(IOException e){
+//			throw new BadRequestException(e.getMessage());
+//		}
+//    	
+    	
+    	
+    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifs";
+    	File df = new File(nifFileMap);
+    	ArrayList<Model> modelsList = new ArrayList<Model>();
+    	//String prefix = null;
+    	for (File f : df.listFiles()){
+			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+			try {
+				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+				modelsList.add(nifModel);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	String prefix = "http://dkt.dfki.de/clintonCorpus";
+    	Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
 
-        	HashMap<Span, String> npHash = traverseTreeForNPs(tree, new HashMap<Span, String>());
-        	for (Span sp : npHash.keySet()){
-        	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
-        	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
-        	  System.out.println("HEAD:" + npHash.get(sp));
-        	}
-   
-
-   
+    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+		out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
+		out.close();
+    	
     }
+    
+    
+    static String readFile(String path, Charset encoding) 
+			  throws IOException 
+			{
+			  byte[] encoded = Files.readAllBytes(Paths.get(path));
+			  return new String(encoded, encoding);
+			}
+    
   public static HashMap<Span, String> traverseTreeForNPs(Tree tree, HashMap<Span, String> npHash){
 
     	  

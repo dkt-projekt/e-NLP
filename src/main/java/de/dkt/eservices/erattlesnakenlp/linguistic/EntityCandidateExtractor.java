@@ -15,17 +15,27 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import com.google.common.base.Joiner;
 import com.hp.hpl.jena.rdf.model.Model;
 
 import de.dkt.common.filemanagement.FileFactory;
+import de.dkt.common.niftools.DBO;
+import de.dkt.common.niftools.DKTNIF;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+import de.dkt.eservices.eopennlp.modules.RegexFinder;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.eopennlp.modules.Tokenizer;
+import de.dkt.eservices.erattlesnakenlp.modules.Sparqler;
 import eu.freme.common.exception.BadRequestException;
+import opennlp.tools.namefind.RegexNameFinder;
+import opennlp.tools.util.Span;
 
 
 
@@ -39,7 +49,86 @@ public class EntityCandidateExtractor {
 	static int minNgramSize = 2;
 	static int maxNgramSize = 5;
 	
-	public static HashMap<String, Double> entitySuggest(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels){
+	
+public static Model entityAnnotate(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels, String sentModel){
+		
+		
+		// first get list using the eneitySuggest thing
+		HashMap<String, String> entityMap = entitySuggest(nifModel, language, referenceMap, threshold, classificationModels);
+		
+		// then make annotations in nifModel
+
+		// checking dbpedia uris here (doing this first, to make sure it is done only once for each entity, because this part is slow)
+		String sparqlService = null;
+		String defaultGraph = null;
+		if (language.equalsIgnoreCase("en")){
+			sparqlService = "http://dbpedia.org/sparql";
+			defaultGraph = "http://dbpedia.org";
+		}
+		else if (language.equalsIgnoreCase("de")){
+			sparqlService = "http://de.dbpedia.org/sparql";
+			defaultGraph = "http://de.dbpedia.org";
+		}
+		else{
+			//add more languages here
+		}
+		
+		HashMap<String, String> entity2DBPediaURI = new HashMap<String, String>();
+		for (String ent : entityMap.keySet()){
+			String entURI = Sparqler.getDBPediaURI(ent, language, sparqlService, defaultGraph);
+			if(!(entURI == null)){
+				entity2DBPediaURI.put(ent, entURI);
+			}
+		}
+
+		List<Pattern> patterns = new LinkedList<Pattern>();
+		for (String key : entityMap.keySet()){
+			patterns.add(Pattern.compile(key));
+		}
+		Pattern[] patts = new Pattern[patterns.size()];
+		int j = 0;
+		for (Pattern p : patterns) {
+			patts[j]=p;
+			j++;
+		}
+		if (patts.length > 0){
+			RegexNameFinder rnf = new RegexNameFinder(patts, null);
+
+			String content = NIFReader.extractIsString(nifModel);
+			Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
+			for (Span sentenceSpan : sentenceSpans) {
+				String sentence = content.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
+				List<Span> nameSpans = RegexFinder.filterFind(rnf, sentence);
+				for (Span ns : nameSpans) {
+					int nameStartIndex = ns.getStart() + sentenceSpan.getStart();
+					int nameEndIndex = ns.getEnd() + sentenceSpan.getStart();
+					String foundName = content.substring(nameStartIndex, nameEndIndex);
+					String uri = ((entity2DBPediaURI.containsKey(foundName)) ? entity2DBPediaURI.get(foundName) : null);
+					String className = entityMap.get(foundName).split("\t")[0];
+					String dictionaryAnnotationType = "Other";
+					if (classificationModels != null && className != null){
+						dictionaryAnnotationType = className;
+					}
+					String entityType = DKTNIF.property(dictionaryAnnotationType).toString();
+
+					if (uri != null) {
+						NIFWriter.addAnnotationEntities(nifModel, nameStartIndex, nameEndIndex, foundName, uri,
+								entityType);
+					} else {
+						NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStartIndex, nameEndIndex, foundName,
+								entityType);
+					}
+				}
+			}
+		}
+		//TODO: add german reference corpus
+		return nifModel;
+		
+	}
+	
+	
+	
+	public static HashMap<String, String> entitySuggest(Model nifModel, String language, String referenceMap, double threshold, ArrayList<String> classificationModels){
 		
 		ArrayList<String> candidates = new ArrayList<String>();				
 		Tagger.initTagger(language);
@@ -143,20 +232,20 @@ public class EntityCandidateExtractor {
 				}
 			}
 		}
-		HashMap<String, Double> resultMap = new HashMap<String, Double>();
+		HashMap<String, String> resultMap = new HashMap<String, String>();
 		for (String c : candidates){
-			resultMap.put(c, tokenScores.get(c));
+			resultMap.put(c, tokenScores.get(c).toString());
 		}
 		
 		//System.out.println(candidates);
 		if (classificationModels != null){
-			HashMap<String, Double> resultMap2 = new HashMap<String, Double>();
+			HashMap<String, String> resultMap2 = new HashMap<String, String>();
 			HashMap<String, String> classScores = classifySuggestions(classificationModels, candidates);
 			// a bit ugly, but for now this will do as I don't want to change return type depending on if models are specified or not:
 			//ArrayList<String> candidatesWithClasses = new ArrayList<String>();
 			for (String c : classScores.keySet()){
 				//candidatesWithClasses.add(c + "\t" + classScores.get(c));
-				resultMap2.put(c + "\t" + classScores.get(c), tokenScores.get(c));
+				resultMap2.put(c, classScores.get(c) + "\t" + tokenScores.get(c));
 			}
 			//candidates = candidatesWithClasses;
 			resultMap = resultMap2;
@@ -222,7 +311,7 @@ public class EntityCandidateExtractor {
 		HashMap<String, String> classificationScores = new HashMap<String, String>();
 		for (String candidate : candidates){
 			Double highestScore = 0.0;
-			String cl = null;
+			String cl = "Other";
 			for (String model : candidateClassificationScores.keySet()){
 				if (candidateClassificationScores.get(model).get(candidate) > highestScore){
 					highestScore = candidateClassificationScores.get(model).get(candidate);
@@ -387,24 +476,25 @@ public class EntityCandidateExtractor {
 		Model nifModel = NIFWriter.initializeOutputModel();
 		//NIFWriter.addInitialString(nifModel, testSent, "http://dkt.dfki.de/documents/#");
 		
-		try {
-			NIFWriter.addInitialString(nifModel, readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\DKT_Texte_AC\\DKT_Texte_AC\\Micropia\\Wikipedia\\TXT\\Fungus.txt", StandardCharsets.UTF_8), "http://dkt.dfki.de/documents/#");
-			//suggestCandidates(nifModel, "en", 0.1);
-			entitySuggest(nifModel, "en", "englishReuters", 0.02, null);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			NIFWriter.addInitialString(nifModel, readFile("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\DKT_Texte_AC\\DKT_Texte_AC\\Micropia\\Wikipedia\\TXT\\Fungus.txt", StandardCharsets.UTF_8), "http://dkt.dfki.de/documents/#");
+//			//suggestCandidates(nifModel, "en", 0.1);
+//			entitySuggest(nifModel, "en", "englishReuters", 0.02, null);
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		//serializeClassLanguageModel("C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\listOfUNCountriesModified.txt", "countriesLM");
 		
-		//serializeTfIdfHashMap("C:\\Users\\pebo01\\Desktop\\data\\tfidDocumentDollections\\reuters\\docCollection", "englishReuters");
+		//serializeTfIdfHashMap("C:\\Users\\pebo01\\Desktop\\data\\germanIDFBackgroundCorpus\\combinedAndProcessed", "germanZeitungMTCorp");
 		
 		//serializeStoplist("C:\\Users\\pebo01\\Desktop\\englishStoplist.txt", "english");
 		
 		
 		//System.out.println(suggestCandidates(nifModel, "en", 0.5));
+		System.out.println("Done.");
 	}
 	
 }

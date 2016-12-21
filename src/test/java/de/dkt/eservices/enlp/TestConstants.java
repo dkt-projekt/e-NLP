@@ -7,6 +7,121 @@ public class TestConstants {
 	static String relationExtractionExpectedOutput = 
 		"{\"relations\":[{\"subject\":\"http://dbpedia.org/resource/Angela_Merkel\",\"relation\":\"born\",\"object\":\"http://dbpedia.org/resource/Hamburg\"},{\"subject\":\"http://dbpedia.org/resource/Angela_Merkel\",\"relation\":\"moved\",\"object\":\"http://dbpedia.org/resource/Brandenburg\"}]}";
 	
+	static String englishPlaintextInput = 
+			"Friedrich Wilhelm Nietzsche (/ˈniːtʃə/;[4] German: [ˈfʁiːdʁɪç ˈvɪlhɛlm ˈniːtʃə]; 15 October 1844 – 25 August 1900) was a German philosopher, cultural critic, poet, philologist, and Latin and Greek scholar whose work has exerted a profound influence on Western philosophy and modern intellectual history.[5][6][7][8] He began his career as a classical philologist before turning to philosophy. He became the youngest ever to hold the Chair of Classical Philology at the University of Basel in 1869, at the age of 24. Nietzsche resigned in 1879 due to health problems that plagued him most of his life, and he completed much of his core writing in the following decade.[9] In 1889, at age 44, he suffered a collapse and a complete loss of his mental faculties.[10] He lived his remaining years in the care of his mother (until her death in 1897), and then with his sister Elisabeth Förster-Nietzsche, and died in 1900.[11]";
+					//"Nietzsche's body of work touched widely on art, philology, history, religion, tragedy, culture, and science, and drew early inspiration from figures such as Schopenhauer, Wagner, and Goethe. His writing spans philosophical polemics, poetry, cultural criticism, and fiction while displaying a fondness for aphorism and irony.[12] Some prominent elements of his philosophy include his radical critique of reason and truth in favor of perspectivism; his genealogical critique of religion and Christian morality, and his related theory of master–slave morality;[5][13] his aesthetic affirmation of existence in response to the 'death of God' and the profound crisis of nihilism;[5] his notion of the Apollonian and Dionysian; and his characterization of the human subject as the expression of competing wills, collectively understood as the will to power.[14] In his later work, he developed influential concepts such as the Übermensch and the doctrine of eternal return, and became increasingly preoccupied with the creative powers of the individual to overcome social, cultural, and moral contexts in pursuit of new values and aesthetic health.[8]\n" +
+					//"After his death, Elisabeth Förster-Nietzsche became the curator and editor of her brother's manuscripts, reworking Nietzsche's unpublished writings to fit her own German nationalist ideology while often contradicting or obfuscating his stated opinions, which were explicitly opposed to antisemitism and nationalism. Through her published editions, Nietzsche's work became associated with fascism and Nazism;[15] 20th-century scholars contested this interpretation of his work and corrected editions of his writings were soon made available. His thought enjoyed renewed popularity in the 1960s, and his ideas have since had a profound impact on 20th and early-21st century thinkers across philosophy—especially in schools of continental philosophy such as existentialism, postmodernism, and post-structuralism—as well as art, literature, psychology, politics, and popular culture.[6][7][8][16][17]\n";
+	
+	static String expectedEntitySuggestResponseEnglish =
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=381,391>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philosophy\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"381\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"391\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=71,78>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"ˈniːtʃə\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"71\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"78\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=516,525>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"516\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"525\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=260,270>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philosophy\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"260\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"270\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=683,686>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"age\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"683\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"686\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/ontology/age> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=18,27>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"18\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"27\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=505,508>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"age\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"505\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"508\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/ontology/age> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=351,362>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philologist\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"351\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"362\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=888,897>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"888\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"897\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=30,37>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"ˈniːtʃə\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"30\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"37\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=164,175>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philologist\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"164\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"175\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,920>\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"920\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Friedrich Wilhelm Nietzsche (/ˈniːtʃə/;[4] German: [ˈfʁiːdʁɪç ˈvɪlhɛlm ˈniːtʃə]; 15 October 1844 – 25 August 1900) was a German philosopher, cultural critic, poet, philologist, and Latin and Greek scholar whose work has exerted a profound influence on Western philosophy and modern intellectual history.[5][6][7][8] He began his career as a classical philologist before turning to philosophy. He became the youngest ever to hold the Chair of Classical Philology at the University of Basel in 1869, at the age of 24. Nietzsche resigned in 1879 due to health problems that plagued him most of his life, and he completed much of his core writing in the following decade.[9] In 1889, at age 44, he suffered a collapse and a complete loss of his mental faculties.[10] He lived his remaining years in the care of his mother (until her death in 1897), and then with his sister Elisabeth Förster-Nietzsche, and died in 1900.[11]\"^^xsd:string .\n" +
+					"";
+			
+	
 	static String relationExtractionInput =
 			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
 					"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
@@ -1670,10 +1785,450 @@ public class TestConstants {
 //Treitschke	http://d-nb.info/gnd/118623761
 //Schmädel 	http://d-nb.info/gnd/117521221
 	
+	static String expectedResponse658 = 
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=2324,2328>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"2324\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"2328\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=7943,7947>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"7943\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"7947\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=7366,7370>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"7366\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"7370\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=341,345>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"341\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"345\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=6328,6330>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"6328\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"6330\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=6951,6953>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"6951\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"6953\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=1397,1399>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"1397\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"1399\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=4019,4023>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"4019\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"4023\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=5733,5735>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"5733\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"5735\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=817,821>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"817\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"821\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=354,356>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"354\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"356\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=7940,7942>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"7940\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"7942\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=906,910>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"906\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"910\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=3643,3647>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"3643\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"3647\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=338,340>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"338\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"340\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=1400,1404>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"1400\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"1404\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=4016,4018>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"4016\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"4018\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=3640,3642>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"3640\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"3642\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=814,816>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"814\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"816\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=230,232>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"230\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"232\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=903,905>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"903\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"905\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=5427,5431>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"5427\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"5431\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=4460,4462>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"4460\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"4462\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=5570,5572>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"5570\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"5572\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=7363,7365>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"7363\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"7365\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=233,237>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"233\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"237\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=4463,4467>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"4463\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"4467\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=6331,6335>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"6331\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"6335\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=750,752>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"750\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"752\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=5736,5740>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"5736\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"5740\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=2321,2323>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"2321\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"2323\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,8071>\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"8071\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Sexualität und Islam: Mohammed war in gewisser Weise Feminist\\tSexualität und Islam\\tMohammed war in gewisser Weise Feminist\\tEva Thöne\\tInterview\\tIst der Islam aggressiv und antifeministisch? Die ägyptische Wissenschaftlerin Shereen El Feki plädiert dafür genauer hinzusehen - und erklärt was Sexualität mit Abschiebung zu tun hat.\\t'Shereen El Feki Shereen El Feki wuchs als Tochter eines Ägypters und einer Britin in Kanada auf und studierte Immunologie. Später arbeitete sie als Journalistin u.a. für den Sender Al Jazeera außerdem für die Uno. 2013 erschien ihr Buch ''Sex und die Zitadelle. Liebesleben in der sich wandelnden arabischen Welt''. Derzeit arbeitet sie mit der NGO ''Promundo'' an einer breiten Studie zu Sexualität im arabischen Raum. El Feki pendelt zwischen London und Kairo. SPIEGEL ONLINE: Frau El Feki Sie leben in Kairo und London. Wo fühlen Sie sich sicherer vor sexueller Gewalt? El Feki: Ich bin kein gutes Beispiel. Ich bin Ausländerin in Ägypten und werde auch immer so wahrgenommen - wie es den Frauen im Alltagsleben geht vermag ich nicht zu bewerten. Ich weiß natürlich worauf Sie mit Ihrer Frage hinauswollen. Ja sexuelle Gewalt spielt eine große Rolle in Ägypten. Umfragen der Uno haben ergeben dass 99 Prozent aller ägyptischen Frauen schon mal sexuell belästigt wurden. Trotzdem: Es gibt auch Fortschritte. SPIEGEL ONLINE: Wo sehen Sie die bei dieser hohen Quote? El Feki: Vor zehn Jahren war das Thema sexuelle Gewalt noch absolut tabu heute ist es Gespräch. Die sexuellen Attacken auf dem Tahrirplatz ab 2011 waren der Auslöser weil sie viele Menschen dazu brachten sich offen zu äußern. Viele der Konservativen die damals argumentierten die Frauen seien nicht angemessen angezogen gewesen trauen sich heute nicht mehr das so auszusprechen. Sie mögen es noch denken. Aber sie schweigen weil sich der öffentliche Diskurs geändert hat. Das hat natürlich auch mit dem Opportunismus der aktuellen Regierung zu tun: Weil sich Al-Sisi zumindest nach außen hin von den Muslimbrüdern distanzieren will kriminalisiert er sexuelle Belästigung. Für andere Bereiche gilt das nicht. Im Namen der Religion werden in Ägypten Homosexuelle nach wie vor ins Gefängnis geworfen. SPIEGEL ONLINE: Über Ägypten hinaus - beobachten Sie im arabischen Raum länderübergreifend eine Ausweitung von Frauenrechten? El Feki: Ich kann in dieser Debatte nur vor jeder Verallgemeinerung warnen. Ich kann nicht über Millionen Menschen in ganz unterschiedlichen Lebenssituationen sprechen. Klar ist nur: Der Aufstieg des ''Islamischen Staates'' (IS) hat in vielen arabischen Ländern eine Debatte darüber ausgelöst was mit dem Islam passiert. Wer spricht in seinem Namen und bestimmt so auch Vorstellungen von Sexualität mit? Durch Abgrenzung vom IS finden viele junge Araber ihre Stimme. ''Das ist nicht mein Islam'' ist die Wendung die Sie dann in sozialen Netzwerken lesen können. Häufig hören wir in den westlichen Massenmedien aber nur von den Männern die Frauen belästigen. Die die sich in Projekten und Initiativen gegen Sexualgewalt stellen finden kaum statt. Der Posterboy des Jahres 2016 wird in den westlichen Medien der Flüchtling mit einem Abschiebebescheid in der Hand sein. Das ist verkürzt und manchmal auch rassistisch. Liegt aber auch daran dass der Diskurs über den Islam während der letzten Jahrzehnte vor allem von fundamentalistischen Stimmen geprägt war und so auch von konservative Interpretationen des Korans. Tatsächlich hat der Islam aber auch Potenzial für gleichberechtigtes Leben. Islamische Feministinnen weisen seit Jahren immer wieder darauf hin. SPIEGEL ONLINE: Haben Sie ein Beispiel für dieses Potenzial? El Feki: Das geht zurück bis zum Propheten Mohammed der von starken Frauen umgeben war. Er äußerte sich auch sehr klar zu Sex sagte etwa dass auch die Frau den Geschlechtsverkehr genießen solle. In gewisser Weise war er Feminist. SPIEGEL ONLINE: Es gibt aber eben auch diese reaktionären Interpretationen des Islam die sexuelle Gewalt von Männern mit dem Koran rechtfertigen. El Feki: Sexualität ist das was uns als Menschen zentral ausmacht. Sie durch Berufung auf eine höhere Autorität zu kontrollieren ist also eine verdammt gute Möglichkeit um Macht auszuüben - das hat der Islam erkannt wie auch schon andere Religionen. Konservative Auslegungen des Christentums oder des Hinduismus funktionieren da genauso. SPIEGEL ONLINE: Das bedeutet aber noch nicht dass man sich als Mann automatisch dieser Macht beugen muss. El Feki: In autoritären Systemen die stark auf Religion fußen ist es jedoch schwierig sich dieser Interpretation zu entziehen. Es gibt aber darüber hinaus bestimmte universelle Faktoren die ausschlaggebend dafür sind ob ein Mann gegenüber Frauen gewalttätig wird. Studien der Uno belegen dass sich die Umstände in denen Männer daheim oder öffentlich gegen Frauen gewalttätig werden weltweit ähneln: Männer werden zum Beispiel wahrscheinlicher gewalttätig wenn sie als Kinder selbst Opfer von Gewalt wurden. Wenn sie mitbekamen dass ihrer Mutter vom Vater oder einem anderen Mann Gewalt angetan wurde. Wenn sie denken dass das System sie damit davonkommen lässt. Dazu kommt vermutlich noch ein starker Einfluss von Arbeitslosigkeit die liegt in vielen arabischen Ländern im zweistelligen Prozentbereich. Wenn du als junger Mann in arabischen Ländern keinen Job bekommst hat das tiefgreifende Konsequenzen. SPIEGEL ONLINE: Weil du nicht als Versorger funktionierst? El Feki: Es wird schwieriger auszudrücken dass du nach konventionellen Vorstellungen ein richtiger Mann bist. Du kannst nicht aus dem Haus deiner Eltern ausziehen nicht heiraten. Und hast dann auch keinen regelmäßigen Sex. SPIEGEL ONLINE: Aber das ist doch noch keine Entschuldigung für sexualisierte Gewalt. El Feki: Ich habe selbst sexualisierte Gewalt erlebt und möchte ganz klar sagen dass solche Übergriffe immer unentschuldbar sind. Etwas zu verstehen bedeutet aber auch nicht es zu entschuldigen. Und wir können Einstellungen nun mal nur ändern wenn wir verstehen wie sie zustande kommen. In der arabischen Region wo die Männer in patriarchalisch organisierten und autoritär geführten Regimen auch noch unter Druck stehen wegen der ökonomischen Situation ist es nicht verwunderlich dass sie die Frustration ausagieren. SPIEGEL ONLINE: Das Sein bestimmt nach Ihrer Auffassung also das Bewusstsein. El Feki: Wie stark das Persönliche und das Politische verschlungen sind zeigen ja selbst die Diskussionen von Flüchtlingsgegnern über die Übergriffe an Silvester in Köln. Ich meine damit nicht die Gewalt per se. Sondern dass die Gewalttaten verallgemeinert werden wenn sie als Beispiel für sexuelle Praxis und Auffassungen über Sexualität in den arabischen Ländern insgesamt dargestellt werden. Was im Schlafzimmer passiert wird dann plötzlich relevant für eine Diskussion über Einwanderungspolitik. SPIEGEL ONLINE: Wie sollte Deutschland Flüchtlingen aus dem arabischen Raum begegnen um sexuellen Übergriffen vorzubeugen? El Feki: Je ausgeschlossener sich die Männer fühlen desto wahrscheinlicher werden Übergriffe. Das Ausgeschlossensein führt ja nur die Frustration weiter die schon in den Heimatländern erlebt wurde. Mit Bildung und Therapie kann man Einstellungen von Männern ändern - wenn sie noch jung sind und selbst dann wenn sie mit Gewalt aufgewachsen sind. SPIEGEL ONLINE: Wie schlägt sich Deutschland hier in Ihren Augen? El Feki: Hier erkenne ich bisher keine klare Idee sondern viel Übereiltes. Wenn Flüchtlinge plötzlich nicht mehr ins Schwimmbad gelassen werden und über härtere Abschiebungsregeln diskutiert wird ist das natürlich auf gewisse Weise die unausweichliche Konsequenz von Köln. Aber solche Aktionen helfen keinem. Auch weil klar ist: Wenn Deutschland junge Männer in ihre Länder zurückschickt produziert es erstklassiges Rekrutierungsmaterial für extremistische Bewegungen. Die die die sich hier abgelehnt fühlen werden nicht einfach friedlich heimkehren. Das Interview mit Shereen El Feki ist der erste Teil einer Gesprächsreihe von SPIEGEL ONLINE in der Perspektiven auf Islam und Sexualität beleuchtet werden.'\"^^xsd:string .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=357,361>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"357\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"361\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=5424,5426>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"El\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"5424\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"5426\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/El> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=6954,6958>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"6954\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"6958\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=753,757>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Feki\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"753\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"757\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,8071> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://de.dbpedia.org/resource/Feki> .\n" +
+					"";
+	
+	static String expectedResponse57 = 
+			"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
+					"@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n" +
+					"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
+					"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
+					"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
+					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
+					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=381,391>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philosophy\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"381\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"391\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=71,78>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"ˈniːtʃə\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"71\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"78\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=516,525>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"516\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"525\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=260,270>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philosophy\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"260\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"270\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=683,686>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"age\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"683\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"686\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/ontology/age> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=18,27>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"18\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"27\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=505,508>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"age\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"505\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"508\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:Other ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/ontology/age> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=351,362>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philologist\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"351\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"362\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=888,897>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"Nietzsche\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"888\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"897\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM ;\n" +
+					"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Nietzsche> .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=30,37>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"ˈniːtʃə\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"30\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"37\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=164,175>\n" +
+					"        a                     nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf          \"philologist\"^^xsd:string ;\n" +
+					"        nif:beginIndex        \"164\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex          \"175\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext  <http://dkt.dfki.de/documents/#char=0,920> ;\n" +
+					"        itsrdf:taClassRef     dktnif:dummy2LM .\n" +
+					"\n" +
+					"<http://dkt.dfki.de/documents/#char=0,920>\n" +
+					"        a               nif:RFC5147String , nif:String , nif:Context ;\n" +
+					"        nif:beginIndex  \"0\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex    \"920\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:isString    \"Friedrich Wilhelm Nietzsche (/ˈniːtʃə/;[4] German: [ˈfʁiːdʁɪç ˈvɪlhɛlm ˈniːtʃə]; 15 October 1844 – 25 August 1900) was a German philosopher, cultural critic, poet, philologist, and Latin and Greek scholar whose work has exerted a profound influence on Western philosophy and modern intellectual history.[5][6][7][8] He began his career as a classical philologist before turning to philosophy. He became the youngest ever to hold the Chair of Classical Philology at the University of Basel in 1869, at the age of 24. Nietzsche resigned in 1879 due to health problems that plagued him most of his life, and he completed much of his core writing in the following decade.[9] In 1889, at age 44, he suffered a collapse and a complete loss of his mental faculties.[10] He lived his remaining years in the care of his mother (until her death in 1897), and then with his sister Elisabeth Förster-Nietzsche, and died in 1900.[11]\"^^xsd:string .\n" +
+					"";
+	
 	static String germanPlainTextInput =
 			
 			"spiegel online	http://www.spiegel.de/panorama/gesellschaft/ukrainer-in-deutschland-vom-krieg-ins-exil-verbannt-a-1065478.html	Ukrainer in Deutschland: Flüchtlinge die niemand so nennt	Ukrainer in Deutschland	Flüchtlinge die niemand so nennt	Peter Maxwill	Artikel	Sie kamen für eine Woche und konnten nicht mehr zurück: Eine Gruppe junger Ukrainer ist in Deutschland gestrandet - wegen des Kriegs im Donbass staatliche Unterstützung bekommen sie nicht. Über ein Leben ohne Perspektive.	\"Die größte Meinungsverschiedenheit des Trios? Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch; \"\"ziemlich stressig und eng\"\" ist die Stadt in Yanas Augen. \"\"Einfach schön\"\" sei Bremen aber in jedem Fall wirft Alevtina ein - da nicken alle drei. \"\"Bloß keinen Streit jetzt\"\" fügt Alexander hinzu und nippt an seinem Kaffee. Alle lachen. Harmonie ist den drei Ukrainern besonders wichtig wenn sie sich treffen - so wie an diesem Wintertag in einem Bremer Café am Weserufer. Denn viel mehr als einander haben sie derzeit nicht: Vor anderthalb Jahren waren die angehenden Dolmetscher aus Donezk für eine siebentägige Studienreise nach Bremen geflogen dann überrollte der Krieg zwischen Regierungstruppen und prorussischen Kämpfern ihre Heimat und versperrte ihnen den Weg zurück. Seitdem sitzen sie in Deutschland fest ohne staatliche Unterstützung ohne Familie Freunde Perspektive. Yana Lysenko Alevtina Artash und Alexander Starostin sind Opfer eines Krieges den niemand so nennt und einer Flüchtlingskrise die kaum jemand kennt. Rund 6700 Menschen aus der Ukraine haben laut dem Bundesamt für Migration und Flüchtlinge seit dem Ausbruch des Konflikts vor zwei Jahren in Deutschland Asyl beantragt. Die tatsächliche Zahl der Einwanderer aus der Ukraine ist vermutlich deutlich höher. Die Ukraine ist derzeit Schauplatz einer weitgehend unbeachteten humanitären Krise: Seit der Konflikt mit prorussischen Kämpfern das Land zerrüttet herrschen vor allem im umkämpften Gebiet Donbass schlimme Zustände: Fünf Millionen Menschen sind laut Europarat insgesamt in Not geraten mehr als 24 Millionen haben nach Angaben des ukrainischen Sozialministeriums ihre Heimat verlassen. Yana Alexander und Alevtina waren im Juni 2014 noch Studenten der Universität Donezk im Studiengang Dolmetschen nur einen Monat später waren sie plötzlich Flüchtlinge - auch wenn sie sich selbst nicht so bezeichnen möchten. Damals zerstörte eine Buk-Rakete das Flugzeug MH17 über der Ostukraine und rund um Donezk flammten heftige Kämpfe auf. Die Studenten diskutierten bei Bremen gerade mit Altersgenossen in einer NS-Gedenkstätte über den Zweiten Weltkrieg und stellten ein Theaterprojekt auf die Beine als die Eskalation des Konflikts ihnen den Heimweg versperrte. So wurde aus ihrer Heimatstadt Donezk das Kriegsgebiet Donezk ihr Studentenwohnheim sei nun von Separatisten besetzt und in eine Kaserne verwandelt worden. Die Austauschstudenten waren nun Heimatlose ihre Zukunft ungewiss. \"\"Wir sitzen in der Falle\"\" sagte Alexander damals zu SPIEGEL ONLINE - und viel verändert hat sich daran nicht. Suche nach neuen Perspektiven Mittlerweile hätten 800.000 Ukrainer im Ausland Asyl beantragt sagt Bettina Schulte von der Uno-Flüchtlingsorganisation UNHCR - darunter sind viele Kinder und Jugendliche. \"\"Allein im Donbass sind derzeit 27 Millionen Menschen auf Hilfe angewiesen\"\" so Schulte. Das ukrainische Sozialministerium registriert zudem 5000 weitere Migranten aus dem Osten des Landes - pro Monat. \"\"Die Flüchtlinge können natürlich nur dann heimkehren wenn sich die politische Lage im Donbass stabilisiert\"\" sagt Schulte. Das gilt auch für Menschen wie Yana Alexander und Alevtina. Sie sind auf der Suche nach neuen Perspektiven im Großraum Bremen geblieben. Viele ihrer Freunde versuchen es inzwischen woanders: Katja 19 leistet Bundesfreiwilligendienst in Hannover Jewgenija 19 ist Au-Pair-Mädchen in Wien Anja 23 macht ein Freiwilliges Soziales Jahr im norddeutschen Osterholz-Scharmbek. Die anderen treffen sich nach wie vor regelmäßig in Bremen Alevtina und Yana haben eine WG gegründet Alexander stößt aus dem nahen Worpswede oft dazu. In Deutschland ist ihr Status völlig unklar. \"\"Eine Behördenpraxis besteht bezogen auf Asylantragsteller aus der Ukraine aktuell nicht\"\" teilte die Bundesregierung im Juni 2015 mit. \"\"Einschlägige Rechtsprechung gibt es dazu bisher nicht.\"\" Die Behörden wissen also nicht was sie mit Menschen machen sollen die der ukrainische Konflikt nach Deutschland gebracht hat. So gelten sie derzeit in Bremen als Studenten aus einem Nicht-EU-Land. Das bedeutet: Sie müssen ein Konto mit knapp 8000 Euro Guthaben vorweisen und erhalten keine Unterstützung als Asylbewerber kein Hartz IV kein Bafög kein Kindergeld. Stattdessen leben Alevtina Alexander und Yana nun von Stipendien Nebenjobs Spenden. Mehr über ihr Leben erzählen sie hier: \"\"Jetzt fängt mein Leben nochmal von vorne an\"\" Alevtina Artash (21) \"\"Ich war Anfang Juni noch mal in der Ukraine aber natürlich nicht in Donezk: Die Professoren die nicht mit den Rebellen zusammenarbeiten wollten haben eine Exil-Universität in Winnyzja bei Kiew eröffnet. Dort habe ich die letzte Prüfung meines Bachelor-Studiums nachgeholt damit ich hier in Bremen direkt mit dem Master anfangen kann. Im August kam dann mein Diplom aus der Ukraine darüber war ich unglaublich glücklich - denn sonst hätte ich noch mal ganz von vorne anfangen müssen. Meine Mutter hat mir inzwischen auch einen Koffer mit persönlichen Dingen und Kleidung geschickt ich bin ja nur mit Gepäck für eine Woche nach Deutschland gekommen. Dank eines Stipendiums studiere ich jetzt Sprachwissenschaft. Aber ich habe keine Ahnung was ich später mal machen werde: In das Separatistengebiet kann ich nicht zurück außerdem ist auch meine Mutter vor den Bomben in die unbesetzte Ukraine geflohen. Dort werde ich aber wohl auch keinen Job finden: Das ist für Ukrainer aus dem Donbass seit Ausbruch des Kriegs sehr schwierig. Ich habe trotzdem noch nicht den Wunsch abgehakt zurückzugehen - auch wenn das erst in zehn Jahren ist.\"\" Alexander Starostin (21) \"\"Ich kam schon mit 15 an die Uni für mein Leben gab es also schon ziemlich früh einen Plan: Nach dem Studium wollte ich Dolmetscher werden am liebsten natürlich in der Ukraine. Jetzt fängt mein Leben nochmal von vorne an - und ich habe gelernt keine Pläne mehr zu machen. Der Waffenstillstand zu Hause existiert nur auf dem Papier sogar die Wohnung meiner Schwester wurde schon beschossen. Ich selbst war vor anderthalb Jahren für ein paar Wochen auf der Krim und während eines Waffenstillstands wenig später kurz in Donezk um mein Bachelor-Diplom abzuholen. Dann habe ich zwei Praktika in einem Theater und in einer Kunsthalle in Niedersachsen gemacht inzwischen lebe ich vor allem von Spenden. Im Studium beschäftige ich mich jetzt mit grenzüberschreitender Kultur und mit Minderheiten in der Kunst und das passt gut: Ich weiß ja selbst sehr gut wie es sich als Fremder in einem anderen Land anfühlt - und was es bedeutet das bisherige Leben verloren zu haben.\"\" Yana Lysenko (22) \"\"Einige meiner Verwandten leben noch in Donezk aber meine Eltern sind nach Russland übergesiedelt. Dabei will ich aber betonen dass sie nicht aus politischen Gründen dorthin gezogen sind. Meinen Vater habe ich seit mehr als anderthalb Jahren nicht gesehen wir skypen aber regelmäßig. Im vergangenen Jahr war ich zweimal in der Ukraine. Einmal im Sommer um in Winnyza meine Master-Prüfungen abzulegen und einmal im Herbst um meine Familie wiederzusehen. In Deutschland habe ich parallel zu meinem Fernstudium in einer Bildungsstätte nördlich von Bremen ein Praktikum gemacht. Mit meinem Praktikum war ich im August 2015 fertig und habe mich für einen Studienplatz an der Uni Bremen beworben. Mein Studiengang heißt Integrierte Europastudien. Dabei geht es vor allem um Osteuropa ich lerne im Rahmen des Studiums auch Polnisch und Tschechisch nebenbei gebe ich meinen Kommilitonen ein Russisch-Sprachtutorium. Später möchte ich auch noch Politik oder internationale Beziehungen studieren; natürlich auch weil mich diese Themen persönlich betreffen. In die Ukraine zurückzukehren kann ich mir im Moment nicht vorstellen - weil das gesamte Donbass unter der Sowjetunion-Krankheit leidet.\"\" Animation DER SPIEGEL Wie der Krieg in die Ukraine kam Zusammengefasst: Hunderttausende Ukrainer haben wegen des Konflikts im Donbass ihr Heimatland verlassen. Viele sind auch nach Deutschland gekommen manche eher unfreiwillig - so wie die Studenten Yana Alexander und Alevtina. Die drei können nicht zurück in ihre Heimatstadt Donezk und bauen sich nun in Deutschland ein neues Leben auf. Das ist ziemlich schwierig denn sie sind weder EU-Bürger noch anerkannte Flüchtlinge.\"		1453796700000	26.01.2016 – 08:25	Ukraine-Konflikt	Panorama	Gesellschaft	http://cdn2.spiegel.de/images/image-937691-breitwandaufmacher-bvqj-937691.jpg	Kriegsflüchtlinge aus der Ukraine: Alleine in Deutschland		SPIEGEL ONLINE	© SPIEGEL ONLINE 2016	\n" +
 					"spiegel online	http://www.spiegel.de/politik/deutschland/fluechtlinge-darf-deutschland-fluechtlinge-abweisen-a-1073833.html	Debatte um Obergrenzen: Darf Deutschland Flüchtlinge abweisen?	Debatte um Obergrenzen	Darf Deutschland Flüchtlinge abweisen?	Dietmar Hipp	Artikel	Es gibt eine Menge Pläne und Forderungen wie man die Anzahl der Flüchtlinge reduzieren kann. Aber was geht überhaupt? Wie ist die Rechtslage tatsächlich? Die wichtigsten Fragen und Antworten.	\"Plan B Plan A2 Mini-Schengen oder die Einführung von Obergrenzen - das sind Politiker-Codes für mögliche Lösungen der Flüchtlingskrise. Allen gemein ist dass an europäischen Binnengrenzen stärker als bisher Flüchtlinge abgewiesen werden sollen. Also Grenzen wie jener zwischen Deutschland und Österreich oder Slowenien und Kroatien. Nur: So plakativ und simpel all diese Forderungen sind so kompliziert sind dann eben doch die geltenden Gesetze. Was also ist rechtlich tatsächlich möglich? Lesen Sie hier die wichtigsten Fragen und Antworten. Wann sind Grenzkontrollen zwischen europäischen Staaten erlaubt? Durch die sogenannten Schengener Abkommen wurden zwar in einem Teil der EU (und benachbarter Staaten) die stationären Grenzkontrollen an den Binnengrenzen abgeschafft. Im Falle einer schwerwiegenden Bedrohung der öffentlichen Ordnung oder der inneren Sicherheit ist aber die vorübergehende Wiedereinführung von Grenzkontrollen erlaubt. Genau das macht zum Beispiel Deutschland derzeit. An den sogenannten Schengen-Außengrenzen darf ohnehin kontrolliert werden - also etwa zwischen Slowenien und Kroatien das zwar EU-Mitglied ist aber nicht zum Schengenraum gehört. Darf man bei solchen Kontrollen Flüchtlinge zurückweisen? Wer unerlaubt einreisen will der darf nach deutschem und europäischem Recht an der Grenze zurückgewiesen werden - etwa Personen die keinen Pass mit sich führen. Allerdings: Wird ein Asylantrag gestellt gilt diese Regel nicht. Zwar darf nach deutschem Recht einem Asylsuchenden die Einreise verweigert werden wenn er aus einem sogenannten sicheren Drittstaat einreist - und Deutschland ist eigentlich de facto nur von sicheren Drittstaaten umgeben. Aber dieses deutsche Asylverfahrensrecht wird überlagert von europäischen Vorschriften: Die deutsche Drittstaatenregelung gilt deshalb nicht bei einer Einreise aus EU-Mitgliedstaaten - und aufgrund eines besonderen Abkommens auch nicht gegenüber der Schweiz. Gibt es da keinen Interpretationsspielraum? Doch. Das Innenministerium zum Beispiel hält es für \"\"vertretbar\"\" Österreich auch nach europäischem Recht als sicheren Drittstaat zu behandeln. Im Moment ist das aber politisch - noch - nicht gewollt. Aber werden nicht bereits Flüchtlinge an der deutschen Grenze zurückgewiesen? Ja wer nicht explizit um Schutz in Deutschland bittet dem wird derzeit die Einreise verweigert. Das trifft regelmäßig etwa jene Flüchtlinge die durch Deutschland reisen wollen um in Schweden Asyl zu suchen. Diese werden dann nach Österreich zurückgewiesen. Was geschieht wenn ein Flüchtling an der deutsch-österreichischen Grenze das Wort \"\"Asyl\"\" sagt? Dann muss Deutschland seinen Asylantrag prüfen sofern es nach europäischem Recht zuständig ist. Wenn nicht dann muss zumindest geprüft werden welcher Staat für das Asylverfahren zuständig ist. Das bestimmt sich nach den sogenannten Dublin-Regeln. Diese werden zwar im Moment vielfach ignoriert doch könnte sich Deutschland natürlich nach wie vor auf deren Einhaltung berufen. Demnach müssen Flüchtlinge eigentlich in dem Staat Asyl bekommen über den sie erstmals in die EU eingereist sind. Für Flüchtlinge aus dem Nahen Osten wären das typischerweise Kroatien oder Griechenland. Heißt das die Asylsuchenden würden nach Österreich zurückgeschickt? Nein. Zuständig ist im Prinzip der Mitgliedstaat über den sie in die EU eingereist sind. \"\"Deutschland müsste Asylbewerber dann auch genau dorthin zurückschicken - und sie nicht einfach an der deutsch-österreichischen Grenze abweisen\"\" so der Konstanzer Europarechtsexperte Daniel Thym. Es müsste also erstens geprüft werden ob ein anderer Staat zuständig ist und wenn ja welcher. Zweitens müsste dieser Staat dann auch bereit sein den Flüchtling zurückzunehmen. An der slowenisch-kroatischen Grenze sieht eine solche Zurückweisung natürlich einfacher aus: Weil die Flüchtlinge in den allermeisten Fällen über Kroatien eingereist sind ist dann auch Kroatien für sie zuständig. Deutschland wäre aber ausnahmsweise zuständig etwa für Minderjährige ohne Begleitung und für Angehörige von Asylsuchenden deren Antrag bereits in Deutschland bearbeitet wurde oder wird. Muss sich Deutschland noch an europäische Regeln halten wenn andere das schon längst nicht mehr tun? Faktisch ist das erwähnte Dublin-System zusammengebrochen und es gibt sogar eine Vorschrift in den Europäischen Verträgen nach der ein Mitgliedstaat ausnahmsweise von EU-Richtlinien und -Verordnungen abweichen kann wenn \"\"die Aufrechterhaltung der öffentlichen Ordnung\"\" und der \"\"Schutz der inneren Sicherheit\"\" berührt sind. Solche Überlegungen gibt es auch im Innenministerium. Demnach würde das \"\"derzeitige Systemversagen des europäischen (Außen-)Grenzschutz- und Asylsystems\"\" ein \"\"Vorgehen zum Schutz der öffentlichen Sicherheit\"\" eröffnen. Rechtlich wäre dieser Weg am ehesten gangbar politisch ist er aber bisher nicht gewollt. Diese Variante ginge wohl auch nur vorübergehend und nur in dem Maß in dem das unbedingt notwendig ist. Die bloße Einhaltung von politisch gewollten Obergrenzen etwa dürfte also eher nicht dazu gehören. AP Antworten auf die wichtigsten Fragen zur Flüchtlingskrise Forum Liebe Leserinnen und Leser im Unterschied zu vielen anderen Artikeln auf SPIEGEL ONLINE finden Sie unter diesem Text kein Forum. Leider erreichen uns zum Thema Flüchtlinge so viele unangemessene beleidigende oder justiziable Forumsbeiträge dass eine gewissenhafte Moderation nach den Regeln unserer Netiquette kaum mehr möglich ist. Deshalb gibt es nur unter ausgewählten Artikeln zu diesem Thema ein Forum. Wir bitten um Verständnis.\"		1453819860000	26.01.2016 – 14:51	Deutsche Einwanderungspolitik	Politik	Deutschland	http://cdn1.spiegel.de/images/image-948394-breitwandaufmacher-celi-948394.jpg	Flüchtlinge an der deutsch-österreichischen Grenze: Ein Grundsatz und viele Ausnahmen	Flüchtlinge an der deutsch-österreichischen Grenze: Ein Grundsatz und viele Ausnahmen	DPA	© SPIEGEL ONLINE 2016	\n" +
 					"spiegel online	http://www.spiegel.de/kultur/gesellschaft/sexualitaet-im-islam-interview-mit-shereen-el-feki-a-1072533.html	Sexualität und Islam: Mohammed war in gewisser Weise Feminist	Sexualität und Islam	Mohammed war in gewisser Weise Feminist	Eva Thöne	Interview	Ist der Islam aggressiv und antifeministisch? Die ägyptische Wissenschaftlerin Shereen El Feki plädiert dafür genauer hinzusehen - und erklärt was Sexualität mit Abschiebung zu tun hat.	\"Shereen El Feki Shereen El Feki wuchs als Tochter eines Ägypters und einer Britin in Kanada auf und studierte Immunologie. Später arbeitete sie als Journalistin u.a. für den Sender Al Jazeera außerdem für die Uno. 2013 erschien ihr Buch \"\"Sex und die Zitadelle. Liebesleben in der sich wandelnden arabischen Welt\"\". Derzeit arbeitet sie mit der NGO \"\"Promundo\"\" an einer breiten Studie zu Sexualität im arabischen Raum. El Feki pendelt zwischen London und Kairo. SPIEGEL ONLINE: Frau El Feki Sie leben in Kairo und London. Wo fühlen Sie sich sicherer vor sexueller Gewalt? El Feki: Ich bin kein gutes Beispiel. Ich bin Ausländerin in Ägypten und werde auch immer so wahrgenommen - wie es den Frauen im Alltagsleben geht vermag ich nicht zu bewerten. Ich weiß natürlich worauf Sie mit Ihrer Frage hinauswollen. Ja sexuelle Gewalt spielt eine große Rolle in Ägypten. Umfragen der Uno haben ergeben dass 99 Prozent aller ägyptischen Frauen schon mal sexuell belästigt wurden. Trotzdem: Es gibt auch Fortschritte. SPIEGEL ONLINE: Wo sehen Sie die bei dieser hohen Quote? El Feki: Vor zehn Jahren war das Thema sexuelle Gewalt noch absolut tabu heute ist es Gespräch. Die sexuellen Attacken auf dem Tahrirplatz ab 2011 waren der Auslöser weil sie viele Menschen dazu brachten sich offen zu äußern. Viele der Konservativen die damals argumentierten die Frauen seien nicht angemessen angezogen gewesen trauen sich heute nicht mehr das so auszusprechen. Sie mögen es noch denken. Aber sie schweigen weil sich der öffentliche Diskurs geändert hat. Das hat natürlich auch mit dem Opportunismus der aktuellen Regierung zu tun: Weil sich Al-Sisi zumindest nach außen hin von den Muslimbrüdern distanzieren will kriminalisiert er sexuelle Belästigung. Für andere Bereiche gilt das nicht. Im Namen der Religion werden in Ägypten Homosexuelle nach wie vor ins Gefängnis geworfen. SPIEGEL ONLINE: Über Ägypten hinaus - beobachten Sie im arabischen Raum länderübergreifend eine Ausweitung von Frauenrechten? El Feki: Ich kann in dieser Debatte nur vor jeder Verallgemeinerung warnen. Ich kann nicht über Millionen Menschen in ganz unterschiedlichen Lebenssituationen sprechen. Klar ist nur: Der Aufstieg des \"\"Islamischen Staates\"\" (IS) hat in vielen arabischen Ländern eine Debatte darüber ausgelöst was mit dem Islam passiert. Wer spricht in seinem Namen und bestimmt so auch Vorstellungen von Sexualität mit? Durch Abgrenzung vom IS finden viele junge Araber ihre Stimme. \"\"Das ist nicht mein Islam\"\" ist die Wendung die Sie dann in sozialen Netzwerken lesen können. Häufig hören wir in den westlichen Massenmedien aber nur von den Männern die Frauen belästigen. Die die sich in Projekten und Initiativen gegen Sexualgewalt stellen finden kaum statt. Der Posterboy des Jahres 2016 wird in den westlichen Medien der Flüchtling mit einem Abschiebebescheid in der Hand sein. Das ist verkürzt und manchmal auch rassistisch. Liegt aber auch daran dass der Diskurs über den Islam während der letzten Jahrzehnte vor allem von fundamentalistischen Stimmen geprägt war und so auch von konservative Interpretationen des Korans. Tatsächlich hat der Islam aber auch Potenzial für gleichberechtigtes Leben. Islamische Feministinnen weisen seit Jahren immer wieder darauf hin. SPIEGEL ONLINE: Haben Sie ein Beispiel für dieses Potenzial? El Feki: Das geht zurück bis zum Propheten Mohammed der von starken Frauen umgeben war. Er äußerte sich auch sehr klar zu Sex sagte etwa dass auch die Frau den Geschlechtsverkehr genießen solle. In gewisser Weise war er Feminist. SPIEGEL ONLINE: Es gibt aber eben auch diese reaktionären Interpretationen des Islam die sexuelle Gewalt von Männern mit dem Koran rechtfertigen. El Feki: Sexualität ist das was uns als Menschen zentral ausmacht. Sie durch Berufung auf eine höhere Autorität zu kontrollieren ist also eine verdammt gute Möglichkeit um Macht auszuüben - das hat der Islam erkannt wie auch schon andere Religionen. Konservative Auslegungen des Christentums oder des Hinduismus funktionieren da genauso. SPIEGEL ONLINE: Das bedeutet aber noch nicht dass man sich als Mann automatisch dieser Macht beugen muss. El Feki: In autoritären Systemen die stark auf Religion fußen ist es jedoch schwierig sich dieser Interpretation zu entziehen. Es gibt aber darüber hinaus bestimmte universelle Faktoren die ausschlaggebend dafür sind ob ein Mann gegenüber Frauen gewalttätig wird. Studien der Uno belegen dass sich die Umstände in denen Männer daheim oder öffentlich gegen Frauen gewalttätig werden weltweit ähneln: Männer werden zum Beispiel wahrscheinlicher gewalttätig wenn sie als Kinder selbst Opfer von Gewalt wurden. Wenn sie mitbekamen dass ihrer Mutter vom Vater oder einem anderen Mann Gewalt angetan wurde. Wenn sie denken dass das System sie damit davonkommen lässt. Dazu kommt vermutlich noch ein starker Einfluss von Arbeitslosigkeit die liegt in vielen arabischen Ländern im zweistelligen Prozentbereich. Wenn du als junger Mann in arabischen Ländern keinen Job bekommst hat das tiefgreifende Konsequenzen. SPIEGEL ONLINE: Weil du nicht als Versorger funktionierst? El Feki: Es wird schwieriger auszudrücken dass du nach konventionellen Vorstellungen ein richtiger Mann bist. Du kannst nicht aus dem Haus deiner Eltern ausziehen nicht heiraten. Und hast dann auch keinen regelmäßigen Sex. SPIEGEL ONLINE: Aber das ist doch noch keine Entschuldigung für sexualisierte Gewalt. El Feki: Ich habe selbst sexualisierte Gewalt erlebt und möchte ganz klar sagen dass solche Übergriffe immer unentschuldbar sind. Etwas zu verstehen bedeutet aber auch nicht es zu entschuldigen. Und wir können Einstellungen nun mal nur ändern wenn wir verstehen wie sie zustande kommen. In der arabischen Region wo die Männer in patriarchalisch organisierten und autoritär geführten Regimen auch noch unter Druck stehen wegen der ökonomischen Situation ist es nicht verwunderlich dass sie die Frustration ausagieren. SPIEGEL ONLINE: Das Sein bestimmt nach Ihrer Auffassung also das Bewusstsein. El Feki: Wie stark das Persönliche und das Politische verschlungen sind zeigen ja selbst die Diskussionen von Flüchtlingsgegnern über die Übergriffe an Silvester in Köln. Ich meine damit nicht die Gewalt per se. Sondern dass die Gewalttaten verallgemeinert werden wenn sie als Beispiel für sexuelle Praxis und Auffassungen über Sexualität in den arabischen Ländern insgesamt dargestellt werden. Was im Schlafzimmer passiert wird dann plötzlich relevant für eine Diskussion über Einwanderungspolitik. SPIEGEL ONLINE: Wie sollte Deutschland Flüchtlingen aus dem arabischen Raum begegnen um sexuellen Übergriffen vorzubeugen? El Feki: Je ausgeschlossener sich die Männer fühlen desto wahrscheinlicher werden Übergriffe. Das Ausgeschlossensein führt ja nur die Frustration weiter die schon in den Heimatländern erlebt wurde. Mit Bildung und Therapie kann man Einstellungen von Männern ändern - wenn sie noch jung sind und selbst dann wenn sie mit Gewalt aufgewachsen sind. SPIEGEL ONLINE: Wie schlägt sich Deutschland hier in Ihren Augen? El Feki: Hier erkenne ich bisher keine klare Idee sondern viel Übereiltes. Wenn Flüchtlinge plötzlich nicht mehr ins Schwimmbad gelassen werden und über härtere Abschiebungsregeln diskutiert wird ist das natürlich auf gewisse Weise die unausweichliche Konsequenz von Köln. Aber solche Aktionen helfen keinem. Auch weil klar ist: Wenn Deutschland junge Männer in ihre Länder zurückschickt produziert es erstklassiges Rekrutierungsmaterial für extremistische Bewegungen. Die die die sich hier abgelehnt fühlen werden nicht einfach friedlich heimkehren. Das Interview mit Shereen El Feki ist der erste Teil einer Gesprächsreihe von SPIEGEL ONLINE in der Perspektiven auf Islam und Sexualität beleuchtet werden.\"		1453819080000	26.01.2016 – 14:38	Gewalt gegen Frauen	Kultur	Gesellschaft	http://cdn1.spiegel.de/images/image-948018-breitwandaufmacher-riqs-948018.jpg	\"Syrer beten in einem türkischen Flüchtlingscamp: \"\"Etwas zu verstehen bedeutet aber auch nicht es zu entschuldigen.\"	\"Syrer beten in einem türkischen Flüchtlingscamp: \"\"Etwas zu verstehen bedeutet aber auch nicht es zu entschuldigen.\"	DPA	© SPIEGEL ONLINE 2016	\n";
-	
+	static String germanPlainTextInputShortened = "Sexualität und Islam: Mohammed war in gewisser Weise Feminist	Sexualität und Islam	Mohammed war in gewisser Weise Feminist	Eva Thöne	Interview	Ist der Islam aggressiv und antifeministisch? Die ägyptische Wissenschaftlerin Shereen El Feki plädiert dafür genauer hinzusehen - und erklärt was Sexualität mit Abschiebung zu tun hat.	'Shereen El Feki Shereen El Feki wuchs als Tochter eines Ägypters und einer Britin in Kanada auf und studierte Immunologie. Später arbeitete sie als Journalistin u.a. für den Sender Al Jazeera außerdem für die Uno. 2013 erschien ihr Buch ''Sex und die Zitadelle. Liebesleben in der sich wandelnden arabischen Welt''. Derzeit arbeitet sie mit der NGO ''Promundo'' an einer breiten Studie zu Sexualität im arabischen Raum. El Feki pendelt zwischen London und Kairo. SPIEGEL ONLINE: Frau El Feki Sie leben in Kairo und London. Wo fühlen Sie sich sicherer vor sexueller Gewalt? El Feki: Ich bin kein gutes Beispiel. Ich bin Ausländerin in Ägypten und werde auch immer so wahrgenommen - wie es den Frauen im Alltagsleben geht vermag ich nicht zu bewerten. Ich weiß natürlich worauf Sie mit Ihrer Frage hinauswollen. Ja sexuelle Gewalt spielt eine große Rolle in Ägypten. Umfragen der Uno haben ergeben dass 99 Prozent aller ägyptischen Frauen schon mal sexuell belästigt wurden. Trotzdem: Es gibt auch Fortschritte. SPIEGEL ONLINE: Wo sehen Sie die bei dieser hohen Quote? El Feki: Vor zehn Jahren war das Thema sexuelle Gewalt noch absolut tabu heute ist es Gespräch. Die sexuellen Attacken auf dem Tahrirplatz ab 2011 waren der Auslöser weil sie viele Menschen dazu brachten sich offen zu äußern. Viele der Konservativen die damals argumentierten die Frauen seien nicht angemessen angezogen gewesen trauen sich heute nicht mehr das so auszusprechen. Sie mögen es noch denken. Aber sie schweigen weil sich der öffentliche Diskurs geändert hat. Das hat natürlich auch mit dem Opportunismus der aktuellen Regierung zu tun: Weil sich Al-Sisi zumindest nach außen hin von den Muslimbrüdern distanzieren will kriminalisiert er sexuelle Belästigung. Für andere Bereiche gilt das nicht. Im Namen der Religion werden in Ägypten Homosexuelle nach wie vor ins Gefängnis geworfen. SPIEGEL ONLINE: Über Ägypten hinaus - beobachten Sie im arabischen Raum länderübergreifend eine Ausweitung von Frauenrechten? El Feki: Ich kann in dieser Debatte nur vor jeder Verallgemeinerung warnen. Ich kann nicht über Millionen Menschen in ganz unterschiedlichen Lebenssituationen sprechen. Klar ist nur: Der Aufstieg des ''Islamischen Staates'' (IS) hat in vielen arabischen Ländern eine Debatte darüber ausgelöst was mit dem Islam passiert. Wer spricht in seinem Namen und bestimmt so auch Vorstellungen von Sexualität mit? Durch Abgrenzung vom IS finden viele junge Araber ihre Stimme. ''Das ist nicht mein Islam'' ist die Wendung die Sie dann in sozialen Netzwerken lesen können. Häufig hören wir in den westlichen Massenmedien aber nur von den Männern die Frauen belästigen. Die die sich in Projekten und Initiativen gegen Sexualgewalt stellen finden kaum statt. Der Posterboy des Jahres 2016 wird in den westlichen Medien der Flüchtling mit einem Abschiebebescheid in der Hand sein. Das ist verkürzt und manchmal auch rassistisch. Liegt aber auch daran dass der Diskurs über den Islam während der letzten Jahrzehnte vor allem von fundamentalistischen Stimmen geprägt war und so auch von konservative Interpretationen des Korans. Tatsächlich hat der Islam aber auch Potenzial für gleichberechtigtes Leben. Islamische Feministinnen weisen seit Jahren immer wieder darauf hin. SPIEGEL ONLINE: Haben Sie ein Beispiel für dieses Potenzial? El Feki: Das geht zurück bis zum Propheten Mohammed der von starken Frauen umgeben war. Er äußerte sich auch sehr klar zu Sex sagte etwa dass auch die Frau den Geschlechtsverkehr genießen solle. In gewisser Weise war er Feminist. SPIEGEL ONLINE: Es gibt aber eben auch diese reaktionären Interpretationen des Islam die sexuelle Gewalt von Männern mit dem Koran rechtfertigen. El Feki: Sexualität ist das was uns als Menschen zentral ausmacht. Sie durch Berufung auf eine höhere Autorität zu kontrollieren ist also eine verdammt gute Möglichkeit um Macht auszuüben - das hat der Islam erkannt wie auch schon andere Religionen. Konservative Auslegungen des Christentums oder des Hinduismus funktionieren da genauso. SPIEGEL ONLINE: Das bedeutet aber noch nicht dass man sich als Mann automatisch dieser Macht beugen muss. El Feki: In autoritären Systemen die stark auf Religion fußen ist es jedoch schwierig sich dieser Interpretation zu entziehen. Es gibt aber darüber hinaus bestimmte universelle Faktoren die ausschlaggebend dafür sind ob ein Mann gegenüber Frauen gewalttätig wird. Studien der Uno belegen dass sich die Umstände in denen Männer daheim oder öffentlich gegen Frauen gewalttätig werden weltweit ähneln: Männer werden zum Beispiel wahrscheinlicher gewalttätig wenn sie als Kinder selbst Opfer von Gewalt wurden. Wenn sie mitbekamen dass ihrer Mutter vom Vater oder einem anderen Mann Gewalt angetan wurde. Wenn sie denken dass das System sie damit davonkommen lässt. Dazu kommt vermutlich noch ein starker Einfluss von Arbeitslosigkeit die liegt in vielen arabischen Ländern im zweistelligen Prozentbereich. Wenn du als junger Mann in arabischen Ländern keinen Job bekommst hat das tiefgreifende Konsequenzen. SPIEGEL ONLINE: Weil du nicht als Versorger funktionierst? El Feki: Es wird schwieriger auszudrücken dass du nach konventionellen Vorstellungen ein richtiger Mann bist. Du kannst nicht aus dem Haus deiner Eltern ausziehen nicht heiraten. Und hast dann auch keinen regelmäßigen Sex. SPIEGEL ONLINE: Aber das ist doch noch keine Entschuldigung für sexualisierte Gewalt. El Feki: Ich habe selbst sexualisierte Gewalt erlebt und möchte ganz klar sagen dass solche Übergriffe immer unentschuldbar sind. Etwas zu verstehen bedeutet aber auch nicht es zu entschuldigen. Und wir können Einstellungen nun mal nur ändern wenn wir verstehen wie sie zustande kommen. In der arabischen Region wo die Männer in patriarchalisch organisierten und autoritär geführten Regimen auch noch unter Druck stehen wegen der ökonomischen Situation ist es nicht verwunderlich dass sie die Frustration ausagieren. SPIEGEL ONLINE: Das Sein bestimmt nach Ihrer Auffassung also das Bewusstsein. El Feki: Wie stark das Persönliche und das Politische verschlungen sind zeigen ja selbst die Diskussionen von Flüchtlingsgegnern über die Übergriffe an Silvester in Köln. Ich meine damit nicht die Gewalt per se. Sondern dass die Gewalttaten verallgemeinert werden wenn sie als Beispiel für sexuelle Praxis und Auffassungen über Sexualität in den arabischen Ländern insgesamt dargestellt werden. Was im Schlafzimmer passiert wird dann plötzlich relevant für eine Diskussion über Einwanderungspolitik. SPIEGEL ONLINE: Wie sollte Deutschland Flüchtlingen aus dem arabischen Raum begegnen um sexuellen Übergriffen vorzubeugen? El Feki: Je ausgeschlossener sich die Männer fühlen desto wahrscheinlicher werden Übergriffe. Das Ausgeschlossensein führt ja nur die Frustration weiter die schon in den Heimatländern erlebt wurde. Mit Bildung und Therapie kann man Einstellungen von Männern ändern - wenn sie noch jung sind und selbst dann wenn sie mit Gewalt aufgewachsen sind. SPIEGEL ONLINE: Wie schlägt sich Deutschland hier in Ihren Augen? El Feki: Hier erkenne ich bisher keine klare Idee sondern viel Übereiltes. Wenn Flüchtlinge plötzlich nicht mehr ins Schwimmbad gelassen werden und über härtere Abschiebungsregeln diskutiert wird ist das natürlich auf gewisse Weise die unausweichliche Konsequenz von Köln. Aber solche Aktionen helfen keinem. Auch weil klar ist: Wenn Deutschland junge Männer in ihre Länder zurückschickt produziert es erstklassiges Rekrutierungsmaterial für extremistische Bewegungen. Die die die sich hier abgelehnt fühlen werden nicht einfach friedlich heimkehren. Das Interview mit Shereen El Feki ist der erste Teil einer Gesprächsreihe von SPIEGEL ONLINE in der Perspektiven auf Islam und Sexualität beleuchtet werden.'";
 }
