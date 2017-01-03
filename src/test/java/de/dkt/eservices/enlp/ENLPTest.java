@@ -1130,7 +1130,7 @@ public class ENLPTest {
 		
 	}
 
-	@Test
+	@Test	
 	public void entitySuggestTestEnglishNifOutput() throws UnirestException, IOException,
 			Exception {
 
