@@ -69,7 +69,7 @@ class LexParser {
     public static LexicalizedParser parser = null;
 
     
-    private static void initLexParser(String lang){
+    public static void initLexParser(String lang){
     	if (lang.equalsIgnoreCase("en")){
     		parser = LexicalizedParser.loadModel(EN_PCG_MODEL);
     	}
@@ -913,6 +913,7 @@ class LexParser {
             	////System.out.println("DEBUG subl: "+subl); 
             	String word = new String(); 
             	word =(subl.get(0));
+            	
             	for(int x=1; x<subl.size(); x++){
             		word = word + " " +(subl.get(x));
             	    

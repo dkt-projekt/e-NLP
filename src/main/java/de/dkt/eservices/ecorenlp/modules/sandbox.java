@@ -5,13 +5,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +53,23 @@ public class sandbox {
     private final static String DE_PCFG_MODEL = "edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz";
 	
     public static void main(String[] args) throws IOException{
+    	
+    	
+    	LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+  	String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+//  	String sentence = "Sein Blick ist im vorübergehn der Stäbe so müde geworden, dass er nichts mehr hält. Ihm ist als ob es tausend Stäbe gäbe und hinter tausen Stäben keine Welt.";
+    	;
+ //   	getOrderFromTree(tree);
+ //       traverse(tree,tree);
+    	String secondSentence = "Angela Merkel, Kanzlerin der Herzen, war auch mit von der Partie";
+    	String[] array = {sentence, secondSentence};
+    	for (String a :array){
+    		Tree tree = lexParser.parse(a);
+    		traverseBreadthFirst(tree);
+    	}
+    	
+    	
+        
     	
     
 //           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
@@ -81,27 +106,27 @@ public class sandbox {
 //    	
     	
     	
-    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifs";
-    	File df = new File(nifFileMap);
-    	ArrayList<Model> modelsList = new ArrayList<Model>();
-    	//String prefix = null;
-    	for (File f : df.listFiles()){
-			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-			try {
-				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				modelsList.add(nifModel);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	String prefix = "http://dkt.dfki.de/clintonCorpus";
-    	Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
-
-    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
-		out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
-		out.close();
-    	
+//    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifs";
+//    	File df = new File(nifFileMap);
+//    	ArrayList<Model> modelsList = new ArrayList<Model>();
+//    	//String prefix = null;
+//    	for (File f : df.listFiles()){
+//			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//			try {
+//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+//				modelsList.add(nifModel);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//    	}
+//    	String prefix = "http://dkt.dfki.de/clintonCorpus";
+//    	//Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
+//
+//    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+//		//out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
+//		out.close();
+//    	
     }
     
     
@@ -208,4 +233,80 @@ public static boolean compareListsSpan(String w1, String w2){
     	
     	return retValue;
     }
+
+	public static void getOrderFromTree (Tree tree){
+		//tree.indexSpans(4);
+		System.out.println("TREE: ");
+		tree.pennPrint();
+		//System.out.println("INT I: "+i);
+	}
+	
+	
+	public static void traverse (Tree tree, Tree wholet){
+		//System.out.println("---------------------------------------------");
+		for (Tree kid : tree.children()) {
+	        //kid.pennPrint();
+	        //System.out.println("DEBUG nodeNUmbers:"+kid.nodeNumber(wholet));
+	        //System.out.println("DEBUG nodeNUmbers:"+kid.getNodeNumber(1));
+	        //System.out.println("label :"+tree.label());
+	        if (!kid.isLeaf()){
+	        	traverse(kid,wholet);
+	        }
+	      }
+		
+//	    if (!tree.isLeaf()){
+//	        for(Tree kid : tree.children()){
+//	        	traverse(kid);
+//	        };
+//	    }else{
+//	    	;
+//	    }
+//	    //tree.pennPrint();
+	   
+	}
+	
+//	static Queue<Tree> queue = new LinkedList<Tree>() ;
+	static int i = 1;
+//	static TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
+	
+	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
+		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
+		Queue<Tree> queue = new LinkedList<Tree>() ;
+
+		    if (tree == null)
+		        return null;
+
+		    queue.add(tree);
+		    while(!queue.isEmpty()){
+		    
+		        Tree node = queue.remove();
+		        
+		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
+		        if (node.label().value().equals("NP")||node.label().value().equals("PPER")){
+		        	ArrayList<String> npAsList = new ArrayList<String>();
+		        	for (Tree it : node.flatten()){
+        				if ((it.isLeaf())){
+        					npAsList.add(it.pennString().trim());
+        				}
+        			}
+        		
+		        	String word = new String(); 
+	            	word =(npAsList.get(0));
+	            	for(int x=1; x<npAsList.size(); x++){
+	            		word = word + " " +(npAsList.get(x));
+	            	    
+	            	}
+	            	
+		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1));
+		        }
+		        i++;
+		        if(node.children() != null) 
+		        	for(Tree kid : node.children()){
+		        		queue.add(kid);}
+		    
+
+		}
+
+			return leafNumberMap;
+	}
 }
