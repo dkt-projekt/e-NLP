@@ -17,6 +17,10 @@ public Set<CorefMention> getCorefMentions(){
 	return corefMentions;
 }
 
+public void setCorefMentions(Set<CorefMention> mentions){
+	corefMentions = mentions;
+}
+
 public CorefCluster(int ID, Set<CorefMention> mentions, CorefMention firstMent){
     clusterID = ID;
     corefMentions.addAll(mentions);

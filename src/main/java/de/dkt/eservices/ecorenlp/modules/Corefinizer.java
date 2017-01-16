@@ -102,38 +102,39 @@ public class Corefinizer {
 
 			 } 
 		 }
-		 for (Entry<Integer,LinkedHashSet<CorefCluster>> e : sentenceOrderMapCluster2.entrySet()){
-			 System.out.println(e.getKey());
-			 for(CorefCluster a : e.getValue()){
-				 System.out.println(a.getClusterID()+" "+a.ClusterToString());
-			 }
-		 }
+
 		 
 		 //look in the antecedent sentence
-//		 for(Map.Entry<Integer, LinkedHashSet<CorefCluster>> entry : sentenceOrderMapCluster2.entrySet()){
-//			 LinkedHashSet<CorefCluster> newSet = new LinkedHashSet<CorefCluster>();
-//
-//			
-//				LinkedHashSet<CorefCluster> nextSentenceClusters = sentenceOrderMapCluster2.lowerKey(key)
-//				
-//				nextSentenceClusters.addAll(entry.getValue());
-//			
-//				newSet = mergeClustersWithinSentence(nextSentenceClusters);
-////				for (CorefCluster a : newSet){
-////					System.out.println("DEBUG prevSent: "+a.ClusterToString());
-////				}
-//			
-//
-//			 if (newSet.equals(entry.getValue())){
-//				 sentenceOrderMapCluster3.put(entry.getKey(), newSet);
-//			 }else{
-//				 sentenceOrderMapCluster3.put(entry.getKey(), entry.getValue());
-//			 } 
-//		 }
-//		 
+		 LinkedHashSet<CorefCluster> noDuplicatesSet = new LinkedHashSet<CorefCluster>();
+		 LinkedHashSet<CorefCluster> newSet = new LinkedHashSet<CorefCluster>();
+		 for(Map.Entry<Integer, LinkedHashSet<CorefCluster>> entry : sentenceOrderMapCluster2.entrySet()){
+			 
+
+			
+				LinkedHashSet<CorefCluster> prevSentenceClusters = new LinkedHashSet<CorefCluster>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMapCluster2.lowerKey(entry.getKey());
+				prevSentenceClusters = sentenceOrderMapCluster2.get(k);
+				
+				prevSentenceClusters.addAll(entry.getValue());
+			
+				newSet = mergeClustersWithinSentence(prevSentenceClusters);
+				noDuplicatesSet.addAll(newSet);
+
+				}
+				
+			 
+		}	
+		 noDuplicatesSet = filterDuplicates(noDuplicatesSet);
+		 for (CorefCluster o : noDuplicatesSet){
+			 System.out.println("DEBUG noDuplicatesSet :"+o.ClusterToString()+" "+o.getClusterID());
+		 }
+
+	 }
+		 
 		 //Put the first cluster in the second sieve. Let the sieve walk trough antecedent mentions. And so on... 
 		 
-	 }
+	 
 	 
 	 public static SpanWord getDocumentSpan(String inputFile) throws IOException{
 	    	
@@ -157,7 +158,7 @@ public class Corefinizer {
 		
 		 for(CorefMention a : one.getCorefMentions()){
 			 for(CorefMention b : two.getCorefMentions()){
-				if(a.getContents().equals(b.getContents())){
+				if(a.getContents().equalsIgnoreCase(b.getContents())){
 					return true;
 					
 				} 
@@ -232,5 +233,62 @@ public class Corefinizer {
 		return newCorefClusterSet;
 	 }
 	 }
+	 
+	 public static LinkedHashSet<CorefCluster> filterDuplicates(LinkedHashSet<CorefCluster> a){
+		 CorefCluster[] array = new CorefCluster[a.size()];
+		 CorefCluster[] otherArray = new CorefCluster[a.size()];
+		 CorefCluster[] mergedArray = new CorefCluster[a.size()];
+		 CorefMention empty =  new CorefMention(0, "empty", 0, 0);
+		 CorefMention deleted = new CorefMention(0, "deleted", 0, 0);
+		 CorefMention news = new CorefMention(0, "new", 0, 0);
+		 Set<CorefMention> emptySet = new LinkedHashSet<CorefMention>();
+		 emptySet.add(empty);
+		 CorefCluster emptyCluster = new CorefCluster(0,emptySet,empty);
+		 CorefCluster deletedCluster = new CorefCluster(0,emptySet,deleted);
+		 CorefCluster newCluster = new CorefCluster(0,emptySet,news);
+		
+		 a.toArray(array);
+		  for(int i=1; i<a.size();i++){
+			  for (int j=1; j<a.size();j++){
+				  if (array[i].getClusterID()==array[j].getClusterID()){
+					  
+					 if(array[i].getCorefMentions().size()>array[j].getCorefMentions().size()){
+						 mergedArray[i]=array[i];
+						 mergedArray[j]=deletedCluster;
+						 System.out.println("Bingo1");
+					 }else if (array[i].getCorefMentions().size()<array[j].getCorefMentions().size()){
+						 mergedArray[j]=array[i];
+						 mergedArray[i]=deletedCluster;
+						 System.out.println("Bingo2");
+					 }else{
+						 mergedArray[i]=array[i];
+						 mergedArray[j]=array[j];
+					 }
+					  
+				  }
+				  else{
+					  otherArray[j]=array[j];
+					  otherArray[i]=array[i];
+//					  System.out.println("else case, i: "+i+" j: "+j);
+				  }
+			  }
+		  }
+		LinkedHashSet<CorefCluster> newCorefClusterSet = new LinkedHashSet<CorefCluster>();
+		for(int i=1; i<a.size();i++){
+			if (mergedArray[i].equals(emptyCluster)){
+				newCorefClusterSet.add(otherArray[i]);
+//				System.out.println(otherArray[i].getClusterID()+" "+otherArray[i].ClusterToString());
+			}else if (mergedArray[i].equals(deletedCluster)){
+				//do nothing
+			}
+			else{
+				newCorefClusterSet.add(mergedArray[i]);
+//				System.out.println(mergedArray[i].getClusterID()+" "+mergedArray[i].ClusterToString());
+			}
+		}
+
+		return newCorefClusterSet;
+		 
+	 } 
 
 }
