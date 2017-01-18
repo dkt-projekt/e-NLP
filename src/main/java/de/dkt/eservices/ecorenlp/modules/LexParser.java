@@ -373,7 +373,7 @@ class LexParser {
         	//get the heads from the sentences and put them in mnps
         	 String sentence = everything.substring(indexes[0],indexes[1]);
         	 
-        	 //System.out.println("DEBUG sentence in second sieve: "+sentence);
+
         	 
         	HashMap<Span, String> npHash1 = getNPHeads(sentence);
         	ArrayList<SpanWord> mnps = new ArrayList<SpanWord>();

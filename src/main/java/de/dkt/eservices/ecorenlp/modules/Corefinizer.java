@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -28,6 +29,8 @@ import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 
 public class Corefinizer {
+	
+	 public static TreeMap<Integer, CorefCluster> clusterIdMap = new TreeMap<Integer, CorefCluster>();
 	
 	 public static void main(String[] args) throws Exception {
 		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
@@ -60,6 +63,7 @@ public class Corefinizer {
 		 //(Walk trough the mention and make each mention its own cluster)
 		 TreeMap<Integer,LinkedHashSet<CorefMention>> sentenceOrderMap = new TreeMap<Integer,LinkedHashSet <CorefMention>>();
 		 TreeMap<Integer,LinkedHashSet<CorefCluster>> sentenceOrderMapCluster = new TreeMap<Integer, LinkedHashSet<CorefCluster>>();
+
 		 int IdCounter = 1;
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
 	 
@@ -67,6 +71,12 @@ public class Corefinizer {
 			 Tree tree = lexParser.parse(sentence);
 			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree);
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
+			 
+			 //put sentence numbers into the mentions
+			 for (CorefMention ment : orderedValues){
+				ment.setSentenceNumber(entry.getKey()); 
+			 }
+			 
 			 sentenceOrderMap.put(entry.getKey(),orderedValues);
 			
 			 
@@ -77,17 +87,29 @@ public class Corefinizer {
 				 a.add(mention.getValue());
 				 CorefCluster newCluster = new CorefCluster(IdCounter,a,mention.getValue());
 				 rightOrderMapCluster.put(mention.getKey(), newCluster);
+				 
+				 //this map is important because this is where the clusters will merge!
+				 clusterIdMap.put(IdCounter,newCluster);
+				 
+				 
+				 mention.getValue().setClusterID(IdCounter);
 				 IdCounter++;
 			 }
 			 LinkedHashSet<CorefCluster> orderedClusters = new LinkedHashSet<CorefCluster>(rightOrderMapCluster.values());
 			 sentenceOrderMapCluster.put(entry.getKey(), orderedClusters);
 		 } 
 		 
+		 //create a List with all the mentions for later use (maybe I dont need this)
+//		 LinkedHashSet<CorefMention> mentionList = new LinkedHashSet<CorefMention>();
+//		 for (Entry<Integer, LinkedHashSet<CorefMention>> r : sentenceOrderMap.entrySet()){
+//			 for (CorefMention l : r.getValue()){
+//					mentionList.add(l);
+//				}
+//		 }
+		 
 		 //Put a cluster in the first sieve. Let the sieve walk trough the antecedent mentions. Clusters may merge.
 		
-		 Iterator<Entry<Integer, LinkedHashSet<CorefCluster>>> it = sentenceOrderMapCluster.entrySet().iterator();
 		 TreeMap<Integer, LinkedHashSet<CorefCluster>> sentenceOrderMapCluster2 = new TreeMap<Integer, LinkedHashSet<CorefCluster>>();
-		 TreeMap<Integer, LinkedHashSet<CorefCluster>> sentenceOrderMapCluster3 = new TreeMap<Integer, LinkedHashSet<CorefCluster>>();
 		 
 		 for(Map.Entry<Integer, LinkedHashSet<CorefCluster>> entry : sentenceOrderMapCluster.entrySet()){
 			 //look in same sentence
@@ -98,18 +120,18 @@ public class Corefinizer {
 				 sentenceOrderMapCluster2.put(entry.getKey(), newSet);
 
 			 }else{
+				 
 				 sentenceOrderMapCluster2.put(entry.getKey(), entry.getValue());
 
 			 } 
 		 }
-
 		 
+		 		 
 		 //look in the antecedent sentence
 		 LinkedHashSet<CorefCluster> noDuplicatesSet = new LinkedHashSet<CorefCluster>();
 		 LinkedHashSet<CorefCluster> newSet = new LinkedHashSet<CorefCluster>();
+		 
 		 for(Map.Entry<Integer, LinkedHashSet<CorefCluster>> entry : sentenceOrderMapCluster2.entrySet()){
-			 
-
 			
 				LinkedHashSet<CorefCluster> prevSentenceClusters = new LinkedHashSet<CorefCluster>();
 				if (!entry.getKey().equals(1)){
@@ -120,19 +142,97 @@ public class Corefinizer {
 			
 				newSet = mergeClustersWithinSentence(prevSentenceClusters);
 				noDuplicatesSet.addAll(newSet);
+				
 
 				}
 				
 			 
-		}	
+		}
+		 
 		 noDuplicatesSet = filterDuplicates(noDuplicatesSet);
-		 for (CorefCluster o : noDuplicatesSet){
-			 System.out.println("DEBUG noDuplicatesSet :"+o.ClusterToString()+" "+o.getClusterID());
-		 }
+		 
+		 //Second sieve, look in same sentence
+		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
+			  //compare mentions within one sentence, merge clusters when needed
+			  LinkedHashSet<CorefMention> newSet2 = compareMentionsWithinSentence(a.getValue());
+			  
+			  if (!newSet2.equals(a.getValue())){
+					 sentenceOrderMap.put(a.getKey(), newSet2);
+
+				 }else{
+					 
+					 sentenceOrderMap.put(a.getKey(), a.getValue());
+
+				 } 
+		  }
+		  
+		  //second sieve, look in antecedent sentence
+		  
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				LinkedHashSet<CorefMention> newSet3 =compareMentionsWithinSentence(prevSentenceMentions);
+
+				}
+				
+			 
+		}
+		 
+		 
 
 	 }
+	 
 		 
-		 //Put the first cluster in the second sieve. Let the sieve walk trough antecedent mentions. And so on... 
+	
+	 public static LinkedHashSet<CorefMention> compareMentionsWithinSentence(LinkedHashSet<CorefMention> a){
+		 CorefMention[] array = new CorefMention[a.size()];
+		 if (a.size()==1){
+			 //only one cluster, nothing to merge
+			 return a;
+		 }else{
+		 a.toArray(array);
+		 for(int i=1; i<a.size();i++){
+			  for (int j=i-1; j>=0;j--){
+				  if (sieveTwo(array[i],array[j])){
+					  mergeClusters(array[j],array[i]);
+					  //change clusterID in mention with the higher mentionID
+					  array[i].setClusterID(array[j].getClusterID());  
+				  }
+			  }
+		  }
+		 }
+		 LinkedHashSet<CorefMention> newCorefMentionSet = new LinkedHashSet<CorefMention>();
+		 for (CorefMention m : array){
+			 newCorefMentionSet.add(m);
+		 }
+		return newCorefMentionSet;
+		 
+	 }
+	 
+	
+	 public static boolean sieveTwo(CorefMention one, CorefMention two){
+		 return true;
+	 }
+	 
+	 public static void mergeClusters (CorefMention one, CorefMention two){
+	//one + two = one 
+		 //change information in the cluster
+		 CorefCluster oneCluster = clusterIdMap.get(one.getClusterID());
+		 CorefCluster twoCluster = clusterIdMap.get(two.getClass());
+		 Set<CorefMention> newSet = new LinkedHashSet<CorefMention>();
+		
+			 newSet.add(one);
+			 newSet.add(two);
+			 oneCluster.setCorefMentions(newSet);
+			 clusterIdMap.put(oneCluster.getClusterID(), oneCluster);
+			 clusterIdMap.remove(twoCluster.getClusterID());		
+	 }
 		 
 	 
 	 
@@ -167,7 +267,7 @@ public class Corefinizer {
 	 }
 	 
 	 public static CorefCluster mergeClusters (CorefCluster one, CorefCluster two){
-//		 one.getCorefMentions().addAll(two.getCorefMentions());
+ // one + two = one
 		 Set<CorefMention> oneMention = one.getCorefMentions();
 		 Set<CorefMention> twoMention = two.getCorefMentions();
 		 Set<CorefMention> newSet = new LinkedHashSet<CorefMention>();
@@ -176,6 +276,7 @@ public class Corefinizer {
 		 }
 		 for (CorefMention n: twoMention){
 			 newSet.add(n);
+			 n.setClusterID(one.getClusterID());
 		 }
 		 CorefCluster newCluster = new CorefCluster(one.getClusterID(),newSet ,one.getFirstMention());
 		 return newCluster;
@@ -255,11 +356,11 @@ public class Corefinizer {
 					 if(array[i].getCorefMentions().size()>array[j].getCorefMentions().size()){
 						 mergedArray[i]=array[i];
 						 mergedArray[j]=deletedCluster;
-						 System.out.println("Bingo1");
+
 					 }else if (array[i].getCorefMentions().size()<array[j].getCorefMentions().size()){
 						 mergedArray[j]=array[i];
 						 mergedArray[i]=deletedCluster;
-						 System.out.println("Bingo2");
+
 					 }else{
 						 mergedArray[i]=array[i];
 						 mergedArray[j]=array[j];

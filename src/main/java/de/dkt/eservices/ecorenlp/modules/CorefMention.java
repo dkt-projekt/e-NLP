@@ -6,6 +6,8 @@ private int mentionID;
 private String contents;
 private int startIndex;
 private int endIndex; 
+private int sentenceNumber;
+private int clusterID;
 
 public CorefMention(int i, String word, int j, int k) {
 	// TODO Auto-generated constructor stub
@@ -70,6 +72,18 @@ public boolean equals(Object obj) {
 	if (startIndex != other.startIndex)
 		return false;
 	return true;
+}
+public int getSentenceNumber() {
+	return sentenceNumber;
+}
+public void setSentenceNumber(int sentenceNumber) {
+	this.sentenceNumber = sentenceNumber;
+}
+public int getClusterID() {
+	return clusterID;}
+
+public void setClusterID(int clusterID) {
+	this.clusterID = clusterID;
 }
 
 }
