@@ -1,24 +1,25 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dkt</groupId>
 	<artifactId>e-NLP</artifactId>
 	<version>0.5-SNAPSHOT</version>
 
- 	<parent>
+	<parent>
 		<groupId>eu.freme.e-services</groupId>
 		<artifactId>e-service-parent</artifactId>
 		<version>0.9</version>
 	</parent>
 
 	<build>
-	<plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
-      </plugin>
-    </plugins>
-    </build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>eu.freme.bservices</groupId>
@@ -41,9 +42,9 @@
 			<version>1.6.0</version>
 		</dependency>
 		<dependency>
-	   		<groupId>edu.stanford.nlp</groupId>
-	   		<artifactId>stanford-corenlp</artifactId>
-	   		<version>3.6.0</version>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>de.dkt</groupId>
@@ -56,35 +57,31 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-				<dependency>
-		    		<groupId>edu.stanford.nlp</groupId>
-		    		<artifactId>stanford-corenlp</artifactId>
-		    		<version>3.6.0</version>
-		    		<classifier>models</classifier>
-				</dependency>		
-				<dependency>
-		    		<groupId>edu.stanford.nlp</groupId>
-		    		<artifactId>stanford-corenlp</artifactId>
-		    		<version>3.6.0</version>
-		    		<classifier>models-german</classifier>
-				</dependency>
-	<!-- 		<dependency>
-	        <groupId>ch.qos.logback</groupId>
-	   	    <artifactId>logback-classic</artifactId>
-	       	<version>1.1.3</version>
-	    </dependency>
-	    <dependency>
-	        <groupId>ch.qos.logback</groupId>
-	        <artifactId>logback-core</artifactId>
-	        <version>1.1.3</version>
-	    </dependency> -->
-	    <dependency>
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.6.0</version>
+			<classifier>models</classifier>
+		</dependency>
+		<dependency>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-corenlp</artifactId>
+			<version>3.6.0</version>
+			<classifier>models-german</classifier>
+		</dependency>
+		<!-- <dependency> <groupId>ch.qos.logback</groupId> <artifactId>logback-classic</artifactId> 
+			<version>1.1.3</version> </dependency> <dependency> <groupId>ch.qos.logback</groupId> 
+			<artifactId>logback-core</artifactId> <version>1.1.3</version> </dependency> -->
+		<dependency>
 			<groupId>de.bwaldvogel</groupId>
 			<artifactId>liblinear</artifactId>
 			<version>1.95</version>
 		</dependency>
-		
-	    
+		<dependency>
+  			<groupId>com.google.guava</groupId>
+  			<artifactId>guava</artifactId>
+  			<version>21.0</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -129,26 +126,26 @@
 		</snapshotRepository>
 	</distributionManagement>
 	<scm>
-        <connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
-        <url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
-        <developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
-        <tag>e-NLP-0.4</tag>
+		<connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
+		<url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
+		<developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
+		<tag>e-NLP-0.4</tag>
 	</scm>
-	
-    <profiles>
-        <profile>
-	        <id>default</id>
-	        <activation>
-            	<activeByDefault>true</activeByDefault>
-        	</activation>
-            <build>
-                <defaultGoal>clean install package</defaultGoal>
-                <plugins>
-	       			<!-- copy package resources in config folder -->
+
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>clean install package</defaultGoal>
+				<plugins>
+					<!-- copy package resources in config folder -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-				        <artifactId>maven-jar-plugin</artifactId>
-				        <version>3.0.1</version>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>3.0.1</version>
 						<configuration>
 							<directory>src/main/resources/</directory>
 							<excludes>
@@ -159,27 +156,27 @@
 						</configuration>
 					</plugin>
 				</plugins>
-            </build>
-        </profile>
-        <profile>
-	        <id>with-models</id>
-            <build>
-                <defaultGoal>clean install package</defaultGoal>
-            </build>
-           	<dependencies>
+			</build>
+		</profile>
+		<profile>
+			<id>with-models</id>
+			<build>
+				<defaultGoal>clean install package</defaultGoal>
+			</build>
+			<dependencies>
 				<dependency>
-		    		<groupId>edu.stanford.nlp</groupId>
-		    		<artifactId>stanford-corenlp</artifactId>
-		    		<version>3.6.0</version>
-		    		<classifier>models</classifier>
-				</dependency>		
+					<groupId>edu.stanford.nlp</groupId>
+					<artifactId>stanford-corenlp</artifactId>
+					<version>3.6.0</version>
+					<classifier>models</classifier>
+				</dependency>
 				<dependency>
-		    		<groupId>edu.stanford.nlp</groupId>
-		    		<artifactId>stanford-corenlp</artifactId>
-		    		<version>3.6.0</version>
-		    		<classifier>models-german</classifier>
+					<groupId>edu.stanford.nlp</groupId>
+					<artifactId>stanford-corenlp</artifactId>
+					<version>3.6.0</version>
+					<classifier>models-german</classifier>
 				</dependency>
 			</dependencies>
-        </profile>
-    </profiles>
+		</profile>
+	</profiles>
 </project>

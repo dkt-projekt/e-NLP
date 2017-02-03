@@ -85,7 +85,7 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
-	public String extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat){
+	public String extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
 		ArrayList<EntityRelationTriple> ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam);

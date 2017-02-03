@@ -50,6 +50,8 @@ public class DPTreeNode {
 		}
 	}
 	
+
+	
 	
 	
 	
@@ -59,9 +61,12 @@ public class DPTreeNode {
 			for (DPTreeNode treeNode : childs) {
 				listnew = new LinkedList<DPTreeNode>();
 				DPTreeNode aux = treeNode.getShortestPath(s1,s2,listnew);
+				
 				if(aux!=null){
 //					System.out.println("\tBack: "+aux.value+" ["+aux.relation+"]");
+			//		System.out.println("aux + parent : " + aux.value.toString() + " " + aux.parent.value.toString());
 					return aux;
+					
 				}
 //				if(checklist(s1,s2,listnew)){
 //					return treeNode;

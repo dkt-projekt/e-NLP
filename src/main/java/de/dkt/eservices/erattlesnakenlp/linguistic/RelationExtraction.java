@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,23 +14,54 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONObject;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.hp.hpl.jena.rdf.model.Model;
 
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.process.PTBTokenizer;
 import edu.stanford.nlp.trees.GrammaticalStructure;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TypedDependency;
+import edu.stanford.nlp.trees.WordStemmer;
+import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.TypesafeMap;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import opennlp.tools.lemmatizer.SimpleLemmatizer;
+import edu.stanford.nlp.ling.Word; 
+import edu.stanford.nlp.ling.WordLemmaTag;
+import edu.mit.jverbnet.data.FrameType;
+import edu.mit.jverbnet.data.IFrame;
+import edu.mit.jverbnet.data.IMember;
+import edu.mit.jverbnet.data.IThematicRole;
+import edu.mit.jverbnet.data.IVerbClass;
+import edu.mit.jverbnet.data.IWordnetKey;
+import edu.mit.jverbnet.data.syntax.ISyntaxArgDesc;
+import edu.mit.jverbnet.index.IVerbIndex;
+import edu.mit.jverbnet.index.VerbIndex;
+
+
 
 
 /**
@@ -37,56 +69,71 @@ import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
  *
  */
 public class RelationExtraction {
-	
-	
+
 	static String readFile(String path, Charset encoding) 
-			  throws IOException 
-			{
-			  byte[] encoded = Files.readAllBytes(Paths.get(path));
-			  return new String(encoded, encoding);
-			}
-	
-	
-	
-	
-	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel, String language){
-		
-		
+			throws IOException 
+	{
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return new String(encoded, encoding);
+	}
+
+	//method with a Triple <S, V, ObjectsList>, instead of having one (String) object, it is a list of one or more objects
+	public static ArrayList<EntityRelationTriple> getDirectRelationsNIFObjectsList(Model nifModel, String language) throws IOException{
+
+
 		//TODO discuss if we want to do this at broker startup instead
 		Tagger.initTagger(language);
 		DepParserTree.initParser(language);
-		
+
 		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
 		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
 		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
-		
+
 		String isstr = NIFReader.extractIsString(nifModel);
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
-		
+
 		if (entityMap != null && sameAsMentions != null) {
 			entityMap.addAll(sameAsMentions);
 		}
-		
+
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
 				System.out.println("Sentence: " + sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+				/**
+				 * 
+				 */
+
+				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
+				final List<WordLemmaTag> tlSentence = new ArrayList<WordLemmaTag>();
+
+				/**
+				 * 
+				 */
+
+				for (TaggedWord tw : tagged) {
+					tlSentence.add((lemmatizer).lemmatize(tw));
+					//System.out.println((lemmatizer).lemmatize(tw));
+				}
+
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject = null;
 				IndexedWord connectingElement = null;
 				IndexedWord object = null;
+				String objectsDependency = null;
+
 				for (TypedDependency td : gs.typedDependencies()) {
-						IndexedWordTuple t = new IndexedWordTuple();
-						t.setFirst(td.dep());
-						if (englishSubjectRelationTypes.contains(td.reln().toString())){
-							connectingElement = td.gov();
-							subject = td.dep();
-						}
+					IndexedWordTuple t = new IndexedWordTuple();
+					t.setFirst(td.dep());
+					if (englishSubjectRelationTypes.contains(td.reln().toString())){
+						connectingElement = td.gov();
+						subject = td.dep();
+					}
 				}
 
 				// now do another loop to find object of the main verb/root
@@ -98,7 +145,8 @@ public class RelationExtraction {
 							if (td.gov().beginPosition() == connectingElement.beginPosition()
 									&& td.gov().endPosition() == connectingElement.endPosition()) {
 								object = td.dep();
-								
+								objectsDependency = td.reln().toString();
+
 							}
 						}
 						else if (englishIndirectObjectRelationTypes.contains(td.reln().toString())){
@@ -106,10 +154,10 @@ public class RelationExtraction {
 						}
 					}
 				}
-				
-				
+
+
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
-					//System.out.println("DEBUGGING relation found:" + subject + "___" + connectingElement + "___" + object);
+					System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object);
 					String subjectURI = null;
 					String objectURI = null;
 					int subjectStart = tagged.get(subject.index()-1).beginPosition();
@@ -124,56 +172,476 @@ public class RelationExtraction {
 							objectURI = l[0];
 						}
 					}
-//					// Mendelsohn exception:
-//					if (subject.word().equalsIgnoreCase("i")){
-//						subjectURI = "Eric";
-//					}
-					
+					//					// Mendelsohn exception:
+					//					if (subject.word().equalsIgnoreCase("i")){
+					//						subjectURI = "Eric";
+					//					}
+
+					//lemma of the connectingElement
+					String relationLemma = null;
+					String wordnetInformationSet = null;
+					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+					String subjectThemRole = null;
+					String objectThemRole = null;
+
+
+
+					for (WordLemmaTag SentenceList : tlSentence){
+						if (SentenceList.word().equals(connectingElement.word())){
+							relationLemma = SentenceList.lemma();							
+							wordnetInformationSet = getWordnetInformation(relationLemma, pathToVerbnet);
+
+							//System.out.println(wordnetInformationSet);
+
+
+							//case 1 -> 2 arguments, the 2nd is a dobj
+
+							//TODO:
+							//not covered yet: more than one cooccurence for a frame with a length 1, 
+							//at the moment just the first entry found is taken for further processing
+
+							//semantic role labelling
+							//1st step -> splitting the analysis to cases depending on the amount of the postVerb arguments
+
+
+
+
+							if (objectsDependency.equals("dobj") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+									if (!value.get(0).keySet().toString().equals("[none]")){
+										subjectThemRole = value.get(0).keySet().toString();
+										objectThemRole = value.get(1).keySet().toString();
+										System.out.println("CASE 1: them role " + value.size() + " " + subjectThemRole + " dobj " + objectThemRole);
+									}
+								}
+								System.out.println();
+							}
+
+
+							else if (objectsDependency.equals("nmod") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2);
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+
+
+									//the first postVerbElement is empty because it is a preposition
+									if (value.get(1).keySet().toString().equals("[none]")){
+										if (object.tag().equals("IN")){
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+										else if(object.tag().equals("TO") & value.get(2).keySet().equals("[G]") || value.get(2).keySet().equals("[D]") ){
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 3: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+										else {
+											System.out.println("print TAGS " + object.tag() );
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 4: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+
+									}
+								}
+								System.out.println();
+							}
+
+							else if (objectsDependency.equals("iobj") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
+								//System.out.println(getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).keySet().toString() + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString());
+								//	subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).get(0).;
+								//	objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString();
+
+								//	System.out.println("CASE 2" + relationLemma + " " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+
+									//		System.out.println("first element "  +keySetFrameArguments.get(1).getFirst());
+
+									//System.out.print(value.get(1).values());
+									//	System.out.print(" themrole" + value.get(1).keySet());
+									//	System.out.print(value.get(0).values());
+									//	System.out.print(" themrole" + value.get(0).keySet());
+
+								}
+							}
+
+							else if (getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2);
+								System.out.println(relationLemma + " " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+									//		System.out.print(value.get(2).values());
+									//	System.out.print(" themrole" + value.get(2).keySet());
+									//System.out.print(value.get(1).values());
+									//System.out.print(" themrole" + value.get(1).keySet());
+									//	System.out.print(value.get(0).values());
+									//System.out.print(" themrole" + value.get(0).keySet());
+
+								}
+
+
+								// subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(0).keySet().toString();
+								// objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(2).keySet().toString();
+								//System.out.println("argument options " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).getLast().keySet());							
+							}
+
+
+
+							//case 2 -> 2 arguments, the 2nd is nmod
+							//if (!(keySetFrameArguments.equals("none"))){
+							//}
+
+						}
+
+					}
+
+
 					if (!(subjectURI == null) && !(objectURI == null)){
 						EntityRelationTriple t = new EntityRelationTriple();
 						//t.setSubject(String.format("%s(%s)", subject, subjectURI));
-						t.setSubject(String.format("%s", subjectURI));
-						t.setRelation(connectingElement.word());
+						t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma).concat(" ").concat(wordnetInformationSet));
 						//t.setObject(String.format("%s(%s)", object, objectURI));
-						t.setObject(String.format("%s", objectURI));
+						t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
 						ert.add(t);
 					}
-					
+
 				}
-				
-				
-				
+
+
+
 			}
 		}
-		
+
 		return ert;
 	}
-	
 
-	public static ArrayList<EntityRelationTriple> getRelationsNIF(Model nifModel){
-		
+
+
+
+
+	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel, String language) throws IOException{
+
+
+		//TODO discuss if we want to do this at broker startup instead
+		Tagger.initTagger(language);
+		DepParserTree.initParser(language);
+
+		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
+		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case", "nmod:poss")); 
+		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
+
 		String isstr = NIFReader.extractIsString(nifModel);
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		// extract sameAs annotations and add them to the entityMap
+		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
+
+		if (entityMap != null && sameAsMentions != null) {
+			entityMap.addAll(sameAsMentions);
+		}
+
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
-		
-		// if we have entities in the sentence, start parsing
-		if (!(entityMap == null)) {
+		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
 				System.out.println("Sentence: " + sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+				/**
+				 * 
+				 */
+
+				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
+				final List<WordLemmaTag> tlSentence = new ArrayList<WordLemmaTag>();
+
+				/**
+				 * 
+				 */
+
+				for (TaggedWord tw : tagged) {
+					tlSentence.add((lemmatizer).lemmatize(tw));
+					//System.out.println((lemmatizer).lemmatize(tw));
+				}
+
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+
+				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
+				IndexedWord subject = null;
+				IndexedWord connectingElement = null;
+				IndexedWord object = null;
+				String objectsDependency = null;
+
+				System.out.println();
+
+				List<TypedDependency> allVerbDependenciesList = (List<TypedDependency>) DepParserTree.getAllDirectVerbDependencies(gs.allTypedDependencies());
+
+
+
+				//	for (TypedDependency td : gs.typedDependencies()) {
+				for (TypedDependency td : allVerbDependenciesList) {
+
+					IndexedWordTuple t = new IndexedWordTuple();
+					t.setFirst(td.dep());
+					if (englishSubjectRelationTypes.contains(td.reln().toString())){
+						connectingElement = td.gov();
+						subject = td.dep();
+					}
+				}
+				// now do another loop to find object of the main verb/root
+				// thing. This may also appear before the subject was
+				// encountered, hence the need for two loops.
+				if (!(connectingElement == null)){
+					for (TypedDependency td : allVerbDependenciesList) {
+						if (englishObjectRelationTypes.contains(td.reln().toString())) {
+							//	System.out.println("Dependency relation " + td.reln().toString());
+							if (td.gov().beginPosition() == connectingElement.beginPosition()
+									&& td.gov().endPosition() == connectingElement.endPosition()) {
+								object = td.dep();							
+								objectsDependency = td.reln().toString();
+
+								if (!object.equals(null))
+									break;
+							}
+						}
+						else if (englishIndirectObjectRelationTypes.contains(td.reln().toString())){
+							object = td.gov(); // NOTE: bit tricky; taking case (usually indirect object) relation as object here if nothing found for object. Could be interesting...
+						}
+					}
+				}
+
+
+				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
+					System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object);
+					String subjectURI = null;
+					String objectURI = null;
+					int subjectStart = tagged.get(subject.index()-1).beginPosition();
+					int subjectEnd = tagged.get(subject.index()-1).endPosition();
+					int objectStart = tagged.get(object.index()-1).beginPosition();
+					int objectEnd = tagged.get(object.index()-1).endPosition();
+					for (String[] l : entityMap){
+						if (subjectStart >= Integer.parseInt(l[3]) && subjectEnd <= Integer.parseInt(l[4])){ // the >= and <= are because the dependency parser is likely to cut up multi-word entities and make the head of the MWE the subject
+							subjectURI = l[0];
+						}
+						if (objectStart >= Integer.parseInt(l[3]) && objectEnd <= Integer.parseInt(l[4])){ // idem here (regarding the >= and <=)
+							objectURI = l[0];
+						}
+					}
+					//					// Mendelsohn exception:
+					//					if (subject.word().equalsIgnoreCase("i")){
+					//						subjectURI = "Eric";
+					//					}
+
+					//lemma of the connectingElement
+					String relationLemma = null;
+					String wordnetInformationSet = null;
+					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+					String subjectThemRole = null;
+					String objectThemRole = null;
+
+
+
+					for (WordLemmaTag SentenceList : tlSentence){
+						if (SentenceList.word().equals(connectingElement.word())){
+							relationLemma = SentenceList.lemma();							
+							wordnetInformationSet = getWordnetInformation(relationLemma, pathToVerbnet);
+
+							//System.out.println(wordnetInformationSet);
+
+
+							//case 1 -> 2 arguments, the 2nd is a dobj
+
+							//TODO:
+							//not covered yet: more than one cooccurence for a frame with a length 1, 
+							//at the moment just the first entry found is taken for further processing
+
+							//semantic role labelling
+							//1st step -> splitting the analysis to cases depending on the amount of the postVerb arguments
+
+
+
+
+							if (objectsDependency.equals("dobj") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+									if (!value.get(0).keySet().toString().equals("[none]")){
+										subjectThemRole = value.get(0).keySet().toString();
+										objectThemRole = value.get(1).keySet().toString();
+										System.out.println("CASE 1: them role " + value.size() + " " + subjectThemRole + " dobj " + objectThemRole);
+									}
+								}
+								System.out.println();
+							}
+
+
+							else if (objectsDependency.equals("nmod") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2);
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+
+
+									//the first postVerbElement is empty because it is a preposition
+									if (value.get(1).keySet().toString().equals("[none]")){
+										if (object.tag().equals("IN")){
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+										else if(object.tag().equals("TO") & value.get(2).keySet().equals("[G]") || value.get(2).keySet().equals("[D]") ){
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 3: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+										else {
+											System.out.println("print TAGS " + object.tag() );
+											subjectThemRole = value.get(0).keySet().toString();
+											objectThemRole = value.get(2).keySet().toString();
+											System.out.println("CASE 4: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+										}
+
+									}
+								}
+								System.out.println();
+							}
+
+							else if (objectsDependency.equals("iobj") & getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
+								//System.out.println(getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).keySet().toString() + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString());
+								//	subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).get(0).;
+								//	objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString();
+
+								//	System.out.println("CASE 2" + relationLemma + " " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+
+									//		System.out.println("first element "  +keySetFrameArguments.get(1).getFirst());
+
+									//System.out.print(value.get(1).values());
+									//	System.out.print(" themrole" + value.get(1).keySet());
+									//	System.out.print(value.get(0).values());
+									//	System.out.print(" themrole" + value.get(0).keySet());
+
+								}
+							}
+
+							else if (getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+								List<LinkedList<HashMap<String, String>>> keySetFrameArguments =getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2);
+								System.out.println(relationLemma + " " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
+
+
+								for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
+									//		System.out.print(value.get(2).values());
+									//	System.out.print(" themrole" + value.get(2).keySet());
+									//System.out.print(value.get(1).values());
+									//System.out.print(" themrole" + value.get(1).keySet());
+									//	System.out.print(value.get(0).values());
+									//System.out.print(" themrole" + value.get(0).keySet());
+
+								}
+
+
+								// subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(0).keySet().toString();
+								// objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(2).keySet().toString();
+								//System.out.println("argument options " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).getLast().keySet());							
+							}
+
+
+
+							//case 2 -> 2 arguments, the 2nd is nmod
+							//if (!(keySetFrameArguments.equals("none"))){
+							//}
+
+						}
+
+					}
+
+
+					if (!(subjectURI == null) && !(objectURI == null)){
+						EntityRelationTriple t = new EntityRelationTriple();
+						//t.setSubject(String.format("%s(%s)", subject, subjectURI));
+						t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma).concat(" ").concat(wordnetInformationSet));
+						//t.setObject(String.format("%s(%s)", object, objectURI));
+						t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+						ert.add(t);
+					}
+
+				}
+
+
+
+			}
+		}
+
+		return ert;
+	}
+
+
+	public static ArrayList<EntityRelationTriple> getRelationsNIF(Model nifModel){
+
+		String isstr = NIFReader.extractIsString(nifModel);
+		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+
+		// if we have entities in the sentence, start parsing
+		if (!(entityMap == null)) {
+			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
+
+			for (List<HasWord> sentence : tokenizer) {
+
+				//System.out.println("Sentence: " + sentence);	
+
+
+				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+				/**
+				 * 
+				 */
+
+				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
+				final List<WordLemmaTag> tlSentence = new ArrayList<WordLemmaTag>();
+
+				/**
+				 * 
+				 */
+
+				for (TaggedWord tw : tagged) {
+					tlSentence.add((lemmatizer).lemmatize(tw));
+					System.out.println((lemmatizer).lemmatize(tw));
+				}
+
+
+				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);				
 				Collection<TypedDependency> list = gs.allTypedDependencies();
+
+
 				HashMap<IndexedWord, Integer> swm = new HashMap<IndexedWord, Integer>();
 				for (TypedDependency td : list){
-					swm.put(td.dep(), td.dep().index()-1);
-					
+					swm.put(td.dep(), td.dep().index()-1);		
 				}
+
+
 				DPTreeNode tree =  DepParserTree.generateTreeFromList(list);
 				List<DPTreeNode> list2 = new LinkedList<DPTreeNode>();
+
+
 				List<SpanWord> sentenceEntities = new ArrayList<SpanWord>();
 				ArrayList<String> indicesAdded = new ArrayList<String>();
-				
+
 				for (String[] sa : entityMap){
 					int entityStart = Integer.parseInt(sa[3]);
 					int entityEnd = Integer.parseInt(sa[4]);
@@ -190,8 +658,8 @@ public class RelationExtraction {
 						}
 					}
 				}
-				
-				
+
+
 				//System.out.println("length of sent: " + sentence.size());
 				int distanceThreshold = 5 + (sentence.size() / 4);
 				for (int i = 0; i < sentenceEntities.size(); i++){ // compare every entity in this sentence to every other
@@ -203,7 +671,7 @@ public class RelationExtraction {
 						int rightTaggedIndex = sentenceEntities.get(j).getTaggedWordsIndex();
 						int leftBeginPosition = Integer.parseInt(indicesAdded.get(i).split("_")[0]);
 						int rightBeginPosition = Integer.parseInt(indicesAdded.get(j).split("_")[0]);
-						
+
 						// here comes a set of limitations, to hopefully increase accuracy without losing too much recall
 						//System.out.println("leftWord: " + leftWord);
 						//System.out.println("index:" + leftTaggedIndex);
@@ -211,57 +679,70 @@ public class RelationExtraction {
 						//System.out.println("index:" + rightTaggedIndex);
 						if (sentenceEntities.get(i).getURI() != null && sentenceEntities.get(j).getURI() != null) { // only proceed if we have a URI for both entities
 							DPTreeNode result = tree.getShortestPath(leftWord, rightWord, list2); //TODO: now the leftWord and rightWord are still string based. Only the result.value now has IndexedWord. Fis this so that I am accessing getShortestPath with tagged indices rather than strings. Because currecntly this is not happening, right?
-							
+
 							if (result != null){
 								int iPosition = sentenceEntities.get(i).getTaggedWordsIndex();
 								int jPosition = sentenceEntities.get(j).getTaggedWordsIndex();
 								int connBegin = result.indexedWord.beginPosition();
 								if (Math.abs(iPosition - jPosition) <= distanceThreshold) {// check if the two entities are not too far away from eachother. Quite naive, but let's see if it works
 									//if ((connBegin < leftBeginPosition && connBegin > rightBeginPosition)
-											//|| (connBegin > leftBeginPosition && connBegin < rightBeginPosition)) {
-										if (result.indexedWord.tag() != null
-												&& result.indexedWord.tag().startsWith("V")) {
-											// this is a really stupid and naive assumption, but the best we have currently: the entity that appears first in the sentence is supposed to be the subject of the relation triple this is the problem when we take the lowest common verb node; you lose track of which is the real
-											// subject and object because there is no relation between them (or at least not necessarily. perhaps it would be possible to
-											// trace the path and get this information there.s
-											String subject = null;
-											String object = null;
+									//|| (connBegin > leftBeginPosition && connBegin < rightBeginPosition)) {
+									if (result.indexedWord.tag() != null
+											&& result.indexedWord.tag().startsWith("V")) {
+										// this is a really stupid and naive assumption, but the best we have currently: the entity that appears first in the sentence is supposed to be the subject of the relation triple this is the problem when we take the lowest common verb node; you lose track of which is the real
+										// subject and object because there is no relation between them (or at least not necessarily. perhaps it would be possible to
+										// trace the path and get this information there.s
+										String subject = null;
+										String object = null;
+										String relation = null;
+										String relationLemma = null;
 
-											if (iPosition < jPosition) {
-												subject = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
-												object = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
-											} else {
-												subject = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
-												object = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
-											}
-											//System.out.println(
-													//"result: " + leftWord + "===" + result.value + "===" + rightWord);
-											String relation = result.value;
-											EntityRelationTriple t = new EntityRelationTriple();
-											t.setSubject(subject);
-											t.setRelation(relation);
-											t.setObject(object);
-											ert.add(t);
+
+
+										for (WordLemmaTag SentenceList : tlSentence){
+											if (SentenceList.word().equals(result.indexedWord.word()))
+												relationLemma = SentenceList.lemma();
 										}
-										// System.out.println(leftWord + "+++" +
-										// result.value + "+++" + rightWord);
+
+
+
+										relation = String.format("%s(%s)", "LEMMA: " + relationLemma, "http://wordnet...");
+
+										if (iPosition < jPosition) {
+											subject = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
+											object = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
+										} else {
+											subject = String.format("%s(%s)", sentenceEntities.get(j).getText(), sentenceEntities.get(j).getURI());
+											object = String.format("%s(%s)", sentenceEntities.get(i).getText(), sentenceEntities.get(i).getURI());
+										}
+										//System.out.println(
+										//"result: " + leftWord + "===" + result.value + "===" + rightWord);
+
+										EntityRelationTriple t = new EntityRelationTriple();
+										t.setSubject(subject);
+										t.setRelation(relation);
+										t.setObject(object);
+										ert.add(t);
 									}
+									// System.out.println(leftWord + "+++" +
+									// result.value + "+++" + rightWord);
 								}
+							}
 							//}
 						}
 					}
 				}
-				
+
 
 			}
 		}
-		
+
 		return ert;
-		
+
 	}
-	
+
 	public static HashMap<String,HashMap<String,HashMap<String,Integer>>> convertRelationTripleListToHashMap(ArrayList<EntityRelationTriple> ertList){
-		
+
 		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = new HashMap<String,HashMap<String,HashMap<String,Integer>>>();
 		for (EntityRelationTriple t : ertList){
 			String subjectElem = t.getSubject() ;
@@ -293,28 +774,121 @@ public class RelationExtraction {
 				m.put(subjectElem, relMap);
 			}
 		}
-		
+
 		return m;
 	}
-	
+
+	public static String getWordnetInformation(String inputVerb, String pathToVerbnet) throws IOException{
+		String wordnetTypes = null;
+
+		URL url = new URL("file", null , pathToVerbnet );
+
+		IVerbIndex index = new VerbIndex (url);
+		index.open();
+
+		Iterator<IVerbClass> verbnetIterator = index.iterator();
+
+		while (verbnetIterator.hasNext()){
+			List<IMember> verbnetEntry = verbnetIterator.next().getMembers();
+
+			for (int i = 0; i< verbnetEntry.size(); i++){
+
+				if (verbnetEntry.get(i).getName().equals(inputVerb)){
+					wordnetTypes = verbnetEntry.get(i).getWordnetTypes().toString();
+					//		System.out.println(verbnetEntry.get(i).getWordnetTypes().toString());
+
+				}
+			}
+		}
+
+		return wordnetTypes;
+	}
+
+
+	public static List<IFrame> getVerbnetFrames(String inputVerb, String pathToVerbnet) throws IOException{
+		List<IFrame> frameList = new ArrayList<IFrame>();
+
+		URL url = new URL("file", null , pathToVerbnet );
+		IVerbIndex index = new VerbIndex (url);
+		index.open();
+
+		Iterator<IVerbClass> verbnetIterator = index.iterator();
+
+		while (verbnetIterator.hasNext()){
+			List<IMember> verbnetEntry = verbnetIterator.next().getMembers();
+
+			for (int i = 0; i< verbnetEntry.size(); i++){
+				if (verbnetEntry.get(i).getName().equals(inputVerb) && verbnetEntry.get(i).getGroupings() != null){
+					for (int j = 0; j <  verbnetEntry.get(i).getVerbClass().getFrames().size(); j++){
+						frameList.add(verbnetEntry.get(i).getVerbClass().getFrames().get(j));
+					}
+				}
+			}
+		}
+
+		return frameList;
+	}
+
+	public static ListMultimap<Integer, LinkedList<HashMap<String, String>>> getSortedFramesWithArguments(String inputVerb, String pathToVerbnet) throws IOException{
+
+		//ListMultiMap <AmountOfPostVerbElements (this counter may have multivalues => ListMultiMap), ListOfPair<S/O/..., Role>>
+		ListMultimap <Integer,LinkedList<HashMap<String,String>>> sortedFramesbyLength = ArrayListMultimap.create();
+		List<IFrame> verbnetFramesList = getVerbnetFrames(inputVerb, pathToVerbnet);
+		Iterator<IFrame> verbnetThemRolesIterator = verbnetFramesList.iterator();
+		HashMap<String,String> frameEntry = new HashMap <String, String>();
+
+		while (verbnetThemRolesIterator.hasNext()){
+			frameEntry = new HashMap <String, String>();
+
+			LinkedList <HashMap<String, String>> frameLinkedList = new LinkedList <HashMap<String, String>>();
+			IFrame nextElement = verbnetThemRolesIterator.next();
+
+			//put subject to frameEntry & put the subject to the LinkedList
+			frameEntry.put(nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType() == null ? "none" : nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType().toString(), nextElement.getSyntax().getPreVerbDescriptors().get(0).getType().toString());
+			frameLinkedList.add(frameEntry);
+			//System.out.println("S: " + nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType() + " " + nextElement.getSyntax().getPreVerbDescriptors().get(0).getType() + " \\EXAMPLE "  + nextElement.getExamples().get(0));
+
+			if (nextElement.getSyntax().getPostVerbDescriptors().size() != 0){
+				Iterator<ISyntaxArgDesc> postVerbElemIterator = nextElement.getSyntax().getPostVerbDescriptors().iterator();
+				//System.out.println(nextElement.getSyntax().getPostVerbDescriptors().size());
+
+				while (postVerbElemIterator.hasNext()){
+					frameEntry = new HashMap <String, String>();
+					ISyntaxArgDesc postVerbNextElement = postVerbElemIterator.next();
+
+					//	System.out.println("O: " + postVerbNextElement.getNounPhraseType() + " " + postVerbNextElement.getType() );
+					//System.out.println(postVerbNextElement.getNounPhraseType() == null ? postVerbNextElement.getNounPhraseType() : postVerbNextElement.getNounPhraseType().toString());
+					frameEntry.put((postVerbNextElement.getNounPhraseType() == null ? "none" : postVerbNextElement.getNounPhraseType().toString()), postVerbNextElement.getType().toString());
+					frameLinkedList.add(frameEntry);
+				}
+			}
+			//System.out.println(nextElement.getSyntax().getPostVerbDescriptors().size() + " frameLinked" + frameLinkedList);
+			sortedFramesbyLength.put(nextElement.getSyntax().getPostVerbDescriptors().size(), frameLinkedList);
+
+		}
+
+		return sortedFramesbyLength;
+	}
+
+
 	public static void main(String args[]){
-		
-		
-		
-		
+
+
+
+
 		Tagger.initTagger("de");
 		DepParserTree.initParser("de");
-		
+
 		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Seit zwei Wochen haben sie sich dort vor islamistischen Rebellen verschanzt."));
 		for (List<HasWord> sentence : tokenizer) {
 			System.out.println("Sentence: " + sentence);
 			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 			Collection<TypedDependency> list = gs.allTypedDependencies();
-			
+
 		}
-		System.exit(1);
-		
+		//System.exit(1);
+
 		//String tempString = "This is a sentence; with a semi-colon in it.";
 		String tempString = 
 				"\n" +
@@ -410,36 +984,37 @@ public class RelationExtraction {
 						"untouched by a 30 years fight! Mr. benedicted\n" +
 						"by\n" +
 						"Benedictus\n";
-//		
-//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(tempString));
-//		for (List<HasWord> sentence : tokenizer) {
-//			System.out.println("Sentence: " + sentence);
-//		}
-//		System.exit(1);
+		//		
+		//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(tempString));
+		//		for (List<HasWord> sentence : tokenizer) {
+		//			System.out.println("Sentence: " + sentence);
+		//		}
+		//		System.exit(1);
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
-//		String ts = "Later she moved to Brandenburg with her family.";
-//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(ts));
-//		for (List<HasWord> sentence : tokenizer) {
-//			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
-//			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
-//			System.out.println("DEBUGGING GS:" + gs);
-//		}
+		//		String ts = "Later she moved to Brandenburg with her family.";
+		//		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(ts));
+		//		for (List<HasWord> sentence : tokenizer) {
+		//			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+		//			GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+		//			System.out.println("DEBUGGING GS:" + gs);
+		//		}
 		//System.exit(1);
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\WikiWars_20120218_v104\\nifs";
-		
+
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\artComSampleFilesDBPediaTimeouts\\nifsCorefinized";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\mendelsohnDocs\\englishNifsCorefinized";
-		
+		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
+
 
 		File df = new File(docFolder);
+		System.out.println(df.getAbsolutePath());
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
 		Date d3 = new Date();
-		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
 		BufferedWriter brDebug = null;
 		int c = 0;
 		for (File f : df.listFiles()) {
@@ -449,13 +1024,13 @@ public class RelationExtraction {
 			try {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-				//ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
-				
+				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
+				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+
 				for (EntityRelationTriple t : ert) {
 					masterList.add(t);
 				}
-		
+
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -472,12 +1047,12 @@ public class RelationExtraction {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 		System.out.println("Done."); 
 		System.exit(1);
-	    
-		
+
+
 		String nifString = 
 				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
 						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
@@ -558,31 +1133,31 @@ public class RelationExtraction {
 						"        itsrdf:taClassRef     dbo:Location ;\n" +
 						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Brandenburg> .\n" +
 						"\n";
-//		ArrayList<EntityRelationTriple> collectionRelationList = new ArrayList<EntityRelationTriple>();
-//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
-//		BufferedWriter brDebug = null;
-//		try {
-//			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-//			ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
-//			for (EntityRelationTriple t : ert) {
-//				collectionRelationList.add(t);
-//			}
-//			
-//			System.out.println("DEBUGGING erT:" + ert);
-//			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-//			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
-//			JSONObject jsonMap = new JSONObject(m);
-//			brDebug.write(jsonMap.toString(4));
-//			brDebug.close();
-//			
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-		
-		
+		//		ArrayList<EntityRelationTriple> collectionRelationList = new ArrayList<EntityRelationTriple>();
+		//		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		//		BufferedWriter brDebug = null;
+		//		try {
+		//			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+		//			ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+		//			for (EntityRelationTriple t : ert) {
+		//				collectionRelationList.add(t);
+		//			}
+		//			
+		//			System.out.println("DEBUGGING erT:" + ert);
+		//			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+		//			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(collectionRelationList);
+		//			JSONObject jsonMap = new JSONObject(m);
+		//			brDebug.write(jsonMap.toString(4));
+		//			brDebug.close();
+		//			
+		//		} catch (Exception e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//		
+
+
 
 	}
-	
+
 }

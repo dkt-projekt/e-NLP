@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import eu.freme.common.exception.BadRequestException;
 
 public class DepParserTree {
 
-	
+
 
 	/*[advmod(let-3, Just-1), 
 	mark(let-3, to-2), 
@@ -94,40 +95,59 @@ public class DepParserTree {
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
-		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the books will be shipped to both you and Rice."));
+		//DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("Just to let you know, the books will be shipped to both you and Rice."));
+		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader("The decorations took all my time from morning to midnight."));
 
 		for (List<HasWord> sentence : tokenizer) {
 			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 			GrammaticalStructure gs = parser.predict(tagged);
 
+
+
 			Collection<TypedDependency> list = gs.allTypedDependencies();
 			System.out.println(list.size());
 			DPTreeNode tree =  DepParserTree.generateTreeFromList(list);
+
 			tree.printByLevel("   ", "   ");
 			List<DPTreeNode> list2 = new LinkedList<DPTreeNode>();
-			DPTreeNode result = tree.getShortestPath("you", "Just", list2);
-			System.out.println(result.value);
-		}
+			DPTreeNode result = tree.getShortestPath("from", "my", list2);
+			System.out.println("Shortest path " + result.value);
 
+			Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();				
+			Collection<TypedDependency> allVerbDependenciesList = DepParserTree.getAllDirectVerbDependencies(allDepenednciesList);
+			System.out.println(allVerbDependenciesList.size() + " SIZE ");
+			Iterator<TypedDependency> dependencyListIterator = allVerbDependenciesList.iterator();
+
+			while(dependencyListIterator.hasNext()){
+				System.out.println("next element iterator: " + dependencyListIterator.next());
+			}
+
+
+
+		}
 
 	}
 
 	public static DPTreeNode generateTreeFromList(Collection<TypedDependency> list2){
-		DPTreeNode tree = new DPTreeNode(null, "root", "ROOT");
+
+		TypedDependency td_rootElement = null;
+
+		DPTreeNode tree = new DPTreeNode(null, "root", "ROOT");		
 		List<DPTreeNode> nodes = new LinkedList<DPTreeNode>();
 		nodes.add(tree);
 		List<TypedDependency> list = (List<TypedDependency>) list2;
 		for(int i=0;!list.isEmpty();i++){
 			TypedDependency td = list.get(i);
-			
-//			System.out.println(td.reln().toString());
+
+			//			System.out.println(td.reln().toString());
 			for (DPTreeNode dptn: nodes) {
-//				System.out.println("\t" + "Value: "+dptn.value);
-//				System.out.println("\t" + "DEP: "+td.gov().word());
+				//System.out.println("\t" + "Value: "+dptn.value);
+				//System.out.println("\t" + "DEP: "+td.gov().word());
 				if(dptn.value != null && dptn.value.equalsIgnoreCase("ROOT") && td.gov().word()==null){
 					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word(),td.dep());
 					dptn.childs.add(node);
-//					System.out.println("Removing: "+td);
+					System.out.println("Removing: "+td + " " + td.dep().word());
+					td_rootElement = td;
 					list.remove(td);
 					nodes.add(node);
 					i--;
@@ -136,24 +156,87 @@ public class DepParserTree {
 				else if(dptn.value != null && dptn.value.equalsIgnoreCase(td.gov().word())){
 					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word(),td.dep());
 					dptn.childs.add(node);
-//					System.out.println("Removing2: "+td);
+					System.out.println("Removing2: "+td);
+					if (td_rootElement.dep().word().equals(td.gov().word())){
+					}
 					list.remove(td);
 					nodes.add(node);
 					i--;
 					break;
 				}
+
 			}
-			
-			
+
+
 			if(i==list.size()-1){
 				i=-1;
 			}
 		}
-
 		return tree;
 	}
-	
-	
+
+
+	public static List<TypedDependency> getAllDirectVerbDependencies(Collection<TypedDependency> list2){
+
+		TypedDependency td_rootElement = null;
+
+		DPTreeNode tree = new DPTreeNode(null, "root", "ROOT");
+
+		List<DPTreeNode> nodes = new LinkedList<DPTreeNode>();
+		nodes.add(tree);
+		List<TypedDependency> list = (List<TypedDependency>) list2;
+		List<TypedDependency> outputList = new LinkedList<TypedDependency>();
+
+
+
+		for(int i=0;!list.isEmpty();i++){
+			TypedDependency td = list.get(i);
+
+			for (DPTreeNode dptn: nodes) {
+				if(dptn.value != null && dptn.value.equalsIgnoreCase("ROOT") && td.gov().word()==null){
+
+					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word(),td.dep());
+					dptn.childs.add(node);
+
+					td_rootElement = td;				
+					list.remove(td);
+					nodes.add(node);
+					i--;
+					break;
+
+				}
+				//ckeck whether the dependency contains a governor which is a verb && omit dependencies containing "punct"
+
+				else if(dptn.value != null && dptn.value.equalsIgnoreCase(td.gov().word())){
+
+					if(td_rootElement.dep().word().equals(td.gov().word()) && (!td.reln().toString().equals("punct"))){
+						outputList.add(td);
+					}	
+					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word(),td.dep());
+					dptn.childs.add(node);
+				//	System.out.println("Removing2: "+td);
+					list.remove(td);
+					nodes.add(node);
+					i--;
+
+					break;
+				}
+			}
+
+
+			if(i==list.size()-1){
+				i=-1;
+			}
+
+		}
+		return outputList;
+	}
+
+
+
+
+
+
 	public static DPTreeNode generateTreeFromList_old(Collection<TypedDependency> list2){
 		DPTreeNode tree = new DPTreeNode(null, "root", "ROOT");
 		List<DPTreeNode> nodes = new LinkedList<DPTreeNode>();
@@ -161,15 +244,15 @@ public class DepParserTree {
 		List<TypedDependency> list = (List<TypedDependency>) list2;
 		for(int i=0;!list.isEmpty();i++){
 			TypedDependency td = list.get(i);
-			
-//			System.out.println(td.reln().toString());
+
+			//			System.out.println(td.reln().toString());
 			for (DPTreeNode dptn: nodes) {
-//				System.out.println("\t" + "Value: "+dptn.value);
-//				System.out.println("\t" + "DEP: "+td.gov().word());
+				//				System.out.println("\t" + "Value: "+dptn.value);
+				//				System.out.println("\t" + "DEP: "+td.gov().word());
 				if(dptn.value.equalsIgnoreCase("ROOT") && td.gov().word()==null){
 					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word());
 					dptn.childs.add(node);
-//					System.out.println("Removing: "+td);
+					//					System.out.println("Removing: "+td);
 					list.remove(td);
 					nodes.add(node);
 					i--;
@@ -178,46 +261,46 @@ public class DepParserTree {
 				else if(dptn.value.equalsIgnoreCase(td.gov().word())){
 					DPTreeNode node = new DPTreeNode(dptn,td.reln().toString(),td.dep().word());
 					dptn.childs.add(node);
-//					System.out.println("Removing2: "+td);
+					//					System.out.println("Removing2: "+td);
 					list.remove(td);
 					nodes.add(node);
 					i--;
 					break;
 				}
 			}
-			
-			
+
+
 			if(i==list.size()-1){
 				i=-1;
 			}
 		}
-//		while(!list.isEmpty()){
-//			Iterator<TypedDependency> iter = list.iterator();
-//			while(iter.hasNext()) {
-//				TypedDependency td = iter.next();
-//				System.out.println(td);
-//				for (DPTreeNode dptn: nodes) {
-//					System.out.println("\t" + "Value: "+dptn.value);
-//					System.out.println("\t" + "DEP: "+td.gov().word());
-//					if(dptn.value.equalsIgnoreCase("ROOT") && td.gov().word()==null){
-//						DPTreeNode node = new DPTreeNode(dptn,td.reln().toPrettyString(),td.gov().word());
-//						dptn.childs.add(node);
-//						System.out.println("Removing: "+td);
-//						list.remove(td);
-//						nodes.add(node);
-//						break;
-//					}
-//					else if(dptn.value.equalsIgnoreCase(td.gov().word())){
-//						DPTreeNode node = new DPTreeNode(dptn,td.reln().toPrettyString(),td.gov().word());
-//						dptn.childs.add(node);
-//						System.out.println("Removing: "+td);
-//						list.remove(td);
-//						nodes.add(node);
-//						break;
-//					}
-//				}
-//			}
-//		}
+		//		while(!list.isEmpty()){
+		//			Iterator<TypedDependency> iter = list.iterator();
+		//			while(iter.hasNext()) {
+		//				TypedDependency td = iter.next();
+		//				System.out.println(td);
+		//				for (DPTreeNode dptn: nodes) {
+		//					System.out.println("\t" + "Value: "+dptn.value);
+		//					System.out.println("\t" + "DEP: "+td.gov().word());
+		//					if(dptn.value.equalsIgnoreCase("ROOT") && td.gov().word()==null){
+		//						DPTreeNode node = new DPTreeNode(dptn,td.reln().toPrettyString(),td.gov().word());
+		//						dptn.childs.add(node);
+		//						System.out.println("Removing: "+td);
+		//						list.remove(td);
+		//						nodes.add(node);
+		//						break;
+		//					}
+		//					else if(dptn.value.equalsIgnoreCase(td.gov().word())){
+		//						DPTreeNode node = new DPTreeNode(dptn,td.reln().toPrettyString(),td.gov().word());
+		//						dptn.childs.add(node);
+		//						System.out.println("Removing: "+td);
+		//						list.remove(td);
+		//						nodes.add(node);
+		//						break;
+		//					}
+		//				}
+		//			}
+		//		}
 		//System.out.println(nodes.size());
 		return tree;
 	}
