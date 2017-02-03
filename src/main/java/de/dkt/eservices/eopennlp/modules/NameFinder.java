@@ -203,8 +203,7 @@ public class NameFinder {
 		String content = NIFReader.extractIsString(nifModel);
 		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(content, sentModel);
 
-		   
-		System.gc();
+//		System.gc();
 		Date d_inter_final1 = new Date();
 		MemoryUsage m_inter_final1 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 //		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Sentence Detector", d_inter_initial1, d_inter_final1, m_inter_initial1, m_inter_final1);
@@ -218,11 +217,11 @@ public class NameFinder {
 		}
 
 		
-		System.gc();
+//		System.gc();
 		Date d_inter_final2 = new Date();
 		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 //		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Detect Entities With models", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
-
+		System.out.println("SPOT TIME: "+(d_inter_final2.getTime()-d_inter_initial2.getTime()));
 		Date d_inter_initial3 = new Date();
 		MemoryUsage m_inter_initial3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 
@@ -262,9 +261,10 @@ public class NameFinder {
 			NIFWriter.addAnnotationEntitiesWithoutURI(nifModel, nameStart, nameEnd, foundName, nerType);
 		}		    
 
-		System.gc();
+//		System.gc();
 		Date d_inter_final3 = new Date();
 		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		System.out.println("SPOT2 TIME: "+(d_inter_final3.getTime()-d_inter_initial3.getTime()));
 //		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Adding annotation to model", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
 		return nifModel;
@@ -280,6 +280,7 @@ public class NameFinder {
 		}
 		else{
 			try {
+				System.out.println("Loading model: "+nerModel);
 				ClassPathResource cprNERModel = new ClassPathResource(modelsDirectory + nerModel);
 				InputStream tnfNERModel;
 				tnfNERModel = new FileInputStream(cprNERModel.getFile());
