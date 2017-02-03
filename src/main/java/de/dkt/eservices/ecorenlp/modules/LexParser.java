@@ -69,7 +69,7 @@ class LexParser {
     public static LexicalizedParser parser = null;
 
     
-    private static void initLexParser(String lang){
+    public static void initLexParser(String lang){
     	if (lang.equalsIgnoreCase("en")){
     		parser = LexicalizedParser.loadModel(EN_PCG_MODEL);
     	}
@@ -373,7 +373,7 @@ class LexParser {
         	//get the heads from the sentences and put them in mnps
         	 String sentence = everything.substring(indexes[0],indexes[1]);
         	 
-        	 //System.out.println("DEBUG sentence in second sieve: "+sentence);
+
         	 
         	HashMap<Span, String> npHash1 = getNPHeads(sentence);
         	ArrayList<SpanWord> mnps = new ArrayList<SpanWord>();
@@ -913,6 +913,7 @@ class LexParser {
             	////System.out.println("DEBUG subl: "+subl); 
             	String word = new String(); 
             	word =(subl.get(0));
+            	
             	for(int x=1; x<subl.size(); x++){
             		word = word + " " +(subl.get(x));
             	    

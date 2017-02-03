@@ -63,6 +63,9 @@ public class EOpenNLPService {
 
         try {
         	Model nifModel = null;
+    		Date d_inter_final = new Date();
+    		MemoryUsage m_inter_final = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+    		
         	if (inFormat.equals(RDFConstants.RDFSerialization.PLAINTEXT)){
     			nifModel = NIFWriter.initializeOutputModel();
     			NIFWriter.addInitialString(nifModel, textToProcess, prefix);
@@ -75,6 +78,10 @@ public class EOpenNLPService {
     				throw new BadRequestException("Check the input format ["+inFormat+"]!!");
     			}
     		}
+    		Date d_inter_initial2 = new Date();
+    		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+    		System.out.println("SPOT GENER TIME: "+(d_inter_initial2.getTime()-d_inter_final.getTime()));
+
         	String sentModel = null;
     		String[] nerModels = models.split(";");
     		         		
@@ -86,15 +93,15 @@ public class EOpenNLPService {
     			throw new BadRequestException("Unsupported combination of language ["+languageParam+"] and analysis: "+ analysisType);
     		}
 
-    		System.gc();
-    		Date d_inter_final = new Date();
-    		MemoryUsage m_inter_final = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-//    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Initialization", d_inter_initial, d_inter_final, m_inter_initial, m_inter_final);
-
-    		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
-    		
-    		Date d_inter_initial2 = new Date();
-    		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+//    		System.gc();
+//    		Date d_inter_final = new Date();
+//    		MemoryUsage m_inter_final = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+////    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Initialization", d_inter_initial, d_inter_final, m_inter_initial, m_inter_final);
+//
+//    		//LanguageIdentificator.detectLanguageNIF(nifModel); //currently only for ACL paper!
+//    		
+//    		Date d_inter_initial2 = new Date();
+//    		MemoryUsage m_inter_initial2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
     		
         	if(analysisType.equalsIgnoreCase("ner")){
         		if (mode.equals("spot")){
@@ -113,9 +120,10 @@ public class EOpenNLPService {
             			statModels.add(storedModel);
             		}
             		
-            		System.gc();
+//            		System.gc();
             		Date d_inter_final3 = new Date();
             		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+            		System.out.println("SPOT UP 2 TIME: "+(d_inter_final3.getTime()-d_inter_initial3.getTime()));
 //            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
             		Date d_inter_initial4 = new Date();
@@ -123,9 +131,11 @@ public class EOpenNLPService {
 
             		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, sentModel, languageParam);
 
-            		System.gc();
+  //          		System.gc();
             		Date d_inter_final4 = new Date();
             		MemoryUsage m_inter_final4 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+            		System.out.println();
+            		System.out.println("SPOTUP TIME: "+(d_inter_final4.getTime()-d_inter_initial4.getTime()));
 //            		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Spoting Processing", d_inter_initial4, d_inter_final4, m_inter_initial4, m_inter_final4);
 
 
@@ -188,7 +198,7 @@ public class EOpenNLPService {
         		throw new BadRequestException("Unsupported analysis: "+analysisType);
         	}
         	
-    		System.gc();
+//    		System.gc();
     		Date d_inter_final2 = new Date();
     		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 //    		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "NER Processing", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
