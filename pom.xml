@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dkt</groupId>
 	<artifactId>e-NLP</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.6-SNAPSHOT</version>
 
 	<parent>
-		<groupId>eu.freme.e-services</groupId>
-		<artifactId>e-service-parent</artifactId>
-		<version>0.9</version>
+		<groupId>eu.freme-project</groupId>
+		<artifactId>freme-parent</artifactId>
+		<version>0.17</version>
 	</parent>
 
 	<build>
@@ -22,9 +22,8 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>eu.freme.bservices</groupId>
+			<groupId>eu.freme-project.bservices</groupId>
 			<artifactId>test-helper</artifactId>
-			<version>0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jena</groupId>
@@ -49,7 +48,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.5-SNAPSHOT</version>
+			<version>0.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>
@@ -84,52 +83,38 @@
 		</dependency>
 	</dependencies>
 	<repositories>
-		<repository>
-			<id>freme-release</id>
-			<name>freme-nexus</name>
-			<url>http://rv1443.1blu.de/nexus/content/repositories/releases/</url>
+		  <repository>
+		    <id>maven-new-server-releases</id>
+		    <url>https://dev.digitale-kuratierung.de/nexus/repository/maven-releases/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</repository>
-		<repository>
-			<id>freme-nexus</id>
-			<name>freme-nexus</name>
-			<url>http://rv1443.1blu.de/nexus/content/repositories/snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-		<repository>
-			<id>releases</id>
-			<url>http://v35731.1blu.de:8081/nexus/content/repositories/releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url>
+		  </repository>
+		  <repository>
+		    <id>maven-new-server</id>
+    		<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-snapshots/</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		</repository>
+		  </repository>
 	</repositories>
 	<distributionManagement>
 		<repository>
-			<id>releases</id>
-			<url>http://v35731.1blu.de:8081/nexus/content/repositories/releases</url>
+			<id>maven-new-server-releases</id>
+<!-- 			<url>http://v35731.1blu.de:8081/nexus/content/repositories/releases</url> -->
+			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>snapshots</id>
-			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url>
+			<id>maven-new-server</id>
+<!--			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url> -->
+			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<scm>
 		<connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
 		<url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
 		<developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
-		<tag>e-NLP-0.4</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<profiles>
