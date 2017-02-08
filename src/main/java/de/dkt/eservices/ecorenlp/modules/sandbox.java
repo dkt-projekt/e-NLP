@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import java.util.LinkedList;
@@ -90,66 +91,88 @@ public class sandbox {
     	  }
     	}
 	
-    public static void main(String[] args) throws IOException{
-    	
-    	
-    	LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-  	String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-//  	String sentence = "Sein Blick ist im vorübergehn der Stäbe so müde geworden, dass er nichts mehr hält. Ihm ist als ob es tausend Stäbe gäbe und hinter tausen Stäben keine Welt.";
-    	;
- //   	getOrderFromTree(tree);
- //       traverse(tree,tree);
-    	String secondSentence = "Angela Merkel, Kanzlerin der Herzen, war auch mit von der Partie";
-    	String[] array = {sentence, secondSentence};
-    	for (String a :array){
-    		Tree tree = lexParser.parse(a);
-    		traverseBreadthFirst(tree);
-    	}
-    	
-    	
-        
-    	
-    
-//           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-//           //String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-//           String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
-//           Tree tree = lexParser.parse(sentence);
-//           
-//           ///** debugging
-//           System.out.println("The Parse Tree for " + sentence + " is: ");
-//           tree.pennPrint();
-//           //**/
-//        	
-//
-//        	HashMap<Span, String> npHash = traverseTreeForNPs(tree, new HashMap<Span, String>());
-//        	for (Span sp : npHash.keySet()){
-//        	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
-//        	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
-//        	  System.out.println("HEAD:" + npHash.get(sp));
-//        	}
-    	
-//    	String modelsDirectory = "trainedModels/";
-//		InputStream modelIn = null;
-//		ClassPathResource cpr;
-//		POSModel POSModel = null;
-//		try{
-//			//cpr = new ClassPathResource("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
-//			File f = new File("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
-//			modelIn = new FileInputStream(f);
-//			POSModel = new POSModel(modelIn);
-//		}
-//		catch(IOException e){
-//			throw new BadRequestException(e.getMessage());
-//		}
+//    public static void main(String[] args) throws IOException{
 //    	
-//    	String aapje = "\\aapje";
-//    	System.out.println("String aapje:" + aapje);
-//    	System.out.println("Escaped:" + aapje.replace("\\", "\\\\"));
-//    	System.exit(1);
-    	
-
-    	
-//    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifs";
+//    	
+//    	LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+//  	String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+////  	String sentence = "Sein Blick ist im vorübergehn der Stäbe so müde geworden, dass er nichts mehr hält. Ihm ist als ob es tausend Stäbe gäbe und hinter tausen Stäben keine Welt.";
+//    	;
+// //   	getOrderFromTree(tree);
+// //       traverse(tree,tree);
+//    	String secondSentence = "Angela Merkel, Kanzlerin der Herzen, war auch mit von der Partie";
+//    	String[] array = {sentence, secondSentence};
+//    	for (String a :array){
+//    		Tree tree = lexParser.parse(a);
+//    		traverseBreadthFirst(tree);
+//    	}
+//    	
+//    	
+//        
+//    	
+//    
+////           LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+////           //String sentence = "Der Hund und sein Freund sind hier und die Katze. Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+////           String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+////           Tree tree = lexParser.parse(sentence);
+////           
+////           ///** debugging
+////           System.out.println("The Parse Tree for " + sentence + " is: ");
+////           tree.pennPrint();
+////           //**/
+////        	
+////
+////        	HashMap<Span, String> npHash = traverseTreeForNPs(tree, new HashMap<Span, String>());
+////        	for (Span sp : npHash.keySet()){
+////        	  System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+////        	  System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+////        	  System.out.println("HEAD:" + npHash.get(sp));
+////        	}
+//    	
+////    	String modelsDirectory = "trainedModels/";
+////		InputStream modelIn = null;
+////		ClassPathResource cpr;
+////		POSModel POSModel = null;
+////		try{
+////			//cpr = new ClassPathResource("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
+////			File f = new File("C:\\Users\\pebo01\\workspace\\DktBroker-standalone\\target\\classes\\taggers\\english-left3words-distsim.tagger");
+////			modelIn = new FileInputStream(f);
+////			POSModel = new POSModel(modelIn);
+////		}
+////		catch(IOException e){
+////			throw new BadRequestException(e.getMessage());
+////		}
+////    	
+////    	String aapje = "\\aapje";
+////    	System.out.println("String aapje:" + aapje);
+////    	System.out.println("Escaped:" + aapje.replace("\\", "\\\\"));
+////    	System.exit(1);
+//    	
+//
+//    	
+////    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifs";
+////    	File df = new File(nifFileMap);
+////    	ArrayList<Model> modelsList = new ArrayList<Model>();
+////    	//String prefix = null;
+////    	for (File f : df.listFiles()){
+////			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+////			try {
+////				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+////				modelsList.add(nifModel);
+////			} catch (Exception e) {
+////				// TODO Auto-generated catch block
+////				e.printStackTrace();
+////			}
+////    	}
+////    	String prefix = "http://dkt.dfki.de/clintonCorpus";
+////    	//Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
+////
+////    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+////		//out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
+////		out.close();
+////    	
+//
+//    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\corefNIFs";
 //    	File df = new File(nifFileMap);
 //    	ArrayList<Model> modelsList = new ArrayList<Model>();
 //    	//String prefix = null;
@@ -163,176 +186,154 @@ public class sandbox {
 //				e.printStackTrace();
 //			}
 //    	}
+//    	System.out.println("Populated list.");
 //    	String prefix = "http://dkt.dfki.de/clintonCorpus";
-//    	//Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
-//
-//    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+//    	Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
+//    	System.out.println("Collection created.");
+//    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifCollectionCustomMade\\clintonCollection.nif"));
+//    	// the normal model2string ran into memory limitations, so doing it manually here...
 //		//out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
-//		out.close();
-//    	
-
-    	String nifFileMap = "C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\corefNIFs";
-    	File df = new File(nifFileMap);
-    	ArrayList<Model> modelsList = new ArrayList<Model>();
-    	//String prefix = null;
-    	for (File f : df.listFiles()){
-			String fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
-			try {
-				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-				modelsList.add(nifModel);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	System.out.println("Populated list.");
-    	String prefix = "http://dkt.dfki.de/clintonCorpus";
-    	Model nifCollection = NIFManagement.createCollectionFromDocuments(prefix, modelsList);
-    	System.out.println("Collection created.");
-    	PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifCollectionCustomMade\\clintonCollection.nif"));
-    	// the normal model2string ran into memory limitations, so doing it manually here...
-		//out.println(NIFReader.model2String(nifCollection, RDFSerialization.TURTLE));
-    	// list the statements in the Model
-    	StmtIterator iter = nifCollection.listStatements();
-
-    	// print out the predicate, subject and object of each statement
-    	HashMap<String, LinkedHashMap<String, String>> nifStringHash = new HashMap<String, LinkedHashMap<String, String>>(); 
-    	while (iter.hasNext()) {
-    	    Statement stmt      = iter.nextStatement();
-    	    Resource  subject   = stmt.getSubject();
-    	    Property  predicate = stmt.getPredicate();
-    	    RDFNode   object    = stmt.getObject();
-    	    
-    	    LinkedHashMap<String, String> innerMap = nifStringHash.containsKey(subject.toString()) ? nifStringHash.get(subject.toString()) : new LinkedHashMap<String, String>();
-    	    // for some reason, nif:isString should always be last item...
-    	    if (predicate.toString().equals("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#isString")){
-    	    	addToLinkedHash(innerMap, innerMap.keySet().size(), predicate.toString(), object.toString());
-    	    }
-    	    else{
-    	    	addToLinkedHash(innerMap, 0, predicate.toString(), object.toString());
-    	    }
-    	    //innerMap.put(predicate.toString(), object.toString());
-    	    nifStringHash.put(subject.toString(), innerMap);
-    	    
-    	    
-//    	    out.write(subject.toString() + "\n");
-//    	    out.write(" " + predicate.toString() + " " + "\n");
-//    	    if (object instanceof Resource) {
-//    	       out.write(object.toString() + "\n");
-//    	    } else {
-//    	        out.write(" \"" + object.toString() + "\"" + "\n");
-//    	    }
+//    	// list the statements in the Model
+//    	StmtIterator iter = nifCollection.listStatements();
 //
-//    	    out.write(" ." + "\n");
-    	}
-    	// fix prefixes for readability (and to make the file a bit smaller)...
-    	
-    	HashMap<String, String> prefixMap = new HashMap<String, String>();
-    	prefixMap.put("http://dkt.dfki.de/ontologies/nif#", "dktnif:");
-    	prefixMap.put("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#", "nif-ann:");
-    	prefixMap.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:");
-    	prefixMap.put("http://www.w3.org/2001/XMLSchema#", "xsd:");
-    	prefixMap.put("http://www.w3.org/2005/11/its/rdf#", "itsrdf:");
-    	prefixMap.put("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#", "nif:");
-    	prefixMap.put("http://www.w3.org/2000/01/rdf-schema#", "rdfs:");
-    	prefixMap.put("http://www.w3.org/2006/time#", "time:");
-    	prefixMap.put("http://www.w3.org/2003/01/geo/wgs84_pos/", "geo:");
-    	prefixMap.put("http://dbpedia.org/ontology/", "dbo:");
-    	prefixMap.put("http://www.w3.org/2002/07/owl#", "owl:");
-    	
-    	
-    	out.write("@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n");
-    	out.write("@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n");
-    	out.write("@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
-    	out.write("@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n");
-    	out.write("@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n");
-    	out.write("@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n");
-    	out.write("@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n");
-    	out.write("@prefix time:  <http://www.w3.org/2006/time#> .\n");
-    	out.write("@prefix geo:  <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n");
-    	out.write("@prefix dbo:  <http://dbpedia.org/ontology/> .\n");
-    	out.write("@prefix owl:  <http://www.w3.org/2002/07/owl#> .\n");
-    	out.write("\n");
-    	
-    	for (String subject : nifStringHash.keySet()){
-    		boolean bs = false;
-    		for (String p : prefixMap.keySet()){
-    			if (subject.contains(p)){
-    				subject = subject.replaceAll(p, prefixMap.get(p));
-    				bs = true;
-    			}
-    		}
-    		if (!bs){
-    			out.write("<" + subject + ">\n");
-    		}
-    		else{
-    			out.write(subject + "\n");
-    		}
-    		
-    		int i = 1;
-    		for (String predicate : nifStringHash.get(subject).keySet()){
-    			String object = nifStringHash.get(subject).get(predicate);
-    			boolean bp = false;
-    			boolean bo = false;
-    			boolean quoteObject = false;
-    			for (String p : prefixMap.keySet()){
-    				if (predicate.contains(p)){
-    					predicate = predicate.replaceAll(p, prefixMap.get(p));
-    					bp = true;
-    				}
-        			if (object.contains(p)){
-        				object = object.replaceAll(p,  prefixMap.get(p));
-        				bo = true;
-        				if (p.equals("http://www.w3.org/2001/XMLSchema#")){
-        					quoteObject = true;
-        				}
-        			}
-        		}
-    			String printPredicate = null;
-    			if (!bp){
-    				printPredicate = "<" + predicate + ">";
-    			}
-    			else{
-    				printPredicate = predicate;
-    			}
-    			String printObject = null;
-    			if (!bo){
-    				printObject = "<" + object + ">";
-    			}
-    			//TODO; CHECK validation, thi sis where I left off...
-    			else{
-    				printObject = object.replace("\\", "\\\\");
-    				printObject = printObject.replaceAll("\"", "\\\\\"");
-    				printObject = printObject.replaceAll("\n", "\\\\n");
-    				printObject = printObject.replaceAll("\r", "\\\\r");
-    				printObject = printObject.replaceAll("\f", "\\\\f");
-    				
-    				if (quoteObject){
-    					String[] parts = printObject.split("\\^\\^");
-    					printObject = "\"" + parts[0] + "\"^^" + parts[1];
-    				}
-    			}
-    			if (i < nifStringHash.get(subject).keySet().size()){
-    				out.write(String.format("\t%s\t%s ;\n", printPredicate, printObject));
-    			}
-    			else{
-    				out.write(String.format("\t%s\t%s .\n\n", printPredicate, printObject));
-    			}
-    			i ++;
-    		}
-    	}
-		out.close();
-		//System.out.println("Done.");
-		
-		System.out.println("Validating collection now.");
-		String fileContent = readFile(new File("C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifCollectionCustomMade\\clintonCollection.nif").getAbsolutePath(), StandardCharsets.UTF_8);
-		try {
-			Model nifCollectionModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Validated. Done.");}
+//    	// print out the predicate, subject and object of each statement
+//    	HashMap<String, LinkedHashMap<String, String>> nifStringHash = new HashMap<String, LinkedHashMap<String, String>>(); 
+//    	while (iter.hasNext()) {
+//    	    Statement stmt      = iter.nextStatement();
+//    	    Resource  subject   = stmt.getSubject();
+//    	    Property  predicate = stmt.getPredicate();
+//    	    RDFNode   object    = stmt.getObject();
+//    	    
+//    	    LinkedHashMap<String, String> innerMap = nifStringHash.containsKey(subject.toString()) ? nifStringHash.get(subject.toString()) : new LinkedHashMap<String, String>();
+//    	    // for some reason, nif:isString should always be last item...
+//    	    if (predicate.toString().equals("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#isString")){
+//    	    	addToLinkedHash(innerMap, innerMap.keySet().size(), predicate.toString(), object.toString());
+//    	    }
+//    	    else{
+//    	    	addToLinkedHash(innerMap, 0, predicate.toString(), object.toString());
+//    	    }
+//    	    //innerMap.put(predicate.toString(), object.toString());
+//    	    nifStringHash.put(subject.toString(), innerMap);
+//    	    
+//    	    
+////    	    out.write(subject.toString() + "\n");
+////    	    out.write(" " + predicate.toString() + " " + "\n");
+////    	    if (object instanceof Resource) {
+////    	       out.write(object.toString() + "\n");
+////    	    } else {
+////    	        out.write(" \"" + object.toString() + "\"" + "\n");
+////    	    }
+////
+////    	    out.write(" ." + "\n");
+//    	}
+//    	// fix prefixes for readability (and to make the file a bit smaller)...
+//    	
+//    	HashMap<String, String> prefixMap = new HashMap<String, String>();
+//    	prefixMap.put("http://dkt.dfki.de/ontologies/nif#", "dktnif:");
+//    	prefixMap.put("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#", "nif-ann:");
+//    	prefixMap.put("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:");
+//    	prefixMap.put("http://www.w3.org/2001/XMLSchema#", "xsd:");
+//    	prefixMap.put("http://www.w3.org/2005/11/its/rdf#", "itsrdf:");
+//    	prefixMap.put("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#", "nif:");
+//    	prefixMap.put("http://www.w3.org/2000/01/rdf-schema#", "rdfs:");
+//    	prefixMap.put("http://www.w3.org/2006/time#", "time:");
+//    	prefixMap.put("http://www.w3.org/2003/01/geo/wgs84_pos/", "geo:");
+//    	prefixMap.put("http://dbpedia.org/ontology/", "dbo:");
+//    	prefixMap.put("http://www.w3.org/2002/07/owl#", "owl:");
+//    	
+//    	
+//    	out.write("@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n");
+//    	out.write("@prefix nif-ann: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-annotation#> .\n");
+//    	out.write("@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+//    	out.write("@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n");
+//    	out.write("@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n");
+//    	out.write("@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n");
+//    	out.write("@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n");
+//    	out.write("@prefix time:  <http://www.w3.org/2006/time#> .\n");
+//    	out.write("@prefix geo:  <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n");
+//    	out.write("@prefix dbo:  <http://dbpedia.org/ontology/> .\n");
+//    	out.write("@prefix owl:  <http://www.w3.org/2002/07/owl#> .\n");
+//    	out.write("\n");
+//    	
+//    	for (String subject : nifStringHash.keySet()){
+//    		boolean bs = false;
+//    		for (String p : prefixMap.keySet()){
+//    			if (subject.contains(p)){
+//    				subject = subject.replaceAll(p, prefixMap.get(p));
+//    				bs = true;
+//    			}
+//    		}
+//    		if (!bs){
+//    			out.write("<" + subject + ">\n");
+//    		}
+//    		else{
+//    			out.write(subject + "\n");
+//    		}
+//    		
+//    		int i = 1;
+//    		for (String predicate : nifStringHash.get(subject).keySet()){
+//    			String object = nifStringHash.get(subject).get(predicate);
+//    			boolean bp = false;
+//    			boolean bo = false;
+//    			boolean quoteObject = false;
+//    			for (String p : prefixMap.keySet()){
+//    				if (predicate.contains(p)){
+//    					predicate = predicate.replaceAll(p, prefixMap.get(p));
+//    					bp = true;
+//    				}
+//        			if (object.contains(p)){
+//        				object = object.replaceAll(p,  prefixMap.get(p));
+//        				bo = true;
+//        				if (p.equals("http://www.w3.org/2001/XMLSchema#")){
+//        					quoteObject = true;
+//        				}
+//        			}
+//        		}
+//    			String printPredicate = null;
+//    			if (!bp){
+//    				printPredicate = "<" + predicate + ">";
+//    			}
+//    			else{
+//    				printPredicate = predicate;
+//    			}
+//    			String printObject = null;
+//    			if (!bo){
+//    				printObject = "<" + object + ">";
+//    			}
+//    			//TODO; CHECK validation, thi sis where I left off...
+//    			else{
+//    				printObject = object.replace("\\", "\\\\");
+//    				printObject = printObject.replaceAll("\"", "\\\\\"");
+//    				printObject = printObject.replaceAll("\n", "\\\\n");
+//    				printObject = printObject.replaceAll("\r", "\\\\r");
+//    				printObject = printObject.replaceAll("\f", "\\\\f");
+//    				
+//    				if (quoteObject){
+//    					String[] parts = printObject.split("\\^\\^");
+//    					printObject = "\"" + parts[0] + "\"^^" + parts[1];
+//    				}
+//    			}
+//    			if (i < nifStringHash.get(subject).keySet().size()){
+//    				out.write(String.format("\t%s\t%s ;\n", printPredicate, printObject));
+//    			}
+//    			else{
+//    				out.write(String.format("\t%s\t%s .\n\n", printPredicate, printObject));
+//    			}
+//    			i ++;
+//    		}
+//    	}
+//		out.close();
+//		//System.out.println("Done.");
+//		
+//		System.out.println("Validating collection now.");
+//		String fileContent = readFile(new File("C:\\Users\\pebo01\\Desktop\\data\\IAFL2017\\nifCollectionCustomMade\\clintonCollection.nif").getAbsolutePath(), StandardCharsets.UTF_8);
+//		try {
+//			Model nifCollectionModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.out.println("Validated. Done.");}
 		
     	// bypassing the printing, going to clustering straight away
     	// had to add e-clustering to pom and make the clusteRNIF static for this to work... (temporarily did so and then undid)
@@ -355,7 +356,8 @@ public class sandbox {
 			}
     
   public static HashMap<Span, String> traverseTreeForNPs(Tree tree, HashMap<Span, String> npHash){
-
+//	  System.out.println("DEBUG traverseTreeForNPs input tree: ");
+//	  tree.pennPrint();
     	  
     	  for (Tree subtree : tree.getChildrenAsList()){
     	   
@@ -367,6 +369,7 @@ public class sandbox {
     	    //HeadFinder hf = new SemanticHeadFinder(); // may want to experiment here with different types of headfinders (http://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/trees/HeadFinder.html)
     	    HeadFinder hf = new NegraHeadFinder();
     	    npHash.put(sp, subtree.headTerminal(hf).toString());
+//    	    System.out.println("DEBUG traverseTreeForNPs intermediate: "+subtree.headTerminal(hf).toString());
     	   }
     	   if (!(subtree.isPreTerminal())){
     	    traverseTreeForNPs(subtree, npHash);
@@ -375,9 +378,27 @@ public class sandbox {
     	  
     	  return npHash;
     	 }
+ 
+  public static String head = "";
+  //adaption of the traverseTreeForNPs to extract the head of a mention
+  public static String determineHead(Tree tree){
+	 
+	//TODO add some preprocessing, because the heads are not always helpful for coreference
+	  
+	  for (Tree subtree : tree.getChildrenAsList()){
+   	    HeadFinder hf = new NegraHeadFinder();
+   	    head = subtree.headTerminal(hf).toString();
+   	 //System.out.println("DEBUG intermediate: "+head);
+   	   if (!(subtree.isPreTerminal())){
+   	    determineHead(subtree);
+   	   }
+   	  }
+	  
+	  //System.out.println("Debug head: "+head);
+	  return head;
+  }
     
     	
- 
     
     private static void initLexParser(String lang){
     	if (lang.equalsIgnoreCase("en")){
@@ -484,6 +505,7 @@ public static boolean compareListsSpan(String w1, String w2){
 	
 //	static Queue<Tree> queue = new LinkedList<Tree>() ;
 	static int i = 1;
+
 //	static TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 	
 	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
@@ -514,7 +536,14 @@ public static boolean compareListsSpan(String w1, String w2){
 	            	    
 	            	}
 	            	
-		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1));
+	            	String nodeHead = "";
+	            	nodeHead = determineHead(node);
+	       		 
+	       		 
+//	            	String head = determineHead(node);
+//	            	System.out.println("DEBUG head in traverse: "+head);
+		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead));
+		        	
 		        }
 		        i++;
 		        if(node.children() != null) 
@@ -526,4 +555,23 @@ public static boolean compareListsSpan(String w1, String w2){
 
 			return leafNumberMap;
 	}
+	
+	public static List<String> stopwordsAsList = Arrays.asList("aber","als","am","an","auch","auf","aus","bei","bin","bis","bist","da","dadurch","daher","darum","das","daß","dass","dein","deine","dem","den","der","des","dessen","deshalb","die","dies","dieser","dieses","doch","dort","du","durch","ein","eine","einem","einen","einer","eines","er","es","euer","eure","für","hatte","hatten","hattest","hattet","hier	hinter","ich","ihr","ihre","im","in","ist","ja","jede","jedem","jeden","jeder","jedes","jener","jenes","jetzt","kann","kannst","können","könnt","machen","mein","meine","mit","muß","mußt","musst","müssen","müßt","nach","nachdem","nein","nicht","nun","oder","seid","sein","seine","sich","sie","sind","soll","sollen","sollst","sollt","sonst","soweit","sowie","und","unser	unsere","unter","vom","von","vor","wann","warum","was","weiter","weitere","wenn","wer","werde","werden","werdet","weshalb","wie","wieder","wieso","wir","wird","wirst","wo","woher","wohin","zu","zum","zur","über");
+	public static String stopwords = "aber "+ "als "+ "am "+ "an "+ "auch "+ "auf "+ "aus "+ "bei "+ "bin "+ "bis "+"bist "+"da "+"dadurch "+"daher "+"darum "+"das "+"daß "+"dass "+"dein "+"deine "+"dem "+"den "+"der "+"des "+"dessen "+"deshalb "+"die "+"dies "+"dieser "+"dieses "+"doch "+"dort "+"du "+"durch "+"ein "+"eine "+"einem "+"einen "+"einer "+"eines "+"er "+"es "+"euer "+"eure "+"für "+"hatte "+"hatten "+"hattest "+"hattet "+"hier 	hinter "+"ich "+"ihr "+"ihre "+"im "+"in "+"ist "+"ja "+"jede "+"jedem "+"jeden "+"jeder "+"jedes "+"jener "+"jenes "+"jetzt "+"kann "+"kannst "+"können "+"könnt "+"machen "+"mein "+"meine "+"mit "+"muß "+"mußt "+"musst "+"müssen "+"müßt "+"nach "+"nachdem "+"nein "+"nicht "+"nun "+"oder "+"seid "+"sein "+"seine "+"sich "+"sie "+"sind "+"soll "+"sollen "+"sollst "+"sollt "+"sonst "+"soweit "+"sowie "+"und "+"unser 	unsere "+"unter "+"vom "+"von "+"vor "+"wann "+"warum "+"was "+"weiter "+"weitere "+"wenn "+"wer "+"werde "+"werden "+"werdet "+"weshalb "+"wie "+"wieder "+"wieso "+"wir "+"wird "+"wirst "+"wo "+"woher "+"wohin "+"zu "+"zum "+"zur "+"über  ";
+	
+	public static boolean isStopWord(String word){
+		if(stopwords.matches(".*\\b"+word+"\\b.*")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public static String filterStopWordsFromString(String string){
+		 for ( String stopWord : stopwordsAsList) {
+		        string = string.replaceAll("(?i)\\b[^\\w -]*" + stopWord + "[^\\w -]*\\b", "");
+		    }
+		return string;
+	}
+
 }

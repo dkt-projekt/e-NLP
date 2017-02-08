@@ -354,14 +354,14 @@ class LexParser {
     
         
         //ANKIT
-        /*//System.out.println("==========DEBUG NP HEAD PERCOLATION========");
-        String sentence = new String("Barack Obama, Präsident der U.S.A, besuchte heute Berlin.");
-        HashMap<Span, String> npHash = getNPHeads(sentence);
-        for (Span sp : npHash.keySet()){
-      	  //System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
-      	  //System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
-      	  //System.out.println("HEAD:" + npHash.get(sp));
-      	}*/
+        //System.out.println("==========DEBUG NP HEAD PERCOLATION========");
+//        String sentence = new String("Barack Obama, Präsident der U.S.A, besuchte heute Berlin.");
+//        HashMap<Span, String> npHash = getNPHeads(sentence);
+//        for (Span sp : npHash.keySet()){
+//      	  //System.out.println("NP:" + sentence.substring(sp.getStart(), sp.getEnd()));
+//      	  //System.out.println("Indices:" + sp.getStart() + "|" + sp.getEnd());
+//      	  //System.out.println("HEAD:" + npHash.get(sp));
+//      	}
        
         
         //This can count as second sieve, its the strict matching of heads and matching of stemmed heads

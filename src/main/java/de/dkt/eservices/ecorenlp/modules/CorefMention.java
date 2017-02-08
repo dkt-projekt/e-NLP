@@ -8,13 +8,32 @@ private int startIndex;
 private int endIndex; 
 private int sentenceNumber;
 private int clusterID;
+private String head;
+
+public String getHead(){
+	return this.head;
+}
+
+public void setHead(String s){
+	head = s;
+}
 
 public CorefMention(int i, String word, int j, int k) {
 	// TODO Auto-generated constructor stub
 	mentionID = i;
 	contents = word;
-	j = startIndex;
-	k = endIndex;
+	startIndex = j;
+	endIndex = k;
+}
+
+public CorefMention(int i, String word, int j, int k, String l) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	
 }
 // primitive methods
 public int getMentionID(){
@@ -84,6 +103,10 @@ public int getClusterID() {
 
 public void setClusterID(int clusterID) {
 	this.clusterID = clusterID;
+}
+
+public String toString(CorefMention mention){
+	return mention.getContents();
 }
 
 }
