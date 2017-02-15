@@ -89,7 +89,9 @@ public class Corefinizer {
 	 
 			 String sentence = entry.getValue().getText();
 			 Tree tree = lexParser.parse(sentence);
-			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree);
+			 
+			 //this is where the mentions get all the mention information 
+			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree, entry.getValue());
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
 			 
 			 //put sentence numbers into the mentions

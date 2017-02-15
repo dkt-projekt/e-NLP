@@ -508,7 +508,7 @@ public static boolean compareListsSpan(String w1, String w2){
 
 //	static TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 	
-	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
+	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree, SpanWord sentence){
 		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 		Queue<Tree> queue = new LinkedList<Tree>() ;
 
@@ -551,6 +551,8 @@ public static boolean compareListsSpan(String w1, String w2){
 	            	String nodeHead = "";
 	            	nodeHead = determineHead(node);
 	            	
+	            	
+	            	
 	       		 
 		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead, modifiers, tree));
 		        	
@@ -564,6 +566,52 @@ public static boolean compareListsSpan(String w1, String w2){
 		}
 
 			return leafNumberMap;
+	}
+	
+	public static SpanWord getWordSpans(String word, SpanWord sentence){
+		
+	 	List<Integer> pos = new ArrayList<Integer>();
+    	int counter = 0;
+    	String sent = sentence.getText();
+    	int sentenceStart = sentence.getStartSpan();
+    	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
+    		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
+    		    counter++;
+    		    while (m.find())
+    		    {
+    		        pos.add(m.start());
+    		    
+    		    }
+    		    
+    		    }
+    	
+    	
+    	SpanWord d = new SpanWord("",0,0);
+    	
+    	if(pos.size()>1){
+    		
+    		int begin = sentenceStart + pos.get(counter-1);
+        	int end = begin +word.length();
+    		d = new SpanWord(word,begin,end);
+    		wordSpans.add(d);
+    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+    		
+    	}else{
+    		String inputStr = sent;
+    	    String patternStr = word;
+    	    Pattern pattern = Pattern.compile("\\b"+patternStr+"\\b");
+    	    Matcher matcher = pattern.matcher(inputStr);
+    	    if(matcher.find()){
+    	    	int begin = sentenceStart + matcher.start();
+    	    	int end = begin +word.length();
+    	    	d = new SpanWord(word,begin,end);
+    	    	wordSpans.add(d);}
+    	    else{
+    	    	////System.out.println("Something went wrong with the matching!");
+    	    	}
+    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+    	}
+		
 	}
 	
 	public static List<String> stopwordsAsList = Arrays.asList("aber","als","am","an","auch","auf","aus","bei","bin","bis","bist","da","dadurch","daher","darum","das","daß","dass","dein","deine","dem","den","der","des","dessen","deshalb","die","dies","dieser","dieses","doch","dort","du","durch","ein","eine","einem","einen","einer","eines","er","es","euer","eure","für","hatte","hatten","hattest","hattet","hier	hinter","ich","ihr","ihre","im","in","ist","ja","jede","jedem","jeden","jeder","jedes","jener","jenes","jetzt","kann","kannst","können","könnt","machen","mein","meine","mit","muß","mußt","musst","müssen","müßt","nach","nachdem","nein","nicht","nun","oder","seid","sein","seine","sich","sie","sind","soll","sollen","sollst","sollt","sonst","soweit","sowie","und","unser	unsere","unter","vom","von","vor","wann","warum","was","weiter","weitere","wenn","wer","werde","werden","werdet","weshalb","wie","wieder","wieso","wir","wird","wirst","wo","woher","wohin","zu","zum","zur","über");
