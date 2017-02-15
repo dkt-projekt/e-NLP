@@ -517,17 +517,29 @@ public static boolean compareListsSpan(String w1, String w2){
 
 		    queue.add(tree);
 		    while(!queue.isEmpty()){
+		    	
 		    
 		        Tree node = queue.remove();
 		        
 		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
 		        if (node.label().value().equals("NP")||node.label().value().equals("PPER")){
 		        	ArrayList<String> npAsList = new ArrayList<String>();
+		        	String modifiers = "";
 		        	for (Tree it : node.flatten()){
         				if ((it.isLeaf())){
         					npAsList.add(it.pennString().trim());
         				}
+        				
+        				if(it.label().value().equals("ADJA")||it.label().value().equals("PDAT")||it.label().value().equals("PIAT")||
+        						it.label().value().equals("PIDAT")||it.label().value().equals("PPOSAT")||it.label().value().equals("PRELAT")||
+        						it.label().value().equals("PWAT")){
+        					for (Tree et : it.flatten()){
+        						if ((et.isLeaf())){
+            					modifiers = modifiers+" "+et.pennString().trim();
+            				}}
+        				}
         			}
+		        	
         		
 		        	String word = new String(); 
 	            	word =(npAsList.get(0));
@@ -538,11 +550,9 @@ public static boolean compareListsSpan(String w1, String w2){
 	            	
 	            	String nodeHead = "";
 	            	nodeHead = determineHead(node);
+	            	
 	       		 
-	       		 
-//	            	String head = determineHead(node);
-//	            	System.out.println("DEBUG head in traverse: "+head);
-		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead));
+		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead, modifiers, tree));
 		        	
 		        }
 		        i++;
@@ -572,6 +582,11 @@ public static boolean compareListsSpan(String w1, String w2){
 		        string = string.replaceAll("(?i)\\b[^\\w -]*" + stopWord + "[^\\w -]*\\b", "");
 		    }
 		return string;
+	}
+	
+	public static String findModifiers(CorefMention Mention){
+		
+		return null;
 	}
 
 }

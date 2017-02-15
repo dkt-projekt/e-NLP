@@ -1,5 +1,7 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import edu.stanford.nlp.trees.Tree;
+
 public class CorefMention {
 	
 private int mentionID;
@@ -9,6 +11,8 @@ private int endIndex;
 private int sentenceNumber;
 private int clusterID;
 private String head;
+private String modifier = null;
+private Tree sentenceAsTree;
 
 public String getHead(){
 	return this.head;
@@ -33,6 +37,29 @@ public CorefMention(int i, String word, int j, int k, String l) {
 	startIndex = j;
 	endIndex = k;
 	head = l;
+	
+}
+
+public CorefMention(int i, String word, int j, int k, String l, String m) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	modifier = m;
+	
+}
+
+public CorefMention(int i, String word, int j, int k, String l, String m, Tree n) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	modifier = m;
+	sentenceAsTree = n;
 	
 }
 // primitive methods
@@ -107,6 +134,22 @@ public void setClusterID(int clusterID) {
 
 public String toString(CorefMention mention){
 	return mention.getContents();
+}
+
+public String getModifier() {
+	return modifier;
+}
+
+public void setModifier(String modifier) {
+	this.modifier = modifier;
+}
+
+public Tree getSentenceAsTree() {
+	return sentenceAsTree;
+}
+
+public void setSentenceAsTree(Tree sentenceAsTree) {
+	this.sentenceAsTree = sentenceAsTree;
 }
 
 }

@@ -8,6 +8,8 @@ import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.tregex.TregexMatcher;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
 import edu.stanford.nlp.util.CoreMap;
 import opennlp.tools.util.Span;
 
@@ -32,6 +34,12 @@ import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 public class Corefinizer {
 	
 	 public static TreeMap<Integer, CorefCluster> clusterIdMap = new TreeMap<Integer, CorefCluster>();
+	 public static TreeMap<Integer,LinkedHashSet<CorefMention>> sentenceOrderMap = new TreeMap<Integer,LinkedHashSet <CorefMention>>();
+	 public static TreeMap<Integer,SpanWord> sentenceMap = new TreeMap<Integer,SpanWord>();
+	 
+	//start Lexical Parser out of the loop so it won't start for every sentence  
+	 public static LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+	 
 	
 	 public static void main(String[] args) throws Exception {
 		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
@@ -56,11 +64,9 @@ public class Corefinizer {
 		 SpanWord span = getDocumentSpan(inputFile);
 		 String everything = span.getText();
 		 
-		//start Lexical Parser out of the loop so it won't start for every sentence  
-		 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-		 
+		
 		 //do sentence splitting here. SentenceMap maps a sentence to its number 
-		 TreeMap<Integer,SpanWord> sentenceMap = new TreeMap<Integer,SpanWord>();
+		
 		 String sent = new String();
 		 int sentenceCounter = 1;
 		 
@@ -75,7 +81,7 @@ public class Corefinizer {
 		 }
 		 //get all the NPs and PPERs and make them into mentions. Pack the mentions in sentence-packages in the right order. 
 		 //(Walk trough the mention and make each mention its own cluster)
-		 TreeMap<Integer,LinkedHashSet<CorefMention>> sentenceOrderMap = new TreeMap<Integer,LinkedHashSet <CorefMention>>();
+		 
 		 TreeMap<Integer,LinkedHashSet<CorefCluster>> sentenceOrderMapCluster = new TreeMap<Integer, LinkedHashSet<CorefCluster>>();
 
 		 int IdCounter = 1;
@@ -251,6 +257,8 @@ public class Corefinizer {
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveTwo(array[i],array[j])){
+						  System.out.println("SIEVE TWO TRUE");
+						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
 						  //change clusterID in mention with the higher mentionID
 //						  array[i].setClusterID(array[j].getClusterID());  
@@ -281,6 +289,7 @@ public class Corefinizer {
 		 boolean second = false;
 		 boolean third = false;
 		 boolean fourth = false;
+		 boolean retVal = false;
 		
 		 
 		 //first constraint
@@ -295,11 +304,72 @@ public class Corefinizer {
 		 //second constraint
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
-		 String oneClusterContentsWithoutStopwords = sandbox.filterStopWordsFromString(oneClusterContents);
-		 String twoClusterContentsWithoutStopwords = sandbox.filterStopWordsFromString(twoClusterContents);
+		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
+		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
+		 if(!oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
+			 second = true;
+		 }
+		 
+		 //third constraint
+		 String oneModi = one.getModifier();
+		 String twoModi = two.getModifier();
+		 if (!oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
+			 third = true;
+		 }
+		 
+		 //fourth constraint
+		 if(one.getSentenceNumber()==two.getSentenceNumber()){
+			 
+			 Tree tree = one.getSentenceAsTree();
+			 
+			 String s = "NP<NP";
+			 TregexPattern p = TregexPattern.compile(s);
+			 TregexMatcher m = p.matcher(tree);
+			
+			 
+			 String particle = "";
+			 LinkedList<Tree> treeList = new LinkedList<>();
+			 LinkedList<String> particles = new LinkedList<>();
+			 LinkedList<Boolean> bools = new LinkedList<>();
+			 
+			 while(m.find()){
+			    Tree it = m.getMatch();
+			    treeList.add(it);	    	
+			 }
+//			 System.out.println("-------------------------");
+//			 treeList.forEach(treee->treee.pennPrint());
+			 
+			 for(Tree a : treeList){
+				 for (Tree et : a.flatten()){
+		    		if ((et.isLeaf())){
+		    			particle = particle+" "+et.pennString().trim();
+		    		}
+		    		
+				 }
+				 particles.add(particle);
+			 }
+			 
+			 //particles.forEach(part->System.out.println("Particle: "+part));
+			 for (String particle2 : particles){
+				 if(!particle2.trim().isEmpty()&&!(particle2.trim().contains(one.getContents())&&particle2.trim().contains(two.getContents()))){
+					 boolean bool = true;
+					 bools.add(bool);
+				 	System.out.println("one: "+one.getContents()+" two: "+two.getContents());
+				 	System.out.println("particle: "+particle);
+				 }
+			 }
+			 
+			 if(bools.size()==particles.size()){
+				 fourth = true;
+			 }
+
+		 }
+		 
+		 //test whether all constraints are fulfilled
+		 retVal = first&&second&&third&&fourth;
 		 
 		 
-		 return false;
+		 return retVal;
 	 }
 	 
 	 public static boolean sieveOne (CorefMention one, CorefMention two){
