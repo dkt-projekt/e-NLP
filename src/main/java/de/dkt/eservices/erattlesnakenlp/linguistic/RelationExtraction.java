@@ -395,14 +395,13 @@ public class RelationExtraction {
 								for (Object el : commonSynsets){
 									synonymesClusters.put((String) el, ListOfAllVerbs);
 
-								}
+								}							
+								System.out.println("SYNONYMY: " + synonymesClusters.size() + " cluster " + synonymesClusters.entries().toString());
+
 							}
-							System.out.println("SYNONYMY: " + synonymesClusters.size() + " cluster " + synonymesClusters.entries().toString());
 
 						}
 
-						//for (int i=0; i<synonymesClusters.size(); i++){
-						//}
 					}
 
 					if (!(subjectURI == null) && !(objectURI == null)){
