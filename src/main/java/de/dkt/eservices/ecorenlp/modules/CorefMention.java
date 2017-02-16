@@ -1,5 +1,7 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import edu.stanford.nlp.trees.Tree;
+
 public class CorefMention {
 	
 private int mentionID;
@@ -8,13 +10,57 @@ private int startIndex;
 private int endIndex; 
 private int sentenceNumber;
 private int clusterID;
+private String head;
+private String modifier = null;
+private Tree sentenceAsTree;
+
+public String getHead(){
+	return this.head;
+}
+
+public void setHead(String s){
+	head = s;
+}
 
 public CorefMention(int i, String word, int j, int k) {
 	// TODO Auto-generated constructor stub
 	mentionID = i;
 	contents = word;
-	j = startIndex;
-	k = endIndex;
+	startIndex = j;
+	endIndex = k;
+}
+
+public CorefMention(int i, String word, int j, int k, String l) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	
+}
+
+public CorefMention(int i, String word, int j, int k, String l, String m) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	modifier = m;
+	
+}
+
+public CorefMention(int i, String word, int j, int k, String l, String m, Tree n) {
+	// TODO Auto-generated constructor stub
+	mentionID = i;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = l;
+	modifier = m;
+	sentenceAsTree = n;
+	
 }
 // primitive methods
 public int getMentionID(){
@@ -84,6 +130,26 @@ public int getClusterID() {
 
 public void setClusterID(int clusterID) {
 	this.clusterID = clusterID;
+}
+
+public String toString(CorefMention mention){
+	return mention.getContents();
+}
+
+public String getModifier() {
+	return modifier;
+}
+
+public void setModifier(String modifier) {
+	this.modifier = modifier;
+}
+
+public Tree getSentenceAsTree() {
+	return sentenceAsTree;
+}
+
+public void setSentenceAsTree(Tree sentenceAsTree) {
+	this.sentenceAsTree = sentenceAsTree;
 }
 
 }

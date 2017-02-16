@@ -41,12 +41,24 @@ public void setFirstMention(CorefMention firstMention) {
 	this.firstMention = firstMention;
 }
 
-public String ClusterToString(){
-	String foo = "";
+public String toString(){
+	String foo = ""+this.clusterID;
 	for(CorefMention mention : corefMentions){
-		foo = foo + " "+(mention.getContents());
+		foo = foo + "; "+(mention.getContents());
 	}
 	return foo;
+}
+
+//complex functions
+
+public String getContentsOfClusterAsString(){
+	Set<CorefMention> set = this.getCorefMentions();
+	String string = "";
+	for (CorefMention a : set){
+		string = string + " "+ a.getContents();
+	}
+	return string;
+	
 }
 
 }
