@@ -92,7 +92,6 @@ import edu.mit.jverbnet.index.VerbIndex;
 public class RelationExtraction {
 	static HashMap <String, HashMap <String, String>> ListOfAllVerbs = new HashMap ();
 
-
 	static String readFile(String path, Charset encoding) 
 			throws IOException 
 	{
@@ -365,7 +364,7 @@ public class RelationExtraction {
 					/*
 					 * MultiMap, the key is the common synset entry; 
 					 */
-					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymesClusters = ArrayListMultimap.create();
+					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClusters = ArrayListMultimap.create();
 
 
 					for (WordLemmaTag SentenceList : tlSentence){
@@ -374,31 +373,31 @@ public class RelationExtraction {
 
 							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
 							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-							HashMap <String, String> assignedRolesList= new HashMap();
-							Collection commonSynsets = null;
 
-							System.out.println("LIST size: " + ListOfAllVerbs.size());
+							HashMap <String, String> assignedRolesList= new HashMap();
+							Collection<String> commonSynsets = null;
+
+
+							//System.out.println("LIST size: " + ListOfAllVerbs.size());
 							if (ListOfAllVerbs.size()!=0){
 
 								for ( String element: ListOfAllVerbs.keySet()){
-									
 									commonSynsets = WordnetConnector.compare2VerbsSynsets(relationLemma, element, pathToVerbnet);
-								System.out.println("element "  + element + " common synsets value: " + commonSynsets + " " + WordnetConnector.compare2VerbsSynsets(relationLemma, element, pathToVerbnet));
+									
+									if (!commonSynsets.isEmpty()){
+										HashMap<String, HashMap<String, String>> verbRolesList1 = new HashMap ();
+										HashMap<String, HashMap<String, String>> verbRolesList2 = new HashMap ();
+									//	verbRolesList1.put(relationLemma, assignedRolesList.put(key, value))
+									//	synonymsClusters.put(commonSynsets.toString(), );
+										System.out.println("SYNONYMY: " + synonymsClusters.size() + " cluster " + synonymsClusters.entries().toString());
+									}
 								}
+
 							}
 							assignedRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
 							ListOfAllVerbs.put(relationLemma, assignedRolesList);
 							HashMap <String, HashMap <String, String>> verbAssignedRolesList = new HashMap();
 
-							if (!commonSynsets.equals(null)){
-								//Each of the synset intersection's entries is added to an array separately; there might be some other verbs that they do have in common
-								for (Object el : commonSynsets){
-									synonymesClusters.put((String) el, ListOfAllVerbs);
-
-								}							
-								System.out.println("SYNONYMY: " + synonymesClusters.size() + " cluster " + synonymesClusters.entries().toString());
-
-							}
 
 						}
 
