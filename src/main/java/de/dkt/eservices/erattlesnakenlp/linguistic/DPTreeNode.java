@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class DPTreeNode {
 	public String value;
 	public IndexedWord indexedWord;
 	public List<DPTreeNode> childs;
-	
+
 	public DPTreeNode(String value) {
 		this.value = value;
 		childs = new LinkedList<DPTreeNode>();
@@ -33,7 +34,7 @@ public class DPTreeNode {
 		this.value = value;
 		this.childs = new LinkedList<DPTreeNode>();
 	}
-	
+
 	public DPTreeNode(DPTreeNode parent, String relationsValue, String word, IndexedWord iw) {
 		super();
 		this.parent = parent;
@@ -42,6 +43,16 @@ public class DPTreeNode {
 		this.indexedWord = iw;
 		this.childs = new LinkedList<DPTreeNode>();
 	}
+
+	
+	 public List<DPTreeNode> getChilds(){
+	        return childs;
+	     }
+
+	     public void setChildren( LinkedList<DPTreeNode> childs ){
+	        this.childs = childs;
+	     }
+
 	
 	public void printByLevel(String indent1,String indent){
 		System.out.println(indent1+value+" ["+relation+"]");
@@ -49,40 +60,61 @@ public class DPTreeNode {
 			treeNode.printByLevel(indent1+indent,indent);
 		}
 	}
-	
 
-	
-	
-	
-	
-	public DPTreeNode getShortestPath(String s1, String s2, List<DPTreeNode> list){
-//		System.out.println("Checking: "+value+" ["+relation+"]");
-			List<DPTreeNode> listnew = new LinkedList<DPTreeNode>();
-			for (DPTreeNode treeNode : childs) {
-				listnew = new LinkedList<DPTreeNode>();
-				DPTreeNode aux = treeNode.getShortestPath(s1,s2,listnew);
-				
-				if(aux!=null){
-//					System.out.println("\tBack: "+aux.value+" ["+aux.relation+"]");
-			//		System.out.println("aux + parent : " + aux.value.toString() + " " + aux.parent.value.toString());
-					return aux;
-					
-				}
-//				if(checklist(s1,s2,listnew)){
-//					return treeNode;
-//				}
-				list.addAll(listnew);
-//				System.out.println("\tBack: NULL");
-			}
-			if(value.equalsIgnoreCase(s1) || value.equalsIgnoreCase(s2)){
-//				System.out.println("\tAdding: "+value+" ["+relation+"]");
-				list.add(this);
-			}
-			if(checklist(s1,s2,list)){
-				return this;
-			}
-			return null;
+	public DPTreeNode getChildNode(String governor){
+		for (DPTreeNode treeNode : childs) {
+			System.out.println("treeNode" + treeNode.value + " " + treeNode.relation);
+			DPTreeNode aux = treeNode.getChildNode(governor);
+			System.out.println("aux node" + aux);
+			if (aux.equals("from")){
+				return aux;
+			} 
+		}
+		
+		return null;
 	}
+
+
+
+
+
+	public DPTreeNode getShortestPath(String s1, String s2, List<DPTreeNode> list){
+		//		System.out.println("Checking: "+value+" ["+relation+"]");
+		List<DPTreeNode> listnew = new LinkedList<DPTreeNode>();
+		for (DPTreeNode treeNode : childs) {
+			listnew = new LinkedList<DPTreeNode>();
+			DPTreeNode aux = treeNode.getShortestPath(s1,s2,listnew);
+
+			if(aux!=null){
+				//					System.out.println("\tBack: "+aux.value+" ["+aux.relation+"]");
+				//		System.out.println("aux + parent : " + aux.value.toString() + " " + aux.parent.value.toString());
+				return aux;
+
+			}
+			//				if(checklist(s1,s2,listnew)){
+			//					return treeNode;
+			//				}
+			list.addAll(listnew);
+			//				System.out.println("\tBack: NULL");
+		}
+		if(value.equalsIgnoreCase(s1) || value.equalsIgnoreCase(s2)){
+			//				System.out.println("\tAdding: "+value+" ["+relation+"]");
+			list.add(this);
+		}
+		if(checklist(s1,s2,list)){
+			return this;
+		}
+		return null;
+	}
+
+
+
+
+
+
+
+
+
 
 	public boolean checklist(String s1,String s2,List<DPTreeNode> list){
 		boolean has1 = false;
@@ -97,7 +129,7 @@ public class DPTreeNode {
 		}
 		return (has1 && has2);
 	}
-	
+
 	public DPTreeNode getPath(String s){
 		if(value.equalsIgnoreCase(s)){
 			return this;
@@ -112,7 +144,7 @@ public class DPTreeNode {
 			return null;
 		}
 	}
-	
-	
-	
+
+
+
 }

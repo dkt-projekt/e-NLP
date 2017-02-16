@@ -76,15 +76,11 @@
 			<artifactId>liblinear</artifactId>
 			<version>1.95</version>
 		</dependency>
+
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>21.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.didion.jwnl</groupId>
+			<groupId>net.sf.jwordnet</groupId>
 			<artifactId>jwnl</artifactId>
-			<version>1.4.0.rc2</version>
+			<version>1.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -92,32 +88,40 @@
 			<version>1.1.3</version>
 		</dependency>
 
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>21.0</version>
+		</dependency>
+
+
 	</dependencies>
 	<repositories>
-		  <repository>
-		    <id>maven-new-server-releases</id>
-		    <url>https://dev.digitale-kuratierung.de/nexus/repository/maven-releases/</url>
+		<repository>
+			<id>maven-new-server-releases</id>
+			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-releases/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		  </repository>
-		  <repository>
-		    <id>maven-new-server</id>
-    		<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-snapshots/</url>
+		</repository>
+		<repository>
+			<id>maven-new-server</id>
+			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-snapshots/</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		  </repository>
+		</repository>
 	</repositories>
 	<distributionManagement>
 		<repository>
 			<id>maven-new-server-releases</id>
-<!-- 			<url>http://v35731.1blu.de:8081/nexus/content/repositories/releases</url> -->
+			<!-- <url>http://v35731.1blu.de:8081/nexus/content/repositories/releases</url> -->
 			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>maven-new-server</id>
-<!--			<url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url> -->
+			<!-- <url>http://v35731.1blu.de:8081/nexus/content/repositories/snapshots</url> -->
 			<url>https://dev.digitale-kuratierung.de/nexus/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
