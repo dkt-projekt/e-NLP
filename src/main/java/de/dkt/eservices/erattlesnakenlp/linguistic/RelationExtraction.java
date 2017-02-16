@@ -394,7 +394,7 @@ public class RelationExtraction {
 									}
 								}
 
-							}
+							} 
 							assignedRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
 							ListOfAllVerbs.put(relationLemma, assignedRolesList);
 							HashMap <String, HashMap <String, String>> verbAssignedRolesList = new HashMap();
