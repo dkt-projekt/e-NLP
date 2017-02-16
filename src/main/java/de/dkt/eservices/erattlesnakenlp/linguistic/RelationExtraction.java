@@ -364,8 +364,9 @@ public class RelationExtraction {
 					/*
 					 * MultiMap, the key is the common synset entry; 
 					 */
-					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClusters = ArrayListMultimap.create();
-
+					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClustersAllInfo = ArrayListMultimap.create();
+					HashMap <String, HashMap<String, String>>  synonymsClusters = new HashMap ();
+				//	HashMap<String, String> verbPair 
 
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement.word())){
@@ -388,8 +389,8 @@ public class RelationExtraction {
 										HashMap<String, HashMap<String, String>> verbRolesList1 = new HashMap ();
 										HashMap<String, HashMap<String, String>> verbRolesList2 = new HashMap ();
 									//	verbRolesList1.put(relationLemma, assignedRolesList.put(key, value))
-									//	synonymsClusters.put(commonSynsets.toString(), );
-										System.out.println("SYNONYMY: " + synonymsClusters.size() + " cluster " + synonymsClusters.entries().toString());
+								//		synonymsClusters.put(commonSynsets.toString(), relationLemma, element );
+									//	System.out.println("SYNONYMY: " + synonymsClusters.size() + " cluster " + synonymsClusters.entries().toString());
 									}
 								}
 
