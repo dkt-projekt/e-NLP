@@ -172,7 +172,7 @@ public class RelationExtraction {
 
 
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
-					System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object);
+				//	System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object);
 					String subjectURI = null;
 					String objectURI = null;
 					int subjectStart = tagged.get(subject.index()-1).beginPosition();
@@ -315,10 +315,10 @@ public class RelationExtraction {
 									//BUT they are not necessary  arguments (i.e. temporal expressions)
 									if (allVerbDependenciesList.size()>2 && englishIndirectObjectRelationTypesExtended.contains(td.reln().toString())){
 
-										System.out.println("Sentence: " + sentence);
-										System.out.println("verb dependencies' list + " +allVerbDependenciesList.size() + " " + td);
+//										System.out.println("Sentence: " + sentence);
+//										System.out.println("verb dependencies' list + " +allVerbDependenciesList.size() + " " + td);
+//										System.out.println("IOBJ found " + td.reln());
 
-										System.out.println("IOBJ found " + td.reln());
 										iobjectsDependency = td.reln().toString();
 
 									}
@@ -360,45 +360,49 @@ public class RelationExtraction {
 					String subjectThemRole = null;
 					String objectThemRole = null;
 
-
+					////////////////////////////////////////////////////////////////////////////
 					/*
 					 * MultiMap, the key is the common synset entry; 
 					 */
-					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClustersAllInfo = ArrayListMultimap.create();
-					HashMap <String, HashMap<String, String>>  synonymsClusters = new HashMap ();
-				//	HashMap<String, String> verbPair 
+					//					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClustersAllInfo = ArrayListMultimap.create();
+										HashMap <String, HashMap<String, String>>  synonymsClusters = new HashMap ();
+
+					////////////////////////////////////////////////////////////////////////////
+
 
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement.word())){
 							relationLemma = SentenceList.lemma();
 
 							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
-							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-
-							HashMap <String, String> assignedRolesList= new HashMap();
+							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
+							
+							if (thetaRolesList.size()>0){
+								subjectThemRole = thetaRolesList.get(0);
+								objectThemRole = thetaRolesList.get(1);
+								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
+							}
 							Collection<String> commonSynsets = null;
 
 
-							//System.out.println("LIST size: " + ListOfAllVerbs.size());
 							if (ListOfAllVerbs.size()!=0){
 
 								for ( String element: ListOfAllVerbs.keySet()){
 									commonSynsets = WordnetConnector.compare2VerbsSynsets(relationLemma, element, pathToVerbnet);
-									
+
 									if (!commonSynsets.isEmpty()){
-										HashMap<String, HashMap<String, String>> verbRolesList1 = new HashMap ();
-										HashMap<String, HashMap<String, String>> verbRolesList2 = new HashMap ();
-									//	verbRolesList1.put(relationLemma, assignedRolesList.put(key, value))
-								//		synonymsClusters.put(commonSynsets.toString(), relationLemma, element );
-									//	System.out.println("SYNONYMY: " + synonymsClusters.size() + " cluster " + synonymsClusters.entries().toString());
+
+										//	verbRolesList1.put(relationLemma, assignedRolesList.put(key, value))
+											//	synonymsClusters.put(commonSynsets.toString(), relationLemma, element );
+										//	System.out.println("SYNONYMY: " + synonymsClusters.size() + " cluster " + synonymsClusters.entries().toString());
 									}
 								}
 
 							} 
-							assignedRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-							ListOfAllVerbs.put(relationLemma, assignedRolesList);
-							HashMap <String, HashMap <String, String>> verbAssignedRolesList = new HashMap();
-
+							//							LinkedList<String> assignedRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
+							//							ListOfAllVerbs.put(relationLemma, assignedRolesList);
+							//							HashMap <String, HashMap <String, String>> verbAssignedRolesList = new HashMap();
+							//
 
 						}
 
@@ -408,10 +412,7 @@ public class RelationExtraction {
 						EntityRelationTriple t = new EntityRelationTriple();
 						//t.setSubject(String.format("%s(%s)", subject, subjectURI));
 						t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
-						//	t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma).concat(" ").concat(wordnetInformationSet));
-
 						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma));
-
 						//t.setObject(String.format("%s(%s)", object, objectURI));
 						t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
 						ert.add(t);
@@ -419,6 +420,12 @@ public class RelationExtraction {
 				}
 			}
 		}
+		return ert;
+	}
+	
+	public static ArrayList <EntityRelationTriple> getSynonymRelationTriples (){
+		ArrayList<EntityRelationTriple> ert = new ArrayList ();
+		
 		return ert;
 	}
 
@@ -762,7 +769,7 @@ public class RelationExtraction {
 		for (File f : df.listFiles()) {
 			c += 1;
 			String fileContent;
-			System.out.println("Processing file: " + f.getName());
+			//System.out.println("Processing file: " + f.getName());
 			try {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
@@ -771,6 +778,7 @@ public class RelationExtraction {
 
 				for (EntityRelationTriple t : ert) {
 					masterList.add(t);
+					System.out.println("Triple: " +t);
 				}
 
 			} catch (Exception e) {

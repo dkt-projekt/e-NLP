@@ -21,8 +21,9 @@ public class VerbnetConnector {
 	}
 
 
-	public static HashMap<String, String> assignThetaRoles (IndexedWord subject, IndexedWord object, String objectsDependency, String relationLemma, String pathToVerbnet  ) throws IOException {
-		HashMap <String, String> assignedRolesList = new HashMap ();
+	public static LinkedList<String> assignThetaRoles (IndexedWord subject, IndexedWord object, String objectsDependency, String relationLemma, String pathToVerbnet  ) throws IOException {
+		LinkedList<String> assignedRolesList = new LinkedList ();
+
 		String subjectThemRole;
 		String objectThemRole;
 
@@ -44,8 +45,8 @@ public class VerbnetConnector {
 					subjectThemRole = value.get(0).keySet().toString();
 					objectThemRole = value.get(1).keySet().toString();
 					
-					assignedRolesList.put(subject.toString(), subjectThemRole);
-					assignedRolesList.put(object.toString(), objectThemRole);
+					assignedRolesList.add(subjectThemRole);
+					assignedRolesList.add(objectThemRole);
 
 
 					System.out.println("CASE 1: them role " +  subjectThemRole + " dobj " + objectThemRole);
@@ -76,30 +77,29 @@ public class VerbnetConnector {
 					 * TODO: extend --> "in" -> location/time ...
 					 */
 					if (object.tag().equals("IN")){
-
-						assignedRolesList.put(subject.toString(), subjectThemRole);
-						assignedRolesList.put(object.toString(), objectThemRole);
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
 						
 						System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					else if(object.tag().equals("TO") & value.get(2).keySet().equals("[G]") || value.get(2).keySet().equals("[D]") ){
 						
-						assignedRolesList.put(subject.toString(), subjectThemRole);
-						assignedRolesList.put(object.toString(), objectThemRole);
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
 						
 						System.out.println("CASE 3: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					else if (objectThemRole.equals(null)){
-						assignedRolesList.put(subject.toString(), subjectThemRole);
-						assignedRolesList.put(object.toString(), "0");
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add("0");
 					}
 					else {
 						System.out.println("print TAGS " + object.tag() );
 												
-						assignedRolesList.put(subject.toString(), subjectThemRole);
-						assignedRolesList.put(object.toString(), objectThemRole);
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
 						
 						System.out.println("CASE 4: them role " + subjectThemRole + " nmod " + objectThemRole);
 
@@ -109,66 +109,19 @@ public class VerbnetConnector {
 			}
 		}
 
-		else if (objectsDependency.equals("iobj") & FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
-			List<LinkedList<HashMap<String, String>>> keySetFrameArguments = FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
-			//System.out.println(getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).keySet().toString() + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString());
-			//	subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(0).get(0).;
-			//	objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1).get(1).keySet().toString();
+		//else if (objectsDependency.equals("iobj") & FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+//		else {
+//			subjectThemRole = "0";
+//			objectThemRole = "0";
+//			assignedRolesList.add(subjectThemRole);
+//			assignedRolesList.add(objectThemRole);
+//		}
 
-			//	System.out.println("CASE 2" + relationLemma + " " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
-			subjectThemRole = "0";
-			objectThemRole = "0";
-			
-			assignedRolesList.put(subject.toString(), subjectThemRole);
-			assignedRolesList.put(object.toString(), objectThemRole);
-
-			for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
-
-				//		System.out.println("first element "  +keySetFrameArguments.get(1).getFirst());
-
-				//System.out.print(value.get(1).values());
-				//	System.out.print(" themrole" + value.get(1).keySet());
-				//	System.out.print(value.get(0).values());
-				//	System.out.print(" themrole" + value.get(0).keySet());
-
-			}
-		}
-
-		else if (FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
-			List<LinkedList<HashMap<String, String>>> keySetFrameArguments = FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2);
-			System.out.println(relationLemma + " " + FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2) + " them role dobj:" + FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
-			
-			subjectThemRole = "0";
-			objectThemRole = "0";
-			assignedRolesList.put(subject.toString(), subjectThemRole);
-			assignedRolesList.put(object.toString(), objectThemRole);
-
-			for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
-				//		System.out.print(value.get(2).values());
-				//	System.out.print(" themrole" + value.get(2).keySet());
-				//System.out.print(value.get(1).values());
-				//System.out.print(" themrole" + value.get(1).keySet());
-				//	System.out.print(value.get(0).values());
-				//System.out.print(" themrole" + value.get(0).keySet());
-
-			}
-
-
-			// subjectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(0).keySet().toString();
-			// objectThemRole = getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).get(2).keySet().toString();
-			//System.out.println("argument options " + getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2).getLast().keySet());							
-		}
-		else {
-			subjectThemRole = "0";
-			objectThemRole = "0";
-			assignedRolesList.put(subject.toString(), subjectThemRole);
-			assignedRolesList.put(object.toString(), objectThemRole);
-		}
-
-
+		//else if (FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(2)!= null){
+		
+	
 		return assignedRolesList;
 	}
-
-
+	
 
 }
