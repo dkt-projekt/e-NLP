@@ -748,7 +748,7 @@ public class RelationExtraction {
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\artComSampleFilesDBPediaTimeouts\\outputNifs";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\artComSampleFilesDBPediaTimeouts\\nifsCorefinized";
-		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
+		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
 
 
 		File df = new File(docFolder);
