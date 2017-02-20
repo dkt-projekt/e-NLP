@@ -60,6 +60,8 @@ import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.SemanticHeadFinder;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
+import edu.stanford.nlp.trees.tregex.TregexMatcher;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 import edu.stanford.nlp.trees.Tree;
@@ -519,23 +521,28 @@ public static boolean compareListsSpan(String w1, String w2){
 
 		    if (tree == null)
 		        return null;
+		    
+			 
 
 		    queue.add(tree);
 		    while(!queue.isEmpty()){
 		    	
-		    
 		        Tree node = queue.remove();
 		        
+		        String s = "NP<PPER";
+		        TregexPattern p = TregexPattern.compile(s);
+		        TregexMatcher m = p.matcher(node);
+		        
+		        m.find();
+		        
 		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
-		        if (node.label().value().equals("NP")||node.label().value().equals("PPER")){
+		        if ((node.label().value().equals("NP")||node.label().value().equals("PPER"))&&(m.getMatch()== null)){
 		        //if (node.label().value().equals("NP")){
 		        	ArrayList<String> npAsList = new ArrayList<String>();
 		        	String modifiers = "";
 		        	for (Tree it : node.flatten()){
         				if ((it.isLeaf())){
         					npAsList.add(it.pennString().trim());
-        					System.out.println("DEBUG intermediate Tree: ");
-        					it.pennPrint();
         				}
         				
         				if(it.label().value().equals("ADJA")||it.label().value().equals("PDAT")||it.label().value().equals("PIAT")||

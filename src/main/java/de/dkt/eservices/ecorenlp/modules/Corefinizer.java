@@ -46,8 +46,8 @@ public class Corefinizer {
 	 
 	
 	 public static void main(String[] args) throws Exception {
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 
 	  }
