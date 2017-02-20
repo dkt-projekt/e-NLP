@@ -513,8 +513,8 @@ public static boolean compareListsSpan(String w1, String w2){
 	
 	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		
-		System.out.println("DEBUG Tree: ");
-		tree.pennPrint();
+//		System.out.println("DEBUG Tree: ");
+//		tree.pennPrint();
 		
 		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 		Queue<Tree> queue = new LinkedList<Tree>() ;
@@ -583,16 +583,16 @@ public static boolean compareListsSpan(String w1, String w2){
 			return leafNumberMap;
 	}
 	
-	public static List<SpanWord> getWordSpans(LinkedHashSet<CorefMention> mentions, SpanWord sentence){
-		for (CorefMention m : mentions){
-			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
-		}
-		System.out.println("--------------------------------------------");
-		List<SpanWord>	wordSpans = new ArrayList<>();
+	public static LinkedHashSet<SpanWord> getWordSpans(LinkedHashSet<CorefMention> mentions, SpanWord sentence){
+//		for (CorefMention m : mentions){
+//			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
+//		}
+		//System.out.println("--------------------------------------------");
+		LinkedHashSet<SpanWord>	wordSpans = new LinkedHashSet<>();
 		int counter = 0;
 		
 		for (CorefMention mention : mentions){
-			System.out.println("mention: "+mention.getContents());
+//			System.out.println("mention: "+mention.getContents());
 		String word = mention.getContents();
 	 	List<Integer> pos = new ArrayList<>();
 
@@ -601,13 +601,13 @@ public static boolean compareListsSpan(String w1, String w2){
     	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
     		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
     		    counter++;
-    		    System.out.println("counter in first loop: "+counter+ " word: "+word);
+    		   // System.out.println("counter in first loop: "+counter+ " word: "+word);
     		    while (m.find())
     		    {
     		        pos.add(m.start());
     		    
     		    }
-    		    System.out.println("Size pos: "+pos.size());
+    		   // System.out.println("Size pos: "+pos.size());
     		    
     		    }
     	
@@ -617,11 +617,11 @@ public static boolean compareListsSpan(String w1, String w2){
     	if(pos.size()>1){
     		
     		int begin = sentenceStart + pos.get(counter-1);
-    		System.out.println("int : "+begin);
+    		//System.out.println("int : "+begin);
         	int end = begin +word.length();
     		d = new SpanWord(word,begin,end);
     		wordSpans.add(d);
-    		System.out.println("BINGO! "+word+" "+begin+" "+end);
+    		//System.out.println("BINGO! "+word+" "+begin+" "+end);
 //    		for (int i : pos){
 //    			System.out.println("counter :"+counter);
 //    			System.out.println("contents of pos: "+i);

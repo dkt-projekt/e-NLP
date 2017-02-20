@@ -39,7 +39,7 @@ public class Corefinizer {
 	 public static TreeMap<Integer, CorefCluster> clusterIdMap = new TreeMap<Integer, CorefCluster>();
 	 public static TreeMap<Integer,LinkedHashSet<CorefMention>> sentenceOrderMap = new TreeMap<Integer,LinkedHashSet <CorefMention>>();
 	 public static TreeMap<Integer,SpanWord> sentenceMap = new TreeMap<Integer,SpanWord>();
-	 public static TreeMap<Integer,List<SpanWord>> wordSpanMap = new TreeMap<>();
+	 public static TreeMap<Integer,LinkedHashSet<SpanWord>> wordSpanMap = new TreeMap<>();
 	 
 	//start Lexical Parser out of the loop so it won't start for every sentence  
 	 public static LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
@@ -119,10 +119,29 @@ public class Corefinizer {
 			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree);
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
 			 
+			 //maybe here the word spans?
+			 LinkedHashSet<SpanWord> indexedWords = sandbox.getWordSpans(orderedValues, entry.getValue());
+			 LinkedHashSet<CorefMention> newOrderedValues = new LinkedHashSet<>();
+			 
+			 if(orderedValues.size()==indexedWords.size()){
+				 CorefMention[] corefArray = new CorefMention[orderedValues.size()];
+				 SpanWord[]	spanArray = new SpanWord[orderedValues.size()];
+				 orderedValues.toArray(corefArray);
+				 indexedWords.toArray(spanArray);
+				 for (int i = 0; i<orderedValues.size(); i++){
+					 corefArray[i].setStartIndex(spanArray[i].getStartSpan());
+					 corefArray[i].setEndIndex(spanArray[i].getEndSpan());
+					 newOrderedValues.add(corefArray[i]);
+				 }
+			 }else{
+				 System.out.println("Something went wrong with the indexing!!!");
+			 }
+			 
 			 //put sentence numbers and indexes into the mentions
-			 for (CorefMention ment : orderedValues){
+			 for (CorefMention ment : newOrderedValues){
 				ment.setSentenceNumber(entry.getKey());
 			 }
+			
 			 
 			 sentenceOrderMap.put(entry.getKey(),orderedValues);
 			
@@ -150,10 +169,17 @@ public class Corefinizer {
 			 sentenceOrderMapCluster.put(entry.getKey(), orderedClusters);
 			 wordSpanMap.put(entry.getKey(), sandbox.getWordSpans(mentionSet, entry.getValue()));
 			 
-//			 for (Entry<Integer,List<SpanWord>> f : wordSpanMap.entrySet()){
+//			 for (Entry<Integer,LinkedHashSet<SpanWord>> f : wordSpanMap.entrySet()){
 //				 System.out.println("word spans: ");
 //				 for (SpanWord word : f.getValue()){
 //					 System.out.println(word.getText()+ " "+word.getStartSpan()+" "+ word.getEndSpan());
+//				 }
+//			 }
+			 
+//			 for(Entry<Integer,LinkedHashSet<CorefMention>> ment : sentenceOrderMap.entrySet()){
+//				 System.out.println("----------------------------------------------------------");
+//				 for(CorefMention c : ment.getValue()){
+//					 System.out.println(c.getContents()+" index: "+c.getStartIndex()+"-"+c.getEndIndex());
 //				 }
 //			 }
 		 } 
@@ -294,8 +320,8 @@ public class Corefinizer {
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveTwo(array[i],array[j])){
-//						  System.out.println("SIEVE TWO TRUE");
-//						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
+						  System.out.println("SIEVE TWO TRUE");
+						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
 						  //change clusterID in mention with the higher mentionID
 //						  array[i].setClusterID(array[j].getClusterID());  
@@ -355,52 +381,64 @@ public class Corefinizer {
 		 }
 		 
 		 //fourth constraint
+//		 if(one.getSentenceNumber()==two.getSentenceNumber()){
+//			 
+//			 Tree tree = one.getSentenceAsTree();
+//			 
+//			 String s = "NP<NP";
+//			 TregexPattern p = TregexPattern.compile(s);
+//			 TregexMatcher m = p.matcher(tree);
+//			
+//			 
+//			 String particle = "";
+//			 LinkedList<Tree> treeList = new LinkedList<>();
+//			 LinkedList<String> particles = new LinkedList<>();
+//			 LinkedList<Boolean> bools = new LinkedList<>();
+//			 
+//			 while(m.find()){
+//			    Tree it = m.getMatch();
+//			    treeList.add(it);	    	
+//			 }
+////			 System.out.println("-------------------------");
+////			 treeList.forEach(treee->treee.pennPrint());
+//			 
+//			 for(Tree a : treeList){
+//				 for (Tree et : a.flatten()){
+//		    		if ((et.isLeaf())){
+//		    			particle = particle+" "+et.pennString().trim();
+//		    		}
+//		    		
+//				 }
+//				 particles.add(particle);
+//			 }
+//			 
+//			 //particles.forEach(part->System.out.println("Particle: "+part));
+//			 for (String particle2 : particles){
+//				 if(!particle2.trim().isEmpty()&&!(particle2.trim().contains(one.getContents())&&particle2.trim().contains(two.getContents()))){
+//					 boolean bool = true;
+//					 bools.add(bool);
+////				 	System.out.println("one: "+one.getContents()+" two: "+two.getContents());
+////				 	System.out.println("particle: "+particle);
+//				 }
+//			 }
+//			 
+//			 if(bools.size()==particles.size()){
+//				 fourth = true;
+//			 }
+//
+//		 }
+		 
+		 //fourth constraint without Tgrep, but with indexes instead
 		 if(one.getSentenceNumber()==two.getSentenceNumber()){
-			 
-			 Tree tree = one.getSentenceAsTree();
-			 
-			 String s = "NP<NP";
-			 TregexPattern p = TregexPattern.compile(s);
-			 TregexMatcher m = p.matcher(tree);
-			
-			 
-			 String particle = "";
-			 LinkedList<Tree> treeList = new LinkedList<>();
-			 LinkedList<String> particles = new LinkedList<>();
-			 LinkedList<Boolean> bools = new LinkedList<>();
-			 
-			 while(m.find()){
-			    Tree it = m.getMatch();
-			    treeList.add(it);	    	
-			 }
-//			 System.out.println("-------------------------");
-//			 treeList.forEach(treee->treee.pennPrint());
-			 
-			 for(Tree a : treeList){
-				 for (Tree et : a.flatten()){
-		    		if ((et.isLeaf())){
-		    			particle = particle+" "+et.pennString().trim();
-		    		}
-		    		
-				 }
-				 particles.add(particle);
-			 }
-			 
-			 //particles.forEach(part->System.out.println("Particle: "+part));
-			 for (String particle2 : particles){
-				 if(!particle2.trim().isEmpty()&&!(particle2.trim().contains(one.getContents())&&particle2.trim().contains(two.getContents()))){
-					 boolean bool = true;
-					 bools.add(bool);
-//				 	System.out.println("one: "+one.getContents()+" two: "+two.getContents());
-//				 	System.out.println("particle: "+particle);
-				 }
-			 }
-			 
-			 if(bools.size()==particles.size()){
+//			 if(!(one.getStartIndex()==two.getStartIndex()||one.getEndIndex()==two.getEndIndex())){
+//				 fourth = true;
+//			 }
+			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
+					 ||(one.getStartIndex()<=two.getStartIndex()&&one.getEndIndex()>=two.getEndIndex()))){
 				 fourth = true;
 			 }
-
 		 }
+		 
 		 
 		 //test whether all constraints are fulfilled
 		 retVal = first&&second&&third&&fourth;
