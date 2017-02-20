@@ -118,11 +118,10 @@ public class DepParserTree {
 			System.out.println(allVerbDependenciesList.size() + " SIZE ");
 			Iterator<TypedDependency> dependencyListIterator = allVerbDependenciesList.iterator();
 
-			while(dependencyListIterator.hasNext()){
-				System.out.println("next element iterator: " + dependencyListIterator.next());
-			}
+			//tree.getChildElement("time");
 
-
+			System.out.println("children: " + tree.childs.size() + " " + tree.getChilds().get(0).toString() + " " + tree.getChilds().get(0).relation );
+			tree.getChildNode("midnight");
 
 		}
 
