@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.util.Map;
@@ -508,7 +509,11 @@ public static boolean compareListsSpan(String w1, String w2){
 
 //	static TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 	
-	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree, SpanWord sentence){
+	public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
+		
+		System.out.println("DEBUG Tree: ");
+		tree.pennPrint();
+		
 		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 		Queue<Tree> queue = new LinkedList<Tree>() ;
 
@@ -523,11 +528,14 @@ public static boolean compareListsSpan(String w1, String w2){
 		        
 		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
 		        if (node.label().value().equals("NP")||node.label().value().equals("PPER")){
+		        //if (node.label().value().equals("NP")){
 		        	ArrayList<String> npAsList = new ArrayList<String>();
 		        	String modifiers = "";
 		        	for (Tree it : node.flatten()){
         				if ((it.isLeaf())){
         					npAsList.add(it.pennString().trim());
+        					System.out.println("DEBUG intermediate Tree: ");
+        					it.pennPrint();
         				}
         				
         				if(it.label().value().equals("ADJA")||it.label().value().equals("PDAT")||it.label().value().equals("PIAT")||
@@ -568,20 +576,31 @@ public static boolean compareListsSpan(String w1, String w2){
 			return leafNumberMap;
 	}
 	
-	public static SpanWord getWordSpans(String word, SpanWord sentence){
+	public static List<SpanWord> getWordSpans(LinkedHashSet<CorefMention> mentions, SpanWord sentence){
+		for (CorefMention m : mentions){
+			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
+		}
+		System.out.println("--------------------------------------------");
+		List<SpanWord>	wordSpans = new ArrayList<>();
+		int counter = 0;
 		
-	 	List<Integer> pos = new ArrayList<Integer>();
-    	int counter = 0;
+		for (CorefMention mention : mentions){
+			System.out.println("mention: "+mention.getContents());
+		String word = mention.getContents();
+	 	List<Integer> pos = new ArrayList<>();
+
     	String sent = sentence.getText();
     	int sentenceStart = sentence.getStartSpan();
     	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
     		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
     		    counter++;
+    		    System.out.println("counter in first loop: "+counter+ " word: "+word);
     		    while (m.find())
     		    {
     		        pos.add(m.start());
     		    
     		    }
+    		    System.out.println("Size pos: "+pos.size());
     		    
     		    }
     	
@@ -591,9 +610,15 @@ public static boolean compareListsSpan(String w1, String w2){
     	if(pos.size()>1){
     		
     		int begin = sentenceStart + pos.get(counter-1);
+    		System.out.println("int : "+begin);
         	int end = begin +word.length();
     		d = new SpanWord(word,begin,end);
     		wordSpans.add(d);
+    		System.out.println("BINGO! "+word+" "+begin+" "+end);
+//    		for (int i : pos){
+//    			System.out.println("counter :"+counter);
+//    			System.out.println("contents of pos: "+i);
+//    		}
     		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
     		
     	}else{
@@ -610,7 +635,10 @@ public static boolean compareListsSpan(String w1, String w2){
     	    	////System.out.println("Something went wrong with the matching!");
     	    	}
     		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+    	   
     	}
+    	}
+		return wordSpans;
 		
 	}
 	

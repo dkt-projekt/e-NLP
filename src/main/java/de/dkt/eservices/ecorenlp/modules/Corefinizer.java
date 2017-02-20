@@ -7,6 +7,7 @@ import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -15,11 +16,13 @@ import opennlp.tools.util.Span;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -36,13 +39,15 @@ public class Corefinizer {
 	 public static TreeMap<Integer, CorefCluster> clusterIdMap = new TreeMap<Integer, CorefCluster>();
 	 public static TreeMap<Integer,LinkedHashSet<CorefMention>> sentenceOrderMap = new TreeMap<Integer,LinkedHashSet <CorefMention>>();
 	 public static TreeMap<Integer,SpanWord> sentenceMap = new TreeMap<Integer,SpanWord>();
+	 public static TreeMap<Integer,List<SpanWord>> wordSpanMap = new TreeMap<>();
 	 
 	//start Lexical Parser out of the loop so it won't start for every sentence  
 	 public static LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
 	 
 	
 	 public static void main(String[] args) throws Exception {
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 
 	  }
@@ -51,11 +56,31 @@ public class Corefinizer {
 		 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
 		 Tree tree = lexParser.parse(string);
 		 HashMap<Span, String> npHash = new HashMap<>();
-		 npHash = sandbox.traverseTreeForNPs(tree, npHash);
-		 npHash.forEach((k,v)->System.out.println("DEBUG traverseTreeForNPs key :"+k.getStart()+"value: "+v));
-		 System.out.println("------------------------------------------------------");
-		 String a = sandbox.determineHead(tree);
-		 System.out.println("DEBUG determineHead: "+a);
+		 
+		 Object[] a = tree.toArray();
+     	ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
+     	for (Object s : a){
+     		LabeledScoredTreeNode t = (LabeledScoredTreeNode)s;
+     		if (t.label().toString().equalsIgnoreCase("np")||t.label().toString().equalsIgnoreCase("pper")){
+     			//if (t.label().toString().equalsIgnoreCase("np")){
+     			ArrayList<String> npAsList = new ArrayList<String>();
+     			for (Tree it : t.flatten()){
+     				if ((it.isLeaf())){
+     					npAsList.add(it.pennString().trim());
+     					System.out.println("Word: "+it.pennString().trim());
+     					System.out.println("Span label: "+it.getSpan());
+     				}
+     			}
+     		
+     			nps.add(npAsList);
+     		}
+     	}
+		 
+//		 npHash = sandbox.traverseTreeForNPs(tree, npHash);
+//		 npHash.forEach((k,v)->System.out.println("DEBUG traverseTreeForNPs key :"+k.getStart()+"value: "+v));
+//		 System.out.println("------------------------------------------------------");
+//		 String a = sandbox.determineHead(tree);
+//		 System.out.println("DEBUG determineHead: "+a);
 	 }
 	 
 	 public static void findCoreferences(String inputFile) throws IOException{
@@ -91,24 +116,26 @@ public class Corefinizer {
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
-			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree, entry.getValue());
+			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree);
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
 			 
-			 //put sentence numbers into the mentions
+			 //put sentence numbers and indexes into the mentions
 			 for (CorefMention ment : orderedValues){
-				ment.setSentenceNumber(entry.getKey()); 
+				ment.setSentenceNumber(entry.getKey());
 			 }
 			 
 			 sentenceOrderMap.put(entry.getKey(),orderedValues);
 			
 			 
 			 TreeMap<Integer,CorefCluster> rightOrderMapCluster = new TreeMap<Integer,CorefCluster>();
+			 LinkedHashSet<CorefMention> mentionSet = new LinkedHashSet<>();
 			 
 			 for(Entry<Integer, CorefMention> mention : rightOrderMap.entrySet()){
 				 mention.getValue().setClusterID(IdCounter);
 				 
 				 Set<CorefMention> a = new LinkedHashSet<CorefMention>();
 				 a.add(mention.getValue());
+				 mentionSet.add(mention.getValue());
 				 CorefCluster newCluster = new CorefCluster(IdCounter,a,mention.getValue());
 				 rightOrderMapCluster.put(mention.getKey(), newCluster);
 				 
@@ -121,6 +148,14 @@ public class Corefinizer {
 			 }
 			 LinkedHashSet<CorefCluster> orderedClusters = new LinkedHashSet<CorefCluster>(rightOrderMapCluster.values());
 			 sentenceOrderMapCluster.put(entry.getKey(), orderedClusters);
+			 wordSpanMap.put(entry.getKey(), sandbox.getWordSpans(mentionSet, entry.getValue()));
+			 
+//			 for (Entry<Integer,List<SpanWord>> f : wordSpanMap.entrySet()){
+//				 System.out.println("word spans: ");
+//				 for (SpanWord word : f.getValue()){
+//					 System.out.println(word.getText()+ " "+word.getStartSpan()+" "+ word.getEndSpan());
+//				 }
+//			 }
 		 } 
 		 
 
@@ -224,13 +259,13 @@ public class Corefinizer {
 				
 		} 	
 		  
-		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
-			System.out.println(a.toString());
-			Set<CorefMention> z = a.getValue().getCorefMentions();
-			for (CorefMention f : z){
-				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead());
-			}
-		}
+//		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
+//			System.out.println(a.toString());
+//			Set<CorefMention> z = a.getValue().getCorefMentions();
+//			for (CorefMention f : z){
+//				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead());
+//			}
+//		}
 		 
 
 	 }
@@ -259,8 +294,8 @@ public class Corefinizer {
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveTwo(array[i],array[j])){
-						  System.out.println("SIEVE TWO TRUE");
-						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
+//						  System.out.println("SIEVE TWO TRUE");
+//						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
 						  //change clusterID in mention with the higher mentionID
 //						  array[i].setClusterID(array[j].getClusterID());  
@@ -356,8 +391,8 @@ public class Corefinizer {
 				 if(!particle2.trim().isEmpty()&&!(particle2.trim().contains(one.getContents())&&particle2.trim().contains(two.getContents()))){
 					 boolean bool = true;
 					 bools.add(bool);
-				 	System.out.println("one: "+one.getContents()+" two: "+two.getContents());
-				 	System.out.println("particle: "+particle);
+//				 	System.out.println("one: "+one.getContents()+" two: "+two.getContents());
+//				 	System.out.println("particle: "+particle);
 				 }
 			 }
 			 
