@@ -26,6 +26,11 @@
 			<artifactId>test-helper</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.dfki.dkt</groupId>
+			<artifactId>verbnet</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-core</artifactId>
 			<version>2.11.2</version>
