@@ -46,8 +46,8 @@ public class Corefinizer {
 	 
 	
 	 public static void main(String[] args) throws Exception {
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 
 	  }
@@ -84,10 +84,10 @@ public class Corefinizer {
 	 }
 	 
 	 public static void findCoreferences(String inputFile) throws IOException{
-		 
 		 //get the input file and make it a string
 		 SpanWord span = getDocumentSpan(inputFile);
 		 String everything = span.getText();
+		 
 		 
 		
 		 //do sentence splitting here. SentenceMap maps a sentence to its number 
@@ -341,7 +341,8 @@ public class Corefinizer {
 			System.out.println(a.toString());
 			Set<CorefMention> z = a.getValue().getCorefMentions();
 			for (CorefMention f : z){
-				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead());
+				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead()
+				+"Index: "+f.getSentenceNumber()+"-"+f.getEndIndex());
 			}
 		}
 		 
@@ -367,20 +368,19 @@ public class Corefinizer {
 			  }
 		  }
 		 }
-		 if(sieveNumber==2){
+		 else if(sieveNumber==2){
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveTwo(array[i],array[j])){
 						  System.out.println("SIEVE TWO TRUE");
 //						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
-						  //change clusterID in mention with the higher mentionID
-//						  array[i].setClusterID(array[j].getClusterID());  
+ 
 					  }
 				  }
 			  }
 			 }
-		 if(sieveNumber==3){
+		 else if(sieveNumber==3){
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveThree(array[i],array[j])){
@@ -392,7 +392,8 @@ public class Corefinizer {
 			  }
 			 }
 		 
-		 if(sieveNumber==4){
+		 else 
+			 if(sieveNumber==4){
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveFour(array[i],array[j])){
@@ -422,6 +423,7 @@ public class Corefinizer {
 	 //3.The mention’s modifiers  are  all  included  in  the  modifiers  of  the  antecedent  candidate
 	 //4.the two mentions are not in an i-within-i  construct,  i.e.,  one  cannot  be  a  child  NP in the other’s NP constituent
 	 public static boolean sieveTwo(CorefMention one, CorefMention two){
+		 
 		 boolean first = false;
 		 boolean second = false;
 		 boolean third = false;
@@ -429,7 +431,7 @@ public class Corefinizer {
 		 boolean retVal = false;
 		
 		 
-		 //first constraint
+		 //first constraint, the mention head matches any mention in the antecedent cluster. 
 		 String oneHead = one.getHead();
 		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
 		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
@@ -438,19 +440,23 @@ public class Corefinizer {
 			 first = true;
 		 }
 		 
-		 //second constraint
+		 //second constraint,all  the  non-stop words  in  the mention cluster are included in the set of non-stop words  in  
+		 //the  cluster  of  the  antecedent  candidate
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
 		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
 		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
-		 if(!oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
+		
+		 if((oneWithout.trim().isEmpty()&&twoWithout.trim().isEmpty())|| 
+				 !oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
 			 second = true;
 		 }
 		 
-		 //third constraint
+		 //third constraint, the mention’s modifiers  are  all  included  in  the  modifiers  of  the  antecedent  candidate
 		 String oneModi = one.getModifier();
 		 String twoModi = two.getModifier();
-		 if (!oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
+		 if ((oneModi.trim().isEmpty()&&twoModi.trim().isEmpty())||
+				 !oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
 			 third = true;
 		 }
 		 
@@ -503,6 +509,7 @@ public class Corefinizer {
 //		 }
 		 
 		 //fourth constraint without Tgrep, but with indexes instead
+		 //the two mentions are not in an i-within-i  construct,  i.e.,  one  cannot  be  a  child  NP in the other’s NP constituent
 		 if(one.getSentenceNumber()==two.getSentenceNumber()){
 
 			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
@@ -536,15 +543,19 @@ public class Corefinizer {
 			 first = true;
 		 }
 		 
-		 //second constraint
+		//second constraint,all  the  non-stop words  in  the mention cluster are included in the set of non-stop words  in  
+		 //the  cluster  of  the  antecedent  candidate
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
 		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
 		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
-		 if(!oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
+		
+		 if((oneWithout.trim().isEmpty()&&twoWithout.trim().isEmpty())|| 
+				 !oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
 			 second = true;
 		 }
 		 
+		//fourth constraint
 		 if(one.getSentenceNumber()==two.getSentenceNumber()){
 
 			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
@@ -578,15 +589,16 @@ public class Corefinizer {
 			 first = true;
 		 }
 		 
-		 //third constraint
+		 //third constraint, the mention’s modifiers  are  all  included  in  the  modifiers  of  the  antecedent  candidate
 		 String oneModi = one.getModifier();
 		 String twoModi = two.getModifier();
-		 if (!oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
+		 if ((oneModi.trim().isEmpty()&&twoModi.trim().isEmpty())||
+				 !oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
 			 third = true;
 		 }
 		 
 		 
-		 
+		 //fourth constraint
 		 if(one.getSentenceNumber()==two.getSentenceNumber()){
 
 			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
