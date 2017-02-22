@@ -64,17 +64,20 @@ public class WordnetConnector {
 		return wordnetTypes;
 	}
 
-	public static Collection compare2VerbsSynsets (String verb1, String verb2,  String pathToVerbnet) throws IOException{
+	public static void compare2VerbsSynsets (String verb1, String verb2,  String pathToVerbnet) throws IOException{
 		LinkedList<String> list1 = getWordnetInformation(verb1,  pathToVerbnet);
 		LinkedList<String> list2 = getWordnetInformation(verb2,  pathToVerbnet);
 		Collection<LinkedList<String>> union = CollectionUtils.intersection(list1, list2);
+		int unionSize =  union.size();
+		//System.out.println("union size " + union.size());
 		
-		if(!union.isEmpty() && !verb1.equals(verb2) && union.size()!=0) {  
-			System.out.println("VERB1<:" + verb1 + " " + verb2);
+		if(!verb1.equals(verb2) && unionSize!=0) {  
+			System.out.println("VERB1 : " + verb1 + " " + verb2);
 			System.out.println("similar verbs !");
 			System.out.println("union:" + union.toString());
+			System.out.println();
 		} 
-		return union;
+		//return union;
 	}
 
 
