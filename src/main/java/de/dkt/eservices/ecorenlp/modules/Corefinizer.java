@@ -283,15 +283,67 @@ public class Corefinizer {
 
 				}
 				
-		} 	
+		} 
 		  
-//		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
-//			System.out.println(a.toString());
-//			Set<CorefMention> z = a.getValue().getCorefMentions();
-//			for (CorefMention f : z){
-//				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead());
-//			}
-//		}
+		  //Third sieve, look in same sentence
+		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
+			  //compare mentions within one sentence, merge clusters when needed
+
+			  compareMentionsWithinSentence(a.getValue(), 3);
+			  
+		
+		  }
+		  
+		  //third sieve, look in antecedent sentence
+
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				compareMentionsWithinSentence(prevSentenceMentions, 3);
+
+				}
+				
+		}
+		  
+		  //Fourth sieve, look in same sentence
+		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
+			  //compare mentions within one sentence, merge clusters when needed
+
+			  compareMentionsWithinSentence(a.getValue(), 4);
+			  
+		
+		  }
+		  
+		  //Fourth sieve, look in antecedent sentence
+
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				compareMentionsWithinSentence(prevSentenceMentions, 4);
+
+				}
+				
+		}
+		  
+		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
+			System.out.println(a.toString());
+			Set<CorefMention> z = a.getValue().getCorefMentions();
+			for (CorefMention f : z){
+				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead());
+			}
+		}
 		 
 
 	 }
@@ -309,9 +361,8 @@ public class Corefinizer {
 		 for(int i=1; i<a.size();i++){
 			  for (int j=i-1; j>=0;j--){
 				  if (sieveOne(array[i],array[j])){
-					  mergeClusters(array[j],array[i]);
-					  //change clusterID in mention with the higher mentionID
-//					  array[i].setClusterID(array[j].getClusterID());  
+					  System.out.println("SIEVE ONE IS TRUE");
+					  mergeClusters(array[j],array[i]); 
 				  }
 			  }
 		  }
@@ -321,10 +372,33 @@ public class Corefinizer {
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveTwo(array[i],array[j])){
 						  System.out.println("SIEVE TWO TRUE");
-						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
+//						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
 						  //change clusterID in mention with the higher mentionID
 //						  array[i].setClusterID(array[j].getClusterID());  
+					  }
+				  }
+			  }
+			 }
+		 if(sieveNumber==3){
+			 for(int i=1; i<a.size();i++){
+				  for (int j=i-1; j>=0;j--){
+					  if (sieveThree(array[i],array[j])){
+						  System.out.println("SIEVE THREE IS TRUE");
+						  mergeClusters(array[j],array[i]);
+ 
+					  }
+				  }
+			  }
+			 }
+		 
+		 if(sieveNumber==4){
+			 for(int i=1; i<a.size();i++){
+				  for (int j=i-1; j>=0;j--){
+					  if (sieveFour(array[i],array[j])){
+						  System.out.println("SIEVE FOUR IS TRUE");
+						  mergeClusters(array[j],array[i]);
+ 
 					  }
 				  }
 			  }
@@ -430,9 +504,7 @@ public class Corefinizer {
 		 
 		 //fourth constraint without Tgrep, but with indexes instead
 		 if(one.getSentenceNumber()==two.getSentenceNumber()){
-//			 if(!(one.getStartIndex()==two.getStartIndex()||one.getEndIndex()==two.getEndIndex())){
-//				 fourth = true;
-//			 }
+
 			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
 					 ||(one.getStartIndex()<=two.getStartIndex()&&one.getEndIndex()>=two.getEndIndex()))){
 				 fourth = true;
@@ -442,6 +514,90 @@ public class Corefinizer {
 		 
 		 //test whether all constraints are fulfilled
 		 retVal = first&&second&&third&&fourth;
+		 
+		 
+		 return retVal;
+	 }
+	 
+	 //	 Pass 4 removes the compatible modifiers only feature
+	 public static boolean sieveThree (CorefMention one, CorefMention two){
+		 boolean first = false;
+		 boolean second = false;
+	
+		 boolean fourth = false;
+		 boolean retVal = false;
+		 
+		 //first constraint
+		 String oneHead = one.getHead();
+		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
+		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
+		 
+		 if(twoClusterContents.matches(".*\\b"+oneHead+"\\b.*")){
+			 first = true;
+		 }
+		 
+		 //second constraint
+		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
+		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
+		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
+		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
+		 if(!oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
+			 second = true;
+		 }
+		 
+		 if(one.getSentenceNumber()==two.getSentenceNumber()){
+
+			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
+					 ||(one.getStartIndex()<=two.getStartIndex()&&one.getEndIndex()>=two.getEndIndex()))){
+				 fourth = true;
+			 }
+		 }
+		 
+		//test whether all constraints are fulfilled
+		 retVal = first&&second&&fourth;
+		 
+		 
+		 return retVal;
+	 }
+	 
+	 
+//	 Pass 5 removes the word inclusion constraint.
+	 public static boolean sieveFour(CorefMention one, CorefMention two){
+		 boolean first = false;
+
+		 boolean third = false;
+		 boolean fourth = false;
+		 boolean retVal = false;
+		 
+		 //first constraint
+		 String oneHead = one.getHead();
+		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
+		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
+		 
+		 if(twoClusterContents.matches(".*\\b"+oneHead+"\\b.*")){
+			 first = true;
+		 }
+		 
+		 //third constraint
+		 String oneModi = one.getModifier();
+		 String twoModi = two.getModifier();
+		 if (!oneModi.trim().isEmpty()&&!twoModi.trim().isEmpty()&&twoModi.contains(oneModi)){
+			 third = true;
+		 }
+		 
+		 
+		 
+		 if(one.getSentenceNumber()==two.getSentenceNumber()){
+
+			 if(!((two.getStartIndex()<=one.getStartIndex()&&two.getEndIndex()>=one.getEndIndex())
+					 ||(one.getStartIndex()<=two.getStartIndex()&&one.getEndIndex()>=two.getEndIndex()))){
+				 fourth = true;
+			 }
+		 }
+		 
+		 
+		 //test whether all constraints are fulfilled
+		 retVal = first&&third&&fourth;
 		 
 		 
 		 return retVal;
