@@ -27,6 +27,7 @@ public class VerbnetConnector {
 		String subjectThemRole;
 		String objectThemRole;
 
+		
 		/*
 		 * VALENCY 2, CASE 1: 2 arguments, the 2nd a dobj
 		 */
