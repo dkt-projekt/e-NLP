@@ -83,12 +83,31 @@ public class VerbnetConnector {
 						System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
+					//GOAL/DESTINATION
 					else if(object.tag().equals("TO") & value.get(2).keySet().equals("[G]") || value.get(2).keySet().equals("[D]") ){
 						
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 						
-						System.out.println("CASE 3: them role " + subjectThemRole + " nmod " + objectThemRole);
+						System.out.println("CASE 3A: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+					}
+					//SOURCE
+					else if(object.tag().equals("FROM") & value.get(2).keySet().equals("[S]")){
+						
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
+						
+						System.out.println("CASE 3B: them role " + subjectThemRole + " nmod " + objectThemRole);
+
+					}
+					//BENEFICIARY
+					else if(object.tag().equals("TO") & value.get(2).keySet().equals("[B]")){
+						
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
+						
+						System.out.println("CASE 3C: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					else if (objectThemRole.equals(null)){

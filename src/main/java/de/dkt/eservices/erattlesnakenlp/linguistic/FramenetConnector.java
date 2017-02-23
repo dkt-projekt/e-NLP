@@ -61,18 +61,14 @@ public class FramenetConnector {
 			//put subject to frameEntry & put the subject to the LinkedList
 			frameEntry.put(nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType() == null ? "none" : nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType().toString(), nextElement.getSyntax().getPreVerbDescriptors().get(0).getType().toString());
 			frameLinkedList.add(frameEntry);
-			//System.out.println("S: " + nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType() + " " + nextElement.getSyntax().getPreVerbDescriptors().get(0).getType() + " \\EXAMPLE "  + nextElement.getExamples().get(0));
 
 			if (nextElement.getSyntax().getPostVerbDescriptors().size() != 0){
 				Iterator<ISyntaxArgDesc> postVerbElemIterator = nextElement.getSyntax().getPostVerbDescriptors().iterator();
-				//System.out.println(nextElement.getSyntax().getPostVerbDescriptors().size());
 
 				while (postVerbElemIterator.hasNext()){
 					frameEntry = new HashMap <String, String>();
 					ISyntaxArgDesc postVerbNextElement = postVerbElemIterator.next();
 
-					//	System.out.println("O: " + postVerbNextElement.getNounPhraseType() + " " + postVerbNextElement.getType() );
-					//System.out.println(postVerbNextElement.getNounPhraseType() == null ? postVerbNextElement.getNounPhraseType() : postVerbNextElement.getNounPhraseType().toString());
 					frameEntry.put((postVerbNextElement.getNounPhraseType() == null ? "none" : postVerbNextElement.getNounPhraseType().toString()), postVerbNextElement.getType().toString());
 					frameLinkedList.add(frameEntry);
 				}
