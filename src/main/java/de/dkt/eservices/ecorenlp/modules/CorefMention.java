@@ -13,6 +13,7 @@ private int clusterID;
 private String head;
 private String modifier = null;
 private Tree sentenceAsTree;
+private String[] nerTags;
 
 public String getHead(){
 	return this.head;
@@ -40,7 +41,7 @@ public CorefMention(int i, String word, int j, int k, String l) {
 	
 }
 
-public CorefMention(int i, String word, int j, int k, String l, String m) {
+public CorefMention(int i, String word, int j, int k, String l, String m, String[] n) {
 	// TODO Auto-generated constructor stub
 	mentionID = i;
 	contents = word;
@@ -48,6 +49,7 @@ public CorefMention(int i, String word, int j, int k, String l, String m) {
 	endIndex = k;
 	head = l;
 	modifier = m;
+	nerTags = n;
 	
 }
 
@@ -150,6 +152,14 @@ public Tree getSentenceAsTree() {
 
 public void setSentenceAsTree(Tree sentenceAsTree) {
 	this.sentenceAsTree = sentenceAsTree;
+}
+
+public String[] getNerTags() {
+	return nerTags;
+}
+
+public void setNerTags(String[] nerTags) {
+	this.nerTags = nerTags;
 }
 
 }
