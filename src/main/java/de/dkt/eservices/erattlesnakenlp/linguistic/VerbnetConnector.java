@@ -101,6 +101,7 @@ public class VerbnetConnector {
 						System.out.println("CASE 3B: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
+					
 					//BENEFICIARY
 					else if(object.tag().equals("TO") || object.tag().equals("FOR") & value.get(2).keySet().equals("[B]")){
 						
