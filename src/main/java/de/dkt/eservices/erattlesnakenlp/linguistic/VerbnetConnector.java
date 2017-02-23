@@ -102,7 +102,7 @@ public class VerbnetConnector {
 
 					}
 					//BENEFICIARY
-					else if(object.tag().equals("TO") & value.get(2).keySet().equals("[B]")){
+					else if(object.tag().equals("TO") || object.tag().equals("FOR") & value.get(2).keySet().equals("[B]")){
 						
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
