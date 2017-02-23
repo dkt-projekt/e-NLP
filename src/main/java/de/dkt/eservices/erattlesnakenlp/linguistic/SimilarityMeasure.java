@@ -9,6 +9,7 @@ public class SimilarityMeasure {
 	//vector a = (0, 3)
 	//vector b = (4, 0)
 	//dot product = 0*4 + 3*0 + ...
+	
 	public float calculateDotProduct (Vector <Integer> a, Vector <Integer>b){
 		
 		float dotProductResult = 0;

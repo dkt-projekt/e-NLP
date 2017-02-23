@@ -73,6 +73,7 @@ public class FramenetConnector {
 					frameLinkedList.add(frameEntry);
 				}
 			}
+			
 			//System.out.println(nextElement.getSyntax().getPostVerbDescriptors().size() + " frameLinked" + frameLinkedList);
 			sortedFramesbyLength.put(nextElement.getSyntax().getPostVerbDescriptors().size(), frameLinkedList);
 

@@ -31,6 +31,7 @@ public class WordnetConnector {
 		index.open();
 		Iterator<IVerbClass> verbnetIterator = index.iterator();
 
+		
 		while (verbnetIterator.hasNext()){
 			List<IMember> verbnetEntry = verbnetIterator.next().getMembers();
 			String wordnetType = null;
