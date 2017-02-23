@@ -65,20 +65,18 @@ public class WordnetConnector {
 		return wordnetTypes;
 	}
 
-	public static void compare2VerbsSynsets (String verb1, String verb2,  String pathToVerbnet) throws IOException{
+	public static boolean compare2VerbsSynsets (String verb1, String verb2,  String pathToVerbnet) throws IOException{
+		boolean similarVerbs = false;
 		LinkedList<String> list1 = getWordnetInformation(verb1,  pathToVerbnet);
 		LinkedList<String> list2 = getWordnetInformation(verb2,  pathToVerbnet);
 		Collection<LinkedList<String>> union = CollectionUtils.intersection(list1, list2);
 		int unionSize =  union.size();
-		//System.out.println("union size " + union.size());
 		
-		if(!verb1.equals(verb2) && unionSize!=0) {  
-			System.out.println("VERB1 : " + verb1 + " " + verb2);
-			System.out.println("similar verbs !");
-			System.out.println("union:" + union.toString());
-			System.out.println();
+		if(!verb1.equals(verb2) && unionSize != 0) {  
+			//System.out.println("VERB : " + verb1 + " " + verb2 + " " + union.toString());
+			similarVerbs = true;
 		} 
-		//return union;
+		return similarVerbs;
 	}
 
 
@@ -118,7 +116,7 @@ public class WordnetConnector {
 		Iterator<String> wordnetSensesIterator = wordnetInformationSet.iterator();
 
 		while (wordnetSensesIterator.hasNext()){
-			System.out.println(wordnetSensesIterator.next().toString());
+			//System.out.println(wordnetSensesIterator.next().toString());
 		}
 	}
 }

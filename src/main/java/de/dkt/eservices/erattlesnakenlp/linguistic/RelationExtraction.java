@@ -204,8 +204,9 @@ public class RelationExtraction {
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement.word())){
 							relationLemma = SentenceList.lemma();
+							
 							wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
-
+							System.out.println("subject " + subject + " object " + object );
 							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
 						}
 					}
@@ -360,37 +361,31 @@ public class RelationExtraction {
 					String subjectThemRole = null;
 					String objectThemRole = null;
 
-					////////////////////////////////////////////////////////////////////////////
-					/*
-					 * MultiMap, the key is the common synset entry; 
-					 */
-					//					ArrayListMultimap <String, HashMap <String, HashMap <String, String> >> synonymsClustersAllInfo = ArrayListMultimap.create();
-					HashMap <String, HashMap<String, String>>  synonymsClusters = new HashMap ();
-
-					////////////////////////////////////////////////////////////////////////////
-
-
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement.word())){
 							relationLemma = SentenceList.lemma();
 
-							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
+						//	WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
 							LinkedList <String> wordnetEntries = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
 							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
+
+							System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
 								objectThemRole = thetaRolesList.get(1);
 								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 							}
-							Collection<String> commonSynsets = null;
-
-
-							
+														
+							ArrayList<String> commonSynsetsVerbs = null;							
 								for ( String element: ListOfAllVerbs.keySet()){
-									WordnetConnector.compare2VerbsSynsets(relationLemma, element, pathToVerbnet);
+									boolean similarVerb = WordnetConnector.compare2VerbsSynsets(relationLemma, element, pathToVerbnet);
 
+									if (similarVerb){
+										commonSynsetsVerbs.add(relationLemma);
+									}
 								}
+								
 								HashMap <LinkedList <String>, LinkedList <String>> allVerbInfo = new HashMap();
 								allVerbInfo.put(wordnetEntries, thetaRolesList);
 								ListOfAllVerbs.put(relationLemma, allVerbInfo);

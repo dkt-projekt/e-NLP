@@ -21,7 +21,7 @@ public class VerbnetConnector {
 	}
 
 
-	public static LinkedList<String> assignThetaRoles (IndexedWord subject, IndexedWord object, String objectsDependency, String relationLemma, String pathToVerbnet  ) throws IOException {
+	public static LinkedList<String> assignThetaRoles (IndexedWord subject, IndexedWord object, String objectsDependency, String relationLemma, String pathToVerbnet) throws IOException {
 		LinkedList<String> assignedRolesList = new LinkedList ();
 
 		String subjectThemRole;
@@ -33,6 +33,7 @@ public class VerbnetConnector {
 		 */
 		
 		System.out.println(objectsDependency.toString() + " " +  FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null);
+		System.out.println();
 		
 		if (objectsDependency.equals("dobj") & FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null){
 			List<LinkedList<HashMap<String, String>>> keySetFrameArguments = FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
