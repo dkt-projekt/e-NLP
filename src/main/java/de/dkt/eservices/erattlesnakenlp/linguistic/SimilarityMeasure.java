@@ -1,6 +1,13 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
+import java.util.List;
+import com.google.common.collect.Lists;
+
 
 public class SimilarityMeasure {
 	
@@ -23,6 +30,29 @@ public class SimilarityMeasure {
 			sumBsqrt = sumBsqrt + Math.sqrt(b.get(i));			
 		}
 		return dotProductResult/(sumAsqrt * sumBsqrt);
+	}
+	
+	public Vector <Integer> countVerbOccurencesInDocuments (String verb, ArrayList <String> document){
+		Vector <Integer> verbOccurencesCounter= new Vector <Integer> ();
+		ArrayList<ArrayList<String>> sublists = (ArrayList<ArrayList<String>>) getSublists(document);
+		Iterator<?> sublistIterator = sublists.iterator();
+		
+		while (sublistIterator.hasNext()){
+			ArrayList <String> sublist = (ArrayList<String>) sublistIterator.next();
+
+		}
+		
+		/*
+		 * TODO: iterate all docs and count the given verb
+		 */
+		return verbOccurencesCounter;
+	}
+	
+	public static List<?> getSublists (List<?> allDocumensList){
+		 List<?> documentsSublists = Lists.partition(allDocumensList, 1000);	
+		// System.out.println("partition length " + documentsSublists.size());
+		 
+		return documentsSublists;
 	}
 	
 	
