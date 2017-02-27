@@ -13,7 +13,7 @@ private int clusterID;
 private String head;
 private String modifier = null;
 private Tree sentenceAsTree;
-private String[] nerTags;
+private String[] nerTags = null;
 
 public String getHead(){
 	return this.head;
