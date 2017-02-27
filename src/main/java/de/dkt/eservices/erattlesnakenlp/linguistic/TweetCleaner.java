@@ -36,10 +36,9 @@ public class TweetCleaner {
 	
 	public static String clean(String input){
 		
-		System.out.println("original input:" + input);
-		
 		HashMap<String, String> hm = new HashMap<String, String>();
-		//.put("(https?:\\/\\/\\S+\\b|www\\.(\\w+\\.)+\\S*)", "$1 <url>"); // recognizing URLs
+		//hm.put("(https?:\\/\\/\\S+\\b|www\\.(\\w+\\.)+\\S*)", "$1 <url>"); // recognizing URLs
+		hm.put("(https?:\\/\\/\\S+\\b|www\\.(\\w+\\.)+\\S*)", "<url>"); // recognizing URLs. Will have to play with this for a bit to find out if better to leave actual url in there or not 
 		hm.put("(\\s+\\w+)/(\\w+\\s+)", "$1 / $2"); // splitting up words separated by /, like pen/pencil. Whitespace in regex to prevent matching on URLs
 		hm.put("(@\\w+)", "<user>");
 		hm.put("(?i)\\s+[8:=;]['`\\-]?[)d]+|[)d]+['`\\-]?[8:=;]\\s+", " <smile> ");
