@@ -146,7 +146,7 @@ public class RelationExtraction {
 				IndexedWord connectingElement = null;
 				IndexedWord object = null;
 				String objectsDependency = null;
-				
+
 				/**
 				 * 
 				 */
@@ -182,7 +182,7 @@ public class RelationExtraction {
 
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
 					//	System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object);
-	
+
 					String subjectURI = null;
 					String objectURI = null;
 					int subjectStart = tagged.get(subject.index()-1).beginPosition();
@@ -280,7 +280,7 @@ public class RelationExtraction {
 
 				for (TaggedWord tw : tagged) {
 					tlSentence.add((lemmatizer).lemmatize(tw));
-					//	System.out.println((lemmatizer).lemmatize(tw));
+					System.out.println((lemmatizer).lemmatize(tw));
 				}
 
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
@@ -300,6 +300,14 @@ public class RelationExtraction {
 				//all dependencies to find the prepositions
 				Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
 				//	DPTreeNode tree =  DepParserTree.generateTreeFromList(allVerbDependenciesList);
+
+				//				
+				//				subject = SVOTripleAssignment.assignSubject(gs);
+				//				connectingElement = SVOTripleAssignment.assignVerb(gs);
+				//				object = SVOTripleAssignment.assignObject(gs);
+
+
+
 
 				for (TypedDependency td : allVerbDependenciesList) {
 					IndexedWordTuple t = new IndexedWordTuple();
@@ -343,10 +351,18 @@ public class RelationExtraction {
 					}
 				}
 
-				System.out.println(subject.toString() + connectingElement.toString() + object.toString());
+
+
+				System.out.println("subj" + subject + " connectingElement " + connectingElement + " object " + object );
+
+
+
+
+
+				//		System.out.println(subject.toString() + connectingElement.toString() + object.toString());
 				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
 					System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object + " " + object.tag());
-					
+
 					String subjectURI = SVOTripleAssignment.getURI(subject,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object,tagged, entityMap);
 
@@ -367,15 +383,23 @@ public class RelationExtraction {
 							relationLemma = SentenceList.lemma();
 
 							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
-							LinkedList <String> wordnetEntries = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
+							LinkedList <String> wordnetEntries = WordnetConnector.getWordnetInformation("give", pathToVerbnet);
 							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-
-
+							
+						
+							System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
+							System.out.println("relationLemma " + relationLemma);
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
 								objectThemRole = thetaRolesList.get(1);
 								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 							}
+
+
+
+							/**
+
+
 							//comparing the input verb to the list of verbs							
 							ArrayList<String> commonSynsetsVerbs = new ArrayList <String> ();							
 							for ( String element: ListOfAllVerbs.keySet()){
@@ -396,11 +420,12 @@ public class RelationExtraction {
 							LSAmatrix.add(object.toString());
 
 
-							//	System.out.println(ListOfAllVerbs.keySet().toString() + " ListOfAllVerbs ");
 
+							System.out.println(ListOfAllVerbs.keySet().toString() + " ListOfAllVerbs ");
+							 **/
 						}
 
-						SimilarityMeasure.getSublists(LSAmatrix);
+						//	SimilarityMeasure.getSublists(LSAmatrix);
 					}
 
 					if (!(subjectURI == null) && !(objectURI == null)){
@@ -614,28 +639,28 @@ public class RelationExtraction {
 		return m;
 	}
 
-//	public static void extractEventsFromTheSource(String filePath) throws IOException{
-//		String jsonLdString = readFile(filePath, StandardCharsets.UTF_8);
-//		try {
-//			Model nifModel = NIFReader.extractModelFromFormatString(jsonLdString, RDFSerialization.JSON_LD);
-//			List<String[]> events = new LinkedList<String[]>();
-//			ResIterator iterEntities = nifModel.listSubjects();
-//			while (iterEntities.hasNext()) {
-//				Resource r = iterEntities.nextResource();
-//				if (r.toString().startsWith("http://dkt.dfki.de/documents/#event")){
-//					System.out.println(r);
-//					StmtIterator si = r.listProperties();
-//					while(si.hasNext()){
-//						Statement r2 = si.nextStatement();
-//						System.out.println(r2);
-//					}
-//				}
-//			}
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	//	public static void extractEventsFromTheSource(String filePath) throws IOException{
+	//		String jsonLdString = readFile(filePath, StandardCharsets.UTF_8);
+	//		try {
+	//			Model nifModel = NIFReader.extractModelFromFormatString(jsonLdString, RDFSerialization.JSON_LD);
+	//			List<String[]> events = new LinkedList<String[]>();
+	//			ResIterator iterEntities = nifModel.listSubjects();
+	//			while (iterEntities.hasNext()) {
+	//				Resource r = iterEntities.nextResource();
+	//				if (r.toString().startsWith("http://dkt.dfki.de/documents/#event")){
+	//					System.out.println(r);
+	//					StmtIterator si = r.listProperties();
+	//					while(si.hasNext()){
+	//						Statement r2 = si.nextStatement();
+	//						System.out.println(r2);
+	//					}
+	//				}
+	//			}
+	//		} catch (Exception e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
+	//	}
 
 
 
@@ -765,41 +790,41 @@ public class RelationExtraction {
 
 
 		//String ts = "Later that day I bought the janitor a beer.";
-		String ts = "Ginsberg was born into a Jewish family in Newark, New Jersey, and grew up in nearby Paterson.";
+		//String ts = "Ginsberg was born into a Jewish family in Newark, New Jersey, and grew up in nearby Paterson.";
 		//String ts = "Ginsberg had an auditory hallucination while reading the poetry of William Blake.";
 		//String ts = "In 1957, Ginsberg surprised the literary world by abandoning San Francisco.";
-//				DocumentPreprocessor tokenizer2 = new DocumentPreprocessor(new StringReader(ts));
-//				for (List sentence : tokenizer2) {
-//					List tagged = Tagger.tagger.tagSentence(sentence);
-//					GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
-//					System.out.println("DEBUGGING GS:" + gs);
-//					Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
-//					
-//					String connectingElement2 = null;
-//					
-//					Iterator<TypedDependency> dependenciesIterator = allDepenednciesList.iterator();
-//					while (dependenciesIterator.hasNext()){
-//						TypedDependency element = dependenciesIterator.next();
-//					
-//						if (element.reln().toString().equals("conj")){
-//						System.out.println(element + " " + element.gov().toString() + " " + element.dep().toString());
-//					
-//					//second connecting element
-//					connectingElement2 = element.dep().originalText();
-//					String connectingElementLemma = element.dep().toString();
-//					
-//					//2 possible cases - the same subject as in the first part or another nsubj relation
-//					
-//						}
-//					
-//				
-//					
-//					
-//					}
-//					
-//
-//				}
-//				System.exit(1);
+		//				DocumentPreprocessor tokenizer2 = new DocumentPreprocessor(new StringReader(ts));
+		//				for (List sentence : tokenizer2) {
+		//					List tagged = Tagger.tagger.tagSentence(sentence);
+		//					GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+		//					System.out.println("DEBUGGING GS:" + gs);
+		//					Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
+		//					
+		//					String connectingElement2 = null;
+		//					
+		//					Iterator<TypedDependency> dependenciesIterator = allDepenednciesList.iterator();
+		//					while (dependenciesIterator.hasNext()){
+		//						TypedDependency element = dependenciesIterator.next();
+		//					
+		//						if (element.reln().toString().equals("conj")){
+		//						System.out.println(element + " " + element.gov().toString() + " " + element.dep().toString());
+		//					
+		//					//second connecting element
+		//					connectingElement2 = element.dep().originalText();
+		//					String connectingElementLemma = element.dep().toString();
+
+		//2 possible cases - the same subject as in the first part or another nsubj relation
+
+		//}
+
+		//				
+		//					
+		//					
+		//					}
+		//					
+		//
+		//				}
+		//				System.exit(1);
 
 
 
@@ -820,9 +845,9 @@ public class RelationExtraction {
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
 		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
-		String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
+		//	String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
 
-	//	extractEventsFromTheSource(filePath);
+		//	extractEventsFromTheSource(filePath);
 
 		File df = new File(docFolder);
 		System.out.println(df.getAbsolutePath());
@@ -850,7 +875,7 @@ public class RelationExtraction {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-	
+
 			}
 
 		}
