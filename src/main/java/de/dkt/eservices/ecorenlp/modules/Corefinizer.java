@@ -61,9 +61,9 @@ public class Corefinizer {
 	
 	 public static void main(String[] args) throws Exception {
 		 
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy2.txt");
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\60.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annaKap1.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\60.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 //otherDummy();
 		 //getNamedEntityIndexes("Harry Potter. Tina Turner. Die Vereinten Nationen. Der FC Bayern München. Barack Obama. Berlin.");
@@ -200,7 +200,7 @@ public class Corefinizer {
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
 	 
 			 //clean text before giving it to the parser to avoid errors with quotations marks and brackets later
-			 String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "");
+			 String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
@@ -466,15 +466,15 @@ public class Corefinizer {
 //			  }
 //		  }
 		  
-//		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
-//			System.out.println(a.toString());
-//			Set<CorefMention> z = a.getValue().getCorefMentions();
-//			for (CorefMention f : z){
-//				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead()
-//				+" Index: "+f.getStartIndex
-//				()+"-"+f.getEndIndex());
-//			}
-//		}
+		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
+			System.out.println(a.toString());
+			Set<CorefMention> z = a.getValue().getCorefMentions();
+			for (CorefMention f : z){
+				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead()
+				+" Index: "+f.getStartIndex
+				()+"-"+f.getEndIndex());
+			}
+		}
 		 
 
 	 }

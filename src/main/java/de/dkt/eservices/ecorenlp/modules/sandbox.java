@@ -3,6 +3,7 @@ package de.dkt.eservices.ecorenlp.modules;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -583,6 +585,42 @@ public static boolean compareListsSpan(String w1, String w2){
 			return leafNumberMap;
 	}
 	
+	public static String determineGender(String word) throws FileNotFoundException{
+		Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+		String ret = "NOG";
+		
+		while(txtscan.hasNextLine()){
+		    String str = txtscan.nextLine();
+		    if(str.indexOf(word) != -1){
+		    	if(str.contains("NEU")){
+		    		ret="NEU";
+		    	}if(str.contains("MAS")){
+		    		ret="MAS";
+		    	}if(str.contains("FEM")){
+		    		ret="FEM";
+		    	}
+		    }
+		}
+		return ret;
+	}
+	
+	public static String determineNumber(String word) throws FileNotFoundException{
+		Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+		String ret = "NON";
+		
+		while(txtscan.hasNextLine()){
+		    String str = txtscan.nextLine();
+		    if(str.indexOf(word) != -1){
+		    	if(str.contains("PLU")){
+		    		ret="PLU";
+		    	}if(str.contains("SIN")){
+		    		ret="SIN";
+		    	}
+		    }
+		}
+		return ret;
+	}
+	
 	public static LinkedHashSet<SpanWord> getWordSpans(LinkedHashSet<CorefMention> mentions, SpanWord sentence){
 //		for (CorefMention m : mentions){
 //			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
@@ -595,11 +633,11 @@ public static boolean compareListsSpan(String w1, String w2){
 //		String word = mention.getContents().replace("''", "").replace("``","").replace(" :",":").replace(" .",".").trim();
 //		word = word.replace("\\s+", "").replace("\t", "").trim();
 		//System.out.println("Original Sentence: "+sentence.getText());
-		String word = mention.getContents().replaceAll("\\p{Punct}", "").replaceAll("\"", "").replaceAll("„", "").replaceAll("“", "").replaceAll("\\s+", " ");
+		String word = mention.getContents().replaceAll("\\p{Punct}", "").replaceAll("\"", "").replaceAll("„", "").replaceAll("“", "").replaceAll("-", "").replaceAll("\\s+", " ");
 		//stem.out.println("WORD: "+word);
 	 	List<Integer> pos = new ArrayList<>();
 
-    	String sent = sentence.getText().replaceAll("\\p{Punct}", "").replaceAll("\\s+", " ").replaceAll("„", "").replaceAll("“", "");
+    	String sent = sentence.getText().replaceAll("\\p{Punct}", "").replaceAll("\\s+", " ").replaceAll("„", "").replaceAll("“", "").replace("-", "");
     	//System.out.println("SENT: "+sent);
     	int sentenceStart = sentence.getStartSpan();
     	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
@@ -618,7 +656,8 @@ public static boolean compareListsSpan(String w1, String w2){
     	SpanWord d = new SpanWord("",0,0);
     	
     	if(pos.size()>1){
-    		
+//    		pos.forEach(k->System.out.println("pos: "+k));
+//    		System.out.println("Counter: "+counter);
     		int begin = sentenceStart + pos.get(counter-1);
    
         	int end = begin +word.length();
@@ -631,10 +670,6 @@ public static boolean compareListsSpan(String w1, String w2){
     	    String patternStr = word;
     
     	    Pattern pattern = Pattern.compile("\\b"+patternStr+"\\b");
-    	    
-    	    Pattern pattern2 = Pattern.compile("\\^"+patternStr+"\\b");
-    	    Matcher matcher2 = pattern2.matcher(inputStr.trim());
-    	    
     	    Matcher matcher = pattern.matcher(inputStr.trim());
     	    if(matcher.find()){
 
@@ -643,12 +678,7 @@ public static boolean compareListsSpan(String w1, String w2){
     	    	d = new SpanWord(word,begin,end);
     	    	wordSpans.add(d);}
     	    else{ 
-    	    	if (matcher2.find()){
-    	    		int begin = sentenceStart + matcher.start();
-        	    	int end = begin +word.length();
-        	    	d = new SpanWord(word,begin,end);
-        	    	wordSpans.add(d);
-    	    	}
+    	    	
 
     	    	}
     

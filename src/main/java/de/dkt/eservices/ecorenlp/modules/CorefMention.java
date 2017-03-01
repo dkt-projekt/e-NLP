@@ -14,6 +14,8 @@ private String head;
 private String modifier = null;
 private Tree sentenceAsTree;
 private String[] nerTags = null;
+private String gender;
+private String number;
 
 public String getHead(){
 	return this.head;
@@ -160,6 +162,22 @@ public String[] getNerTags() {
 
 public void setNerTags(String[] nerTags) {
 	this.nerTags = nerTags;
+}
+
+public String getGender() {
+	return gender;
+}
+
+public void setGender(String gender) {
+	this.gender = gender;
+}
+
+public String getNumber() {
+	return number;
+}
+
+public void setNumber(String number) {
+	this.number = number;
 }
 
 }
