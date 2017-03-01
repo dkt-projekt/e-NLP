@@ -12,12 +12,12 @@ import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 
 public class SVOTripleAssignment {
-	List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
-	List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
-	List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
+	static List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
+	static List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
+	static List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
 
 
-	public  TypedDependency findRootDependency(GrammaticalStructure gs){
+	public static  TypedDependency findRootDependency(GrammaticalStructure gs){
 		TypedDependency rootRelation = null;
 		for (TypedDependency td : gs.typedDependencies()) {
 			IndexedWordTuple t = new IndexedWordTuple();
@@ -29,22 +29,30 @@ public class SVOTripleAssignment {
 		return rootRelation;		
 	}
 
-	public IndexedWord assignVerb(GrammaticalStructure gs){
+	public static IndexedWord assignVerb(GrammaticalStructure gs){
 		return findRootDependency(gs).gov();	
 	}
 
-	public IndexedWord assignSubject(GrammaticalStructure gs){
-				
-		/*
-		 * TODO: if conj, then 2 possibilities
-		 */
+	public static IndexedWord assignSubject(GrammaticalStructure gs){			 
 		return findRootDependency(gs).dep();	
 	}
 
+	public IndexedWord assignSecondSubjOfConjRelation (Collection <TypedDependency> allDepenednciesList, GrammaticalStructure gs){
+		IndexedWord subject = null;
+		IndexedWord verb = getSecondVerbOfConjRelation(allDepenednciesList);
+		if (!verb.equals(null)){
+			subject = assignSubject(gs);
+			/*
+			 * TODO: 
+			 */
+		 }
+		return subject;
+	}
+	
 	// now do another loop to find object of the main verb/root
 	// thing. This may also appear before the subject was
 	// encountered, hence the need for two loops.
-	public IndexedWord assignObject(GrammaticalStructure gs){	
+	public static IndexedWord assignObject(GrammaticalStructure gs){	
 		IndexedWord object = null;
 		TypedDependency relationType = getObjectRelationType(gs);
 
@@ -58,7 +66,7 @@ public class SVOTripleAssignment {
 		return object;
 	}
 
-	public TypedDependency getObjectRelationType (GrammaticalStructure gs){
+	public static TypedDependency getObjectRelationType (GrammaticalStructure gs){
 		TypedDependency objectRelationType = null;
 
 		IndexedWord connectingElement = assignVerb(gs);
@@ -93,8 +101,6 @@ public class SVOTripleAssignment {
 		}
 		return connectingElement2;
 	}
-
-
 
 
 	public static String getURI (IndexedWord argument, List<TaggedWord> tagged, List<String[]> entityMap){
