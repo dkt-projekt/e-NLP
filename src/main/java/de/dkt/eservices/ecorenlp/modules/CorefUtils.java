@@ -318,10 +318,11 @@ public static boolean isDemonym(String one, String two) throws FileNotFoundExcep
 	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Desktop\\WörkWörk\\demonyms.txt"));
 	boolean ret = false;
 	
+	
 	while(txtscan.hasNextLine()){
 	    String str = txtscan.nextLine();
 	    if(str.indexOf(one) != -1){
-	    	if(str.contains(one)&&str.contains(two)){
+	    	if(str.matches(".*\\b"+one+"\\b.*")&&str.matches(".*\\b"+two+"\\b.*")){
 	    		ret=true;
 	    	}
 	    }
