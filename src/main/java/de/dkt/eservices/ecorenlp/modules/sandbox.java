@@ -622,27 +622,30 @@ public static boolean compareListsSpan(String w1, String w2){
 //		for (CorefMention m : mentions){
 //			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
 //		}
-		//System.out.println("--------------------------------------------");
+//		System.out.println("--------------------------------------------");
 		LinkedHashSet<SpanWord>	wordSpans = new LinkedHashSet<>();
 		int counter = 0;
 		
 		for (CorefMention mention : mentions){
-//			System.out.println("mention: "+mention.getContents());
-		String word = mention.getContents();
+//		String word = mention.getContents().replace("''", "").replace("``","").replace(" :",":").replace(" .",".").trim();
+//		word = word.replace("\\s+", "").replace("\t", "").trim();
+		//System.out.println("Original Sentence: "+sentence.getText());
+		String word = mention.getContents().replaceAll("\\p{Punct}", "").replaceAll("\"", "").replaceAll("„", "").replaceAll("“", "").replaceAll("\\s+", " ");
+		//stem.out.println("WORD: "+word);
 	 	List<Integer> pos = new ArrayList<>();
 
-    	String sent = sentence.getText();
+    	String sent = sentence.getText().replaceAll("\\p{Punct}", "").replaceAll("\\s+", " ").replaceAll("„", "").replaceAll("“", "");
+    	//System.out.println("SENT: "+sent);
     	int sentenceStart = sentence.getStartSpan();
     	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
     		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
     		    counter++;
-    		   // System.out.println("counter in first loop: "+counter+ " word: "+word);
+
     		    while (m.find())
     		    {
     		        pos.add(m.start());
     		    
     		    }
-    		   // System.out.println("Size pos: "+pos.size());
     		    
     		    }
     	
@@ -652,31 +655,38 @@ public static boolean compareListsSpan(String w1, String w2){
     	if(pos.size()>1){
     		
     		int begin = sentenceStart + pos.get(counter-1);
-    		//System.out.println("int : "+begin);
+   
         	int end = begin +word.length();
     		d = new SpanWord(word,begin,end);
     		wordSpans.add(d);
-    		//System.out.println("BINGO! "+word+" "+begin+" "+end);
-//    		for (int i : pos){
-//    			System.out.println("counter :"+counter);
-//    			System.out.println("contents of pos: "+i);
-//    		}
-    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+
     		
     	}else{
     		String inputStr = sent;
     	    String patternStr = word;
+    
     	    Pattern pattern = Pattern.compile("\\b"+patternStr+"\\b");
-    	    Matcher matcher = pattern.matcher(inputStr);
+    	    
+    	    Pattern pattern2 = Pattern.compile("\\^"+patternStr+"\\b");
+    	    Matcher matcher2 = pattern2.matcher(inputStr.trim());
+    	    
+    	    Matcher matcher = pattern.matcher(inputStr.trim());
     	    if(matcher.find()){
+
     	    	int begin = sentenceStart + matcher.start();
     	    	int end = begin +word.length();
     	    	d = new SpanWord(word,begin,end);
     	    	wordSpans.add(d);}
-    	    else{
-    	    	////System.out.println("Something went wrong with the matching!");
+    	    else{ 
+    	    	if (matcher2.find()){
+    	    		int begin = sentenceStart + matcher.start();
+        	    	int end = begin +word.length();
+        	    	d = new SpanWord(word,begin,end);
+        	    	wordSpans.add(d);
     	    	}
-    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+
+    	    	}
+    
     	   
     	}
     	}

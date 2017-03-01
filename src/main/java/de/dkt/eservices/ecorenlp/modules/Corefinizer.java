@@ -60,8 +60,10 @@ public class Corefinizer {
 	 
 	
 	 public static void main(String[] args) throws Exception {
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy.txt");
+		 
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\dummy2.txt");
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\60.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 //otherDummy();
 		 //getNamedEntityIndexes("Harry Potter. Tina Turner. Die Vereinten Nationen. Der FC Bayern München. Barack Obama. Berlin.");
@@ -144,27 +146,25 @@ public class Corefinizer {
 			   Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
 			   List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 			   
-			   LinkedHashSet<String[]> entityIndexes = new LinkedHashSet<>();
-			   
-			   
-			   for(String[] index: entityMap){
-				   String[]	indexes = new String[3];
-				   indexes[0]=index[3];
-				   indexes[1]=index[4];
+			   LinkedHashSet<String[]> entityIndexes = new LinkedHashSet<>(); 
+
+			   if (!(entityMap==null)){
+				   for(String[] index: entityMap){
+					   String[]	indexes = new String[3];
+					   indexes[0]=index[3];
+					   indexes[1]=index[4];
 				   
-				   if(index[2].contains("Organisation")){
-					   indexes[2]="org";
-				   }if(index[2].contains("Person")){
-					   indexes[2]="per";
-				   }if(index[2].contains("Location")){
-					   indexes[2]="loc";
+					   	if(index[2].contains("Organisation")){
+					   		indexes[2]="org";
+					   	}if(index[2].contains("Person")){
+					   		indexes[2]="per";
+					   	}if(index[2].contains("Location")){
+					   		indexes[2]="loc";
+					   	}
+					   entityIndexes.add(indexes);
 				   }
-				   entityIndexes.add(indexes);
 			   }
 			   
-			   for (String[] ind : entityIndexes){
-				   System.out.println("Indexes: "+ Arrays.deepToString(ind));
-			   }
 		 return entityIndexes;
 	 }
 	 
@@ -199,7 +199,8 @@ public class Corefinizer {
 		 //everything that happens in this loop works per sentence
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
 	 
-			 String sentence = entry.getValue().getText();
+			 //clean text before giving it to the parser to avoid errors with quotations marks and brackets later
+			 String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "");
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
@@ -222,6 +223,10 @@ public class Corefinizer {
 				 }
 			 }else{
 				 System.out.println("Something went wrong with the indexing!!!");
+				 System.out.println("ordered Values size: "+orderedValues.size()+" indexedWords size: "+indexedWords.size());
+				 System.out.println("Input sentence: "+entry.getValue().getText());
+				 orderedValues.forEach((k)->System.out.println("input : " +k.getContents()));
+				 indexedWords.forEach((k)->System.out.println("output : " +k.getText()));
 			 }
 			 
 			 //put sentence numbers and indexes into the mentions
@@ -417,12 +422,12 @@ public class Corefinizer {
 		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
 			  //compare mentions within one sentence, merge clusters when needed
 
-			  compareMentionsWithinSentence(a.getValue(), 4);
+			  compareMentionsWithinSentence(a.getValue(), 4); 
 			  
 		
 		  }
 		  
-		  //Fourth sieve, look in antecedent sentence
+		  //Fifth sieve, look in antecedent sentence
 
 		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
 				
@@ -433,7 +438,24 @@ public class Corefinizer {
 				
 				prevSentenceMentions.addAll(entry.getValue());
 			
-				compareMentionsWithinSentence(prevSentenceMentions, 4);
+				compareMentionsWithinSentence(prevSentenceMentions, 5);
+
+				}
+				
+		}
+		  
+		//Fifth sieve, look in antecedent sentence
+
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				compareMentionsWithinSentence(prevSentenceMentions, 5);
 
 				}
 				
@@ -444,15 +466,15 @@ public class Corefinizer {
 //			  }
 //		  }
 		  
-		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
-			System.out.println(a.toString());
-			Set<CorefMention> z = a.getValue().getCorefMentions();
-			for (CorefMention f : z){
-				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead()
-				+" Index: "+f.getStartIndex
-				()+"-"+f.getEndIndex());
-			}
-		}
+//		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
+//			System.out.println(a.toString());
+//			Set<CorefMention> z = a.getValue().getCorefMentions();
+//			for (CorefMention f : z){
+//				System.out.println("MentionId: "+f.getMentionID()+"; Mention: "+f.getContents()+"; head: "+f.getHead()
+//				+" Index: "+f.getStartIndex
+//				()+"-"+f.getEndIndex());
+//			}
+//		}
 		 
 
 	 }
@@ -460,6 +482,8 @@ public class Corefinizer {
 		 
 	
 	 public static void compareMentionsWithinSentence(LinkedHashSet<CorefMention> a, int sieveNumber){
+
+
 		 CorefMention[] array = new CorefMention[a.size()];
 		 if (!(a.size()==1)){
 			 //only one cluster, nothing to merge
@@ -471,6 +495,7 @@ public class Corefinizer {
 			  for (int j=i-1; j>=0;j--){
 				  if (sieveOne(array[i],array[j])){
 					  mergeClusters(array[j],array[i]); 
+					  System.out.println("SIEVE ONE: "+array[i].getContents()+" "+array[j].getContents());
 				  }
 			  }
 		  }
@@ -481,6 +506,7 @@ public class Corefinizer {
 					  if (sieveTwo(array[i],array[j])){
 //						  System.out.println("one: "+array[i].getClusterID()+" "+array[i].getContents()+"two :"+array[j].getClusterID()+" "+array[j].getContents());
 						  mergeClusters(array[j],array[i]);
+						  System.out.println("SIEVE TWO: "+array[i].getContents()+" "+array[j].getContents());
  
 					  }
 				  }
@@ -491,18 +517,30 @@ public class Corefinizer {
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveThree(array[i],array[j])){
 						  mergeClusters(array[j],array[i]);
- 
+						  System.out.println("SIEVE THREE: "+array[i].getContents()+" "+array[j].getContents());
 					  }
 				  }
 			  }
 			 }
 		 
-		 else 
-			 if(sieveNumber==4){
+		 else if(sieveNumber==4){
 			 for(int i=1; i<a.size();i++){
 				  for (int j=i-1; j>=0;j--){
 					  if (sieveFour(array[i],array[j])){
 						  mergeClusters(array[j],array[i]);
+						  System.out.println("SIEVE FOUR: "+array[i].getContents()+" "+array[j].getContents());
+						  
+ 
+					  }
+				  }
+			  }
+			 }
+		 else if(sieveNumber==5){
+			 for(int i=1; i<a.size();i++){
+				  for (int j=i-1; j>=0;j--){
+					  if (sieveFive(array[i],array[j])){
+						  mergeClusters(array[j],array[i]);
+						  System.out.println("SIEVE FIVE: "+array[i].getContents()+" "+array[j].getContents());
  
 					  }
 				  }
@@ -720,7 +758,7 @@ public class Corefinizer {
 	 }
 	 
 //	 Relaxed head matching. mention head matches any word in the cluster of the candidate antecedent.
-//	Both mention and antecedent have to be marked as named entities. 
+//	Both mention and antecedent have to be marked as named entities and the tag has to be equal. 
 //	Furthermore, this pass implements a conjunction of the above features with word inclusion and not i-within-i.
 	 public static boolean sieveFive(CorefMention one, CorefMention two){
 		 boolean first = false;
@@ -728,12 +766,14 @@ public class Corefinizer {
 		 boolean fourth = false;
 		 boolean retVal = false;
 		 
-		 //first constraint, match any word in the cluster of the candidate antecedent
+		 //first constraint, match any word in the cluster of the candidate antecedent, but only if
+		 //both are named entities and the markers match
 		 String oneContents = one.getContents();
 		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
 		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
 		 
-		 if(one.getNerTags()[2].equals(two.getNerTags()[2])){
+		 if(!(one.getNerTags()==null)&&!(two.getNerTags()==null)&&
+				 one.getNerTags()[2].equals(two.getNerTags()[2])){
 		 	if(twoClusterContents.matches(".*\\b"+oneContents+"\\b.*")){
 			 first = true;
 		 	}
@@ -762,7 +802,7 @@ public class Corefinizer {
 		 
 		 
 		 //test whether all constraints are fulfilled
-		 retVal = second&&fourth;
+		 retVal = first&&second&&fourth;
 		 
 		 
 		 return retVal;
