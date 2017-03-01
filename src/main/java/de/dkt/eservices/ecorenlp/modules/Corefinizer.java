@@ -18,6 +18,7 @@ import eu.freme.common.conversion.rdf.RDFSerializationFormats;
 import opennlp.tools.util.Span;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -427,6 +428,32 @@ public class Corefinizer {
 		
 		  }
 		  
+		  //fourth sieve, look in antecedent sentence
+
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				compareMentionsWithinSentence(prevSentenceMentions, 4);
+
+				}
+				
+		}
+		  
+		//Fifth sieve, look in same sentence
+		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
+			  //compare mentions within one sentence, merge clusters when needed
+
+			  compareMentionsWithinSentence(a.getValue(), 5); 
+			  
+		
+		  }
+		  
 		  //Fifth sieve, look in antecedent sentence
 
 		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
@@ -444,22 +471,6 @@ public class Corefinizer {
 				
 		}
 		  
-		//Fifth sieve, look in antecedent sentence
-
-		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
-				
-				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
-				if (!entry.getKey().equals(1)){
-				int k =	sentenceOrderMap.lowerKey(entry.getKey());
-				prevSentenceMentions = sentenceOrderMap.get(k);
-				
-				prevSentenceMentions.addAll(entry.getValue());
-			
-				compareMentionsWithinSentence(prevSentenceMentions, 5);
-
-				}
-				
-		}
 //		  for (Entry<Integer,LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
 //			  for (CorefMention mention : entry.getValue()){
 //				  System.out.println("mention: "+mention.getContents()+" index: "+mention.getStartIndex()+"-"+mention.getEndIndex());
@@ -820,6 +831,28 @@ public class Corefinizer {
 		 }
 		return false;
 		 
+	 }
+	 
+	 //here go the percise constructs
+	 public static boolean SieveSix(CorefMention one, CorefMention two) throws FileNotFoundException{
+		 boolean appositive=false;
+		 boolean predNom = false;
+		 boolean roleApp = false;
+		 boolean relPron = false;
+		 boolean acronym = false;
+		 boolean demonym = false;
+		 
+		 //check if demonym
+		 String oneContens = one.getContents();
+		 String twoContents = two.getContents();
+		 if(CorefUtils.isDemonym(oneContens, twoContents)){
+			 demonym = true;
+		 }
+		 return false;
+	 }
+	 
+	 public static boolean SieveSeven(CorefMention one, CorefMention two){
+		 return false;
 	 }
 	 
 	 

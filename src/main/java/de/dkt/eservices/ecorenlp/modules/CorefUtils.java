@@ -330,6 +330,16 @@ public static boolean isDemonym(String one, String two) throws FileNotFoundExcep
 	return ret;
 }
 
+public static boolean isAcronym(String one, String two){
+	boolean ret = false;
+	String outputString = "";
+	for (int i = 0; i < one.length(); i++) {
+	    char c = one.charAt(i);
+	    outputString += Character.isUpperCase(c) ? c + " " : ""; 
+	}
+	return ret;
+}
+
 
 
 }
