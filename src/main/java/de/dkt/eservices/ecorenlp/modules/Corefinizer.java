@@ -94,10 +94,10 @@ public class Corefinizer {
      		}
      	}
 		 
-//		 npHash = sandbox.traverseTreeForNPs(tree, npHash);
+//		 npHash = CorefUtils.traverseTreeForNPs(tree, npHash);
 //		 npHash.forEach((k,v)->System.out.println("DEBUG traverseTreeForNPs key :"+k.getStart()+"value: "+v));
 //		 System.out.println("------------------------------------------------------");
-//		 String a = sandbox.determineHead(tree);
+//		 String a = CorefUtils.determineHead(tree);
 //		 System.out.println("DEBUG determineHead: "+a);
 	 }
 	 
@@ -204,11 +204,11 @@ public class Corefinizer {
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
-			 TreeMap<Integer,CorefMention> rightOrderMap = sandbox.traverseBreadthFirst(tree);
+			 TreeMap<Integer,CorefMention> rightOrderMap = CorefUtils.traverseBreadthFirst(tree);
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
 			 
 			//here the word spans are added
-			 LinkedHashSet<SpanWord> indexedWords = sandbox.getWordSpans(orderedValues, entry.getValue());
+			 LinkedHashSet<SpanWord> indexedWords = CorefUtils.getWordSpans(orderedValues, entry.getValue());
 			 LinkedHashSet<CorefMention> newOrderedValues = new LinkedHashSet<>();
 			 
 			 if(orderedValues.size()==indexedWords.size()){
@@ -259,7 +259,7 @@ public class Corefinizer {
 			 }
 			 LinkedHashSet<CorefCluster> orderedClusters = new LinkedHashSet<CorefCluster>(rightOrderMapCluster.values());
 			 sentenceOrderMapCluster.put(entry.getKey(), orderedClusters);
-			 wordSpanMap.put(entry.getKey(), sandbox.getWordSpans(mentionSet, entry.getValue()));
+			 wordSpanMap.put(entry.getKey(), CorefUtils.getWordSpans(mentionSet, entry.getValue()));
 			 
 //			 for (Entry<Integer,LinkedHashSet<SpanWord>> f : wordSpanMap.entrySet()){
 //				 System.out.println("word spans: ");
@@ -586,8 +586,8 @@ public class Corefinizer {
 		 //the  cluster  of  the  antecedent  candidate
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
-		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
-		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
+		 String oneWithout = CorefUtils.filterStopWordsFromString(oneClusterContents);
+		 String twoWithout = CorefUtils.filterStopWordsFromString(twoClusterContents);
 		
 		 if((oneWithout.trim().isEmpty()&&twoWithout.trim().isEmpty())|| 
 				 !oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
@@ -689,8 +689,8 @@ public class Corefinizer {
 		 //the  cluster  of  the  antecedent  candidate
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
-		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
-		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
+		 String oneWithout = CorefUtils.filterStopWordsFromString(oneClusterContents);
+		 String twoWithout = CorefUtils.filterStopWordsFromString(twoClusterContents);
 		
 		 if((oneWithout.trim().isEmpty()&&twoWithout.trim().isEmpty())|| 
 				 !oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
@@ -783,8 +783,8 @@ public class Corefinizer {
 		 //the  cluster  of  the  antecedent  candidate
 		 CorefCluster clusterOfOne = clusterIdMap.get(one.getClusterID());
 		 String oneClusterContents = clusterOfOne.getContentsOfClusterAsString();
-		 String oneWithout = sandbox.filterStopWordsFromString(oneClusterContents);
-		 String twoWithout = sandbox.filterStopWordsFromString(twoClusterContents);
+		 String oneWithout = CorefUtils.filterStopWordsFromString(oneClusterContents);
+		 String twoWithout = CorefUtils.filterStopWordsFromString(twoClusterContents);
 		
 		 if((oneWithout.trim().isEmpty()&&twoWithout.trim().isEmpty())|| 
 				 !oneWithout.trim().isEmpty()&&!twoWithout.trim().isEmpty()&&twoWithout.contains(oneWithout)){
