@@ -27,7 +27,7 @@ import opennlp.tools.util.Span;
 public class CorefUtils {
 	
  public static void main(String[] args) throws Exception {
-	 boolean val = isDemonym("Frankreich","Franzose");
+	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
 	 System.out.println("VAL: "+val);
 		 
 	  }
@@ -332,10 +332,18 @@ public static boolean isDemonym(String one, String two) throws FileNotFoundExcep
 
 public static boolean isAcronym(String one, String two){
 	boolean ret = false;
-	String outputString = "";
+	String acro1 = "";
+	String acro2 = "";
 	for (int i = 0; i < one.length(); i++) {
 	    char c = one.charAt(i);
-	    outputString += Character.isUpperCase(c) ? c + " " : ""; 
+	    acro1 += Character.isUpperCase(c) ? c : ""; 
+	}
+	for (int i = 0; i < two.length(); i++) {
+	    char c = two.charAt(i);
+	    acro2 += Character.isUpperCase(c) ? c : ""; 
+	}
+	if (one.equals(acro2)||two.equals(acro1)){
+		ret=true;
 	}
 	return ret;
 }

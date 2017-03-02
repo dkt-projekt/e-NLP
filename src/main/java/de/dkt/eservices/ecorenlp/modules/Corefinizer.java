@@ -848,6 +848,11 @@ public class Corefinizer {
 		 if(CorefUtils.isDemonym(oneContens, twoContents)){
 			 demonym = true;
 		 }
+		 
+		 //check if acronym
+		 if(CorefUtils.isAcronym(oneContens, twoContents)){
+			 acronym = true;
+		 }
 		 return false;
 	 }
 	 
