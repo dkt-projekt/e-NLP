@@ -200,11 +200,12 @@ public class Corefinizer {
 		 //everything that happens in this loop works per sentence
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
 	 
-			 //clean text before giving it to the parser to avoid errors with quotations marks and brackets later
+			 //clean text before giving it to the parser to avoid errors with quotation marks and brackets later
 			 String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
+			 //TODO: breadth first traversal is not exactly the same as in Standford NLP, check that again!
 			 TreeMap<Integer,CorefMention> rightOrderMap = CorefUtils.traverseBreadthFirst(tree);
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
 			 
@@ -246,9 +247,13 @@ public class Corefinizer {
 				 mention.getValue().setClusterID(IdCounter);
 				 
 				 Set<CorefMention> a = new LinkedHashSet<CorefMention>();
+				 Set<String> genders = new HashSet<>();
+				 Set<String> numbers = new HashSet<>();
+				 genders.add(mention.getValue().getGender());
+				 numbers.add(mention.getValue().getNumber());
 				 a.add(mention.getValue());
 				 mentionSet.add(mention.getValue());
-				 CorefCluster newCluster = new CorefCluster(IdCounter,a,mention.getValue());
+				 CorefCluster newCluster = new CorefCluster(IdCounter,a,mention.getValue(), genders, numbers, mention.getValue().getPerson());
 				 rightOrderMapCluster.put(mention.getKey(), newCluster);
 				 
 				 //this map is important because this is where the clusters will merge!
@@ -339,6 +344,8 @@ public class Corefinizer {
 //		 noDuplicatesSet = filterDuplicates(noDuplicatesSet);
 		 
 		 
+		 
+//////////// THE SIEVES START HERE //////////////////////////////////////////////////////////////////////////////////////// 		 
 		 //better version of sieve one 
 		 // first look in the same sentence
 		 for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
@@ -841,6 +848,7 @@ public class Corefinizer {
 		 boolean relPron = false;
 		 boolean acronym = false;
 		 boolean demonym = false;
+		 boolean ret = false;
 		 
 		 //check if demonym
 		 String oneContens = one.getContents();
@@ -853,36 +861,68 @@ public class Corefinizer {
 		 if(CorefUtils.isAcronym(oneContens, twoContents)){
 			 acronym = true;
 		 }
-		 return false;
+		 
+		 //check if any constraint is true
+		 if (appositive||predNom||roleApp||relPron||acronym||demonym){
+			 ret=true;
+		 }
+		 return ret;
 	 }
 	 
 	 public static boolean SieveSeven(CorefMention one, CorefMention two){
+		 boolean number = false;
+		 boolean gender = false;
+		 boolean person = false;
+		 boolean ner = false;
+		 String oneStr = one.getContents();
+		 String twoStr = two.getContents();
+		 
+		 if (CorefUtils.isPronoun(oneStr)||CorefUtils.isPronoun(twoStr)){
+			 //check number
+			 if (one.getNumber().equals(two.getNumber())||one.getNumber().equals("NON")||two.getNumber().equals("NON")){
+				 number = true;
+			 }
+			 //check gender
+			 if(one.getGender().equals(two.getGender())||one.getGender().equals("NOG")||two.getGender().equals("NOG")){
+				 gender = true;
+			 }
+			 //check person
+			 if (one.getPerson().isEmpty()||two.getPerson().isEmpty()||one.getPerson().equals(two.getPerson())){
+				 person = true;
+			 }
+			 //check NER label
+			 if (!(one.getNerTags().equals(null))||!(two.getNerTags().equals(null))){
+				 ner = true;
+			 }
+		 }
 		 return false;
 	 }
 	 
 	 
 	 public static void mergeClusters (CorefMention one, CorefMention two){
 	//one + two = one 
-		 //change information in the cluster
-		 
-//		 for (Entry<Integer, CorefCluster> a : clusterIdMap.entrySet()){
-//			 System.out.println(a.toString());
-//		 }
-//		 System.out.println("Mention one: "+one.getContents()+one.getClusterID()+"; Mention two: "+two.getContents()+two.getClusterID());
-		 
 		 
 		 CorefCluster oneCluster = clusterIdMap.get(one.getClusterID());
 		 CorefCluster twoCluster = clusterIdMap.get(two.getClusterID());
 		 
 		if (!(one.getClusterID()==two.getClusterID())){
 		Set<CorefMention> newSet = oneCluster.getCorefMentions();
+		Set<String>	newGenders = oneCluster.getGenders();
+		Set<String> newNumbers = oneCluster.getGenders();
+		Set<String> newPersons = oneCluster.getPersons();
 		int oldClusterId = two.getClusterID();
 		two.setClusterID(one.getClusterID());
 		
 		newSet.add(one);
 		newSet.add(two);
+		newGenders.add(two.getGender());
+		newNumbers.add(two.getGender());
+		newPersons.addAll(two.getPerson());
 			 
 		oneCluster.setCorefMentions(newSet);
+		oneCluster.setGenders(newGenders);
+		oneCluster.setNumbers(newNumbers);
+		oneCluster.setPersons(newPersons);
 		clusterIdMap.put(oneCluster.getClusterID(), oneCluster);
 		clusterIdMap.remove(oldClusterId);
 		}	 	
