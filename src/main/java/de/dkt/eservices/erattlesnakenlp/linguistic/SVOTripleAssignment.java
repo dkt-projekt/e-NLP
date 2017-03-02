@@ -118,7 +118,7 @@ public class SVOTripleAssignment {
 			if (verbPOStags.contains(secondsVerbPosTag)){
 				System.out.println("---- verb conj relation ---- ");
 				System.out.println(secondsVerbPosTag + " " + secondVerbOfConjRelation);	
-				if (getWordByDependency("nsubj",gs) )
+				//if (getWordByDependency("nsubj",gs) )
 			}
 		}
 	}
