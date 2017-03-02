@@ -24,6 +24,7 @@ public class SVOTripleAssignment {
 			t.setFirst(td.dep());
 			if (englishSubjectRelationTypes.contains(td.reln().toString())){
 				rootRelation = td;
+				break;
 			}
 		}
 		return rootRelation;		
@@ -35,6 +36,7 @@ public class SVOTripleAssignment {
 
 	public static IndexedWord assignSubject(GrammaticalStructure gs){
 		IndexedWord subject = findRootDependency(gs).dep();
+		System.out.println("get word by dependency " + getWordByDependency("nsubj",gs) + " " + findRootDependency(gs).dep() + " get second subj " + getSecondSubject(gs));
 		return subject;	
 	}
 
@@ -58,7 +60,6 @@ public class SVOTripleAssignment {
 
 		for (Object object : list) {
 			typedDependency = (TypedDependency) object;
-
 			if (typedDependency.reln().toString().equals(dependencyType)) {
 				dependencyTypeWord = typedDependency.dep().word();
 			}
@@ -75,10 +76,14 @@ public class SVOTripleAssignment {
 
 		for (int i = 0; i < list.length; i++){
 			typedDependency = (TypedDependency) list[i];
+			//System.out.println("# " +dependencyType + " typedDependency.reln().toString() " + typedDependency.reln().toString());
 
 			if (typedDependency.reln().toString().equals(dependencyType)) {
+
 				nextElement = (TypedDependency) list[i+1];
+				//System.out.println("next element " + nextElement + " previous " + typedDependency);
 				if (nextElement.reln().toString().equals("root")){
+
 					preVerbPostition = true;
 				}
 			}
@@ -97,35 +102,48 @@ public class SVOTripleAssignment {
 			typedDependency = (TypedDependency) object;
 
 			if (typedDependency.dep().word().equals(word)) {
-				//System.out.println("THIS pos tag type found: " + word + " " + typedDependency.dep().tag());
 				posTag = typedDependency.dep().tag();
 			}
 		}
 		return posTag;
 	}
 
+	public static String  getSecondSubject(GrammaticalStructure gs){
+		//	boolean dependencyTypeExists = false;
+		String secondSubject = null;
 
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
 
-	public static void conjRelation (GrammaticalStructure gs){
-		String secondVerbOfConjRelation = getWordByDependency("conj:and", gs);
-		boolean isInPreVerbPosition = preVerbPosition("conj:and", gs);
-		
-		if (!isInPreVerbPosition & !secondVerbOfConjRelation.equals(null)){
-		//	System.out.println("--- VERB conj relation found --- " + getWordByDependency("conj:and", gs));
-			ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
-			String secondsVerbPosTag = getPOStagByWord(secondVerbOfConjRelation, gs);
-			
-			if (verbPOStags.contains(secondsVerbPosTag)){
-				System.out.println("---- verb conj relation ---- ");
-				System.out.println(secondsVerbPosTag + " " + secondVerbOfConjRelation);	
-				//if (getWordByDependency("nsubj",gs) )
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+
+			if (englishSubjectRelationTypes.contains(typedDependency.reln().toString())) {
+				secondSubject = typedDependency.dep().word();
 			}
 		}
+		return secondSubject;
 	}
 
+	public static String conjRelation (GrammaticalStructure gs){
+		String verbConjRelation = null;
+		String secondVerbOfConjRelation = getWordByDependency("conj:and", gs);
+		boolean isInPreVerbPosition = preVerbPosition("conj:and", gs);
 
+		if (!isInPreVerbPosition){
+			if (secondVerbOfConjRelation != null){
+				//	System.out.println("--- VERB conj relation found --- " + getWordByDependency("conj:and", gs));
+				ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
+				String secondsVerbPosTag = getPOStagByWord(secondVerbOfConjRelation, gs);
 
-
+				if (verbPOStags.contains(secondsVerbPosTag)){
+					verbConjRelation = secondVerbOfConjRelation;
+				}
+			}
+		}
+		return verbConjRelation;
+	}
 
 	// now do another loop to find object of the main verb/root
 	// thing. This may also appear before the subject was
@@ -134,8 +152,27 @@ public class SVOTripleAssignment {
 		IndexedWord object = null;
 		TypedDependency relationType = getObjectRelationType(gs);
 
-		if (englishObjectRelationTypes.contains(relationType.reln().toString()))
-			object = relationType.dep();
+
+		if (englishObjectRelationTypes.contains(relationType.reln().toString())){
+		//	System.out.println("---- preverb position " + !preVerbPosition(relationType.reln().toString(), gs));
+			object = relationType.gov();	
+		//	System.out.println("... object ... " + object);
+		}
+		else if (englishIndirectObjectRelationTypes.contains(relationType.reln().toString()) && !preVerbPosition(relationType.reln().toString(), gs))
+			object = relationType.gov();
+		else 
+			object = null;
+
+		return object;
+	}
+
+	public static IndexedWord assignSecondObject(GrammaticalStructure gs){	
+		IndexedWord object = null;
+		TypedDependency relationType = getSecondObjectRelationType(gs);
+
+		if (englishObjectRelationTypes.contains(relationType.reln().toString())){
+			object = relationType.dep();			
+		}
 		else if (englishIndirectObjectRelationTypes.contains(relationType.reln().toString()))
 			object = relationType.gov();
 		else 
@@ -144,7 +181,31 @@ public class SVOTripleAssignment {
 		return object;
 	}
 
+
 	public static TypedDependency getObjectRelationType (GrammaticalStructure gs){
+		TypedDependency objectRelationType = null;
+
+		IndexedWord connectingElement = assignVerb(gs);
+		if (!(connectingElement == null)){
+			for (TypedDependency td : gs.typedDependencies()) {
+
+				if (englishObjectRelationTypes.contains(td.reln().toString())  && !preVerbPosition(td.reln().toString(), gs)) {
+					if (td.gov().beginPosition() == connectingElement.beginPosition()
+							&& td.gov().endPosition() == connectingElement.endPosition()) {
+						objectRelationType = td;
+						//break;
+					}
+				}
+				else if (englishIndirectObjectRelationTypes.contains(td.reln().toString())){
+					objectRelationType = td;
+				}
+			}
+		}
+
+		return objectRelationType;
+	}
+
+	public static TypedDependency getSecondObjectRelationType (GrammaticalStructure gs){
 		TypedDependency objectRelationType = null;
 
 		IndexedWord connectingElement = assignVerb(gs);
@@ -164,6 +225,21 @@ public class SVOTripleAssignment {
 		}
 
 		return objectRelationType;
+	}
+	public static TypedDependency getDirectPreceder(String word, GrammaticalStructure gs){	
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+		TypedDependency wordPreceder = null;
+
+		for (int i = 0; i < list.length; i++){
+			typedDependency = (TypedDependency) list[i];
+			if (typedDependency.dep().word().equals(word)) {
+				wordPreceder =  (TypedDependency) list[i-1];
+			}
+		}	
+		return wordPreceder;
 	}
 
 

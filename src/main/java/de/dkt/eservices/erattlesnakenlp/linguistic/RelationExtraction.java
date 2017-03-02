@@ -326,7 +326,7 @@ public class RelationExtraction {
 				if (!(connectingElement == null)){
 					for (TypedDependency td : allVerbDependenciesList) {
 						if (englishObjectRelationTypes.contains(td.reln().toString())) {
-							//	System.out.println("Dependency relation " + td.reln().toString());
+								System.out.println("Dependency relation " + td.reln().toString());
 							if (td.gov().beginPosition() == connectingElement.beginPosition()
 									&& td.gov().endPosition() == connectingElement.endPosition()) {
 								object = td.dep();							
@@ -433,7 +433,7 @@ public class RelationExtraction {
 						//	SimilarityMeasure.getSublists(LSAmatrix);
 					}
 
-					SVOTripleAssignment.conjRelation(gs);
+					
 					if (!(subjectURI == null) && !(objectURI == null)){
 						EntityRelationTriple t = new EntityRelationTriple();
 						t.setSubject(String.format("%s(%s)", SVOTripleAssignment.subjectConjunction(gs), subjectURI));
@@ -441,7 +441,22 @@ public class RelationExtraction {
 						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma));
 						t.setObject(String.format("%s(%s)", object, objectURI));
 						//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+						
+						
+						
 						ert.add(t);
+					}
+					
+					//in case of having a conjunction
+					if (SVOTripleAssignment.conjRelation(gs) != null){
+						
+					EntityRelationTriple t2 = new EntityRelationTriple();
+					t2.setSubject(String.format("%s(%s)", SVOTripleAssignment.getSecondSubject(gs), " no URI "));
+					t2.setRelation(String.format("%s(%s)", SVOTripleAssignment.conjRelation(gs), " no URI "));
+					t2.setObject(String.format("%s(%s)", SVOTripleAssignment.assignSecondObject(gs), " no URI "));
+					System.out.println("-- Second tripe -- " + SVOTripleAssignment.getSecondSubject(gs) + " " + SVOTripleAssignment.conjRelation(gs) + " " + SVOTripleAssignment.assignSecondObject(gs));
+					
+					ert.add(t2);
 					}
 				}
 			}
