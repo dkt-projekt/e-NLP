@@ -33,22 +33,100 @@ public class SVOTripleAssignment {
 		return findRootDependency(gs).gov();	
 	}
 
-	public static IndexedWord assignSubject(GrammaticalStructure gs){			 
-		return findRootDependency(gs).dep();	
+	public static IndexedWord assignSubject(GrammaticalStructure gs){
+		IndexedWord subject = findRootDependency(gs).dep();
+		return subject;	
 	}
 
-	public IndexedWord assignSecondSubjOfConjRelation (Collection <TypedDependency> allDepenednciesList, GrammaticalStructure gs){
-		IndexedWord subject = null;
-		IndexedWord verb = getSecondVerbOfConjRelation(allDepenednciesList);
-		if (!verb.equals(null)){
-			subject = assignSubject(gs);
-			/*
-			 * TODO: 
-			 */
-		 }
+	public static String subjectConjunction(GrammaticalStructure gs){	
+		String subject = assignSubject(gs).word();
+		String subjectConjunction = getWordByDependency("conj:and", gs);
+
+		if (!subjectConjunction.equals(null) & preVerbPosition("conj:and", gs))
+			subject = subject.concat(" and " + subjectConjunction);	
 		return subject;
 	}
-	
+
+
+	public static String  getWordByDependency(String dependencyType, GrammaticalStructure gs){
+		//	boolean dependencyTypeExists = false;
+		String dependencyTypeWord = null;
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+
+			if (typedDependency.reln().toString().equals(dependencyType)) {
+				dependencyTypeWord = typedDependency.dep().word();
+			}
+		}
+		return dependencyTypeWord;
+	}
+
+	public static boolean preVerbPosition(String dependencyType, GrammaticalStructure gs){
+		boolean preVerbPostition = false;
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		TypedDependency nextElement;
+		Object[] list = td.toArray();
+
+		for (int i = 0; i < list.length; i++){
+			typedDependency = (TypedDependency) list[i];
+
+			if (typedDependency.reln().toString().equals(dependencyType)) {
+				nextElement = (TypedDependency) list[i+1];
+				if (nextElement.reln().toString().equals("root")){
+					preVerbPostition = true;
+				}
+			}
+		}
+		return preVerbPostition;
+	}
+
+	public static String getPOStagByWord(String word, GrammaticalStructure gs){
+		String posTag = null;
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+
+			if (typedDependency.dep().word().equals(word)) {
+				//System.out.println("THIS pos tag type found: " + word + " " + typedDependency.dep().tag());
+				posTag = typedDependency.dep().tag();
+			}
+		}
+		return posTag;
+	}
+
+
+
+	public static void conjRelation (GrammaticalStructure gs){
+		String secondVerbOfConjRelation = getWordByDependency("conj:and", gs);
+		boolean isInPreVerbPosition = preVerbPosition("conj:and", gs);
+		
+		if (!isInPreVerbPosition & !secondVerbOfConjRelation.equals(null)){
+		//	System.out.println("--- VERB conj relation found --- " + getWordByDependency("conj:and", gs));
+			ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
+			String secondsVerbPosTag = getPOStagByWord(secondVerbOfConjRelation, gs);
+			
+			if (verbPOStags.contains(secondsVerbPosTag)){
+				System.out.println("---- verb conj relation ---- ");
+				System.out.println(secondsVerbPosTag + " " + secondVerbOfConjRelation);	
+				if (getWordByDependency("nsubj",gs) )
+			}
+		}
+	}
+
+
+
+
+
 	// now do another loop to find object of the main verb/root
 	// thing. This may also appear before the subject was
 	// encountered, hence the need for two loops.
@@ -87,20 +165,7 @@ public class SVOTripleAssignment {
 
 		return objectRelationType;
 	}
-	public IndexedWord getSecondVerbOfConjRelation (Collection <TypedDependency> allDepenednciesList ){
-		IndexedWord connectingElement2 = null;
 
-		Iterator<TypedDependency> dependenciesIterator = allDepenednciesList.iterator();
-		while (dependenciesIterator.hasNext()){
-			TypedDependency element = dependenciesIterator.next();
-
-			if (element.reln().toString().equals("conj")){
-				System.out.println(element + " " + element.gov().toString() + " " + element.dep().toString());
-				connectingElement2 =  element.dep();
-			}
-		}
-		return connectingElement2;
-	}
 
 
 	public static String getURI (IndexedWord argument, List<TaggedWord> tagged, List<String[]> entityMap){
