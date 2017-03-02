@@ -1,5 +1,8 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import java.util.List;
+import java.util.Set;
+
 import edu.stanford.nlp.trees.Tree;
 
 public class CorefMention {
@@ -13,7 +16,10 @@ private int clusterID;
 private String head;
 private String modifier = null;
 private Tree sentenceAsTree;
-private String[] nerTags;
+private String[] nerTags = null;
+private String gender;
+private String number;
+private Set<String> person;
 
 public String getHead(){
 	return this.head;
@@ -62,6 +68,21 @@ public CorefMention(int i, String word, int j, int k, String l, String m, Tree n
 	head = l;
 	modifier = m;
 	sentenceAsTree = n;
+	
+}
+
+public CorefMention(int mentID, String word, int j, int k, String hea, String mod, Tree tree,String gen, String num, Set<String> pers) {
+	// TODO Auto-generated constructor stub
+	mentionID = mentID;
+	contents = word;
+	startIndex = j;
+	endIndex = k;
+	head = hea;
+	modifier = mod;
+	sentenceAsTree = tree;
+	gender = gen;
+	number = num;
+	person = pers;
 	
 }
 // primitive methods
@@ -160,6 +181,30 @@ public String[] getNerTags() {
 
 public void setNerTags(String[] nerTags) {
 	this.nerTags = nerTags;
+}
+
+public String getGender() {
+	return gender;
+}
+
+public void setGender(String gender) {
+	this.gender = gender;
+}
+
+public String getNumber() {
+	return number;
+}
+
+public void setNumber(String number) {
+	this.number = number;
+}
+
+public Set<String> getPerson() {
+	return person;
+}
+
+public void setPerson(Set<String> person) {
+	this.person = person;
 }
 
 }

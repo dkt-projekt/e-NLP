@@ -1,17 +1,13 @@
 package de.dkt.eservices.ecorenlp.modules;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-
-import java.lang.reflect.Array;
-
-import java.io.Writer;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,48 +22,46 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Queue;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.SortedSet;
+
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONObject;
-import org.springframework.core.io.ClassPathResource;
-
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
-import de.dkt.common.niftools.NIFManagement;
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.eservices.eopennlp.modules.SentenceDetector;
-import de.dkt.eservices.eopennlp.modules.Tokenizer;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
+import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.trees.Constituent;
 import edu.stanford.nlp.trees.HeadFinder;
-import edu.stanford.nlp.trees.LabeledScoredTreeNode;
-import edu.stanford.nlp.trees.SemanticHeadFinder;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.PropertiesUtils;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import eu.freme.common.exception.BadRequestException;
 import edu.stanford.nlp.trees.Tree;
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTaggerME;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
+
+import edu.stanford.nlp.naturalli.ClauseSplitter;
+import edu.stanford.nlp.naturalli.OpenIE;
+import edu.stanford.nlp.naturalli.SentenceFragment;
 
 public class sandbox {
 	public static LexicalizedParser parser = null;
@@ -94,13 +88,62 @@ public class sandbox {
     	  }
     	}
 	
-//    public static void main(String[] args) throws IOException{
+    
+    
+    public static void main(String[] args) throws IOException{
+    	
+    	
+    	
+//    	String sentence = "This computer is great, but the keyboard is lousy.";
+//    	Properties props = PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma,depparse,natlog,openie");
+//    	StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+//
+//        Annotation doc = new Annotation(sentence);
+//        pipeline.annotate(doc);
+//
+//		for (CoreMap sent : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
+//			System.out.println(sent.get(CoreAnnotations.TextAnnotation.class));
+//			List<SentenceFragment> clauses = new OpenIE(props).clausesInSentence(sent);
+//			for (SentenceFragment clause : clauses) {
+//				System.out.println(clause);
+//				//System.out.println(clause.parseTree.toString(SemanticGraph.OutputFormat.LIST));
+//			}
+//		}
+    	
+    }
+    	
+    	
+    	
+//    	String filePath = "C:\\Users\\pebo01\\AppData\\Local\\Temp\\Temp1_NIFfiles.zip\\NIFfiles\\CliffBurton.nif";   	
+//    	String jsonLdString = readFile(filePath, StandardCharsets.UTF_8);
+//    	try {
+//			Model nifModel = NIFReader.extractModelFromFormatString(jsonLdString, RDFSerialization.JSON_LD);
+//			List<String[]> events = new LinkedList<String[]>();
+//			ResIterator iterEntities = nifModel.listSubjects();
+//	        while (iterEntities.hasNext()) {
+//	            Resource r = iterEntities.nextResource();
+//	            if (r.toString().startsWith("http://dkt.dfki.de/documents/#event")){
+//	            	System.out.println(r);
+//	            	StmtIterator si = r.listProperties();
+//	            	while(si.hasNext()){
+//	            		Statement r2 = si.nextStatement();
+//	            		System.out.println(r2);
+//	            	}
+//	            }
+//	        }
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	
+//    	
+//    }
 //    	
 //    	
 //    	LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-//  	String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
+//    	String sentence = "Barack Obama, Präsident der U.S.A, besuchte heute Berlin.";
 ////  	String sentence = "Sein Blick ist im vorübergehn der Stäbe so müde geworden, dass er nichts mehr hält. Ihm ist als ob es tausend Stäbe gäbe und hinter tausen Stäben keine Welt.";
-//    	;
+//    	
 // //   	getOrderFromTree(tree);
 // //       traverse(tree,tree);
 //    	String secondSentence = "Angela Merkel, Kanzlerin der Herzen, war auch mit von der Partie";
@@ -109,7 +152,7 @@ public class sandbox {
 //    		Tree tree = lexParser.parse(a);
 //    		traverseBreadthFirst(tree);
 //    	}
-//    	
+    	
 //    	
 //        
 //    	
@@ -583,31 +626,70 @@ public static boolean compareListsSpan(String w1, String w2){
 			return leafNumberMap;
 	}
 	
+	public static String determineGender(String word) throws FileNotFoundException{
+		Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+		String ret = "NOG";
+		
+		while(txtscan.hasNextLine()){
+		    String str = txtscan.nextLine();
+		    if(str.indexOf(word) != -1){
+		    	if(str.contains("NEU")){
+		    		ret="NEU";
+		    	}if(str.contains("MAS")){
+		    		ret="MAS";
+		    	}if(str.contains("FEM")){
+		    		ret="FEM";
+		    	}
+		    }
+		}
+		return ret;
+	}
+	
+	public static String determineNumber(String word) throws FileNotFoundException{
+		Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+		String ret = "NON";
+		
+		while(txtscan.hasNextLine()){
+		    String str = txtscan.nextLine();
+		    if(str.indexOf(word) != -1){
+		    	if(str.contains("PLU")){
+		    		ret="PLU";
+		    	}if(str.contains("SIN")){
+		    		ret="SIN";
+		    	}
+		    }
+		}
+		return ret;
+	}
+	
 	public static LinkedHashSet<SpanWord> getWordSpans(LinkedHashSet<CorefMention> mentions, SpanWord sentence){
 //		for (CorefMention m : mentions){
 //			System.out.println("all the mentions: "+m.getContents()+" "+m.getMentionID());
 //		}
-		//System.out.println("--------------------------------------------");
+//		System.out.println("--------------------------------------------");
 		LinkedHashSet<SpanWord>	wordSpans = new LinkedHashSet<>();
 		int counter = 0;
 		
 		for (CorefMention mention : mentions){
-//			System.out.println("mention: "+mention.getContents());
-		String word = mention.getContents();
+//		String word = mention.getContents().replace("''", "").replace("``","").replace(" :",":").replace(" .",".").trim();
+//		word = word.replace("\\s+", "").replace("\t", "").trim();
+		//System.out.println("Original Sentence: "+sentence.getText());
+		String word = mention.getContents().replaceAll("\\p{Punct}", "").replaceAll("\"", "").replaceAll("„", "").replaceAll("“", "").replaceAll("-", "").replaceAll("\\s+", " ");
+		//stem.out.println("WORD: "+word);
 	 	List<Integer> pos = new ArrayList<>();
 
-    	String sent = sentence.getText();
+    	String sent = sentence.getText().replaceAll("\\p{Punct}", "").replaceAll("\\s+", " ").replaceAll("„", "").replaceAll("“", "").replace("-", "");
+    	//System.out.println("SENT: "+sent);
     	int sentenceStart = sentence.getStartSpan();
     	  if (sent.toLowerCase().contains(word.toLowerCase()) && sent.toLowerCase().indexOf(word.toLowerCase()) != sent.toLowerCase().lastIndexOf(word.toLowerCase())){
     		    Matcher m = Pattern.compile("(?i)\\b"+word+"\\b").matcher(sent);
     		    counter++;
-    		   // System.out.println("counter in first loop: "+counter+ " word: "+word);
+
     		    while (m.find())
     		    {
     		        pos.add(m.start());
     		    
     		    }
-    		   // System.out.println("Size pos: "+pos.size());
     		    
     		    }
     	
@@ -615,33 +697,32 @@ public static boolean compareListsSpan(String w1, String w2){
     	SpanWord d = new SpanWord("",0,0);
     	
     	if(pos.size()>1){
-    		
+//    		pos.forEach(k->System.out.println("pos: "+k));
+//    		System.out.println("Counter: "+counter);
     		int begin = sentenceStart + pos.get(counter-1);
-    		//System.out.println("int : "+begin);
+   
         	int end = begin +word.length();
     		d = new SpanWord(word,begin,end);
     		wordSpans.add(d);
-    		//System.out.println("BINGO! "+word+" "+begin+" "+end);
-//    		for (int i : pos){
-//    			System.out.println("counter :"+counter);
-//    			System.out.println("contents of pos: "+i);
-//    		}
-    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+
     		
     	}else{
     		String inputStr = sent;
     	    String patternStr = word;
+    
     	    Pattern pattern = Pattern.compile("\\b"+patternStr+"\\b");
-    	    Matcher matcher = pattern.matcher(inputStr);
+    	    Matcher matcher = pattern.matcher(inputStr.trim());
     	    if(matcher.find()){
+
     	    	int begin = sentenceStart + matcher.start();
     	    	int end = begin +word.length();
     	    	d = new SpanWord(word,begin,end);
     	    	wordSpans.add(d);}
-    	    else{
-    	    	////System.out.println("Something went wrong with the matching!");
+    	    else{ 
+    	    	
+
     	    	}
-    		////System.out.println("DEBUG word span: "+d.getText()+" "+d.getStartSpan()+" "+d.getEndSpan());
+    
     	   
     	}
     	}
