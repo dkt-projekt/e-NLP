@@ -2,14 +2,17 @@ package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,10 +30,15 @@ import opennlp.tools.util.Span;
 public class CorefUtils {
 	
  public static void main(String[] args) throws Exception {
-	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
-	 System.out.println("VAL: "+val);
-		 
-	  }
+//	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
+//	 System.out.println("VAL: "+val);
+//		 
+
+	 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+	 Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
+	 traverseBreadthFirst(tree);
+ }
+	 //Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
 	
 	public static LexicalizedParser parser = null;
 	private final static String EN_PCFG_MODEL = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";        
@@ -38,14 +46,11 @@ public class CorefUtils {
 
     
  static  int i = 1;
-public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
+public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree) throws FileNotFoundException{
 		
-//		System.out.println("DEBUG Tree: ");
 //		tree.pennPrint();
-		
-		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
+	TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 		Queue<Tree> queue = new LinkedList<Tree>() ;
-
 		    if (tree == null)
 		        return null;
 		    
@@ -64,6 +69,7 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		        
 		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
 		        if ((node.label().value().equals("NP")||node.label().value().equals("PPER"))&&(m.getMatch()== null)){
+		        	
 		        //if (node.label().value().equals("NP")){
 		        	ArrayList<String> npAsList = new ArrayList<String>();
 		        	String modifiers = "";
@@ -92,11 +98,18 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 	            	
 	            	String nodeHead = "";
 	            	nodeHead = determineHead(node);
+	            	List<Word> wl = node.yieldWords();
+	            	int begin = wl.get(0).beginPosition();
+	            	int end = wl.get(wl.size()-1).endPosition();
+	            	Span sp = new Span(begin, end);
 	            	
 	            	
 	            	
-	       		 
-		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead, modifiers, tree));
+	       		  
+		        			
+		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree,
+		        			determineGender(word), determineNumber(word), determinePerson(word)));
+		        	
 		        	
 		        }
 		        i++;
@@ -106,6 +119,7 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		    
 
 		}
+	
 
 			return leafNumberMap;
 	}
@@ -257,36 +271,90 @@ public static void traverse (Tree tree, Tree wholet){
 public static String determineGender(String word) throws FileNotFoundException{
 	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
 	String ret = "NOG";
+	int masc = 0;
+	int fem = 0;
+	int neut = 0;
+	String[] words = word.split(" ");
 	
-	while(txtscan.hasNextLine()){
-	    String str = txtscan.nextLine();
-	    if(str.indexOf(word) != -1){
-	    	if(str.contains("NEU")){
-	    		ret="NEU";
-	    	}if(str.contains("MAS")){
-	    		ret="MAS";
-	    	}if(str.contains("FEM")){
-	    		ret="FEM";
-	    	}
-	    }
+	for (String w : words){
+		while(txtscan.hasNextLine()){
+			String str = txtscan.nextLine();
+			if(str.indexOf(w) != -1){
+				if(str.contains("NEU")){
+	    		neut++;
+				}if(str.contains("MAS")){
+	    		masc++;
+				}if(str.contains("FEM")){
+	    		fem++;
+				}
+			}
+		}
+	}
+	if (masc>0 && fem<=0 && neut<=0){
+		
+		ret="MAS";
+	}if (fem>0 && masc<=0&& neut<=0){
+	
+		ret="FEM";
+	}if (neut>0 && masc<=0&& fem<=0){
+		
+		ret="NEU";
 	}
 	return ret;
 }
 
 public static String determineNumber(String word) throws FileNotFoundException{
 	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+	int sg = 0;
+	int pl = 0;
 	String ret = "NON";
+	String[] words = word.split(" ");
 	
-	while(txtscan.hasNextLine()){
-	    String str = txtscan.nextLine();
-	    if(str.indexOf(word) != -1){
-	    	if(str.contains("PLU")){
-	    		ret="PLU";
-	    	}if(str.contains("SIN")){
-	    		ret="SIN";
-	    	}
-	    }
+	for (String w : words){
+		while(txtscan.hasNextLine()){
+			String str = txtscan.nextLine();
+			if(str.indexOf(w) != -1){
+				if(str.contains("PLU")){
+	    		pl++;
+				}if(str.contains("SIN")){
+	    		sg++;
+				}
+			}
+		}
 	}
+	if (sg>0 && pl<=0){
+		
+		ret="SIN";
+	}if (pl>0 && sg<=0){
+	
+		ret="PLU";
+	}
+	return ret;
+}
+
+public static Set<String> determinePerson(String word) throws FileNotFoundException{
+	Set<String> ret = new HashSet<>();
+	if (isPronoun(word)){
+		if (word.equalsIgnoreCase("ich")||word.equalsIgnoreCase("meiner")||word.equalsIgnoreCase("mir")||word.equalsIgnoreCase("mich")){
+			ret.add("1SI");
+		}if (word.equalsIgnoreCase("du")||word.equalsIgnoreCase("deiner")||word.equalsIgnoreCase("dir")||word.equalsIgnoreCase("dich")){
+			ret.add("2SI");
+		}if (word.equalsIgnoreCase("er")||word.equalsIgnoreCase("seiner")||word.equalsIgnoreCase("ihn")||word.equalsIgnoreCase("ihm")){
+			ret.add("3SI");
+		}if (word.equalsIgnoreCase("sie")||word.equalsIgnoreCase("ihrer")||word.equalsIgnoreCase("ihr")){
+			ret.add("3SI");
+		}if (word.equalsIgnoreCase("es")||word.equalsIgnoreCase("seiner")||word.equalsIgnoreCase("ihm")){
+			ret.add("3SI");
+		}if (word.equalsIgnoreCase("wir")||word.equalsIgnoreCase("unser")||word.equalsIgnoreCase("uns")){
+			ret.add("1PL");
+		}if (word.equalsIgnoreCase("ihr")||word.equalsIgnoreCase("euer")||word.equalsIgnoreCase("euch")){
+			ret.add("2PL");
+		}if (word.equalsIgnoreCase("sie")||word.equalsIgnoreCase("ihrer")||word.equalsIgnoreCase("ihnen")){
+			ret.add("3PL");
+		}
+	}
+	
+	
 	return ret;
 }
 
@@ -307,6 +375,16 @@ public static String filterStopWordsFromString(String string){
 	        string = string.replaceAll("(?i)\\b[^\\w -]*" + stopWord + "[^\\w -]*\\b", "");
 	    }
 	return string;
+}
+
+public static String pronouns = "ich "+"mich "+"mir "+"mich "+"du "+"dich "+"dir "+"er "+"ihn "+"ihm "+"sie "+"ihr "+"es "+"wir "+"uns "+"ihr "+"euch "+"sie "+"ihnen "+"unser "+"euer "+"meiner "+"deiner "+"seiner "+"ihrer";
+
+public static boolean isPronoun(String word){
+	if(pronouns.matches(".*\\b"+word+"\\b.*")){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 public static String findModifiers(CorefMention Mention){
