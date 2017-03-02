@@ -103,12 +103,13 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree) thr
 	            	int end = wl.get(wl.size()-1).endPosition();
 	            	Span sp = new Span(begin, end);
 	            	
-	            	
+   	
 	            	
 	       		  
 		        			
 		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree,
 		        			determineGender(word), determineNumber(word), determinePerson(word)));
+
 		        	
 		        	
 		        }

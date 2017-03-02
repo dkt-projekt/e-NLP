@@ -214,10 +214,11 @@ public class RelationExtraction {
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement.word())){
 							relationLemma = SentenceList.lemma();
-
+							System.out.println("data running " + relationLemma);
 							wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
 							System.out.println("subject " + subject + " object " + object );
 							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
+						
 						}
 					}
 
@@ -238,6 +239,7 @@ public class RelationExtraction {
 
 
 			}
+			
 		}
 
 		return ert;
@@ -280,7 +282,6 @@ public class RelationExtraction {
 
 				for (TaggedWord tw : tagged) {
 					tlSentence.add((lemmatizer).lemmatize(tw));
-					System.out.println((lemmatizer).lemmatize(tw));
 				}
 
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
@@ -301,13 +302,12 @@ public class RelationExtraction {
 				Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
 				//	DPTreeNode tree =  DepParserTree.generateTreeFromList(allVerbDependenciesList);
 
-				//				
-				//				subject = SVOTripleAssignment.assignSubject(gs);
-				//				connectingElement = SVOTripleAssignment.assignVerb(gs);
-				//				object = SVOTripleAssignment.assignObject(gs);
-
-
-
+				
+								
+								IndexedWord subject1 = SVOTripleAssignment.assignSubject(gs);
+								IndexedWord connectingElement1 = SVOTripleAssignment.assignVerb(gs);
+								IndexedWord object1 = SVOTripleAssignment.assignObject(gs);
+								System.out.println("subject1 " + subject1.toString() + " connectingElement1 " + connectingElement1.toString() + " object1 " + object1.toString());
 
 				for (TypedDependency td : allVerbDependenciesList) {
 					IndexedWordTuple t = new IndexedWordTuple();
@@ -315,6 +315,9 @@ public class RelationExtraction {
 					if (englishSubjectRelationTypes.contains(td.reln().toString())){
 						connectingElement = td.gov();
 						subject = td.dep();
+						System.out.println("DATA " + subject + " connEl " + connectingElement);
+						System.out.println();
+
 					}
 				}
 				// now do another loop to find object of the main verb/root
@@ -353,7 +356,7 @@ public class RelationExtraction {
 
 
 
-				System.out.println("subj" + subject + " connectingElement " + connectingElement + " object " + object );
+				System.out.println("subj " + subject + " connectingElement " + connectingElement + " object " + object );
 
 
 
@@ -366,6 +369,8 @@ public class RelationExtraction {
 					String subjectURI = SVOTripleAssignment.getURI(subject,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object,tagged, entityMap);
 
+					System.out.println("subjectURI " + subjectURI + " objectRI " + objectURI + "--");
+					
 					//					// Mendelsohn exception:
 					//					if (subject.word().equalsIgnoreCase("i")){
 					//						subjectURI = "Eric";
@@ -428,13 +433,14 @@ public class RelationExtraction {
 						//	SimilarityMeasure.getSublists(LSAmatrix);
 					}
 
+					SVOTripleAssignment.conjRelation(gs);
 					if (!(subjectURI == null) && !(objectURI == null)){
 						EntityRelationTriple t = new EntityRelationTriple();
-						//t.setSubject(String.format("%s(%s)", subject, subjectURI));
-						t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+						t.setSubject(String.format("%s(%s)", SVOTripleAssignment.subjectConjunction(gs), subjectURI));
+					//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
 						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma));
-						//t.setObject(String.format("%s(%s)", object, objectURI));
-						t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+						t.setObject(String.format("%s(%s)", object, objectURI));
+						//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
 						ert.add(t);
 					}
 				}
@@ -843,8 +849,15 @@ public class RelationExtraction {
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\enLetters\\nif";
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\data\\ARTCOM\\artComSampleFilesDBPediaTimeouts\\nifsCorefinized";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
-		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
+		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/wikipedia_NIF";
+		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
+		/**
+		 * another examples
+		**/
+		// CONJ in subject position
+		//Sumner and his family moved to Tallahatchie County, Mississippi from Alabama around January, 1872.
+		
 		//	String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
 
 		//	extractEventsFromTheSource(filePath);
@@ -866,10 +879,11 @@ public class RelationExtraction {
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
 				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
-
+				
+				
 				for (EntityRelationTriple t : ert) {
 					masterList.add(t);
-					System.out.println("Triple: " +t);
+					System.out.println("Triple: " +t.toString() + " counter " + c);
 				}
 
 			} catch (Exception e) {

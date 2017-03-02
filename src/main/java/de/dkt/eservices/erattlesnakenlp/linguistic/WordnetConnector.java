@@ -74,7 +74,7 @@ public class WordnetConnector {
 		
 		if(!verb1.equals(verb2) && unionSize != 0) {  
 			//System.out.println("VERB : " + verb1 + " " + verb2 + " " + union.toString());
-			similarVerbs = true;
+			//similarVerbs = true;
 		} 
 		return similarVerbs;
 	}
@@ -115,8 +115,5 @@ public class WordnetConnector {
 		LinkedList<String> wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
 		Iterator<String> wordnetSensesIterator = wordnetInformationSet.iterator();
 
-		while (wordnetSensesIterator.hasNext()){
-			//System.out.println(wordnetSensesIterator.next().toString());
-		}
 	}
 }
