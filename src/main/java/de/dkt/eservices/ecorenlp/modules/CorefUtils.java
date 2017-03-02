@@ -2,6 +2,7 @@ package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,10 +28,15 @@ import opennlp.tools.util.Span;
 public class CorefUtils {
 	
  public static void main(String[] args) throws Exception {
-	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
-	 System.out.println("VAL: "+val);
-		 
-	  }
+//	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
+//	 System.out.println("VAL: "+val);
+//		 
+
+	 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+	 Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
+	 traverseBreadthFirst(tree);
+ }
+	 //Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
 	
 	public static LexicalizedParser parser = null;
 	private final static String EN_PCFG_MODEL = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";        
@@ -40,12 +46,9 @@ public class CorefUtils {
  static  int i = 1;
 public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		
-//		System.out.println("DEBUG Tree: ");
 //		tree.pennPrint();
-		
-		TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
+	TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
 		Queue<Tree> queue = new LinkedList<Tree>() ;
-
 		    if (tree == null)
 		        return null;
 		    
@@ -64,6 +67,7 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		        
 		        ArrayList<ArrayList<String>> nps = new ArrayList<ArrayList<String>>();
 		        if ((node.label().value().equals("NP")||node.label().value().equals("PPER"))&&(m.getMatch()== null)){
+		        	
 		        //if (node.label().value().equals("NP")){
 		        	ArrayList<String> npAsList = new ArrayList<String>();
 		        	String modifiers = "";
@@ -92,11 +96,13 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 	            	
 	            	String nodeHead = "";
 	            	nodeHead = determineHead(node);
+	            	List<Word> wl = node.yieldWords();
+	            	int begin = wl.get(0).beginPosition();
+	            	int end = wl.get(wl.size()-1).endPosition();
+	            	Span sp = new Span(begin, end);
 	            	
-	            	
-	            	
-	       		 
-		        	leafNumberMap.put(i, new CorefMention(i, word, 1, 1, nodeHead, modifiers, tree));
+		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree));
+		        	
 		        	
 		        }
 		        i++;
@@ -106,6 +112,7 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree){
 		    
 
 		}
+	
 
 			return leafNumberMap;
 	}
