@@ -32,7 +32,7 @@ public class VerbnetConnector {
 		 * VALENCY 2, CASE 1: 2 arguments, the 2nd a dobj
 		 */
 		
-		System.out.println(objectsDependency.toString() + " " +  FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null);
+		//System.out.println(objectsDependency.toString() + " " +  FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null);
 		System.out.println();
 		
 		if (objectsDependency.equals("dobj") & FramenetConnector.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null){

@@ -218,7 +218,7 @@ public class RelationExtraction {
 							wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
 							System.out.println("subject " + subject + " object " + object );
 							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-						
+
 						}
 					}
 
@@ -239,7 +239,7 @@ public class RelationExtraction {
 
 
 			}
-			
+
 		}
 
 		return ert;
@@ -254,12 +254,6 @@ public class RelationExtraction {
 		//TODO discuss if we want to do this at broker startup instead
 		Tagger.initTagger(language);
 		DepParserTree.initParser(language);
-
-		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
-		List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "case", "nmod:poss")); 
-		List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
-		List<String> englishIndirectObjectRelationTypesExtended = new ArrayList<>(Arrays.asList("iobj", "case", "nmod", "nmod:poss"));
-
 
 		String isstr = NIFReader.extractIsString(nifModel);
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
@@ -287,12 +281,9 @@ public class RelationExtraction {
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
-				IndexedWord subject = null;
-				IndexedWord connectingElement = null;
-				IndexedWord object = null;
-				IndexedWord iobject = null;
-				String objectsDependency = null;
-				String iobjectsDependency = null;
+				IndexedWord subject1 = SVOTripleAssignment.getSubject(gs);
+				IndexedWord connectingElement1 = SVOTripleAssignment.getVerb(gs);
+				IndexedWord object1 = SVOTripleAssignment.getObject(gs);
 
 
 				//only the direct verb dependencies are relevant for extracting the arguments 
@@ -302,75 +293,16 @@ public class RelationExtraction {
 				Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
 				//	DPTreeNode tree =  DepParserTree.generateTreeFromList(allVerbDependenciesList);
 
-				
-								
-								IndexedWord subject1 = SVOTripleAssignment.assignSubject(gs);
-								IndexedWord connectingElement1 = SVOTripleAssignment.assignVerb(gs);
-								IndexedWord object1 = SVOTripleAssignment.assignObject(gs);
-								System.out.println("subject1 " + subject1.toString() + " connectingElement1 " + connectingElement1.toString() + " object1 " + object1.toString());
 
-				for (TypedDependency td : allVerbDependenciesList) {
-					IndexedWordTuple t = new IndexedWordTuple();
-					t.setFirst(td.dep());
-					if (englishSubjectRelationTypes.contains(td.reln().toString())){
-						connectingElement = td.gov();
-						subject = td.dep();
-						System.out.println("DATA " + subject + " connEl " + connectingElement);
-						System.out.println();
+				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
 
-					}
-				}
-				// now do another loop to find object of the main verb/root
-				// thing. This may also appear before the subject was
-				// encountered, hence the need for two loops.
-				if (!(connectingElement == null)){
-					for (TypedDependency td : allVerbDependenciesList) {
-						if (englishObjectRelationTypes.contains(td.reln().toString())) {
-								System.out.println("Dependency relation " + td.reln().toString());
-							if (td.gov().beginPosition() == connectingElement.beginPosition()
-									&& td.gov().endPosition() == connectingElement.endPosition()) {
-								object = td.dep();							
-								objectsDependency = td.reln().toString();
+					System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
 
-								if (!object.equals(null))
-									// assign iobj if it exists, if the list is longer, it has definitely more arguments, 
-									//BUT they are not necessary  arguments (i.e. temporal expressions)
-									if (allVerbDependenciesList.size()>2 && englishIndirectObjectRelationTypesExtended.contains(td.reln().toString())){
-
-										//										System.out.println("Sentence: " + sentence);
-										//										System.out.println("verb dependencies' list + " +allVerbDependenciesList.size() + " " + td);
-										//										System.out.println("IOBJ found " + td.reln());
-
-										iobjectsDependency = td.reln().toString();
-
-									}
-
-									else break;
-							}
-						}
-						else if (englishIndirectObjectRelationTypes.contains(td.reln().toString())){
-							object = td.gov(); // NOTE: bit tricky; taking case (usually indirect object) relation as object here if nothing found for object. Could be interesting...
-						}
-					}
-				}
-
-
-
-				System.out.println("subj " + subject + " connectingElement " + connectingElement + " object " + object );
-
-
-
-
-
-				//		System.out.println(subject.toString() + connectingElement.toString() + object.toString());
-				if (!(subject == null) && !(connectingElement == null) && !(object == null)){
-					System.out.println("DEBUGGING relation found:" + subject + " TAG "+subject.tag() + "___" + connectingElement + "___" + object + " " + object.tag());
-
-					String subjectURI = SVOTripleAssignment.getURI(subject,tagged, entityMap);
-					String objectURI = SVOTripleAssignment.getURI(object,tagged, entityMap);
+					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
+					String objectURI = SVOTripleAssignment.getURI(object1,tagged, entityMap);
 
 					System.out.println("subjectURI " + subjectURI + " objectRI " + objectURI + "--");
-					
+
 					//					// Mendelsohn exception:
 					//					if (subject.word().equalsIgnoreCase("i")){
 					//						subjectURI = "Eric";
@@ -384,21 +316,24 @@ public class RelationExtraction {
 					String objectThemRole = null;
 
 					for (WordLemmaTag SentenceList : tlSentence){
-						if (SentenceList.word().equals(connectingElement.word())){
+						if (SentenceList.word().equals(connectingElement1.word())){
 							relationLemma = SentenceList.lemma();
 
+							//THETA ROLES' ASSIGNMENT
+							/**
 							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
 							LinkedList <String> wordnetEntries = WordnetConnector.getWordnetInformation("give", pathToVerbnet);
-							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-							
-						
-							System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
-							System.out.println("relationLemma " + relationLemma);
+							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject1, object1, objectsDependency, relationLemma, pathToVerbnet);
+
+
+							//System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
+							//System.out.println("relationLemma " + relationLemma);
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
 								objectThemRole = thetaRolesList.get(1);
-								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
+								//System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 							}
+							 **/
 
 
 
@@ -432,32 +367,9 @@ public class RelationExtraction {
 
 						//	SimilarityMeasure.getSublists(LSAmatrix);
 					}
-
-					
-					if (!(subjectURI == null) && !(objectURI == null)){
-						EntityRelationTriple t = new EntityRelationTriple();
-						t.setSubject(String.format("%s(%s)", SVOTripleAssignment.subjectConjunction(gs), subjectURI));
-					//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
-						t.setRelation(connectingElement.word().concat(" lemma: ").concat(relationLemma));
-						t.setObject(String.format("%s(%s)", object, objectURI));
-						//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
-						
-						
-						
-						ert.add(t);
-					}
-					
-					//in case of having a conjunction
-					if (SVOTripleAssignment.conjRelation(gs) != null){
-						
-					EntityRelationTriple t2 = new EntityRelationTriple();
-					t2.setSubject(String.format("%s(%s)", SVOTripleAssignment.getSecondSubject(gs), " no URI "));
-					t2.setRelation(String.format("%s(%s)", SVOTripleAssignment.conjRelation(gs), " no URI "));
-					t2.setObject(String.format("%s(%s)", SVOTripleAssignment.assignSecondObject(gs), " no URI "));
-					System.out.println("-- Second tripe -- " + SVOTripleAssignment.getSecondSubject(gs) + " " + SVOTripleAssignment.conjRelation(gs) + " " + SVOTripleAssignment.assignSecondObject(gs));
-					
-					ert.add(t2);
-					}
+					System.out.println("assignment     ------------------------");
+					EntityRelationTriple t = SVOTripleAssignment.setEntityRelationTriple(subjectURI, objectURI, gs);
+					ert.add(t);
 				}
 			}
 		}
@@ -869,10 +781,10 @@ public class RelationExtraction {
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
 		/**
 		 * another examples
-		**/
+		 **/
 		// CONJ in subject position
 		//Sumner and his family moved to Tallahatchie County, Mississippi from Alabama around January, 1872.
-		
+
 		//	String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
 
 		//	extractEventsFromTheSource(filePath);
@@ -894,11 +806,10 @@ public class RelationExtraction {
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
 				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
-				
-				
+
+
 				for (EntityRelationTriple t : ert) {
 					masterList.add(t);
-					System.out.println("Triple: " +t.toString() + " counter " + c);
 				}
 
 			} catch (Exception e) {
