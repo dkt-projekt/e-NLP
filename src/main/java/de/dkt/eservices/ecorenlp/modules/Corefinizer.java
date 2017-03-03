@@ -1,20 +1,9 @@
 package de.dkt.eservices.ecorenlp.modules;
 
-import edu.stanford.nlp.hcoref.CorefCoreAnnotations;
-import edu.stanford.nlp.hcoref.data.CorefChain;
-import edu.stanford.nlp.hcoref.data.Mention;
-import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.tregex.TregexMatcher;
-import edu.stanford.nlp.trees.tregex.TregexPattern;
-import edu.stanford.nlp.util.CoreMap;
-import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import eu.freme.common.conversion.rdf.RDFSerializationFormats;
 import opennlp.tools.util.Span;
 
 import java.io.FileInputStream;
@@ -24,13 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -40,11 +26,7 @@ import org.apache.commons.io.IOUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.eservices.enlp.ENLPTest;
-import de.dkt.eservices.eopennlp.EOpenNLPService;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 
