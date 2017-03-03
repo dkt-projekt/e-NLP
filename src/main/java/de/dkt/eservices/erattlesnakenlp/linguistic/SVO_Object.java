@@ -11,13 +11,10 @@ public class SVO_Object {
 	public static IndexedWord assignObject(GrammaticalStructure gs){	
 		IndexedWord object = null;
 		TypedDependency relationType = getObjectRelationType(gs);
-		System.out.println("relationType: " + relationType);
-		System.out.println("WordElement.getWordByDependency(\"advcl\", gs).length() " + WordElement.getWordByDependency("advcl", gs));
 
 		
 		//advcl relationType		
 		if (WordElement.getWordByDependency("advcl", gs).length()>1){
-			System.out.println("WordElement.getWordByDependency(\"advcl\", gs).length() " + WordElement.getWordByDependency("advcl", gs).length());
 			object = relationType.gov();
 		}
 		else 
@@ -77,7 +74,9 @@ public class SVO_Object {
 					if (td.gov().beginPosition() == connectingElement.beginPosition()
 							&& td.gov().endPosition() == connectingElement.endPosition()) {
 						objectRelationType = td;
-						//break;
+						
+						//TODO!
+						break;
 					}
 				}
 				else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(td.reln().toString())){
@@ -85,7 +84,6 @@ public class SVO_Object {
 				}
 			}
 		}
-
 		return objectRelationType;
 	}
 
