@@ -3,6 +3,10 @@ package de.dkt.eservices.ecorenlp.modules;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.tregex.TregexMatcher;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.util.Pair;
+import edu.stanford.nlp.dcoref.MentionExtractor;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import opennlp.tools.util.Span;
 
@@ -52,15 +56,15 @@ public class Corefinizer {
 	
 	 public static void main(String[] args) throws Exception {
 		 
-		 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-		 Tree tree = lexParser.parse("Tina Turner, eine Sängerin, besuchte am Montag Berlin.");
-		 tree.pennPrint();
+//		 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+//		 Tree tree = lexParser.parse("Tina Turner, eine Sängerin, besuchte am Montag Berlin.");
+//		 tree.pennPrint();
 		 
 //		 for (Dependency<Label,Label,Object> dep : tree.dep){
 //			 System.out.println(dep.dependent());
 //		 }
 		 
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annaKap1.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\relative.txt");
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\7.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
@@ -202,13 +206,15 @@ public class Corefinizer {
 			 //String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
 			 String sentence = entry.getValue().getText();
 			 Tree tree = lexParser.parse(sentence);
+			 tree.pennPrint();
+
 			 
 			 //this is where the mentions get all the mention information 
 			 //TODO: breadth first traversal is not exactly the same as in Standford NLP, check that again!
 			 TreeMap<Integer,CorefMention> rightOrderMap = CorefUtils.traverseBreadthFirst(tree, entry.getValue());
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
-			 orderedValues.forEach(k->System.out.println("DEBUG INDEXES:"+k.getContents()+"|"+k.getStartIndex()+"|"+k.getEndIndex()+
-					 k.getGender()+"|"+k.getNumber()));
+//			 orderedValues.forEach(k->System.out.println("DEBUG INDEXES:"+k.getContents()+"|"+k.getStartIndex()+"|"+k.getEndIndex()+
+//					 k.getGender()+"|"+k.getNumber()));
 			 
 			//here the word spans are added
 //			 LinkedHashSet<SpanWord> indexedWords = CorefUtils.getWordSpans(orderedValues, entry.getValue());
@@ -479,6 +485,32 @@ public class Corefinizer {
 				
 		}
 		  
+		//sixth sieve, look in same sentence
+		  for  (Entry<Integer, LinkedHashSet<CorefMention>> a : sentenceOrderMap.entrySet()){
+			  //compare mentions within one sentence, merge clusters when needed
+
+			  compareMentionsWithinSentence(a.getValue(), 6); 
+			  
+		
+		  }
+		  
+		  //sixth sieve, look in antecedent sentence
+
+		  for(Map.Entry<Integer, LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
+				
+				LinkedHashSet<CorefMention> prevSentenceMentions = new LinkedHashSet<CorefMention>();
+				if (!entry.getKey().equals(1)){
+				int k =	sentenceOrderMap.lowerKey(entry.getKey());
+				prevSentenceMentions = sentenceOrderMap.get(k);
+				
+				prevSentenceMentions.addAll(entry.getValue());
+			
+				compareMentionsWithinSentence(prevSentenceMentions, 6);
+
+				}
+				
+		}
+		  
 //		  for (Entry<Integer,LinkedHashSet<CorefMention>> entry : sentenceOrderMap.entrySet()){
 //			  for (CorefMention mention : entry.getValue()){
 //				  System.out.println("mention: "+mention.getContents()+" index: "+mention.getStartIndex()+"-"+mention.getEndIndex());
@@ -500,7 +532,7 @@ public class Corefinizer {
 	 
 		 
 	
-	 public static void compareMentionsWithinSentence(LinkedHashSet<CorefMention> a, int sieveNumber){
+	 public static void compareMentionsWithinSentence(LinkedHashSet<CorefMention> a, int sieveNumber) throws FileNotFoundException{
 
 
 		 CorefMention[] array = new CorefMention[a.size()];
@@ -560,6 +592,18 @@ public class Corefinizer {
 					  if (sieveFive(array[i],array[j])){
 						  mergeClusters(array[j],array[i]);
 						  System.out.println("SIEVE FIVE: "+array[i].getContents()+" "+array[j].getContents());
+ 
+					  }
+				  }
+			  }
+			 }
+		 
+		 else if(sieveNumber==6){
+			 for(int i=1; i<a.size();i++){
+				  for (int j=i-1; j>=0;j--){
+					  if (sieveSix(array[i],array[j])){
+						  mergeClusters(array[j],array[i]);
+						  System.out.println("SIEVE SIX: "+array[i].getContents()+" "+array[j].getContents());
  
 					  }
 				  }
@@ -841,8 +885,15 @@ public class Corefinizer {
 		 
 	 }
 	 
+	 
+//	  private static final TregexPattern appositionPattern = TregexPattern.compile("NP=m1 < (NP=m2 $.. (/,/ $.. NP=m3))");
+//	  private static final TregexPattern appositionPattern2 = TregexPattern.compile("NP=m1 < (NP=m2 $.. (/,/ $.. (SBAR < (WHNP < WP|WDT=m3))))");
+//	  private static final TregexPattern appositionPattern3 = TregexPattern.compile("/^NP(?:-TMP|-ADV)?$/=m1 < (NP=m2 $- /^,$/ $-- NP=m3 !$ CC|CONJP)");
+//	  private static final TregexPattern appositionPattern4 = TregexPattern.compile("/^NP(?:-TMP|-ADV)?$/=m1 < (PRN=m2 < (NP < /^NNS?|CD$/ $-- /^-LRB-$/ $+ /^-RRB-$/))");
+//	 
+	 
 	 //here go the percise constructs
-	 public static boolean SieveSix(CorefMention one, CorefMention two) throws FileNotFoundException{
+	 public static boolean sieveSix(CorefMention one, CorefMention two) throws FileNotFoundException{
 		 boolean appositive=false;
 		 boolean predNom = false;
 		 boolean roleApp = false;
@@ -851,6 +902,47 @@ public class Corefinizer {
 		 boolean demonym = false;
 		 boolean ret = false;
 		 
+		 
+		 //check for appositive
+		 //this gets some of them, but not all!		
+		 String app1 = "NP$/,/<(MPN$/,/$NP)";
+		 String app2 = "NP$/,/<(NP$/,/)";
+		 String app3 = "PP$/,/$NP$/,/";
+		 	TregexPattern p1 = TregexPattern.compile(app1);
+		 	TregexPattern p2 = TregexPattern.compile(app2);
+		 	TregexPattern p3 = TregexPattern.compile(app3);
+	        TregexMatcher m1 = p1.matcher(one.getSentenceAsTree());
+	        TregexMatcher m2 = p2.matcher(one.getSentenceAsTree());
+	        TregexMatcher m3 = p3.matcher(one.getSentenceAsTree());
+	        m1.find();
+	        m2.find();
+	        m3.find();
+	        
+	        if(!(m1.getMatch()== null)||!(m2.getMatch()==null||!(m3.getMatch()==null))){
+	        	//System.out.println(one.getContents());
+	        }
+	               
+	     //predicate nominative
+	        String pred1 = "NP$(VAFIN<(ist|war))$NP";
+	        String pred2 = "MPN$(VAFIN<(ist|war))$NP";
+
+			 	TregexPattern pre1 = TregexPattern.compile(pred1);
+			 	TregexPattern pre2 = TregexPattern.compile(pred2);
+//			 	TregexPattern p3 = TregexPattern.compile(app3);
+		        TregexMatcher mre1 = pre1.matcher(one.getSentenceAsTree());
+		        TregexMatcher mre2 = pre2.matcher(one.getSentenceAsTree());
+//		        TregexMatcher m3 = p3.matcher(one.getSentenceAsTree());
+		        mre1.find();
+		        mre2.find();
+//		        m3.find();
+		        
+		        if(!(mre1.getMatch()== null)||!(mre2.getMatch()==null)){
+		        	System.out.println(one.getContents());
+		        }
+			 
+		 //relative pronoun
+		 // for some reason the constructions with relative pronouns are considered as one mention. Deal with that later.
+		        
 		 //check if demonym
 		 String oneContens = one.getContents();
 		 String twoContents = two.getContents();
@@ -891,10 +983,10 @@ public class Corefinizer {
 			 if (one.getPerson().isEmpty()||two.getPerson().isEmpty()||one.getPerson().equals(two.getPerson())){
 				 person = true;
 			 }
-			 //check NER label
-			 if (!(one.getNerTags().equals(null))||!(two.getNerTags().equals(null))){
-				 ner = true;
-			 }
+//			 //check NER label (this seems useless to me, because this would link any pronoun to any named entity.)
+//			 if (!(one.getNerTags().equals(null))||!(two.getNerTags().equals(null))){
+//				 ner = true;
+//			 }
 		 }
 		 return false;
 	 }

@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
+import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.HeadFinder;
@@ -25,6 +26,8 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Pair;
 import opennlp.tools.util.Span;
 
 public class CorefUtils {
@@ -107,9 +110,9 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree, Spa
 	            	
 	       		  
 		        			
-		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree,
-		        			determineGender(word), determineNumber(word), determinePerson(word)));
-//		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree));
+//		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree,
+//		        			determineGender(word), determineNumber(word), determinePerson(word)));
+		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree));
 		        	
 		        	
 		        }
@@ -428,6 +431,25 @@ public static boolean isAcronym(String one, String two){
 	}
 	return ret;
 }
+
+public static void findTreePattern(Tree tree, TregexPattern tgrepPattern) {
+    try {
+      TregexMatcher m = tgrepPattern.matcher(tree);
+      while (m.find()) {
+        Tree t = m.getMatch();
+        Tree np1 = m.getNode("m1");
+        Tree np2 = m.getNode("m2");
+        Tree np3 = null;
+        if(tgrepPattern.pattern().contains("m3")) np3 = m.getNode("m3");
+        System.out.println("BINGO");
+        if(np3!=null) System.out.println("BINGO2");;
+      }
+    } catch (Exception e) {
+      // shouldn't happen....
+      throw new RuntimeException(e);
+    }
+  }
+
 
 
 
