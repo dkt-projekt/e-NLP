@@ -33,10 +33,10 @@ public class CorefUtils {
 //	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
 //	 System.out.println("VAL: "+val);
 //		 
-
-	 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
-	 Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
-	 traverseBreadthFirst(tree);
+//
+//	 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+//	 Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
+//	 traverseBreadthFirst(tree);
  }
 	 //Tree tree = lexParser.parse("Vielleicht die Frage was von Bremen zu halten ist: \"\"Wunderbar gemütlich\"\" sagt Alexander in perfektem Deutsch;");
 	
@@ -46,7 +46,7 @@ public class CorefUtils {
 
     
  static  int i = 1;
-public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree) throws FileNotFoundException{
+public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree, SpanWord sentence) throws FileNotFoundException{
 		
 //		tree.pennPrint();
 	TreeMap<Integer,CorefMention> leafNumberMap = new TreeMap<Integer, CorefMention>();
@@ -99,8 +99,8 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree) thr
 	            	String nodeHead = "";
 	            	nodeHead = determineHead(node);
 	            	List<Word> wl = node.yieldWords();
-	            	int begin = wl.get(0).beginPosition();
-	            	int end = wl.get(wl.size()-1).endPosition();
+	            	int begin = wl.get(0).beginPosition()+sentence.getStartSpan();
+	            	int end = wl.get(wl.size()-1).endPosition()+sentence.getStartSpan();
 	            	Span sp = new Span(begin, end);
 	            	
    	
@@ -109,7 +109,7 @@ public static  TreeMap<Integer,CorefMention> traverseBreadthFirst(Tree tree) thr
 		        			
 		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree,
 		        			determineGender(word), determineNumber(word), determinePerson(word)));
-
+//		        	leafNumberMap.put(i, new CorefMention(i, word, sp.getStart(), sp.getEnd(), nodeHead, modifiers, tree));
 		        	
 		        	
 		        }
@@ -276,11 +276,13 @@ public static String determineGender(String word) throws FileNotFoundException{
 	int fem = 0;
 	int neut = 0;
 	String[] words = word.split(" ");
+
 	
 	for (String w : words){
 		while(txtscan.hasNextLine()){
 			String str = txtscan.nextLine();
-			if(str.indexOf(w) != -1){
+			if(str.matches("^(?i)"+w+"\\b.*")){
+//			if(str.matches("^(["+w+"-]+)")){
 				if(str.contains("NEU")){
 	    		neut++;
 				}if(str.contains("MAS")){
@@ -314,7 +316,7 @@ public static String determineNumber(String word) throws FileNotFoundException{
 	for (String w : words){
 		while(txtscan.hasNextLine()){
 			String str = txtscan.nextLine();
-			if(str.indexOf(w) != -1){
+			if(str.matches("^(?i)"+w+"\\b.*")){
 				if(str.contains("PLU")){
 	    		pl++;
 				}if(str.contains("SIN")){

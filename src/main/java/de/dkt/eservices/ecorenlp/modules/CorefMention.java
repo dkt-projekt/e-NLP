@@ -1,5 +1,6 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,9 +18,9 @@ private String head;
 private String modifier = null;
 private Tree sentenceAsTree;
 private String[] nerTags = null;
-private String gender;
-private String number;
-private Set<String> person;
+private String gender = "";
+private String number = "";
+private Set<String> person = new HashSet<>();
 
 public String getHead(){
 	return this.head;

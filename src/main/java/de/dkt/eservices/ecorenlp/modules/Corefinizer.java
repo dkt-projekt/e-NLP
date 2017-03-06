@@ -1,22 +1,5 @@
 package de.dkt.eservices.ecorenlp.modules;
 
-import edu.stanford.nlp.hcoref.CorefCoreAnnotations;
-import edu.stanford.nlp.hcoref.data.CorefChain;
-import edu.stanford.nlp.hcoref.data.Mention;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.trees.LabeledScoredTreeNode;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.tregex.TregexMatcher;
-import edu.stanford.nlp.trees.tregex.TregexPattern;
-import edu.stanford.nlp.util.CoreMap;
-import eu.freme.common.conversion.rdf.RDFConstants;
-import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import eu.freme.common.conversion.rdf.RDFSerializationFormats;
-import opennlp.tools.util.Span;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,29 +7,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 
-
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.eservices.enlp.ENLPTest;
-import de.dkt.eservices.eopennlp.EOpenNLPService;
 import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
+import edu.stanford.nlp.ling.Label;
+import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.trees.Dependency;
+import edu.stanford.nlp.trees.LabeledScoredTreeNode;
+import edu.stanford.nlp.trees.Tree;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import opennlp.tools.util.Span;
 
 @SuppressWarnings("deprecation")
 public class Corefinizer {
@@ -62,9 +45,17 @@ public class Corefinizer {
 	
 	 public static void main(String[] args) throws Exception {
 		 
+		 LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+		 Tree tree = lexParser.parse("Tina Turner, eine Sängerin, besuchte am Montag Berlin.");
+		 tree.pennPrint();
+		 
+//		 for (Dependency<Label,Label,Object> dep : tree.dep){
+//			 System.out.println(dep.dependent());
+//		 }
+		 
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annaKap1.txt");
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
-		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\60.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
+		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\7.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
 		 //otherDummy();
 		 //getNamedEntityIndexes("Harry Potter. Tina Turner. Die Vereinten Nationen. Der FC Bayern München. Barack Obama. Berlin.");
@@ -201,38 +192,41 @@ public class Corefinizer {
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
 	 
 			 //clean text before giving it to the parser to avoid errors with quotation marks and brackets later
-			 String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
+			 //String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
+			 String sentence = entry.getValue().getText();
 			 Tree tree = lexParser.parse(sentence);
 			 
 			 //this is where the mentions get all the mention information 
 			 //TODO: breadth first traversal is not exactly the same as in Standford NLP, check that again!
-			 TreeMap<Integer,CorefMention> rightOrderMap = CorefUtils.traverseBreadthFirst(tree);
+			 TreeMap<Integer,CorefMention> rightOrderMap = CorefUtils.traverseBreadthFirst(tree, entry.getValue());
 			 LinkedHashSet<CorefMention> orderedValues = new LinkedHashSet<CorefMention>(rightOrderMap.values());
+			 orderedValues.forEach(k->System.out.println("DEBUG INDEXES:"+k.getContents()+"|"+k.getStartIndex()+"|"+k.getEndIndex()+
+					 k.getGender()+"|"+k.getNumber()));
 			 
 			//here the word spans are added
-			 LinkedHashSet<SpanWord> indexedWords = CorefUtils.getWordSpans(orderedValues, entry.getValue());
-			 LinkedHashSet<CorefMention> newOrderedValues = new LinkedHashSet<>();
-			 
-			 if(orderedValues.size()==indexedWords.size()){
-				 CorefMention[] corefArray = new CorefMention[orderedValues.size()];
-				 SpanWord[]	spanArray = new SpanWord[orderedValues.size()];
-				 orderedValues.toArray(corefArray);
-				 indexedWords.toArray(spanArray);
-				 for (int i = 0; i<orderedValues.size(); i++){
-					 corefArray[i].setStartIndex(spanArray[i].getStartSpan());
-					 corefArray[i].setEndIndex(spanArray[i].getEndSpan());
-					 newOrderedValues.add(corefArray[i]);
-				 }
-			 }else{
-				 System.out.println("Something went wrong with the indexing!!!");
-				 System.out.println("ordered Values size: "+orderedValues.size()+" indexedWords size: "+indexedWords.size());
-				 System.out.println("Input sentence: "+entry.getValue().getText());
-				 orderedValues.forEach((k)->System.out.println("input : " +k.getContents()));
-				 indexedWords.forEach((k)->System.out.println("output : " +k.getText()));
-			 }
+//			 LinkedHashSet<SpanWord> indexedWords = CorefUtils.getWordSpans(orderedValues, entry.getValue());
+//			 LinkedHashSet<CorefMention> newOrderedValues = new LinkedHashSet<>();
+//			 
+//			 if(orderedValues.size()==indexedWords.size()){
+//				 CorefMention[] corefArray = new CorefMention[orderedValues.size()];
+//				 SpanWord[]	spanArray = new SpanWord[orderedValues.size()];
+//				 orderedValues.toArray(corefArray);
+//				 indexedWords.toArray(spanArray);
+//				 for (int i = 0; i<orderedValues.size(); i++){
+//					 corefArray[i].setStartIndex(spanArray[i].getStartSpan());
+//					 corefArray[i].setEndIndex(spanArray[i].getEndSpan());
+//					 newOrderedValues.add(corefArray[i]);
+//				 }
+//			 }else{
+//				 System.out.println("Something went wrong with the indexing!!!");
+//				 System.out.println("ordered Values size: "+orderedValues.size()+" indexedWords size: "+indexedWords.size());
+//				 System.out.println("Input sentence: "+entry.getValue().getText());
+//				 orderedValues.forEach((k)->System.out.println("input : " +k.getContents()));
+//				 indexedWords.forEach((k)->System.out.println("output : " +k.getText()));
+//			 }
 			 
 			 //put sentence numbers and indexes into the mentions
-			 for (CorefMention ment : newOrderedValues){
+			 for (CorefMention ment : orderedValues){
 				ment.setSentenceNumber(entry.getKey());
 			 }
 			
@@ -915,9 +909,12 @@ public class Corefinizer {
 		
 		newSet.add(one);
 		newSet.add(two);
-		newGenders.add(two.getGender());
-		newNumbers.add(two.getGender());
-		newPersons.addAll(two.getPerson());
+		if(!(two.getGender().equals(null)||two.getNumber().equals(null)||two.getPerson().equals(null))){
+			newGenders.add(two.getGender());
+			newNumbers.add(two.getGender());
+			newPersons.addAll(two.getPerson());
+		}
+	
 			 
 		oneCluster.setCorefMentions(newSet);
 		oneCluster.setGenders(newGenders);

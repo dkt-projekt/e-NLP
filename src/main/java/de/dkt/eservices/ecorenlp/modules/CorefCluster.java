@@ -1,6 +1,7 @@
 package de.dkt.eservices.ecorenlp.modules;
 
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ private int clusterID;
 private CorefMention firstMention;
 private Set<String> genders;
 private Set<String> numbers;
-private Set<String> persons;
+private Set<String> persons = new HashSet<>();
 
 
 	 
