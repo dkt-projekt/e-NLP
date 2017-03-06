@@ -13,160 +13,135 @@ import edu.stanford.nlp.trees.TypedDependency;
 
 public class SVOTripleAssignment {
 	static List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
-	static List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case")); 
+	static List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case", "ccomp")); 
 	static List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
 
 
-	public static  TypedDependency findRootDependency(GrammaticalStructure gs){
-		TypedDependency rootRelation = null;
-		for (TypedDependency td : gs.typedDependencies()) {
-			IndexedWordTuple t = new IndexedWordTuple();
-			t.setFirst(td.dep());
-			if (englishSubjectRelationTypes.contains(td.reln().toString())){
-				rootRelation = td;
+	public static IndexedWord getSubject(GrammaticalStructure gs){
+		return SVO_Subject.assignSubject(gs);
+	}
+	public static String getSubjectConjunction(GrammaticalStructure gs){
+		return SVO_Subject.subjectConjunction(gs);
+	}
+
+	public static IndexedWord getVerb(GrammaticalStructure gs){
+		return SVO_Verb.assignVerb(gs);
+	}
+
+	public static IndexedWord getObject(GrammaticalStructure gs){
+		return SVO_Object.assignObject(gs);
+	}
+
+	public static IndexedWord getSecondObject(GrammaticalStructure gs){
+		return SVO_Object.assignSecondObject(gs);
+	}
+	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs){
+		EntityRelationTriple t = new EntityRelationTriple();
+
+		if (!(subjectURI == null) && !(objectURI == null)){
+			t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+			//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+			t.setRelation(getVerb(gs).toString());
+			//.concat(" lemma: ").concat(relationLemma));
+			t.setObject(String.format("%s(%s)", getObject(gs), objectURI));
+			//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+			System.out.println("----- FINAL TRIPLE1 --- " + getSubject(gs) + " verb: " + getVerb(gs) + " object: " + getObject(gs));
+
+		}
+		else {
+			t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), " "));
+			t.setRelation(getVerb(gs).toString());
+			t.setObject(String.format("%s(%s)", getObject(gs), " "));
+			System.out.println("----- FINAL TRIPLE2 --- " + getSubject(gs) + " verb: " + getVerb(gs) + " object: " + getObject(gs));
+
+		}
+
+		if (SVO_VerbRelationType.advclRelation(gs).length()>1){
+
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(getVerb(gs).toString());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE3 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.advclRelation(gs) + " object: " + getSecondObject(gs));
+
+			}
+			else {
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), " "));
+				t.setRelation(SVO_VerbRelationType.advclRelation(gs));
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE4 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.advclRelation(gs) + " object: " + getSecondObject(gs));
 			}
 		}
-		return rootRelation;		
-	}
+	//	String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
+		SVO_VerbRelationType verbRT = new SVO_VerbRelationType();
+		String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
 
-	public static IndexedWord assignVerb(GrammaticalStructure gs){
-		return findRootDependency(gs).gov();	
-	}
+	
+		if (verbConjRelation.length()>1){
 
-	public static IndexedWord assignSubject(GrammaticalStructure gs){
-		IndexedWord subject = findRootDependency(gs).dep();
-		return subject;	
-	}
-
-	public static String subjectConjunction(GrammaticalStructure gs){	
-		String subject = assignSubject(gs).word();
-		String subjectConjunction = getWordByDependency("conj:and", gs);
-
-		if (!subjectConjunction.equals(null) & preVerbPosition("conj:and", gs))
-			subject = subject.concat(" and " + subjectConjunction);	
-		return subject;
-	}
-
-
-	public static String  getWordByDependency(String dependencyType, GrammaticalStructure gs){
-		//	boolean dependencyTypeExists = false;
-		String dependencyTypeWord = null;
-
-		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
-		TypedDependency typedDependency;
-		Object[] list = td.toArray();
-
-		for (Object object : list) {
-			typedDependency = (TypedDependency) object;
-
-			if (typedDependency.reln().toString().equals(dependencyType)) {
-				dependencyTypeWord = typedDependency.dep().word();
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(verbConjRelation);
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE5 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.conjRelation(gs) + " object: " + getSecondObject(gs));
 			}
-		}
-		return dependencyTypeWord;
-	}
-
-	public static boolean preVerbPosition(String dependencyType, GrammaticalStructure gs){
-		boolean preVerbPostition = false;
-		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
-		TypedDependency typedDependency;
-		TypedDependency nextElement;
-		Object[] list = td.toArray();
-
-		for (int i = 0; i < list.length; i++){
-			typedDependency = (TypedDependency) list[i];
-
-			if (typedDependency.reln().toString().equals(dependencyType)) {
-				nextElement = (TypedDependency) list[i+1];
-				if (nextElement.reln().toString().equals("root")){
-					preVerbPostition = true;
-				}
-			}
-		}
-		return preVerbPostition;
-	}
-
-	public static String getPOStagByWord(String word, GrammaticalStructure gs){
-		String posTag = null;
-
-		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
-		TypedDependency typedDependency;
-		Object[] list = td.toArray();
-
-		for (Object object : list) {
-			typedDependency = (TypedDependency) object;
-
-			if (typedDependency.dep().word().equals(word)) {
-				//System.out.println("THIS pos tag type found: " + word + " " + typedDependency.dep().tag());
-				posTag = typedDependency.dep().tag();
-			}
-		}
-		return posTag;
-	}
-
-
-
-	public static void conjRelation (GrammaticalStructure gs){
-		String secondVerbOfConjRelation = getWordByDependency("conj:and", gs);
-		boolean isInPreVerbPosition = preVerbPosition("conj:and", gs);
-		
-		if (!isInPreVerbPosition & !secondVerbOfConjRelation.equals(null)){
-		//	System.out.println("--- VERB conj relation found --- " + getWordByDependency("conj:and", gs));
-			ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
-			String secondsVerbPosTag = getPOStagByWord(secondVerbOfConjRelation, gs);
-			
-			if (verbPOStags.contains(secondsVerbPosTag)){
-				System.out.println("---- verb conj relation ---- ");
-				System.out.println(secondsVerbPosTag + " " + secondVerbOfConjRelation);	
-				//if (getWordByDependency("nsubj",gs) )
-			}
-		}
-	}
-
-
-
-
-
-	// now do another loop to find object of the main verb/root
-	// thing. This may also appear before the subject was
-	// encountered, hence the need for two loops.
-	public static IndexedWord assignObject(GrammaticalStructure gs){	
-		IndexedWord object = null;
-		TypedDependency relationType = getObjectRelationType(gs);
-
-		if (englishObjectRelationTypes.contains(relationType.reln().toString()))
-			object = relationType.dep();
-		else if (englishIndirectObjectRelationTypes.contains(relationType.reln().toString()))
-			object = relationType.gov();
-		else 
-			object = null;
-
-		return object;
-	}
-
-	public static TypedDependency getObjectRelationType (GrammaticalStructure gs){
-		TypedDependency objectRelationType = null;
-
-		IndexedWord connectingElement = assignVerb(gs);
-		if (!(connectingElement == null)){
-			for (TypedDependency td : gs.typedDependencies()) {
-
-				if (englishObjectRelationTypes.contains(td.reln().toString())) {
-					if (td.gov().beginPosition() == connectingElement.beginPosition()
-							&& td.gov().endPosition() == connectingElement.endPosition()) {
-						objectRelationType = td;
-					}
-				}
-				else if (englishIndirectObjectRelationTypes.contains(td.reln().toString())){
-					objectRelationType = td;
-				}
+			else {
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), " "));
+				t.setRelation(verbConjRelation);
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE6 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.conjRelation(gs) + " object: " + getSecondObject(gs));
 			}
 		}
 
-		return objectRelationType;
+
+		return t;
+	}
+
+	public static EntityRelationTriple setEntityRelationTriple2(String subjectURI, String objectURI, GrammaticalStructure gs){
+		EntityRelationTriple t = new EntityRelationTriple();
+
+		if (!SVO_VerbRelationType.advclRelation(gs).equals(null)){
+
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(getVerb(gs).toString());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE3 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.advclRelation(gs) + " object: " + getSecondObject(gs));
+
+			}
+			else {
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), " "));
+				t.setRelation(SVO_VerbRelationType.advclRelation(gs));
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getSecondObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE4 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.advclRelation(gs) + " object: " + getSecondObject(gs));
+			}
+		}
+		return t;
 	}
 
 
+
+	public static ArrayList <EntityRelationTriple> setEntityRelationTripleSet(String subjectURI, String objectURI, GrammaticalStructure gs){
+		ArrayList <EntityRelationTriple> tripleList = new ArrayList<EntityRelationTriple>();
+
+
+		return tripleList;
+	}
 
 	public static String getURI (IndexedWord argument, List<TaggedWord> tagged, List<String[]> entityMap){
 		String argumentURI = null;

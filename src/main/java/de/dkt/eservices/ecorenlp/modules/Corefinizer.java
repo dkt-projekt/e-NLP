@@ -1,5 +1,12 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.trees.LabeledScoredTreeNode;
+import edu.stanford.nlp.trees.Tree;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
+import opennlp.tools.util.Span;
+
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
