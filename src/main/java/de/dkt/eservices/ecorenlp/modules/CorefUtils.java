@@ -2,7 +2,12 @@ package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,17 +15,29 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
+import de.dkt.eservices.eopennlp.modules.SentenceDetector;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
 import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Word;
+import edu.stanford.nlp.parser.common.ParserGrammar;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.process.CoreLabelTokenFactory;
+import edu.stanford.nlp.process.DocumentPreprocessor;
+import edu.stanford.nlp.process.PTBTokenizer;
+import edu.stanford.nlp.process.Tokenizer;
+import edu.stanford.nlp.process.TokenizerFactory;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
@@ -33,6 +50,8 @@ import opennlp.tools.util.Span;
 public class CorefUtils {
 	
  public static void main(String[] args) throws Exception {
+	 
+	 getWordNumbers("C:\\Users\\Sabine\\Desktop\\WörkWörk\\de.trial(2).txt");
 //	 boolean val = isAcronym("SPD","Sozialdemokartische Partei Deutschlands");
 //	 System.out.println("VAL: "+val);
 //		 
@@ -271,7 +290,7 @@ public static void traverse (Tree tree, Tree wholet){
 //    //tree.pennPrint();
    
 }
-
+public static String lexiconPath = "C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt";
 public static String determineGender(String word) throws FileNotFoundException{
 	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
 	String ret = "NOG";
@@ -285,7 +304,6 @@ public static String determineGender(String word) throws FileNotFoundException{
 		while(txtscan.hasNextLine()){
 			String str = txtscan.nextLine();
 			if(str.matches("^(?i)"+w+"\\b.*")){
-//			if(str.matches("^(["+w+"-]+)")){
 				if(str.contains("NEU")){
 	    		neut++;
 				}if(str.contains("MAS")){
@@ -295,6 +313,36 @@ public static String determineGender(String word) throws FileNotFoundException{
 				}
 			}
 		}
+		
+//        char c = Character.toLowerCase(w.charAt(0)); //get the first char.
+//        switch(c){
+//            case 'a': searchLexicon()
+//            case 'b': System.out.println("a");
+//            case 'c': System.out.println("a");
+//            case 'd': System.out.println("a");
+//            case 'e': System.out.println("a");
+//            case 'f': System.out.println("a");
+//            case 'g': System.out.println("a");
+//            case 'h': System.out.println("a");
+//            case 'i': System.out.println("a");
+//            case 'j': System.out.println("a");
+//            case 'k': System.out.println("a");
+//            case 'l': System.out.println("a");
+//            case 'm': System.out.println("a");
+//            case 'n': System.out.println("a");
+//            case 'o': System.out.println("a");
+//            case 'p': System.out.println("a");
+//            case 'q': System.out.println("a");
+//            case 'r': System.out.println("a");
+//            case 's': System.out.println("a");
+//            case 't': System.out.println("a");
+//            case 'u': System.out.println("a");
+//            case 'v': System.out.println("a");
+//            case 'w': System.out.println("a");
+//            case 'x': System.out.println("a");
+//            case 'y': System.out.println("a");
+//            case 'z': System.out.println("a");
+//        }
 	}
 	if (masc>0 && fem<=0 && neut<=0){
 		
@@ -307,6 +355,28 @@ public static String determineGender(String word) throws FileNotFoundException{
 		ret="NEU";
 	}
 	return ret;
+}
+
+public static int[] searchLexicon ( int beginNumber, int endNumber, String w) throws IOException{
+
+	int[] output = new int[3];
+	
+	for(int i = 0; beginNumber<=i&& i<=endNumber;i++){
+		try (Stream<String> lines = Files.lines(Paths.get(lexiconPath))) {
+		    String line = lines.skip(i).findFirst().get();
+		    if(line.matches("^(?i)"+w+"\\b.*")){
+				if(line.contains("NEU")){
+	    		output[0]++;
+				}if(line.contains("MAS")){
+				output[1]++;
+				}if(line.contains("FEM")){
+				output[2]++;
+				}
+			}
+		}
+	}
+	return output;
+	
 }
 
 public static String determineNumber(String word) throws FileNotFoundException{
@@ -449,6 +519,73 @@ public static void findTreePattern(Tree tree, TregexPattern tgrepPattern) {
       throw new RuntimeException(e);
     }
   }
+
+public static TreeMap<Integer,SpanWord> sentenceMap = new TreeMap<Integer,SpanWord>();
+public static LexicalizedParser lexParser = LexicalizedParser.loadModel("edu/stanford/nlp/models/lexparser/germanPCFG.ser.gz","-maxLength", "70");
+public static Map<Integer,Integer[]> getWordNumbers(String inputFile) throws IOException{
+	 
+	SpanWord span = Corefinizer.getDocumentSpan(inputFile);
+	String everything = span.getText();
+
+	 String sent = new String();
+	 int sentenceCounter = 1;
+	 
+	 Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
+	 for (Span sentenceSpan : sentenceSpans){
+		 int sentenceStart = sentenceSpan.getStart();
+	     int sentenceEnd = sentenceSpan.getEnd();
+	     sent = everything.substring(sentenceStart, sentenceEnd);
+	     SpanWord sentence = new SpanWord(sent,sentenceStart,sentenceEnd);
+	     sentenceMap.put(sentenceCounter, sentence);
+	     sentenceCounter++;
+	 }
+
+	 	 //everything that happens in this loop works per sentence
+	 Map<Integer,Integer[]> wordIndexList = new TreeMap<>();
+	 int i = 1;
+	 
+	 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
+ 
+		 String sentence = entry.getValue().getText();
+		
+//		 @SuppressWarnings("unchecked")
+//		List<CoreLabel> what = (List<CoreLabel>) lexParser.tokenize(sentence);
+	
+		 
+		 
+		 List<CoreLabel> what = tokenize(sentence);
+	// System.out.println("Tokenize "+what.toString());
+
+		 
+		
+		 for (CoreLabel w : what){
+			 //System.out.println(w.toString()+" "+w.beginPosition()+"|"+w.endPosition()+" "+entry.getValue().getStartSpan());
+         	int begin =  w.beginPosition()+entry.getValue().getStartSpan();
+         	int end = w.endPosition()+entry.getValue().getStartSpan();
+//         	System.out.println("Begin: "+begin+" End: "+end);
+         	Integer[] arr = new Integer[2];
+         	arr[0]= begin;
+         	arr[1]= end;
+//         	System.out.println(Arrays.toString(arr));
+         	wordIndexList.put(i,arr);
+         	i++;
+	 }
+	}
+//	 for (Entry<Integer, Integer[]> p : wordIndexList.entrySet()){
+//		 Integer[] array = p.getValue();
+//		 System.out.println(Arrays.toString(array));
+//	 }
+	 return wordIndexList;
+}
+
+private final static TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "invertible=true");
+
+public static List<CoreLabel> tokenize(String str) {
+    Tokenizer<CoreLabel> tokenizer =
+        tokenizerFactory.getTokenizer(
+            new StringReader(str));    
+    return tokenizer.tokenize();
+}
 
 
 
