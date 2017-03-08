@@ -6,7 +6,7 @@ import java.util.Arrays;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 
 public class SVO_VerbRelationType {
-	
+
 	public static String conjRelation (GrammaticalStructure gs){
 		String verbConjRelation = "";
 		String secondVerbOfConjRelation = WordElement.getWordByDependency("conj:and", gs);
@@ -25,7 +25,7 @@ public class SVO_VerbRelationType {
 		}
 		return verbConjRelation;
 	}
-	
+
 	public static String advclRelation (GrammaticalStructure gs){
 		String verbAdvclRelation = "";
 		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("advcl", gs);
@@ -41,4 +41,16 @@ public class SVO_VerbRelationType {
 		}
 		return verbAdvclRelation;
 	}
+
+	public static String getCopula(GrammaticalStructure gs){
+		String copula = "";		
+		System.out.println("getCopula: " + WordElement.getWordByDependency("cop", gs));
+
+		if (!WordElement.getWordByDependency("cop", gs).equals(null)){
+			copula = WordElement.getWordByDependency("cop", gs);
+		}
+		return copula;
+	}
+	
+	
 }

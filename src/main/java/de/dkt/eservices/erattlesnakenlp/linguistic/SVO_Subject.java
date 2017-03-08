@@ -10,8 +10,13 @@ public class SVO_Subject {
 
 	public static IndexedWord assignSubject(GrammaticalStructure gs){
 		IndexedWord subject = SVO_Verb.findRootDependency(gs).dep();
+
 		//System.out.println("getWordByDependency " + WordElement.getWordByDependency("nsubj",gs) + " ROOT:" + SVO_Verb.findRootDependency(gs).dep() + " getSecondSubj: " + getSecondSubject(gs));
 		return subject;	
+	}
+	public static String getSubjectDependencyType (GrammaticalStructure gs){
+		String subjectDependencyType= SVO_Verb.findRootDependency(gs).reln().toString();
+		return subjectDependencyType;
 	}
 
 
@@ -23,6 +28,12 @@ public class SVO_Subject {
 				String subjectConjunction = WordElement.getWordByDependency("conj:and", gs);
 				subject = subject.concat(" and " + subjectConjunction);	
 			}
+		}
+		if (!getCompound(gs).equals("") &&  SVO_Verb.preVerbPosition("compound",gs)){
+			System.out.println("YES! preverb position");
+			String subjectCompound = getCompound(gs);
+			subjectCompound = subjectCompound.concat(" " + subject);
+			subject = subjectCompound;
 		}
 		return subject;
 	}
@@ -62,5 +73,27 @@ public class SVO_Subject {
 			}
 		}
 		return objectRelationType;
+	}
+
+	public static String passiveVoiceSubject (GrammaticalStructure gs){
+		String passiveVoice = null;
+
+		if (SVO_Subject.getSubjectDependencyType(gs).equals("nsubjpass")){
+			passiveVoice = SVO_Subject.assignSubject(gs).word();
+		}
+		else passiveVoice = "";
+		return passiveVoice;
+	}
+
+	public static String getCompound(GrammaticalStructure gs){
+		String compoundSubject = "";
+
+		if (!WordElement.getWordByDependency("compound", gs).equals("")){
+			compoundSubject = WordElement.getWordByDependency("compound", gs);	
+
+		}
+
+		return compoundSubject;
+
 	}
 }

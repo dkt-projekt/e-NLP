@@ -14,7 +14,7 @@ public class WordElement {
 		Object[] list = td.toArray();
 		TypedDependency wordPreceder = null;
 
-		for (int i = 0; i < list.length; i++){
+		for (int i = 1; i < list.length; i++){
 			typedDependency = (TypedDependency) list[i];
 			if (typedDependency.dep().word().equals(word)) {
 				wordPreceder =  (TypedDependency) list[i-1];
@@ -25,7 +25,6 @@ public class WordElement {
 
 
 	public static  String  getWordByDependency(String dependencyType, GrammaticalStructure gs){
-		//	boolean dependencyTypeExists = false;
 		String dependencyTypeWord = "";
 
 		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();

@@ -35,26 +35,65 @@ public class SVOTripleAssignment {
 	public static IndexedWord getSecondObject(GrammaticalStructure gs){
 		return SVO_Object.assignSecondObject(gs);
 	}
+
+	public static String getVerbConjRelation(GrammaticalStructure gs){
+		String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
+		return verbConjRelation;
+	}
+
+	public static String getSubjPassiveVoice (GrammaticalStructure gs){
+		String subj = SVO_Subject.passiveVoiceSubject(gs);
+		return subj;
+	}
+	private static String getPassiveVoiceObject(GrammaticalStructure gs) {
+		String passiveVoiceObj = SVO_Object.getPassiveVoiceObject(gs);
+		return passiveVoiceObj;
+	}
+
 	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs){
 		EntityRelationTriple t = new EntityRelationTriple();
 
-		if (!(subjectURI == null) && !(objectURI == null)){
-			t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
-			//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
-			t.setRelation(getVerb(gs).toString());
-			//.concat(" lemma: ").concat(relationLemma));
-			t.setObject(String.format("%s(%s)", getObject(gs), objectURI));
-			//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
-			System.out.println("----- FINAL TRIPLE1 --- " + getSubject(gs) + " verb: " + getVerb(gs) + " object: " + getObject(gs));
+		
+		if (SVO_VerbRelationType.getCopula(gs).length()>1){
+			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(getObject(gs).toString());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", getVerb(gs).word(), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE1 --- " + getSubjectConjunction(gs) + " verb: " + getObject(gs).toString() + " object: " + getVerb(gs).word());
 
+			}
+			else {
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				t.setRelation(getObject(gs).toString());
+				t.setObject(String.format("%s(%s)", getVerb(gs).word(), objectURI));
+				System.out.println("----- FINAL TRIPLE2 --- " + getSubjectConjunction(gs) + " verb: " + getObject(gs).toString() + " object: " + getVerb(gs).word());
+			}
 		}
 		else {
-			t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), " "));
-			t.setRelation(getVerb(gs).toString());
-			t.setObject(String.format("%s(%s)", getObject(gs), " "));
-			System.out.println("----- FINAL TRIPLE2 --- " + getSubject(gs) + " verb: " + getVerb(gs) + " object: " + getObject(gs));
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(getVerb(gs).word());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)",  getObject(gs), objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE1.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).toString() + " verb: " + getVerb(gs).word());
 
+			}
+			else {
+				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
+				t.setRelation( getVerb(gs).word() );
+				t.setObject(String.format("%s(%s)", getObject(gs), objectURI));
+				System.out.println("----- FINAL TRIPLE2.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).toString() + "  verb: " + getVerb(gs).word());
+			}
 		}
+
+		
+
 
 		if (SVO_VerbRelationType.advclRelation(gs).length()>1){
 
@@ -77,11 +116,10 @@ public class SVOTripleAssignment {
 				System.out.println("----- FINAL TRIPLE4 --- " + getSubjectConjunction(gs) + " verb: " + SVO_VerbRelationType.advclRelation(gs) + " object: " + getSecondObject(gs));
 			}
 		}
-	//	String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
+		//	String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
 		SVO_VerbRelationType verbRT = new SVO_VerbRelationType();
-		String verbConjRelation= SVO_VerbRelationType.conjRelation(gs);
+		String verbConjRelation = getVerbConjRelation(gs);
 
-	
 		if (verbConjRelation.length()>1){
 
 			if (!(subjectURI == null) && !(objectURI == null)){
@@ -103,9 +141,37 @@ public class SVOTripleAssignment {
 			}
 		}
 
+		String subjPass = getSubjPassiveVoice(gs);
+		String objPass = getPassiveVoiceObject(gs);
+
+		if (subjPass.length()>1 && objPass.length()>1){
+			System.out.println("---" + " PASSIVE VOICE: " + subjPass + " v: " + getVerb(gs).word() + "objPass: " + objPass);
+
+			if (!(subjectURI == null) && !(objectURI == null)){
+				t.setSubject(String.format("%s(%s)", objPass, subjectURI));
+				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
+				t.setRelation(getVerb(gs).word());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", subjPass, objectURI));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE7 --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
+
+			}
+			else {
+				t.setSubject(String.format("%s(%s)", objPass, " "));
+				t.setRelation(getVerb(gs).word());
+				//.concat(" lemma: ").concat(relationLemma));
+				t.setObject(String.format("%s(%s)", subjPass, " " ));
+				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
+				System.out.println("----- FINAL TRIPLE8 --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
+			}
+
+		}
+
 
 		return t;
 	}
+
 
 	public static EntityRelationTriple setEntityRelationTriple2(String subjectURI, String objectURI, GrammaticalStructure gs){
 		EntityRelationTriple t = new EntityRelationTriple();

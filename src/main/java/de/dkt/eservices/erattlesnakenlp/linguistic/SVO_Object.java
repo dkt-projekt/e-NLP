@@ -12,38 +12,41 @@ public class SVO_Object {
 		IndexedWord object = null;
 		TypedDependency relationType = getObjectRelationType(gs);
 
-		
+
 		//advcl relationType		
 		if (WordElement.getWordByDependency("advcl", gs).length()>1){
 			object = relationType.gov();
 		}
 		else 
-		
-		//if the given clause contains a WDT (wh-clause, i.e. 'which') that may be falsely taken for a dobj
-		if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs) 
-				&& WordElement.existPOStag("WDT", gs)){
-			object = relationType.dep();	
-			
-			System.out.println("WDT " + WordElement.getDirectPreceder(object.word(), gs));
-			object = WordElement.getDirectPreceder(object.word(), gs).dep();
-			
-			//	System.out.println("... object ... " + object);
-		}
-		else if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs)){
-			object = relationType.dep();	
-			
-			//	System.out.println("... object ... " + object);
-		}
-		else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs))
-			object = relationType.dep();
 
-		else if (relationType.reln().toString().equals("nmod") & !WordElement.getWordByDependency("nsubjpass", gs).isEmpty()){
-			object = relationType.dep();
-			System.out.println("nsubjpassRelFound: " + object);
-		}
+			//if the given clause contains a WDT (wh-clause, i.e. 'which') that may be falsely taken for a dobj
+			if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs) 
+					&& WordElement.existPOStag("WDT", gs)){
+				object = relationType.dep();	
 
-		else 
-			object = null;
+				System.out.println("WDT " + WordElement.getDirectPreceder(object.word(), gs));
+				object = WordElement.getDirectPreceder(object.word(), gs).dep();
+			}
+			else if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs)){
+
+				if (!relationType.dep().tag().equals("IN") && !relationType.dep().tag().equals("TO"))
+					object = relationType.dep();			
+				else 
+					object = relationType.gov();
+
+			}
+			else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs))
+				if (!relationType.dep().tag().equals("IN") && !relationType.dep().tag().equals("TO"))
+					object = relationType.dep();
+				else 
+					object = relationType.gov();
+
+			else if (relationType.reln().toString().equals("nmod") & !WordElement.getWordByDependency("nsubjpass", gs).isEmpty()){
+				object = relationType.dep();
+			}
+
+			else 
+				object = null;
 
 		return object;
 	}
@@ -74,7 +77,6 @@ public class SVO_Object {
 					if (td.gov().beginPosition() == connectingElement.beginPosition()
 							&& td.gov().endPosition() == connectingElement.endPosition()) {
 						objectRelationType = td;
-						
 						//TODO!
 						break;
 					}
@@ -109,5 +111,14 @@ public class SVO_Object {
 		return objectRelationType;
 	}
 
+	public static String getPassiveVoiceObject(GrammaticalStructure gs){
+		String passiveVoiceObject = "";
+		if (!SVO_Subject.passiveVoiceSubject(gs).equals("")){
+			System.out.println("word by dependency " + WordElement.getWordByDependency("nmod:agent",gs));
+			passiveVoiceObject = WordElement.getWordByDependency("nmod:agent",gs);
+			System.out.println(" obj Pass : " + passiveVoiceObject);
+		}
+		return passiveVoiceObject;
+	}
 
 }
