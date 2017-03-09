@@ -146,6 +146,7 @@ public class RelationExtraction {
 				IndexedWord connectingElement = null;
 				IndexedWord object = null;
 				String objectsDependency = null;
+				String iobjectsDependency = null;
 
 				/**
 				 * 
@@ -208,6 +209,8 @@ public class RelationExtraction {
 					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
 					String subjectThemRole = null;
 					String objectThemRole = null;
+					VerbnetConnector verbnetConn = new VerbnetConnector ();
+					WordnetConnector wordnetConn = new WordnetConnector();
 
 
 
@@ -215,10 +218,9 @@ public class RelationExtraction {
 						if (SentenceList.word().equals(connectingElement.word())){
 							relationLemma = SentenceList.lemma();
 							System.out.println("data running " + relationLemma);
-							wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
+							wordnetInformationSet = wordnetConn.getWordnetInformation(relationLemma, pathToVerbnet);
 							System.out.println("subject " + subject + " object " + object );
-							VerbnetConnector.assignThetaRoles(subject, object, objectsDependency, relationLemma, pathToVerbnet);
-
+							verbnetConn.assignThetaRoles(subject, object, objectsDependency,  iobjectsDependency, relationLemma, pathToVerbnet);
 						}
 					}
 
@@ -256,6 +258,7 @@ public class RelationExtraction {
 		DepParserTree.initParser(language);
 
 		String isstr = NIFReader.extractIsString(nifModel);
+
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
@@ -314,26 +317,36 @@ public class RelationExtraction {
 					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
 					String subjectThemRole = null;
 					String objectThemRole = null;
+					String objectsDependency = SVO_Object.getObjectRelationType(gs).reln().toString();
+					String iobjectsDependency = SVO_Object.getSecondObjectRelationType(gs).reln().toString();
 
 					for (WordLemmaTag SentenceList : tlSentence){
 						if (SentenceList.word().equals(connectingElement1.word())){
 							relationLemma = SentenceList.lemma();
 
 							//THETA ROLES' ASSIGNMENT
-							/**
+							WordnetConnector wordnetConn = new WordnetConnector();
+							VerbnetConnector verbnetConn = new VerbnetConnector();
+							WordElement wordEl = new WordElement();
+							
 							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
-							LinkedList <String> wordnetEntries = WordnetConnector.getWordnetInformation("give", pathToVerbnet);
-							LinkedList<String> thetaRolesList = VerbnetConnector.assignThetaRoles(subject1, object1, objectsDependency, relationLemma, pathToVerbnet);
+							LinkedList <String> wordnetEntries = wordnetConn.getWordnetInformation("give", pathToVerbnet);
+							System.out.println("--object's dependency### " + objectsDependency);
+							LinkedList<String> thetaRolesList = verbnetConn.assignThetaRoles(subject1, object1, objectsDependency,iobjectsDependency, relationLemma, pathToVerbnet);
+							
+							verbnetConn.getAssignedRolesList();
+							System.out.println("list created? --> size : " + verbnetConn.getAssignedRolesList().size() + " another list" + verbnetConn.assignedRolesList.size());
 
 
-							//System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
-							//System.out.println("relationLemma " + relationLemma);
+							System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
+							System.out.println("###relationLemma " + relationLemma + "getWordByDep " + WordElement.getWordByDependency("nmod", gs) + "###");
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
 								objectThemRole = thetaRolesList.get(1);
-								//System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
+								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 							}
-							 **/
+							System.out.println("the POS tag of the object: " + wordEl.getPOStagOfDependent(object1.word(),gs));
+
 
 
 

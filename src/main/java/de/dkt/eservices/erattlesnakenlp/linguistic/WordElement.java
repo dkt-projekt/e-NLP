@@ -6,7 +6,7 @@ import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 
 public class WordElement {
-
+	String dependentPOStag = null;
 	public static TypedDependency getDirectPreceder(String word, GrammaticalStructure gs){	
 
 		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
@@ -57,6 +57,29 @@ public class WordElement {
 		}
 		return posTag;
 	}
+
+	public String getPOStagOfDependent(String word, GrammaticalStructure gs){
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+			TypedDependency current = null;
+			TypedDependency previous = null;
+			
+			System.out.println("typedDependencies " + typedDependency.dep().word());
+			
+			if (typedDependency.dep().word().equals(word)) {
+				dependentPOStag = typedDependency.dep().tag();
+			}
+
+		}
+		return dependentPOStag;
+	}
+
+
 	public static  boolean existPOStag(String postag, GrammaticalStructure gs){
 		boolean posTagExists = false;
 

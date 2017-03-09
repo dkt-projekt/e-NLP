@@ -53,6 +53,7 @@ public class SVOTripleAssignment {
 	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs){
 		EntityRelationTriple t = new EntityRelationTriple();
 
+		System.out.println("2nd object = IOBJ ??: " + getSecondObject(gs));
 		
 		if (SVO_VerbRelationType.getCopula(gs).length()>1){
 			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed
@@ -79,16 +80,16 @@ public class SVOTripleAssignment {
 				//	t.setSubject(String.format("%s", subjectThemRole.concat(subjectURI)));
 				t.setRelation(getVerb(gs).word());
 				//.concat(" lemma: ").concat(relationLemma));
-				t.setObject(String.format("%s(%s)",  getObject(gs), objectURI));
+				t.setObject(String.format("%s(%s)",  getObject(gs).word(), objectURI));
 				//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
-				System.out.println("----- FINAL TRIPLE1.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).toString() + " verb: " + getVerb(gs).word());
+				System.out.println("----- FINAL TRIPLE1.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).word() + " verb: " + getVerb(gs).word());
 
 			}
 			else {
 				t.setSubject(String.format("%s(%s)", getSubjectConjunction(gs), subjectURI));
 				t.setRelation( getVerb(gs).word() );
-				t.setObject(String.format("%s(%s)", getObject(gs), objectURI));
-				System.out.println("----- FINAL TRIPLE2.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).toString() + "  verb: " + getVerb(gs).word());
+				t.setObject(String.format("%s(%s)", getObject(gs).word(), objectURI));
+				System.out.println("----- FINAL TRIPLE2.1 --- " + getSubjectConjunction(gs) + " object: " + getObject(gs).word() + "  verb: " + getVerb(gs).word());
 			}
 		}
 
@@ -167,6 +168,8 @@ public class SVOTripleAssignment {
 			}
 
 		}
+		String apposVerb = SVO_VerbRelationType.apposRelation(gs);
+		System.out.println("apposition found: " + apposVerb);
 
 
 		return t;
@@ -221,6 +224,10 @@ public class SVOTripleAssignment {
 		}
 		return argumentURI;
 	}
+	
+//	public static String getURI (IndexedWord argument, List tagged, List entityMap, int sentenceStart){
+//		String argumentURI = null;int argumentStart = tagged.get(argument.index()-1).beginPosition() + sentenceStart; // TODO: debug if this is the beginposition in the sentence only (think so), or if it is the document index// suggestion: passing on sentenceStart as argumentint argumentEnd = tagged.get(argument.index()-1).endPosition() + sentenceStart;for (String[] l : entityMap){if (argumentStart >= Integer.parseInt(l[3]) && argumentEnd <= Integer.parseInt(l[4])){ // the >= and <= are because the dependency parser is likely to cut up multi-word entities and make the head of the MWE the subjectargumentURI = l[0];}}
+//		return argumentURI;}
 
 
 

@@ -44,11 +44,13 @@ public class FramenetConnector {
 		return frameList;
 	}
 
-	public static ListMultimap<Integer, LinkedList<HashMap<String, String>>> getSortedFramesWithArguments(String inputVerb, String pathToVerbnet) throws IOException{
+	public  ListMultimap<Integer, LinkedList<HashMap<String, String>>> getSortedFramesWithArguments(String inputVerb, String pathToVerbnet) throws IOException{
 
 		//ListMultiMap <AmountOfPostVerbElements (this counter may have multivalues => ListMultiMap), ListOfPair<S/O/..., Role>>
 		ListMultimap <Integer,LinkedList<HashMap<String,String>>> sortedFramesbyLength = ArrayListMultimap.create();
 		List<IFrame> verbnetFramesList = getVerbnetFrames(inputVerb, pathToVerbnet);
+		
+		System.out.println("length of the verbnet frames' list: " + verbnetFramesList.size());
 		Iterator<IFrame> verbnetThemRolesIterator = verbnetFramesList.iterator();
 		HashMap<String,String> frameEntry = new HashMap <String, String>();
 

@@ -11,9 +11,11 @@ public class SVO_Subject {
 	public static IndexedWord assignSubject(GrammaticalStructure gs){
 		IndexedWord subject = SVO_Verb.findRootDependency(gs).dep();
 
-		//System.out.println("getWordByDependency " + WordElement.getWordByDependency("nsubj",gs) + " ROOT:" + SVO_Verb.findRootDependency(gs).dep() + " getSecondSubj: " + getSecondSubject(gs));
+		
+		System.out.println("getWordByDependency " + WordElement.getWordByDependency("nsubj",gs) + " ROOT:" + SVO_Verb.findRootDependency(gs).dep() + " getSecondSubj: " + getSecondSubject(gs));
 		return subject;	
 	}
+	
 	public static String getSubjectDependencyType (GrammaticalStructure gs){
 		String subjectDependencyType= SVO_Verb.findRootDependency(gs).reln().toString();
 		return subjectDependencyType;
@@ -30,7 +32,7 @@ public class SVO_Subject {
 			}
 		}
 		if (!getCompound(gs).equals("") &&  SVO_Verb.preVerbPosition("compound",gs)){
-			System.out.println("YES! preverb position");
+			//System.out.println("YES! preverb position");
 			String subjectCompound = getCompound(gs);
 			subjectCompound = subjectCompound.concat(" " + subject);
 			subject = subjectCompound;

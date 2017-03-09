@@ -52,5 +52,21 @@ public class SVO_VerbRelationType {
 		return copula;
 	}
 	
+	public static String apposRelation (GrammaticalStructure gs){
+		String apposRelationVerb = "";
+		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("acl:relcl", gs);
+
+		if (secondVerbOfAdvclRelation != null){
+			//	System.out.println("--- VERB advcl relation found --- " + getWordByDependency("advcl", gs));
+			ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
+			String secondsVerbPosTag = WordElement.getPOStagByWord(secondVerbOfAdvclRelation, gs);
+
+			if (verbPOStags.contains(secondsVerbPosTag)){
+				apposRelationVerb = secondVerbOfAdvclRelation;
+			}
+		}
+		return apposRelationVerb;
+	}
+	
 	
 }
