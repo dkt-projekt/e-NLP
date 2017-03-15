@@ -50,7 +50,6 @@ public class FramenetConnector {
 		ListMultimap <Integer,LinkedList<HashMap<String,String>>> sortedFramesbyLength = ArrayListMultimap.create();
 		List<IFrame> verbnetFramesList = getVerbnetFrames(inputVerb, pathToVerbnet);
 		
-		System.out.println("length of the verbnet frames' list: " + verbnetFramesList.size());
 		Iterator<IFrame> verbnetThemRolesIterator = verbnetFramesList.iterator();
 		HashMap<String,String> frameEntry = new HashMap <String, String>();
 

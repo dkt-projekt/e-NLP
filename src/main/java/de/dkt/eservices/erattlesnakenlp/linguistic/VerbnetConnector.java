@@ -56,8 +56,11 @@ public class VerbnetConnector {
 						objectThemRole = value.get(1).keySet().toString();
 						iobjThemRole = value.get(2).keySet().toString();
 
-
+						assignedRolesList.add(subjectThemRole);
+						assignedRolesList.add(objectThemRole);
+						assignedRolesList.add(iobjThemRole);
 						System.out.println("Valency 3, following roles assigned: " + subjectThemRole + " " + objectThemRole + " " + iobjThemRole);			
+				
 				}
 			}	
 		}

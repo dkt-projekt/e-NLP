@@ -1,7 +1,11 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 
@@ -68,15 +72,78 @@ public class WordElement {
 			typedDependency = (TypedDependency) object;
 			TypedDependency current = null;
 			TypedDependency previous = null;
-			
-			System.out.println("typedDependencies " + typedDependency.dep().word());
-			
+
+			//System.out.println("typedDependencies " + typedDependency.dep().word() + " " + typedDependency.dep().tag());
+
 			if (typedDependency.dep().word().equals(word)) {
 				dependentPOStag = typedDependency.dep().tag();
 			}
 
 		}
 		return dependentPOStag;
+	}
+
+	public LinkedList <String> getPOStagsList (GrammaticalStructure gs){
+		LinkedList <String> simplifiedPOSTagsList = new LinkedList<String>();
+
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+
+
+			//			System.out.println("typedDependencies " + typedDependency.dep().word() + " " + typedDependency.dep().tag());
+
+			dependentPOStag = typedDependency.dep().tag();
+			simplifiedPOSTagsList.add(dependentPOStag);
+		}
+
+		return simplifiedPOSTagsList;
+	}
+
+	public LinkedList <String> getSimplifiedPOSTagsList(GrammaticalStructure gs){
+		System.out.println("simplified");
+		LinkedList <String> posTagsList = getPOStagsList(gs);
+		LinkedList <String> simplifiedPOSTagsList = new LinkedList <String>();
+
+		ArrayList <String> simplifiedNPs = new ArrayList<>(Arrays.asList("NN", "NNS", "NNP", "NNPS", "PRP"));
+		ArrayList <String> simplifiedVPs = new ArrayList<>(Arrays.asList("VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
+		ArrayList <String> simplifiedPPs = new ArrayList<>(Arrays.asList("TO", "IN"));
+
+		for (int i = 0; i < posTagsList.size(); i++){
+			String currentPOStag = posTagsList.get(i);
+
+			if (i>0 && simplifiedNPs.contains(currentPOStag)){
+				if (!simplifiedPPs.contains(posTagsList.get(i-1))){
+					simplifiedPOSTagsList.add("NP");
+					System.out.println("NP added");
+				}
+			}
+			else if (i==0 && simplifiedNPs.contains(currentPOStag)){
+				simplifiedPOSTagsList.add("NP");
+				System.out.println("NP added");
+
+			}
+			else if (simplifiedVPs.contains(currentPOStag)){
+				simplifiedPOSTagsList.add("VP");
+				System.out.println("VP added");
+
+			}
+			else if (simplifiedPPs.contains(currentPOStag)){
+				simplifiedPOSTagsList.add("PP");
+				System.out.println("PP added");
+
+			}
+		}
+
+		//		for (int j=0; j< simplifiedPOSTagsList.size(); j++){
+		//			System.out.println(simplifiedPOSTagsList.get(j));
+		//		}
+		return simplifiedPOSTagsList;
+
 	}
 
 
@@ -95,6 +162,26 @@ public class WordElement {
 			}
 		}
 		return posTagExists;
+	}
+
+	public static int getPositionWordInSentence(String word, GrammaticalStructure gs){
+		int positionInTheSentence = 0;
+
+
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
+
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+			IndexedWord dependent = typedDependency.dep();
+			
+			if (typedDependency.dep().word().equals(word)){
+				positionInTheSentence = dependent.index();
+				System.out.println("Position in the sentence: " + typedDependency.dep().word() + " " + positionInTheSentence);			
+				}
+		}
+		return positionInTheSentence;
 	}
 
 }

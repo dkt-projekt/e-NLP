@@ -336,17 +336,22 @@ public class RelationExtraction {
 							
 							verbnetConn.getAssignedRolesList();
 							System.out.println("list created? --> size : " + verbnetConn.getAssignedRolesList().size() + " another list" + verbnetConn.assignedRolesList.size());
-
+							
+							System.out.println("PROCESSING START");
+							wordEl.getSimplifiedPOSTagsList(gs);
+							System.out.println("PROCESSING STOP");
 
 							System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
-							System.out.println("###relationLemma " + relationLemma + "getWordByDep " + WordElement.getWordByDependency("nmod", gs) + "###");
+							//System.out.println("###relationLemma " + relationLemma + "getWordByDep " + WordElement.getWordByDependency("nmod", gs) + "###");
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
 								objectThemRole = thetaRolesList.get(1);
 								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
 							}
-							System.out.println("the POS tag of the object: " + wordEl.getPOStagOfDependent(object1.word(),gs));
-
+							 SVO_Verb verb =  new  SVO_Verb();
+							 int listSize = verb.getDirectRootDependenciesList(gs).size();
+							// System.out.println("the POS tag of the object: " + wordEl.getPOStagOfDependent(object1.word(),gs));
+							System.out.println("all direct verbDep: " + listSize);
 
 
 
@@ -382,6 +387,7 @@ public class RelationExtraction {
 					}
 					System.out.println("assignment     ------------------------");
 					EntityRelationTriple t = SVOTripleAssignment.setEntityRelationTriple(subjectURI, objectURI, gs);
+					System.out.println("assignm end " + t.getSubject() + " obj " + t.getObject() + " rel " +t.getRelation());
 					ert.add(t);
 				}
 			}
@@ -735,7 +741,7 @@ public class RelationExtraction {
 		DepParserTree.initParser("en");
 
 
-		//String ts = "Later that day I bought the janitor a beer.";
+		//String ts = "Later that day we bought the janitor a beer.";
 		//String ts = "Ginsberg was born into a Jewish family in Newark, New Jersey, and grew up in nearby Paterson.";
 		//String ts = "Ginsberg had an auditory hallucination while reading the poetry of William Blake.";
 		//String ts = "In 1957, Ginsberg surprised the literary world by abandoning San Francisco.";

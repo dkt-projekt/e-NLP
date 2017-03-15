@@ -8,14 +8,28 @@ import edu.stanford.nlp.trees.TypedDependency;
 
 public class SVO_Subject {
 
-	public static IndexedWord assignSubject(GrammaticalStructure gs){
-		IndexedWord subject = SVO_Verb.findRootDependency(gs).dep();
 
-		
-		System.out.println("getWordByDependency " + WordElement.getWordByDependency("nsubj",gs) + " ROOT:" + SVO_Verb.findRootDependency(gs).dep() + " getSecondSubj: " + getSecondSubject(gs));
+
+	public static IndexedWord assignSubject(GrammaticalStructure gs){
+		IndexedWord subject = null;
+		TypedDependency directRootDependency = SVO_Verb.findRootDependency(gs);
+		System.out.println("directRootDependency: " + directRootDependency);
+		System.out.println("assignSubjTest " + directRootDependency.reln().toString());
+
+		if (SVOTripleAssignment.englishSubjectRelationTypes.contains(directRootDependency.reln().toString())){
+			subject = directRootDependency.dep();
+
+			if ( !SVO_Verb.preVerbPosition(directRootDependency.reln().toString(), gs) 
+					&& WordElement.existPOStag("WDT", gs)){				
+
+				System.out.println("...subject assignment...: " + subject);
+				System.out.println("WDT " + WordElement.getDirectPreceder(subject.word(), gs).dep() + 
+						" " + WordElement.getDirectPreceder(subject.word(), gs).gov());	
+			}
+		}		
 		return subject;	
 	}
-	
+
 	public static String getSubjectDependencyType (GrammaticalStructure gs){
 		String subjectDependencyType= SVO_Verb.findRootDependency(gs).reln().toString();
 		return subjectDependencyType;
@@ -24,8 +38,9 @@ public class SVO_Subject {
 
 	public static String subjectConjunction(GrammaticalStructure gs){	
 		String subject = assignSubject(gs).word();
+		SVO_VerbRelationType verbRelType = new SVO_VerbRelationType();
 
-		if (!SVO_VerbRelationType.conjRelation(gs).equals(null)){
+		if (!verbRelType.conjRelation(gs).equals(null)){
 			if (SVO_Verb.preVerbPosition("conj:and", gs)){
 				String subjectConjunction = WordElement.getWordByDependency("conj:and", gs);
 				subject = subject.concat(" and " + subjectConjunction);	
@@ -37,6 +52,7 @@ public class SVO_Subject {
 			subjectCompound = subjectCompound.concat(" " + subject);
 			subject = subjectCompound;
 		}
+		System.out.println("!subjPos: " + WordElement.getPositionWordInSentence(subject, gs));
 		return subject;
 	}
 
@@ -98,4 +114,10 @@ public class SVO_Subject {
 		return compoundSubject;
 
 	}
+
+	//	public static String getAppositionSubject(GrammaticalStrucutre gs){
+	//		if (!SVO_VerbRelationType.apposRelation(gs).equals(null)){
+	//
+	//		}
+	//	}
 }

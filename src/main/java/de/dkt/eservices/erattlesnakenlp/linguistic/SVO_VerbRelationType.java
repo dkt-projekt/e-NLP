@@ -6,8 +6,7 @@ import java.util.Arrays;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 
 public class SVO_VerbRelationType {
-
-	public static String conjRelation (GrammaticalStructure gs){
+	public String conjRelation (GrammaticalStructure gs){
 		String verbConjRelation = "";
 		String secondVerbOfConjRelation = WordElement.getWordByDependency("conj:and", gs);
 		boolean isInPreVerbPosition = SVO_Verb.preVerbPosition("conj:and", gs);
@@ -23,10 +22,14 @@ public class SVO_VerbRelationType {
 				}
 			}
 		}
+		System.out.println("!conjRelPos: " + WordElement.getPositionWordInSentence(verbConjRelation, gs));
+
 		return verbConjRelation;
 	}
+	
 
-	public static String advclRelation (GrammaticalStructure gs){
+
+	public String advclRelation (GrammaticalStructure gs){
 		String verbAdvclRelation = "";
 		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("advcl", gs);
 
@@ -42,7 +45,7 @@ public class SVO_VerbRelationType {
 		return verbAdvclRelation;
 	}
 
-	public static String getCopula(GrammaticalStructure gs){
+	public String getCopula(GrammaticalStructure gs){
 		String copula = "";		
 		System.out.println("getCopula: " + WordElement.getWordByDependency("cop", gs));
 
@@ -52,7 +55,7 @@ public class SVO_VerbRelationType {
 		return copula;
 	}
 	
-	public static String apposRelation (GrammaticalStructure gs){
+	public String apposRelation (GrammaticalStructure gs){
 		String apposRelationVerb = "";
 		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("acl:relcl", gs);
 
