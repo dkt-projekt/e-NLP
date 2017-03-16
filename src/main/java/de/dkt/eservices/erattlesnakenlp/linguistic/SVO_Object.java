@@ -1,38 +1,33 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.util.ArrayList;
+
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
 
 public class SVO_Object {
 
-	public static IndexedWord getObject(GrammaticalStructure gs){
+	public static IndexedWord getObject(GrammaticalStructure gs, TypedDependency relationType){
 
 		IndexedWord object = null;
-		TypedDependency relationType = getObjectRelationType(gs);
+
 
 		//advcl relationType		
 		if (WordElement.getWordByDependency("advcl", gs).length() > 1){
 			object = relationType.dep();
-			System.out.println("1");
 		}
 		else 
 			//if the given clause contains a WDT (wh-clause, i.e. 'which') that may be falsely taken for a dobj
-			if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) && !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs) 
+			if (SVOTripleAssignment.englishObjectRelationTypes.contains(relationType.reln().toString()) 
+					&& !SVO_Verb.preVerbPosition(relationType.reln().toString(), gs) 
 					&& WordElement.existPOStag("WDT", gs)){
 				object = relationType.dep();	
-				System.out.println("2");
 
+				//	System.out.println("WDT " + WordElement.getDirectPreceder(object.word(), gs).dep() + " " + WordElement.getDirectPreceder(object.word(), gs).gov());
 
-				System.out.println("WDT " + WordElement.getDirectPreceder(object.word(), gs).dep() + 
-						" " + WordElement.getDirectPreceder(object.word(), gs).gov());
-			//	object = WordElement.getDirectPreceder(object.word(), gs).dep();
-				//object = WordElement.getDirectPreceder(object.word(), gs);
-				//IndexedWord concatObject = new IndexedWord(WordElement.getDirectPreceder(object.word(), gs).dep().setWord(word));
-				System.out.println("compare subj&obj : " + object.word() + " "+ SVO_Subject.assignSubject(gs));
 				if (object.equals(SVO_Subject.assignSubject(gs))){
 					object = null;
-					System.out.println("3");
 
 				}
 				object.setWord(WordElement.getDirectPreceder(object.word(), gs).dep().word().concat(" " + WordElement.getDirectPreceder(object.word(), gs).gov().word()));
@@ -60,18 +55,18 @@ public class SVO_Object {
 	// now do another loop to find object of the main verb/root
 	// thing. This may also appear before the subject was
 	// encountered, hence the need for two loops.
-	public static IndexedWord assignObject(GrammaticalStructure gs){	
-		IndexedWord object = getObject(gs);
+	public static IndexedWord assignObject(GrammaticalStructure gs,  TypedDependency relationType){	
+		IndexedWord object = getObject(gs, relationType);
 		return object;
 	}
 
-	public static  IndexedWord assignObjectConjRelation(GrammaticalStructure gs){
-		IndexedWord object = getObject(gs);
+	public static  IndexedWord assignObjectConjRelation(GrammaticalStructure gs, TypedDependency relationType){
+		IndexedWord object = getObject(gs, relationType);
 		SVO_VerbRelationType verRelType = new SVO_VerbRelationType();
 		//an extra 'if' to exclude all the objects of the sentence that are dependents of the first verb (in case of a i.a.: conj:relation)
 		if (verRelType.conjRelation(gs).length()>1 && 
 				WordElement.getPositionWordInSentence(object.word(), gs) < WordElement.getPositionWordInSentence(verRelType.conjRelation(gs), gs)){
-			System.out.println("!objPos: " + WordElement.getPositionWordInSentence(object.word(), gs));
+			//	System.out.println("objPosition: " + WordElement.getPositionWordInSentence(object.word(), gs));
 
 			object = null;
 		}
@@ -102,15 +97,17 @@ public class SVO_Object {
 		if (!(connectingElement == null)){
 			for (TypedDependency td : gs.typedDependencies()) {
 
-				if (SVOTripleAssignment.englishObjectRelationTypes.contains(td.reln().toString())  && !SVO_Verb.preVerbPosition(td.reln().toString(), gs)) {
+				if (SVOTripleAssignment.englishObjectRelationTypes.contains(td.reln().toString())  &&  WordElement.getPositionWordInSentence(td.dep().word(), gs)> WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs)) {
 					if (td.gov().beginPosition() == connectingElement.beginPosition()
 							&& td.gov().endPosition() == connectingElement.endPosition()) {
+						System.out.println("objPosition: " + WordElement.getPositionWordInSentence(td.dep().word(), gs) + " subj: " +  WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs));
+
 						objectRelationType = td;
 						//TODO!
 						break;
 					}
 				}
-				else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(td.reln().toString())){
+				else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(td.reln().toString()) &&  WordElement.getPositionWordInSentence(td.dep().word(), gs)> WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs)){
 					objectRelationType = td;
 				}
 			}
@@ -138,6 +135,29 @@ public class SVO_Object {
 		}
 
 		return objectRelationType;
+	}
+
+	//some sentences do have more than 2 objects (i.e. 'An event took place on Thursday from 8 pm till midnight in Berlin', 
+	//ignoring all the other arguments would result in a simple extraction of the triple <event, took, place> or <event, took place, Thursday>
+	public static ArrayList<TypedDependency> getIndirectObjectList(GrammaticalStructure gs){
+		ArrayList <TypedDependency> indirectObjectsList = new ArrayList();
+
+		IndexedWord connectingElement = SVO_Verb.assignVerb(gs);
+		if (!(connectingElement == null)){
+			for (TypedDependency td : gs.typedDependencies()) {
+
+				if (SVOTripleAssignment.englishObjectRelationTypes.contains(td.reln().toString()) &&  WordElement.getPositionWordInSentence(td.dep().word(), gs)> WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs))  {
+					if (td.gov().beginPosition() == connectingElement.beginPosition()
+							&& td.gov().endPosition() == connectingElement.endPosition()) {
+						indirectObjectsList.add(td);
+					}
+				}
+				else if (SVOTripleAssignment.englishIndirectObjectRelationTypes.contains(td.reln().toString())){
+					indirectObjectsList.add(td);
+				}
+			}
+		}
+		return indirectObjectsList;
 	}
 
 	public static String getPassiveVoiceObject(GrammaticalStructure gs){

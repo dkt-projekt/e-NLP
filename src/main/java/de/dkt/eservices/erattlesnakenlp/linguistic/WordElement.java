@@ -135,15 +135,9 @@ public class WordElement {
 			else if (simplifiedPPs.contains(currentPOStag)){
 				simplifiedPOSTagsList.add("PP");
 				System.out.println("PP added");
-
 			}
 		}
-
-		//		for (int j=0; j< simplifiedPOSTagsList.size(); j++){
-		//			System.out.println(simplifiedPOSTagsList.get(j));
-		//		}
 		return simplifiedPOSTagsList;
-
 	}
 
 
@@ -175,11 +169,10 @@ public class WordElement {
 		for (Object object : list) {
 			typedDependency = (TypedDependency) object;
 			IndexedWord dependent = typedDependency.dep();
-			
+
 			if (typedDependency.dep().word().equals(word)){
 				positionInTheSentence = dependent.index();
-				System.out.println("Position in the sentence: " + typedDependency.dep().word() + " " + positionInTheSentence);			
-				}
+			}
 		}
 		return positionInTheSentence;
 	}

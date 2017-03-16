@@ -112,10 +112,5 @@ public class WordnetConnector {
 
 	}
 	
-	public static void printWordnetSenses(String relationLemma, String pathToVerbnet) throws IOException{
-		WordnetConnector wordnetConn = new WordnetConnector();
-		LinkedList<String> wordnetInformationSet = wordnetConn.getWordnetInformation(relationLemma, pathToVerbnet);
-		Iterator<String> wordnetSensesIterator = wordnetInformationSet.iterator();
 
-	}
 }

@@ -22,8 +22,6 @@ public class SVO_VerbRelationType {
 				}
 			}
 		}
-		System.out.println("!conjRelPos: " + WordElement.getPositionWordInSentence(verbConjRelation, gs));
-
 		return verbConjRelation;
 	}
 	
@@ -47,7 +45,6 @@ public class SVO_VerbRelationType {
 
 	public String getCopula(GrammaticalStructure gs){
 		String copula = "";		
-		System.out.println("getCopula: " + WordElement.getWordByDependency("cop", gs));
 
 		if (!WordElement.getWordByDependency("cop", gs).equals(null)){
 			copula = WordElement.getWordByDependency("cop", gs);

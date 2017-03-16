@@ -23,8 +23,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.json.JSONObject;
 
 import com.google.common.base.Objects;
@@ -271,6 +274,7 @@ public class RelationExtraction {
 		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
+				System.out.println(sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 
 				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
@@ -286,21 +290,20 @@ public class RelationExtraction {
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject1 = SVOTripleAssignment.getSubject(gs);
 				IndexedWord connectingElement1 = SVOTripleAssignment.getVerb(gs);
-				IndexedWord object1 = SVOTripleAssignment.getObject(gs);
+				IndexedWord object1 = SVOTripleAssignment.getObject(gs, SVO_Object.getIndirectObjectList(gs).get(0));
 
 
-				//only the direct verb dependencies are relevant for extracting the arguments 
-				List<TypedDependency> allVerbDependenciesList = (List<TypedDependency>) DepParserTree.getAllDirectVerbDependencies(gs.allTypedDependencies());
-
-				//all dependencies to find the prepositions
-				Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
-				//	DPTreeNode tree =  DepParserTree.generateTreeFromList(allVerbDependenciesList);
+//				//only the direct verb dependencies are relevant for extracting the arguments 
+//				List<TypedDependency> allVerbDependenciesList = (List<TypedDependency>) DepParserTree.getAllDirectVerbDependencies(gs.allTypedDependencies());
+//
+//				//all dependencies to find the prepositions
+//				Collection<TypedDependency> allDepenednciesList = gs.allTypedDependencies();
+//				//	DPTreeNode tree =  DepParserTree.generateTreeFromList(allVerbDependenciesList);
 
 
 				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
-
+					System.out.println();
 					System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
-
 					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object1,tagged, entityMap);
 
@@ -327,21 +330,15 @@ public class RelationExtraction {
 							//THETA ROLES' ASSIGNMENT
 							WordnetConnector wordnetConn = new WordnetConnector();
 							VerbnetConnector verbnetConn = new VerbnetConnector();
-							WordElement wordEl = new WordElement();
 							
-							WordnetConnector.printWordnetSenses(relationLemma, pathToVerbnet);
-							LinkedList <String> wordnetEntries = wordnetConn.getWordnetInformation("give", pathToVerbnet);
-							System.out.println("--object's dependency### " + objectsDependency);
 							LinkedList<String> thetaRolesList = verbnetConn.assignThetaRoles(subject1, object1, objectsDependency,iobjectsDependency, relationLemma, pathToVerbnet);
-							
 							verbnetConn.getAssignedRolesList();
-							System.out.println("list created? --> size : " + verbnetConn.getAssignedRolesList().size() + " another list" + verbnetConn.assignedRolesList.size());
 							
-							System.out.println("PROCESSING START");
-							wordEl.getSimplifiedPOSTagsList(gs);
-							System.out.println("PROCESSING STOP");
+//							System.out.println("PROCESSING START");
+//							wordEl.getSimplifiedPOSTagsList(gs);
+//							System.out.println("PROCESSING STOP");
 
-							System.out.println("size of theta roles " + thetaRolesList.size() + " wordnet entries " + wordnetEntries );
+							System.out.println("size of theta roles " + thetaRolesList.size());
 							//System.out.println("###relationLemma " + relationLemma + "getWordByDep " + WordElement.getWordByDependency("nmod", gs) + "###");
 							if (thetaRolesList.size()>0){
 								subjectThemRole = thetaRolesList.get(0);
@@ -385,10 +382,16 @@ public class RelationExtraction {
 
 						//	SimilarityMeasure.getSublists(LSAmatrix);
 					}
-					System.out.println("assignment     ------------------------");
-					EntityRelationTriple t = SVOTripleAssignment.setEntityRelationTriple(subjectURI, objectURI, gs);
-					System.out.println("assignm end " + t.getSubject() + " obj " + t.getObject() + " rel " +t.getRelation());
-					ert.add(t);
+					//TODO
+					//extend the method to add the subject's and the objects' thematic roles
+					
+					//EntityRelationTriple t = SVOTripleAssignment.setEntityRelationTriple(subjectURI, objectURI, gs);
+					//System.out.println("assignment end " + t.getSubject() + " obj " + t.getObject() + " rel " +t.getRelation());
+					ArrayList <EntityRelationTriple> ertripleList = SVOTripleAssignment.getEntityRelationTripleList(subjectURI, objectURI, gs);
+					//ert.addAll(ertripleList);
+					//ert.add(t);
+					System.out.println("ERT.length() = " + ertripleList.size());
+					ert= (ArrayList<EntityRelationTriple>) Stream.concat(ert.stream(), ertripleList.stream()).collect(Collectors.toList());
 				}
 			}
 		}

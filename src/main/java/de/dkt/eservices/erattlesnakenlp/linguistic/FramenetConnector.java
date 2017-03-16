@@ -36,6 +36,8 @@ public class FramenetConnector {
 				if (verbnetEntry.get(i).getName().equals(inputVerb) && verbnetEntry.get(i).getGroupings() != null){
 					for (int j = 0; j <  verbnetEntry.get(i).getVerbClass().getFrames().size(); j++){
 						frameList.add(verbnetEntry.get(i).getVerbClass().getFrames().get(j));
+						
+						//System.out.println("----> primaries: " + " preVerb: "+ verbnetEntry.get(i).getVerbClass().getFrames().get(j).getSyntax().getPostVerbDescriptors()  + " postVerb " +verbnetEntry.get(i).getVerbClass().getFrames().get(j).getSyntax().getPostVerbDescriptors().toString() + " "+ verbnetEntry.get(i).getVerbClass().getFrames().get(j).getPrimaryType().getID());
 					}
 				}
 			}

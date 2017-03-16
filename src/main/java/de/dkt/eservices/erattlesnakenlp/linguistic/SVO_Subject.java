@@ -13,19 +13,17 @@ public class SVO_Subject {
 	public static IndexedWord assignSubject(GrammaticalStructure gs){
 		IndexedWord subject = null;
 		TypedDependency directRootDependency = SVO_Verb.findRootDependency(gs);
-		System.out.println("directRootDependency: " + directRootDependency);
-		System.out.println("assignSubjTest " + directRootDependency.reln().toString());
+	//	System.out.println("directRootDependency: " + directRootDependency);
+	//	System.out.println("assignSubjTest " + directRootDependency.reln().toString());
 
 		if (SVOTripleAssignment.englishSubjectRelationTypes.contains(directRootDependency.reln().toString())){
 			subject = directRootDependency.dep();
 
-			if ( !SVO_Verb.preVerbPosition(directRootDependency.reln().toString(), gs) 
-					&& WordElement.existPOStag("WDT", gs)){				
-
-				System.out.println("...subject assignment...: " + subject);
-				System.out.println("WDT " + WordElement.getDirectPreceder(subject.word(), gs).dep() + 
-						" " + WordElement.getDirectPreceder(subject.word(), gs).gov());	
-			}
+//			if ( !SVO_Verb.preVerbPosition(directRootDependency.reln().toString(), gs) 
+//					&& WordElement.existPOStag("WDT", gs)){				
+//
+////				System.out.println("WDT " + WordElement.getDirectPreceder(subject.word(), gs).dep());	
+//			}
 		}		
 		return subject;	
 	}
@@ -52,7 +50,7 @@ public class SVO_Subject {
 			subjectCompound = subjectCompound.concat(" " + subject);
 			subject = subjectCompound;
 		}
-		System.out.println("!subjPos: " + WordElement.getPositionWordInSentence(subject, gs));
+		//System.out.println("subjPosition: " + WordElement.getPositionWordInSentence(subject, gs));
 		return subject;
 	}
 
