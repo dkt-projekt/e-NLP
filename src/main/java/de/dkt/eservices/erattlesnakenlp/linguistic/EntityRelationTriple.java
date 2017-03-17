@@ -16,7 +16,7 @@ public class EntityRelationTriple {
 	public EntityRelationTriple() {
 	}
 
-	public EntityRelationTriple(String subject, String relation, String object, String themRoleSubj, String themRoleObj, int start, int end) {
+	public EntityRelationTriple(String subject, String relation, String object, String themRoleSubj, String themRoleObj, String lemma, int start, int end) {
 		super();
 		this.subject = subject;
 		this.relation = relation;

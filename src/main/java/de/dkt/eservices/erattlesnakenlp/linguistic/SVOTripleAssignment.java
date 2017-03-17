@@ -67,8 +67,9 @@ public class SVOTripleAssignment {
 	}	
 
 
-	public static EntityRelationTriple setTriple (String subject, String verb, String object, String subjectURI, String objectURI, int start, int end){
+	public static EntityRelationTriple setTriple (String subject, String verb, String object, String subjectURI, String objectURI,  int start, int end){
 		EntityRelationTriple t = new EntityRelationTriple();
+		StanfordLemmatizer lemmatizer = new StanfordLemmatizer();
 
 		if (!(subjectURI == null) && !(objectURI == null)){
 			t.setSubject(String.format("%s(%s)", subject, subjectURI));
@@ -78,13 +79,17 @@ public class SVOTripleAssignment {
 			t.setObject(String.format("%s(%s)", object, objectURI));
 			t.setStartIndex(start);
 			t.setEndIndex(end);
+			t.setLemma(lemmatizer.lemmatizeWord(verb));
+			t.setThemRoleSubj("themRoleSubj");
+			t.setThemRoleSubj("themRoleObj");
+
 			//t.setObject(String.format("%s", objectThemRole.concat(objectURI)));
 		}
-//		else {
-//			t.setSubject(String.format("%s(%s)", subject, subjectURI));
-//			t.setRelation(verb);
-//			t.setObject(String.format("%s(%s)", object, objectURI));
-//		}
+		//		else {
+		//			t.setSubject(String.format("%s(%s)", subject, subjectURI));
+		//			t.setRelation(verb);
+		//			t.setObject(String.format("%s(%s)", object, objectURI));
+		//		}
 		return t;
 	}
 
@@ -117,13 +122,13 @@ public class SVOTripleAssignment {
 		String objectThemRole = null; 
 		String iobjectThemRole = null; 
 
-		
+
 		//The length of the list refers to the amount of the arguments in the sentence 
 		for (int i=0; i<entityRelationTripleList.size(); i++){
 			EntityRelationTriple ert = entityRelationTripleList.get(i);
 			if (subjectThemRole == null){
 				ert.getSubject();
-			
+
 			}
 			else if (iobjectThemRole == null){
 
@@ -142,10 +147,10 @@ public class SVOTripleAssignment {
 		String verbConjRelation = getVerbConjRelation(gs);
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
 		IndexedWord relationVerb = getVerb(gs);
-		
+
 		if (verbRelType.getCopula(gs).length()>1){
 			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed
-			
+
 			t = setTriple(getSubjectConjunction(gs), getObject(gs, objectDependencyType).toString(),  relationVerb.word(), subjectURI, objectURI , getObject(gs, objectDependencyType).beginPosition() + sentenceStartIndex, getObject(gs, objectDependencyType).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 1 (copula)--- " + getSubjectConjunction(gs) + " verb: " + getObject(gs, objectDependencyType).toString() + " object: " + getVerb(gs).word());		
 		}

@@ -17,7 +17,7 @@ public class StanfordLemmatizer
 
 	private final Morphology analyzer; 
 
-	private StanfordLemmatizer() 
+	StanfordLemmatizer() 
 	{ 
 		this.analyzer = new Morphology(); 
 	} 
