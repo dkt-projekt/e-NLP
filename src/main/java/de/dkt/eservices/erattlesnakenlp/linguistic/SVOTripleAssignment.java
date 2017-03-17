@@ -20,7 +20,7 @@ public class SVOTripleAssignment {
 	static List<String> excludedPosTagObjects = new ArrayList<>(Arrays.asList("PRP$", "POS", "TO", "JJ", "DT", "IN", "RB", "PRP", "POS"));
 	static ArrayList<String> posTagsList = new ArrayList();
 	static SVO_VerbRelationType verbRelType = new SVO_VerbRelationType();
-
+	static HashMap <String, String> SVO_themRolesList = new HashMap();
 
 	public static IndexedWord getSubject(GrammaticalStructure gs){
 		return SVO_Subject.assignSubject(gs);
@@ -115,33 +115,33 @@ public class SVOTripleAssignment {
 		String objectThemRole = null; 
 		String iobjectThemRole = null; 
 
-		
+
 		//The length of the list refers to the amount of the arguments in the sentence 
 		for (int i=0; i<entityRelationTripleList.size(); i++){
 			EntityRelationTriple ert = entityRelationTripleList.get(i);
 			if (subjectThemRole == null){
 				ert.getSubject();
-			
+
 			}
 			else if (iobjectThemRole == null){
-				
+
 			}
-			
+
 			//entityRelationTripleList.get(i).get
-			
-			
+
+
 		}
 		return thematicRolesList;
 	}
-	
-	
+
+
 
 	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs, TypedDependency objectDependencyType){
 		EntityRelationTriple t = new EntityRelationTriple();
 		SVO_Verb verbClass = new SVO_Verb();
 		String verbConjRelation = getVerbConjRelation(gs);
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
-		
+
 
 		if (verbRelType.getCopula(gs).length()>1){
 			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed			
@@ -188,7 +188,9 @@ public class SVOTripleAssignment {
 		//		String apposVerb = verbRelType .apposRelation(gs);
 		//		System.out.println("apposition found: " + apposVerb);
 
-
+//		if (SVO_themRolesList.isEmpty()){
+//			SVO_themRolesList.add(t.getSubject(), );
+//		}
 
 		return t;
 	}

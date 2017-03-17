@@ -304,6 +304,7 @@ public class RelationExtraction {
 				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
 					System.out.println();
 					System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
+					
 					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object1,tagged, entityMap);
 
@@ -400,11 +401,11 @@ public class RelationExtraction {
 
 
 
-	public static ArrayList <EntityRelationTriple> getSynonymRelationTriples (){
-		ArrayList<EntityRelationTriple> ert = new ArrayList ();
-
-		return ert;
-	}
+//	public static ArrayList <EntityRelationTriple> getSynonymRelationTriples (){
+//		ArrayList<EntityRelationTriple> ert = new ArrayList ();
+//
+//		return ert;
+//	}
 
 
 	public static ArrayList<EntityRelationTriple> getRelationsNIF(Model nifModel){

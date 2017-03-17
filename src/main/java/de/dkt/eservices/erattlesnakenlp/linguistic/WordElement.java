@@ -142,7 +142,7 @@ public class WordElement {
 
 
 	public static  boolean existPOStag(String postag, GrammaticalStructure gs){
-		boolean posTagExists = false;
+		boolean posTagExists = false;	
 
 		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
 		TypedDependency typedDependency;

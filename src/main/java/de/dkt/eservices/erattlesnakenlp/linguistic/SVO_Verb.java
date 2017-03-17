@@ -45,6 +45,8 @@ public class SVO_Verb {
 		}
 		return rootDependenciesList;		
 	}
+	
+
 
 	public static boolean isPassive(){
 
