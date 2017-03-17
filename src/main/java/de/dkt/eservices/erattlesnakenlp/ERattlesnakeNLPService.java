@@ -90,12 +90,10 @@ public class ERattlesnakeNLPService {
 
 		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 		ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam, ert);
-		
 		for (EntityRelationTriple t : ert){
-			//if (t.getRelation() != null && t.getSubject() != null && t.getObject() != null && t.getLemma() != null){ // TODO: find out why there is an empty first item in this list
-				//System.out.println("DEBUG ADDING RELATION HERE!!!!!!!!");
+			if (t.getRelation() != null && t.getSubject() != null && t.getObject() != null && t.getLemma() != null){ // TODO: find out why there is an empty first item in this list
 				NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
-			//}
+			}
 		}
 		
 		return nifModel;

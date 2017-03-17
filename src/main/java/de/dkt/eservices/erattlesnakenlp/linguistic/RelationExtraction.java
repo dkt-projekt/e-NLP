@@ -403,10 +403,9 @@ public class RelationExtraction {
 							.getEntityRelationTripleList(subjectURI, objectURI, gs, sentenceStart, tagged);
 					// ert.addAll(ertripleList);
 					// ert.add(t);
-//					for (EntityRelationTriple t : ertripleList){
-//						ert.add(t);
-//						System.out.println("debugging filling of tripe list:" + t.getStartIndex() +"|" + t.getEndIndex()+"|" + t.getRelation()+"|" + t.getSubject()+"|" + t.getLemma()+"|" + t.getObject()+"|" + t.getThemRoleSubj()+"|" + t.getThemRoleObj());
-//					}
+					for (EntityRelationTriple t : ertripleList){
+						ert.add(t);
+					}
 //					ert = (ArrayList<EntityRelationTriple>) Stream.concat(ert.stream(), ertripleList.stream())
 //							.collect(Collectors.toList());
 				}
