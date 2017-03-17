@@ -64,8 +64,8 @@ public class SVO_Object {
 		IndexedWord object = getObject(gs, relationType);
 		SVO_VerbRelationType verRelType = new SVO_VerbRelationType();
 		//an extra 'if' to exclude all the objects of the sentence that are dependents of the first verb (in case of a i.a.: conj:relation)
-		if (verRelType.conjRelation(gs).length()>1 && 
-				WordElement.getPositionWordInSentence(object.word(), gs) < WordElement.getPositionWordInSentence(verRelType.conjRelation(gs), gs)){
+		if (verRelType.conjRelation(gs).word().length()>1 && 
+				WordElement.getPositionWordInSentence(object.word(), gs) < WordElement.getPositionWordInSentence(verRelType.conjRelation(gs).word(), gs)){
 			//	System.out.println("objPosition: " + WordElement.getPositionWordInSentence(object.word(), gs));
 
 			object = null;

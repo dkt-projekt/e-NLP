@@ -42,7 +42,7 @@ public class SVOTripleAssignment {
 
 
 	public static String getVerbConjRelation(GrammaticalStructure gs){
-		String verbConjRelation= verbRelType.conjRelation(gs);
+		String verbConjRelation= verbRelType.conjRelation(gs).word();
 		return verbConjRelation;
 	}
 
@@ -89,7 +89,7 @@ public class SVOTripleAssignment {
 	}
 
 
-	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs){
+	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs, int sentenceStart){
 		ArrayList <EntityRelationTriple> entityRelationTripleList = new ArrayList <EntityRelationTriple> ();
 		EntityRelationTriple t = new EntityRelationTriple();
 
@@ -102,7 +102,7 @@ public class SVOTripleAssignment {
 
 			if (!excludedPosTagObjects.contains(getObject(gs, objectDependencyType).tag())){
 				System.out.println(getObject(gs, objectDependencyType).toString() + "getObj: " + getObject(gs, objectDependencyType) + " " + getObject(gs, objectDependencyType).tag());
-				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType);
+				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType, sentenceStart);
 				entityRelationTripleList.add(t);
 			}
 		}
@@ -111,18 +111,19 @@ public class SVOTripleAssignment {
 
 	public static HashMap <String, String> getThematicRoles (String subjectURI, String objectURI, GrammaticalStructure gs){
 		HashMap <String, String> thematicRolesList = new HashMap();
-		ArrayList<EntityRelationTriple> entityRelationTripleList = getEntityRelationTripleList(subjectURI, objectURI, gs);
+		int dummyIndex = 0; // TODO: WARNING: this should be the sentenceStart index (in the whole document)
+		ArrayList<EntityRelationTriple> entityRelationTripleList = getEntityRelationTripleList(subjectURI, objectURI, gs, dummyIndex);
 		String subjectThemRole = null;
 		String objectThemRole = null; 
 		String iobjectThemRole = null; 
 
-
+		
 		//The length of the list refers to the amount of the arguments in the sentence 
 		for (int i=0; i<entityRelationTripleList.size(); i++){
 			EntityRelationTriple ert = entityRelationTripleList.get(i);
 			if (subjectThemRole == null){
 				ert.getSubject();
-
+			
 			}
 			else if (iobjectThemRole == null){
 
@@ -142,7 +143,6 @@ public class SVOTripleAssignment {
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
 		IndexedWord relationVerb = getVerb(gs);
 		
-
 		if (verbRelType.getCopula(gs).length()>1){
 			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed
 			
@@ -165,8 +165,8 @@ public class SVOTripleAssignment {
 			}
 		}
 
-		if (verbRelType.advclRelation(gs).length()>1){ // TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
-			t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs),  getSecondObject(gs).word(), subjectURI, objectURI , getSecondObject(gs).beginPosition() + sentenceStartIndex, getSecondObject(gs).endPosition() + sentenceStartIndex);
+		if (verbRelType.advclRelation(gs).word().length()>1){ // TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
+			t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , getSecondObject(gs).beginPosition() + sentenceStartIndex, getSecondObject(gs).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
 		}
 
