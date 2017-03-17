@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>DKTCommon</artifactId>
-			<version>0.5</version>
+			<version>0.6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>

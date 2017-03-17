@@ -37,8 +37,9 @@ public class AbusiveLanguageACLWorkshop2017 {
 			cleanNiceTweets.add(TweetCleaner.clean(t));
 		}
 		
-		HashMap<String[], Double> naughtyNgramScores = getNgramScores(cleanNaughtyTweets);
-		HashMap<String[], Double> niceNgramScores = getNgramScores(cleanNiceTweets);
+		HashMap<String[], Double> naughtyNgramScores = getWordNgramScores(cleanNaughtyTweets);
+		HashMap<String[], Double> niceNgramScores = getWordNgramScores(cleanNiceTweets);
+		//TODO: also try out with getCharacterNgramScores here!
 		
 		// do some smoothing first (add +1 to every ngrams from map a to map b and other way round)
 		naughtyNgramScores = smoothMap(naughtyNgramScores, niceNgramScores);
@@ -135,7 +136,34 @@ public class AbusiveLanguageACLWorkshop2017 {
 		
 	}
 	
-	public static HashMap<String[], Double> getNgramScores(ArrayList<String> tweets){
+	public static HashMap<String, Double> getCharacterNgramScores(ArrayList<String> tweets){
+		
+		HashMap<String, Double> hm = new HashMap<String, Double>();
+		HashMap<Integer, Integer> hm2 = new HashMap<Integer, Integer>();
+		
+		for (String t : tweets){
+			for (int i = MIN_NGRAM_LENGTH; i <= MAX_NGRAM_LENGTH; i++){
+				for (int j = 0; j < t.length()+1 - i; j++){
+					String ngram = t.substring(j,  j+i);
+					int v = (hm2.containsKey(ngram.length()) ? hm2.get(ngram.length()) + 1 : 1);
+					hm2.put(ngram.length(), v);
+					double c = (hm.containsKey(ngram) ? hm.get(ngram) + 1 : 1);
+					hm.put(ngram, (double)c);
+				}
+			}
+		}
+		
+		// now normalize the values
+		for (String key : hm.keySet()){
+			double normVal = hm.get(key) / (double) hm2.get(key.length());// not sure if the casting to double is necessary here...
+			hm.put(key, normVal);
+		}
+		return hm;
+		
+	}
+	
+	
+	public static HashMap<String[], Double> getWordNgramScores(ArrayList<String> tweets){
 		
 		HashMap<String[], Double> hm = new HashMap<String[], Double>();
 		HashMap<Integer, Integer> hm2 = new HashMap<Integer, Integer>();
