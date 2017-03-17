@@ -166,12 +166,12 @@ public class SVOTripleAssignment {
 		}
 
 		if (verbRelType.advclRelation(gs).word().length()>1){ // TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
-			t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , getSecondObject(gs).beginPosition() + sentenceStartIndex, getSecondObject(gs).endPosition() + sentenceStartIndex);
+			t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , verbRelType.advclRelation(gs).beginPosition() + sentenceStartIndex, verbRelType.advclRelation(gs).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
 		}
 
 		if (verbConjRelation.length()>1){// TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
-			t = setTriple(getSubjectConjunction(gs), verbConjRelation,  getSecondObject(gs).word(), subjectURI, objectURI , getSecondObject(gs).beginPosition() + sentenceStartIndex, getSecondObject(gs).endPosition() + sentenceStartIndex);
+			t = setTriple(getSubjectConjunction(gs), verbRelType.conjRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , verbRelType.conjRelation(gs).beginPosition() + sentenceStartIndex,  verbRelType.conjRelation(gs).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
 					getSecondObject(gs) + " objConjRel:" + SVO_Object.assignObjectConjRelation(gs, objectDependencyType));
 		}
