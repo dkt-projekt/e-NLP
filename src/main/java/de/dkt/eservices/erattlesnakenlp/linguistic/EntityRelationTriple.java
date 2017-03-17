@@ -9,6 +9,7 @@ public class EntityRelationTriple {
 	private String relation;
 	private String themRoleSubj;
 	private String themRoleObj;
+	private String lemma;
 	private int start;
 	private int end;
 
@@ -22,6 +23,7 @@ public class EntityRelationTriple {
 		this.object = object;
 		this.themRoleSubj = themRoleSubj;
 		this.themRoleObj = themRoleObj;
+		this.lemma = lemma;
 		this.start = start;
 		this.end = end;
 	}
@@ -46,9 +48,15 @@ public class EntityRelationTriple {
 	public void setThemRoleObj(String themRoleObj){
 		this.themRoleObj = themRoleObj;
 	}
-	
+	public void setLemma(String lemma){
+		this.lemma = lemma;
+	}
 	public String getThemRoleSubj(){
 		return themRoleSubj;
+	}
+	
+	public String getLemma(){
+		return lemma;
 	}
 	public String getThemRoleObj(){
 		return themRoleObj;
