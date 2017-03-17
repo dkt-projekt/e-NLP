@@ -85,22 +85,20 @@ public class ERattlesnakeNLPService {
     	return nifModel;
 	}
 	
-	public String extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
+	public Model extractRelations(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
 		ParameterChecker.checkNotNullOrEmpty(languageParam, "language", logger);
 
-		ArrayList<EntityRelationTriple> ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam);
-		JSONObject jsonOutput = new JSONObject();
-		JSONArray jsonArrayRelations = new JSONArray();
-
-		for (EntityRelationTriple erti : ert) {
-			JSONObject jsonRelation = new JSONObject();
-			jsonRelation.put("subject",erti.getSubject());
-			jsonRelation.put("relation",erti.getRelation());
-			jsonRelation.put("object",erti.getObject());
-			jsonArrayRelations.put(jsonRelation);
+		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+		ert = RelationExtraction.getDirectRelationsNIF(nifModel, languageParam, ert);
+		
+		for (EntityRelationTriple t : ert){
+			//if (t.getRelation() != null && t.getSubject() != null && t.getObject() != null && t.getLemma() != null){ // TODO: find out why there is an empty first item in this list
+				//System.out.println("DEBUG ADDING RELATION HERE!!!!!!!!");
+				NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
+			//}
 		}
-		jsonOutput.put("relations", jsonArrayRelations);
-		return jsonOutput.toString();
+		
+		return nifModel;
 
 	}
 	

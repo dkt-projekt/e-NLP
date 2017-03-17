@@ -11,7 +11,7 @@ public class SVO_VerbRelationType {
 
 	public IndexedWord conjRelation (GrammaticalStructure gs){
 		String verbConjRelation = "";
-		IndexedWord verbConj = null;
+		IndexedWord verbConj = new IndexedWord();
 		String secondVerbOfConjRelation = WordElement.getWordByDependency("conj:and", gs);
 		boolean isInPreVerbPosition = SVO_Verb.preVerbPosition("conj:and", gs);
 
@@ -40,7 +40,7 @@ public class SVO_VerbRelationType {
 
 	public IndexedWord advclRelation (GrammaticalStructure gs){
 		String verbAdvclRelation = "";
-		IndexedWord verbAdvCl = null;
+		IndexedWord verbAdvCl = new IndexedWord();
 		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("advcl", gs);
 
 		if (secondVerbOfAdvclRelation != null){

@@ -255,7 +255,7 @@ public class RelationExtraction {
 
 
 
-	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel, String language) throws IOException{
+	public static ArrayList<EntityRelationTriple> getDirectRelationsNIF(Model nifModel, String language, ArrayList<EntityRelationTriple> ert) throws IOException{
 
 		//TODO discuss if we want to do this at broker startup instead
 		Tagger.initTagger(language);
@@ -271,7 +271,7 @@ public class RelationExtraction {
 			entityMap.addAll(sameAsMentions);
 		}
 
-		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+		
 		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
@@ -293,8 +293,6 @@ public class RelationExtraction {
 				IndexedWord connectingElement1 = SVOTripleAssignment.getVerb(gs);
 				IndexedWord object1 = SVOTripleAssignment.getObject(gs, SVO_Object.getIndirectObjectList(gs).get(0));
 				int sentenceStart = tagged.get(0).beginPosition(); // TODO: debug this carefully!
-				int sentenceEnd = tagged.get(tagged.size()-1).beginPosition();
-
 
 //				//only the direct verb dependencies are relevant for extracting the arguments 
 //				List<TypedDependency> allVerbDependenciesList = (List<TypedDependency>) DepParserTree.getAllDirectVerbDependencies(gs.allTypedDependencies());
@@ -402,16 +400,22 @@ public class RelationExtraction {
 					// + " obj " + t.getObject() + " rel "
 					// +t.getRelation());
 					ArrayList<EntityRelationTriple> ertripleList = SVOTripleAssignment
-							.getEntityRelationTripleList(subjectURI, objectURI, gs, sentenceStart);
+							.getEntityRelationTripleList(subjectURI, objectURI, gs, sentenceStart, tagged);
 					// ert.addAll(ertripleList);
 					// ert.add(t);
-					System.out.println("ERT.length() = " + ertripleList.size());
-					ert = (ArrayList<EntityRelationTriple>) Stream.concat(ert.stream(), ertripleList.stream())
-							.collect(Collectors.toList());
+//					for (EntityRelationTriple t : ertripleList){
+//						ert.add(t);
+//						System.out.println("debugging filling of tripe list:" + t.getStartIndex() +"|" + t.getEndIndex()+"|" + t.getRelation()+"|" + t.getSubject()+"|" + t.getLemma()+"|" + t.getObject()+"|" + t.getThemRoleSubj()+"|" + t.getThemRoleObj());
+//					}
+//					ert = (ArrayList<EntityRelationTriple>) Stream.concat(ert.stream(), ertripleList.stream())
+//							.collect(Collectors.toList());
 				}
 				
 			}
 		}
+//		for (EntityRelationTriple t : ert){
+//			System.out.println("debugging return vlaue of of tripe list:" + t.getStartIndex() +"|" + t.getEndIndex()+"|" + t.getRelation()+"|" + t.getSubject()+"|" + t.getLemma()+"|" + t.getObject()+"|" + t.getThemRoleSubj()+"|" + t.getThemRoleObj());
+//		}
 		return ert;
 	}
 
@@ -674,10 +678,12 @@ public class RelationExtraction {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-				ArrayList<EntityRelationTriple> ert = getDirectRelationsNIF(nifModel, "en");
+				ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+				ert = getDirectRelationsNIF(nifModel, "en", ert);
 				// make the annotation in nif
 				for (EntityRelationTriple t : ert){
-					NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getRelation(), t.getObject()); // TODO: the prefinal t.getRelation should be the lemma
+					System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());
+					NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
 				}
 				System.out.println("DEBUGGING nif output:\n" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 				

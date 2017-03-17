@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.trees.GrammaticalStructure;
@@ -79,6 +80,7 @@ public class SVOTripleAssignment {
 			t.setObject(String.format("%s(%s)", object, objectURI));
 			t.setStartIndex(start);
 			t.setEndIndex(end);
+			//System.out.println("Debugging start and end for verb:" + verb +"|" + start+"|" + end);
 			t.setLemma(lemmatizer.lemmatizeWord(verb));
 			t.setThemRoleSubj("themRoleSubj");
 			t.setThemRoleSubj("themRoleObj");
@@ -94,7 +96,7 @@ public class SVOTripleAssignment {
 	}
 
 
-	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs, int sentenceStart){
+	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs, int sentenceStart, List<TaggedWord> tagged){
 		ArrayList <EntityRelationTriple> entityRelationTripleList = new ArrayList <EntityRelationTriple> ();
 		EntityRelationTriple t = new EntityRelationTriple();
 
@@ -106,18 +108,18 @@ public class SVOTripleAssignment {
 			TypedDependency objectDependencyType = objectsList.get(i);
 
 			if (!excludedPosTagObjects.contains(getObject(gs, objectDependencyType).tag())){
-				System.out.println(getObject(gs, objectDependencyType).toString() + "getObj: " + getObject(gs, objectDependencyType) + " " + getObject(gs, objectDependencyType).tag());
-				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType, sentenceStart);
+				//System.out.println(getObject(gs, objectDependencyType).toString() + "getObj: " + getObject(gs, objectDependencyType) + " " + getObject(gs, objectDependencyType).tag());
+				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType, sentenceStart, tagged);
 				entityRelationTripleList.add(t);
 			}
 		}
 		return entityRelationTripleList;
 	}
 
-	public static HashMap <String, String> getThematicRoles (String subjectURI, String objectURI, GrammaticalStructure gs){
+	public static HashMap <String, String> getThematicRoles (String subjectURI, String objectURI, GrammaticalStructure gs, List<TaggedWord> tagged){
 		HashMap <String, String> thematicRolesList = new HashMap();
 		int dummyIndex = 0; // TODO: WARNING: this should be the sentenceStart index (in the whole document)
-		ArrayList<EntityRelationTriple> entityRelationTripleList = getEntityRelationTripleList(subjectURI, objectURI, gs, dummyIndex);
+		ArrayList<EntityRelationTriple> entityRelationTripleList = getEntityRelationTripleList(subjectURI, objectURI, gs, dummyIndex, tagged);
 		String subjectThemRole = null;
 		String objectThemRole = null; 
 		String iobjectThemRole = null; 
@@ -141,44 +143,56 @@ public class SVOTripleAssignment {
 		return thematicRolesList;
 	}
 
-	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs, TypedDependency objectDependencyType, int sentenceStartIndex){
+	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs, TypedDependency objectDependencyType, int sentenceStartIndex, List<TaggedWord> tagged){
 		EntityRelationTriple t = new EntityRelationTriple();
 		SVO_Verb verbClass = new SVO_Verb();
 		String verbConjRelation = getVerbConjRelation(gs);
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
 		IndexedWord relationVerb = getVerb(gs);
+		//System.out.println("DEBUGGING RELATION VERB ASSIGNMENT:" + relationVerb.word());
 
 		if (verbRelType.getCopula(gs).length()>1){
 			//in case of 'cop', the object is recognized as the verb, and the verb is an object; here-> reversed
-
-			t = setTriple(getSubjectConjunction(gs), getObject(gs, objectDependencyType).toString(),  relationVerb.word(), subjectURI, objectURI , getObject(gs, objectDependencyType).beginPosition() + sentenceStartIndex, getObject(gs, objectDependencyType).endPosition() + sentenceStartIndex);
+			
+			//System.out.println("passing on as indices:" + sentenceStartIndex + "|" + tagged.get(getObject(gs, objectDependencyType).index()-1).beginPosition());
+			t = setTriple(getSubjectConjunction(gs), getObject(gs, objectDependencyType).word(),  relationVerb.word(), subjectURI, objectURI , tagged.get(getObject(gs, objectDependencyType).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getObject(gs, objectDependencyType).index()-1).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 1 (copula)--- " + getSubjectConjunction(gs) + " verb: " + getObject(gs, objectDependencyType).toString() + " object: " + getVerb(gs).word());		
 		}
 		else {
 
 			if (WordElement.getPositionWordInSentence(verbConjRelation, gs) > WordElement.getPositionWordInSentence(getObject(gs, objectDependencyType).word(), gs)){
-				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , relationVerb.beginPosition() + sentenceStartIndex, relationVerb.endPosition() + sentenceStartIndex);
+				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				System.out.println("----- FINAL TRIPLE 2 !(copula)--- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
 			}
-			else if (verbConjRelation.length()>1){
-				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  "" , subjectURI, objectURI  , relationVerb.beginPosition() + sentenceStartIndex, relationVerb.endPosition() + sentenceStartIndex);
-				System.out.println("----- FINAL TRIPLE 3 (VerbConj, SV) --- " + getSubjectConjunction(gs) + " object: " + "empty" + "  verb: " + getVerb(gs).word());
+			else if (verbConjRelation != null){ 
+				if (verbConjRelation.length()>1){
+					t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  "" , subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
+					System.out.println("----- FINAL TRIPLE 3 (VerbConj, SV) --- " + getSubjectConjunction(gs) + " object: " + "empty" + "  verb: " + getVerb(gs).word());
+				}
 			}
 			else {
-				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , relationVerb.beginPosition() + sentenceStartIndex, relationVerb.endPosition() + sentenceStartIndex);
+				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				System.out.println("----- FINAL TRIPLE 4 (VerbConj, SVO) --- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
 			}
 		}
+		
+		if (verbRelType.advclRelation(gs).word() != null){
+			if (verbRelType.advclRelation(gs).word().length()>1){ // TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
+				relationVerb = verbRelType.advclRelation(gs);
+				t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
+				System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
+			
+				}
+			}
+		
 
-		if (verbRelType.advclRelation(gs).word().length()>1){ // TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
-			t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , verbRelType.advclRelation(gs).beginPosition() + sentenceStartIndex, verbRelType.advclRelation(gs).endPosition() + sentenceStartIndex);
-			System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
-		}
-
-		if (verbConjRelation.length()>1){// TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
-			t = setTriple(getSubjectConjunction(gs), verbRelType.conjRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , verbRelType.conjRelation(gs).beginPosition() + sentenceStartIndex,  verbRelType.conjRelation(gs).endPosition() + sentenceStartIndex);
-			System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
+		if (verbConjRelation != null){
+			if (verbConjRelation.length()>1){// TODO: fix right positions here (should not be getSecondObject but IndexedWord (maybe?) version of verbTelType.advclRelation return type
+				relationVerb = verbRelType.conjRelation(gs);
+				t = setTriple(getSubjectConjunction(gs), verbRelType.conjRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex,  tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
+				System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
 					getSecondObject(gs) + " objConjRel:" + SVO_Object.assignObjectConjRelation(gs, objectDependencyType));
+			}
 		}
 
 		String subjPass = getSubjPassiveVoice(gs);
@@ -186,7 +200,7 @@ public class SVOTripleAssignment {
 
 		if (subjPass.length()>1 && objPass.length()>1){
 			//System.out.println("--- " + " PASSIVE VOICE: " + subjPass + " v: " + getVerb(gs).word() + "objPass: " + objPass);
-			t = setTriple(objPass, getVerb(gs).word(), subjPass, subjectURI, objectURI , getVerb(gs).beginPosition() + sentenceStartIndex, getVerb(gs).endPosition() + sentenceStartIndex);
+			t = setTriple(objPass, getVerb(gs).word(), subjPass, subjectURI, objectURI , tagged.get(getVerb(gs).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getVerb(gs).index()-1).endPosition() + sentenceStartIndex);
 			System.out.println("----- FINAL TRIPLE 7 (pass) --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
 		}
 
