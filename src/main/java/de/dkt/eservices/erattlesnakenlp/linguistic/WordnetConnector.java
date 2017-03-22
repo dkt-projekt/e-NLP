@@ -26,7 +26,7 @@ public class WordnetConnector {
 
 	public LinkedList<String> getWordnetInformation(String inputVerb, String pathToVerbnet) throws IOException{
 
-		LinkedList<String> wordnetTypes = new LinkedList();
+		LinkedList<String> wordnetTypes = new LinkedList<String>();
 		IVerbIndex index = VerbnetConnector.openVerbnetConnection(pathToVerbnet);
 		index.open();
 		Iterator<IVerbClass> verbnetIterator = index.iterator();
