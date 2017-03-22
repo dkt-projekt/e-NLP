@@ -314,9 +314,8 @@ public class RelationExtraction {
 					// lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
-					// String pathToVerbnet =
-					// "/home/agata/Documents/programming/verbnet";
-					String pathToVerbnet = "C:\\Users\\pebo01\\Downloads\\verbnet-3.2\\new_vn";
+					 String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+					//String pathToVerbnet = "C:\\Users\\pebo01\\Downloads\\verbnet-3.2\\new_vn";
 					String subjectThemRole = null;
 					String objectThemRole = null;
 					String objectsDependency = SVO_Object.getObjectRelationType(gs).reln().toString();
@@ -648,8 +647,8 @@ public class RelationExtraction {
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
-		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
-		String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
+		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
+		//String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
 		/**
 		 * another examples
@@ -665,8 +664,8 @@ public class RelationExtraction {
 		System.out.println(df.getAbsolutePath());
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
 		Date d3 = new Date();
-		//String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
-		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
+		//String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
 		BufferedWriter brDebug = null;
 		//printWordNetInfo();
 		int c = 0;
