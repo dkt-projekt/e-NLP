@@ -48,6 +48,18 @@ public class TestConstants {
 					"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
 					"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
 					"\n" +
+					"<http://dkt.dfki.de/documents/#char=70,74>\n" +
+					"        a                        nif:String , nif:RFC5147String ;\n" +
+					"        nif:anchorOf             \"born\"^^xsd:string ;\n" +
+					"        nif:beginIndex           \"70\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex             \"74\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext     <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        nif:relationAction       <bear> ;\n" +
+					"        nif:relationObject       <Hamburg(http://dkt.dfki.de/documents/#char=47,54)> ;\n" +
+					"        nif:relationSubject      <She(http://dkt.dfki.de/documents/#char=0,13)> ;\n" +
+					"        nif:thematicRoleSubject  <themRoleObj> ;\n" +
+					"        itsrdf:taIdentRef        <http://dkt.dfki.de/entities/relation> .\n" +
+					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,13>\n" +
 					"        a                     nif:RFC5147String , nif:String ;\n" +
 					"        dbo:birthDate         \"1954-07-17\"^^xsd:date ;\n" +

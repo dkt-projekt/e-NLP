@@ -1233,18 +1233,35 @@ public class ENLPTest {
 	@Test
 	public void relationExtractionTestWithCoferenceNIF() throws UnirestException, IOException,
 		Exception {
-		//TODO: fix this, as no relation is being added to the nif
+		
+		HttpResponse<String> response = extractRelationsRequest()
+				.queryString("informat", "turtle")
+				.queryString("language", "en")
+				.body(TestConstants.relationExtractionInput)
+				.asString();
+		
+		assertTrue(response.getStatus() == 200);
+		assertTrue(response.getBody().length() > 0);
+		
+		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
+	}
+	
+//	@Test
+//	public void relationExtractionTest2() throws UnirestException, IOException,
+//		Exception {
+//		
 //		HttpResponse<String> response = extractRelationsRequest()
 //				.queryString("informat", "turtle")
 //				.queryString("language", "en")
-//				.body(TestConstants.relationExtractionInput)
+//				.body(TestConstants.relationExtractionInput2)
 //				.asString();
 //		
-//		System.out.println("DEBUG OUTPUT:\n" + response.getBody());
 //		assertTrue(response.getStatus() == 200);
 //		assertTrue(response.getBody().length() > 0);
-//		
-//		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
-	}
+//		// TODO: haven't yet wrote the complete, sensible expected response. But the current state makes no sense and refers to human as the relationObject, but to sofia by the character indices
+//		Assert.assertEquals("", response.getBody());
+//	}
+//	
+	
 	
 }
