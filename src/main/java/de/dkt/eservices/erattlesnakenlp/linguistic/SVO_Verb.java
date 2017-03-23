@@ -49,15 +49,17 @@ public class SVO_Verb {
 
 	public ArrayList<TypedDependency> getDirectVerbDependencies(GrammaticalStructure gs, String verb){
 		ArrayList<TypedDependency> verbDependenciesList = new ArrayList <TypedDependency>();
-		System.out.println("verb__" + verb);
+//		System.out.println("verb__" + verb);
 		for (TypedDependency td : gs.typedDependencies()) {
 			//	System.out.println("TypedDependcy: " + td.gov() + " " + td.dep() + " " + td.reln() + " " + td.gov().word().equals(verb) + " " + td.gov().word() + " " + verb);
-			System.out.println(td.gov());
+//			System.out.println(td.gov());
 			if (!td.gov().toString().equals("ROOT")){
 				if (td.gov().word().equals(verb) ){
 					if(!td.reln().toString().equals("conj") && !td.reln().toString().equals("advcl") && !td.reln().toString().equals("punct")&& !td.reln().toString().equals("cc") && !td.reln().toString().equals("aux") && !td.reln().toString().equals("auxpass")){
-						System.out.println("inside the IF------>");
-						System.out.println(td.gov().value() + " <gov&verb> "+ verb + td.reln().toString() + " " + td.reln().getShortName() + td.reln().getSpecific()+" " + td.toString());
+					
+//						System.out.println("inside the IF------>");
+//						System.out.println(td.gov().value() + " <gov&verb> "+ verb + td.reln().toString() + " " + td.reln().getShortName() + td.reln().getSpecific()+" " + td.toString());
+//						
 						verbDependenciesList.add(td);			
 					}
 				}

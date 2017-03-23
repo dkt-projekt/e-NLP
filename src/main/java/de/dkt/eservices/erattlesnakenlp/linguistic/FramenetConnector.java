@@ -21,7 +21,7 @@ import edu.mit.jverbnet.index.VerbIndex;
 public class FramenetConnector {
 
 
-	public static List<IFrame> getVerbnetFrames(String inputVerb, String pathToVerbnet) throws IOException{
+	public List<IFrame> getVerbnetFrames(String inputVerb, String pathToVerbnet) throws IOException{
 		List<IFrame> frameList = new ArrayList<IFrame>();
 
 		IVerbIndex index = VerbnetConnector.openVerbnetConnection(pathToVerbnet);
@@ -46,10 +46,11 @@ public class FramenetConnector {
 		return frameList;
 	}
 
-	public  ListMultimap<Integer, LinkedList<HashMap<String, String>>> getSortedFramesWithArguments(String inputVerb, String pathToVerbnet) throws IOException{
+	public ListMultimap<Integer, LinkedList<HashMap<String, String>>> getSortedFramesWithArguments(String inputVerb, String pathToVerbnet) throws IOException{
 
 		//ListMultiMap <AmountOfPostVerbElements (this counter may have multivalues => ListMultiMap), ListOfPair<S/O/..., Role>>
 		ListMultimap <Integer,LinkedList<HashMap<String,String>>> sortedFramesbyLength = ArrayListMultimap.create();
+		
 		List<IFrame> verbnetFramesList = getVerbnetFrames(inputVerb, pathToVerbnet);
 		
 		Iterator<IFrame> verbnetThemRolesIterator = verbnetFramesList.iterator();
@@ -61,10 +62,12 @@ public class FramenetConnector {
 			LinkedList <HashMap<String, String>> frameLinkedList = new LinkedList <HashMap<String, String>>();
 			IFrame nextElement = verbnetThemRolesIterator.next();
 
-			//put subject to frameEntry & put the subject to the LinkedList
+			//the processing is split into two steps, because the API distinguish the preVerb- and the postVerb arguments
+			//in the first step the subject is put to frameEntry & put the subject to the LinkedList
 			frameEntry.put(nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType() == null ? "none" : nextElement.getSyntax().getPreVerbDescriptors().get(0).getNounPhraseType().toString(), nextElement.getSyntax().getPreVerbDescriptors().get(0).getType().toString());
 			frameLinkedList.add(frameEntry);
 
+			//if the postVerb arguments in each frame exist, the arguments are saved to a list, which is being sorted by the length of the postVerb arguments
 			if (nextElement.getSyntax().getPostVerbDescriptors().size() != 0){
 				Iterator<ISyntaxArgDesc> postVerbElemIterator = nextElement.getSyntax().getPostVerbDescriptors().iterator();
 
@@ -74,14 +77,12 @@ public class FramenetConnector {
 
 					frameEntry.put((postVerbNextElement.getNounPhraseType() == null ? "none" : postVerbNextElement.getNounPhraseType().toString()), postVerbNextElement.getType().toString());
 					frameLinkedList.add(frameEntry);
+					//System.out.println("POST_VERB_DESCRIPTOR " + postVerbNextElement.getNounPhraseType() + " " + postVerbNextElement.getValue( ).toString());
 				}
 			}
-			
-			//System.out.println(nextElement.getSyntax().getPostVerbDescriptors().size() + " frameLinked" + frameLinkedList);
+			//the list is sorted by the amount of the postVerb arguments
 			sortedFramesbyLength.put(nextElement.getSyntax().getPostVerbDescriptors().size(), frameLinkedList);
-
 		}
-
 		return sortedFramesbyLength;
 	}
 

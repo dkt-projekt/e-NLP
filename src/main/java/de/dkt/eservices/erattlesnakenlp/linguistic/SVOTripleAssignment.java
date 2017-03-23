@@ -198,6 +198,7 @@ public class SVOTripleAssignment {
 
 		System.out.println("--- start --- thematic role assignment.");
 		verbnetConnector.assignThematicRoles(relationVerb, gs, pathToVerbnet);
+		verbnetConnector.matchPOStagStructureWithVerbnet(relationVerb, gs, pathToVerbnet);
 		System.out.println("--- stop --- thematic role assignment.");
 
 		//		String apposVerb = verbRelType .apposRelation(gs);
