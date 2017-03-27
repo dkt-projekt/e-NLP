@@ -210,7 +210,9 @@ public class RelationExtraction {
 					//lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
-					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+					String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+					File f = FileFactory.generateFileInstance(pathToVerbnet2);
+					String pathToVerbnet = f.getAbsolutePath();
 					String subjectThemRole = null;
 					String objectThemRole = null;
 					VerbnetConnector verbnetConn = new VerbnetConnector ();
@@ -314,8 +316,10 @@ public class RelationExtraction {
 					// lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
-					 String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
-					//String pathToVerbnet = "C:\\Users\\pebo01\\Downloads\\verbnet-3.2\\new_vn";
+					String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+					File f = FileFactory.generateFileInstance(pathToVerbnet2);
+					String pathToVerbnet = f.getAbsolutePath();
+					
 					String subjectThemRole = null;
 					String objectThemRole = null;
 					String objectsDependency = SVO_Object.getObjectRelationType(gs).reln().toString();

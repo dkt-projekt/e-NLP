@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import de.dkt.common.filemanagement.FileFactory;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
@@ -142,7 +144,9 @@ public class SVOTripleAssignment {
 		String verbConjRelation = getVerbConjRelation(gs);
 		IndexedWord relationVerb = getVerb(gs);
 		VerbnetConnector verbnetConnector = new VerbnetConnector();
-		String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+		String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+		File f = FileFactory.generateFileInstance(pathToVerbnet2);
+		String pathToVerbnet = f.getAbsolutePath();
 
 		//Copula: the object is recognized as the verb, and the verb is an object; here-> swapped (He is an actor)
 		//found triple: (he, an actor, is); changed to: (he, is an actor)
