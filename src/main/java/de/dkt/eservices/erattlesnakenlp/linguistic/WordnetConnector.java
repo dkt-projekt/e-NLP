@@ -24,9 +24,9 @@ import edu.mit.jverbnet.index.VerbIndex;
 public class WordnetConnector {
 
 
-	public static LinkedList<String> getWordnetInformation(String inputVerb, String pathToVerbnet) throws IOException{
+	public LinkedList<String> getWordnetInformation(String inputVerb, String pathToVerbnet) throws IOException{
 
-		LinkedList<String> wordnetTypes = new LinkedList();
+		LinkedList<String> wordnetTypes = new LinkedList<String>();
 		IVerbIndex index = VerbnetConnector.openVerbnetConnection(pathToVerbnet);
 		index.open();
 		Iterator<IVerbClass> verbnetIterator = index.iterator();
@@ -67,8 +67,9 @@ public class WordnetConnector {
 
 	public static boolean compare2VerbsSynsets (String verb1, String verb2,  String pathToVerbnet) throws IOException{
 		boolean similarVerbs = false;
-		LinkedList<String> list1 = getWordnetInformation(verb1,  pathToVerbnet);
-		LinkedList<String> list2 = getWordnetInformation(verb2,  pathToVerbnet);
+		WordnetConnector wordnetConn = new WordnetConnector ();
+		LinkedList<String> list1 = wordnetConn.getWordnetInformation(verb1,  pathToVerbnet);
+		LinkedList<String> list2 = wordnetConn.getWordnetInformation(verb2,  pathToVerbnet);
 		Collection<LinkedList<String>> union = CollectionUtils.intersection(list1, list2);
 		int unionSize =  union.size();
 		
@@ -111,9 +112,5 @@ public class WordnetConnector {
 
 	}
 	
-	public static void printWordnetSenses(String relationLemma, String pathToVerbnet) throws IOException{
-		LinkedList<String> wordnetInformationSet = WordnetConnector.getWordnetInformation(relationLemma, pathToVerbnet);
-		Iterator<String> wordnetSensesIterator = wordnetInformationSet.iterator();
 
-	}
 }

@@ -1246,4 +1246,22 @@ public class ENLPTest {
 		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
 	}
 	
+//	@Test
+//	public void relationExtractionTest2() throws UnirestException, IOException,
+//		Exception {
+//		
+//		HttpResponse<String> response = extractRelationsRequest()
+//				.queryString("informat", "turtle")
+//				.queryString("language", "en")
+//				.body(TestConstants.relationExtractionInput2)
+//				.asString();
+//		
+//		assertTrue(response.getStatus() == 200);
+//		assertTrue(response.getBody().length() > 0);
+//		// TODO: haven't yet wrote the complete, sensible expected response. But the current state makes no sense and refers to human as the relationObject, but to sofia by the character indices
+//		Assert.assertEquals("", response.getBody());
+//	}
+//	
+	
+	
 }

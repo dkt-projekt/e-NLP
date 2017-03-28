@@ -204,7 +204,7 @@ public class DepParserTree {
 					break;
 
 				}
-				//ckeck whether the dependency contains a governor which is a verb && omit dependencies containing "punct"
+				//ckeck whether the dependency contains a governor which is a verb && omit dependencies containing "punct" (NOTE PB: think this actually checks if the governing node is root, not necessarily verb (although it usually is, of course))
 
 				else if(dptn.value != null && dptn.value.equalsIgnoreCase(td.gov().word())){
 

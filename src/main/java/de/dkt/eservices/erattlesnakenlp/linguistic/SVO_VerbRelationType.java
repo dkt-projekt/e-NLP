@@ -3,12 +3,15 @@ package de.dkt.eservices.erattlesnakenlp.linguistic;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.GrammaticalStructure;
+import edu.stanford.nlp.trees.TypedDependency;
 
 public class SVO_VerbRelationType {
 
-	public static String conjRelation (GrammaticalStructure gs){
+	public IndexedWord conjRelation (GrammaticalStructure gs){
 		String verbConjRelation = "";
+		IndexedWord verbConj = new IndexedWord();
 		String secondVerbOfConjRelation = WordElement.getWordByDependency("conj:and", gs);
 		boolean isInPreVerbPosition = SVO_Verb.preVerbPosition("conj:and", gs);
 
@@ -20,14 +23,24 @@ public class SVO_VerbRelationType {
 
 				if (verbPOStags.contains(secondsVerbPosTag)){
 					verbConjRelation = secondVerbOfConjRelation;
+
+					for (TypedDependency td : gs.typedDependencies()) {
+						IndexedWord dependent = td.dep();
+						if (dependent.word().equals(verbConjRelation)){
+							verbConj = dependent;
+						}
+					}
 				}
 			}
 		}
-		return verbConjRelation;
+		return verbConj;
 	}
 
-	public static String advclRelation (GrammaticalStructure gs){
+
+
+	public IndexedWord advclRelation (GrammaticalStructure gs){
 		String verbAdvclRelation = "";
+		IndexedWord verbAdvCl = new IndexedWord();
 		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("advcl", gs);
 
 		if (secondVerbOfAdvclRelation != null){
@@ -37,20 +50,44 @@ public class SVO_VerbRelationType {
 
 			if (verbPOStags.contains(secondsVerbPosTag)){
 				verbAdvclRelation = secondVerbOfAdvclRelation;
+				for (TypedDependency td : gs.typedDependencies()) {
+					IndexedWord dependent = td.dep();
+					if (dependent.word().equals(verbAdvclRelation)){
+						verbAdvCl = dependent;
+					}
+				}
+
+
+
 			}
 		}
-		return verbAdvclRelation;
+		return verbAdvCl;
 	}
 
-	public static String getCopula(GrammaticalStructure gs){
+	public String getCopula(GrammaticalStructure gs){
 		String copula = "";		
-		System.out.println("getCopula: " + WordElement.getWordByDependency("cop", gs));
 
 		if (!WordElement.getWordByDependency("cop", gs).equals(null)){
 			copula = WordElement.getWordByDependency("cop", gs);
 		}
 		return copula;
 	}
-	
-	
+
+	public String apposRelation (GrammaticalStructure gs){
+		String apposRelationVerb = "";
+		String secondVerbOfAdvclRelation = WordElement.getWordByDependency("acl:relcl", gs);
+
+		if (secondVerbOfAdvclRelation != null){
+			//	System.out.println("--- VERB advcl relation found --- " + getWordByDependency("advcl", gs));
+			ArrayList <String> verbPOStags = new ArrayList<String>( Arrays.asList( "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"));
+			String secondsVerbPosTag = WordElement.getPOStagByWord(secondVerbOfAdvclRelation, gs);
+
+			if (verbPOStags.contains(secondsVerbPosTag)){
+				apposRelationVerb = secondVerbOfAdvclRelation;
+			}
+		}
+		return apposRelationVerb;
+	}
+
+
 }
