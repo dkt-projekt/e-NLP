@@ -317,8 +317,6 @@ public class RelationExtraction {
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
 
-					String pathToVerbnet = "C:\\Users\\Sabine\\Downloads\\vn_3_14\\verbnet";
-
 					String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
 					File f = FileFactory.generateFileInstance(pathToVerbnet2);
 					String pathToVerbnet = f.getAbsolutePath();
