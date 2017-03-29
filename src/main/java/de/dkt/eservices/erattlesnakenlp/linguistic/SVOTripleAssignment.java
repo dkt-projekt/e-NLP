@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import de.dkt.common.filemanagement.FileFactory;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
@@ -21,8 +23,11 @@ public class SVOTripleAssignment {
 	static List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case", "ccomp")); 
 	static List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
 	static String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+	static int tripleCounter = 0;
+	static int nmodPrepGeneralizationsCounter = 0;
+	static int themRolesFoundCounter=0;
 
-	
+
 	static List<String> excludedPosTagObjects = new ArrayList<>(Arrays.asList("PRP$", "POS", "TO", "JJ", "DT", "IN", "RB",  "POS"));
 	static SVO_VerbRelationType verbRelType = new SVO_VerbRelationType();
 	private static IndexedWord currentverb;
@@ -90,24 +95,26 @@ public class SVOTripleAssignment {
 	}
 
 
-	
+
 	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs, int sentenceStart, List<TaggedWord> tagged) throws IOException{
+		
 		ArrayList <EntityRelationTriple> entityRelationTripleList = new ArrayList <EntityRelationTriple> ();
 		EntityRelationTriple t = new EntityRelationTriple();
-		VerbnetConnector verbnetConnector = new VerbnetConnector();
 
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
 
 		for (int i = 0; i <objectsList.size(); i++){
 			TypedDependency objectDependencyType = objectsList.get(i);
-		
-			
+
+
 
 			if (!excludedPosTagObjects.contains(getObject(gs, objectDependencyType).tag())){
 				//System.out.println(getObject(gs, objectDependencyType).toString() + "getObj: " + getObject(gs, objectDependencyType) + " " + getObject(gs, objectDependencyType).tag());
 				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType, sentenceStart, tagged);
-					
+
 				entityRelationTripleList.add(t);
+				tripleCounter = tripleCounter +1;
+				System.out.println("tripleCounter: " + tripleCounter);
 
 
 			}
@@ -147,15 +154,23 @@ public class SVOTripleAssignment {
 	public static IndexedWord getCurrentVerb(){
 		return currentverb;
 	}
-	
+
 	//There are a few cases that need to be checked in order to assign the right arguments, like:
 	//copula, conjunction (both: in the subject and in the verb position), advcl relation and passive
 	public static EntityRelationTriple setEntityRelationTriple(String subjectURI, String objectURI, GrammaticalStructure gs, TypedDependency objectDependencyType, int sentenceStartIndex, List<TaggedWord> tagged) throws IOException{
-		
+		int nmodCounter = 0;
+
 		EntityRelationTriple t = new EntityRelationTriple();
 		String verbConjRelation = getVerbConjRelation(gs);
 		IndexedWord relationVerb = getVerb(gs);
 		VerbnetConnector verbnetConnector = new VerbnetConnector();
+		//		<<<<<<< HEAD
+		//		=======
+		//		String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+		//		File f = FileFactory.generateFileInstance(pathToVerbnet2);
+		//		String pathToVerbnet = f.getAbsolutePath();
+		String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+		//		>>>>>>> branch 'master' of https://github.com/dkt-projekt/e-NLP
 
 		//Copula: the object is recognized as the verb, and the verb is an object; here-> swapped (He is an actor)
 		//found triple: (he, an actor, is); changed to: (he, is an actor)
@@ -211,26 +226,80 @@ public class SVOTripleAssignment {
 
 		System.out.println("--- start --- thematic role assignment.");
 		verbnetConnector.assignThematicRoles(relationVerb, gs, pathToVerbnet);
+		//LinkedList as Hashmap with thematic roles ([A], [P]...) & the phrase structure  (NP/PP)
 		LinkedList<HashMap<String, String>> listOfThemRoles = verbnetConnector.matchPOStagStructureWithVerbnet(relationVerb, gs, pathToVerbnet);
 		WordElement wordEl = new WordElement();
-		System.out.println("--- stop --- thematic role assignment. LENGTH"+ listOfThemRoles);
-		
-		for (int i=0; i<listOfThemRoles.size(); i++){
-			System.out.println("listeeeeee: " +listOfThemRoles.get(i).values() + " " +listOfThemRoles.get(i).keySet() + " short name: " +objectDependencyType.reln().getShortName() + " " + objectDependencyType.reln().getLongName() + objectDependencyType.gov() + " " +objectDependencyType.dep().ner() + objectDependencyType.dep().tag() + " " + wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs));
-			
-			if (objectDependencyType.reln().getShortName().equals("nmod") && listOfThemRoles.get(i).keySet().equals("[PREP]")){
-				
-				
-			}
-			
-			
-		
-		}
-		
-		
 
-		//		String apposVerb = verbRelType .apposRelation(gs);
-		//		System.out.println("apposition found: " + apposVerb);
+		if (listOfThemRoles.size()>0){
+			themRolesFoundCounter = themRolesFoundCounter +1 ;
+
+		}
+		//THEMATIC ROLES
+		//START
+		//values -> NP/PREP; keySet() -> thematic roles
+		for (int i=0; i<listOfThemRoles.size(); i++){
+			System.out.println("themRolesValues " +listOfThemRoles.get(i).values() + " " +listOfThemRoles.get(i).keySet() + " short name: " +objectDependencyType.reln().getShortName() + " " + objectDependencyType.reln().getLongName() + objectDependencyType.gov() + " " +objectDependencyType.dep().ner() + objectDependencyType.dep().tag() + " " + wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs));
+
+
+			if (objectDependencyType.reln().getShortName().equals("nmod") && listOfThemRoles.get(i).keySet().toString().equals("[[PREP]]") || listOfThemRoles.get(i).keySet().toString().equals("[PREP]")){
+				String posTagOfTheDependent = wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs);
+				System.out.println("inside --------------------------------------------------" + listOfThemRoles.get(i).keySet().toString() + " " +listOfThemRoles.get(i).keySet().toString().equals("[[PREP]]"));
+
+				System.out.println("postag: posTagOfTheDependent" + posTagOfTheDependent + listOfThemRoles.get(i).keySet().toString().equals("[PREP]"));
+
+				if (i<listOfThemRoles.size()){
+
+					if (posTagOfTheDependent.equals("IN") && i<=listOfThemRoles.size() && listOfThemRoles.get(i+1).keySet().toString().equals("[L]") 
+							||  listOfThemRoles.get(i+1).keySet().toString().equals("[T]") 
+							|| listOfThemRoles.get(i+1).keySet().toString().equals("ILocation")){ //ILocation
+					
+						t.setThemRoleObj(listOfThemRoles.get(i+1).keySet().toString());
+						
+						System.out.println("NMOD, CASE 1: themRole (LOCATION)/TIME " + listOfThemRoles.get(i+1).keySet());
+						nmodCounter = nmodCounter +1;
+						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
+
+					}
+					else if (posTagOfTheDependent.equals("TO") && i<=listOfThemRoles.size() && listOfThemRoles.get(i+1).keySet().toString().equals("[G]") || listOfThemRoles.get(i+1).keySet().toString().equals("[D]")){
+
+
+						System.out.println("NMOD, CASE 2: themRole (GOAL&DESTINATION) " + listOfThemRoles.get(i+1).keySet());
+						nmodCounter = nmodCounter +1;
+						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
+
+					}
+					else if (posTagOfTheDependent.equals("FOR") && i<=listOfThemRoles.size() && listOfThemRoles.get(i+1).keySet().toString().equals("[B]")){
+
+						nmodCounter = nmodCounter +1;
+
+						System.out.println("NMOD, CASE 3: themRole (BENEFICIARY) " + listOfThemRoles.get(i+1).keySet());
+
+						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
+
+					}
+					else if (posTagOfTheDependent.equals("FROM") && i<=listOfThemRoles.size() && listOfThemRoles.get(i+1).keySet().toString().equals("[S]")){
+
+						nmodCounter = nmodCounter +1;
+
+						System.out.println("NMOD, CASE 4: themRole (SOURCE) " + listOfThemRoles.get(i+1).keySet());
+						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
+
+					}
+
+
+				}
+
+
+			}
+			System.out.println("_____________themRolesCounter: " + themRolesFoundCounter +"_____nmodPrepGeneralizationsCounter: " + nmodPrepGeneralizationsCounter);
+			//System.out.println("NMOD_COUNTER: --------------------------------------------------" + nmodCounter +);
+
+
+
+
+		}
+
+
 		return t;
 	}
 

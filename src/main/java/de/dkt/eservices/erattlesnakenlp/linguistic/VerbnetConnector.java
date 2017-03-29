@@ -18,7 +18,7 @@ import edu.stanford.nlp.trees.TypedDependency;
 public class VerbnetConnector {
 	LinkedList<String> assignedRolesList = new LinkedList<String> ();
 	ArrayList<String> simplifiedPOStags = new ArrayList<String>();
-	
+
 	public LinkedList<String> getAssignedRolesList (){
 		return assignedRolesList;
 	}
@@ -81,12 +81,15 @@ public class VerbnetConnector {
 		FramenetConnector framenetConn = new FramenetConnector();
 		StanfordLemmatizer stanfordLemmatizer = new StanfordLemmatizer();
 		int amountOfPostVerbArguments = simplifiedPOStags.size() ;
-		
+
 		System.out.println("verb.value(): " + verb.value() + " " + verb.lemma() + " " + stanfordLemmatizer.lemmatizeWord(verb.value()) + " amountOfPostVerbArguments " + amountOfPostVerbArguments);
-		
+
 		List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(amountOfPostVerbArguments);
-		LinkedList<HashMap<String, String>> frameAssigned = getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
-		
+		//LinkedList<HashMap<String, String>> frameAssigned = getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
+
+
+		LinkedList<HashMap<String, String>> frameAssigned = getSimplePhraseStructureofVerbnet(verb, pathToVerbnet);
+
 		//List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(verb, pathToVerbnet).get(amountOfPostVerbArguments);
 
 		//getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
@@ -94,8 +97,8 @@ public class VerbnetConnector {
 
 		//System.out.println("xxxxxx_size_ " + amountOfPostVerbArguments + " "  + frameListWithSpecifiedLength);
 		//System.out.println("simple_structure_verbnet: ");
-		
-		
+
+
 
 		//		for (LinkedList<HashMap<String, String>> value : frameListWithSpecifiedLength) {
 		//
@@ -128,10 +131,15 @@ public class VerbnetConnector {
 	//public LinkedList<String> getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
 
 	//comparison of the Stanford Dependencies' Simplified Structure and the Verbnet
-	public LinkedList<HashMap<String, String>> getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
+	//public LinkedList<HashMap<String, String>> getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
+
+	public LinkedList<HashMap<String, String>> getSimplePhraseStructureofVerbnet(IndexedWord verb, String pathToVerbnet) throws IOException{
+
 		ArrayList<String> framenetEntryPOStag = new ArrayList<String>();
 		LinkedList<HashMap<String, String>> frameFoundAfterProcessing = new LinkedList<HashMap<String, String>>();
 		LinkedList<HashMap<String, String>> frameWithSpecificLength = new LinkedList<HashMap<String, String>>();
+		FramenetConnector framenetConn = new FramenetConnector();
+		StanfordLemmatizer stanfordLemmatizer = new StanfordLemmatizer();
 		int verbnetNPcounter = 0;
 		int verbnetPPcounter = 0;
 		int parserNPcounter = 0;
@@ -145,65 +153,9 @@ public class VerbnetConnector {
 		}
 
 		if (parserNPcounter > 3 && parserPPcounter == 0){
-			frameWithSpecificLength = frameListWithSpecifiedLength.get(3);
-
-			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
-			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
-
-			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
-			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
-			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
-			if(listComparisonElementsAmount)
-			{
-									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
-				framenetEntryPOStag = new ArrayList<String>();
-				frameFoundAfterProcessing = frameWithSpecificLength;
-			}
-		}
-		else if (parserNPcounter > 3	|| parserPPcounter == 1){
-			frameWithSpecificLength = frameListWithSpecifiedLength.get(4);
-
-
-			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
-			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
-
-			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
-			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
-			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
-			if(listComparisonElementsAmount)
-			{
-									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
-				framenetEntryPOStag = new ArrayList<String>();
-				frameFoundAfterProcessing = frameWithSpecificLength;
-			}
-
-		}
-		else if (parserNPcounter > 3	|| parserPPcounter > 2){
-			frameWithSpecificLength = frameListWithSpecifiedLength.get(5);
-
-			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
-			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
-
-			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
-			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
-			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
-			if(listComparisonElementsAmount)
-			{
-									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
-				framenetEntryPOStag = new ArrayList<String>();
-				frameFoundAfterProcessing = frameWithSpecificLength;
-
-			}
-
-		}
-
-		else {
+			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(3);
 
 			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-				//	Iterator<HashMap<String, String>> iterator = frameListWithSpecifiedLength.get(i).iterator();
 				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
 				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
 				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
@@ -214,7 +166,77 @@ public class VerbnetConnector {
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
 				if(listComparisonElementsAmount)
 				{
-										System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					framenetEntryPOStag = new ArrayList<String>();
+					frameFoundAfterProcessing = frameWithSpecificLength;
+
+
+				}
+			}
+		}
+		else if (parserNPcounter > 3	|| parserPPcounter == 1){
+			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(4);
+
+			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
+				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
+				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
+				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
+
+				boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+				boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+				if(listComparisonElementsAmount)
+				{
+					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					framenetEntryPOStag = new ArrayList<String>();
+					frameFoundAfterProcessing = frameWithSpecificLength;
+				}
+			}
+
+		}
+		else if (parserNPcounter > 3	|| parserPPcounter > 2){
+			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(5);
+
+			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
+				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
+				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
+				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
+
+				boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+				boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+				if(listComparisonElementsAmount)
+				{
+					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					framenetEntryPOStag = new ArrayList<String>();
+					frameFoundAfterProcessing = frameWithSpecificLength;
+
+				}
+			}
+
+
+		}
+
+		else {
+			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(parserNPcounter + parserPPcounter);
+
+			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
+				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
+				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
+				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
+
+				boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+				boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+				if(listComparisonElementsAmount)
+				{
+					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
 							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
 					framenetEntryPOStag = new ArrayList<String>();
 
@@ -227,16 +249,16 @@ public class VerbnetConnector {
 		parserPPcounter = 0;
 		verbnetNPcounter = 0;
 		verbnetPPcounter = 0;
-		
+
 		return frameWithSpecificLength;
 	}
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
 
 	public int verbnetPhraseCounter(String phrase, LinkedList<HashMap<String, String>>frameListWithSpecifiedLength ){
 		LinkedList<String> framenetEntryPOStag = new LinkedList<String>();

@@ -100,6 +100,7 @@ import edu.mit.jverbnet.index.VerbIndex;
 public class RelationExtraction {
 	static HashMap <String, HashMap<LinkedList<String>, LinkedList<String>>> ListOfAllVerbs = new HashMap ();
 	static ArrayList <String> LSAmatrix = new ArrayList <String> ();
+	static int sentenceCounter = 0;
 
 	static String readFile(String path, Charset encoding) 
 			throws IOException 
@@ -113,7 +114,6 @@ public class RelationExtraction {
 
 
 		//TODO discuss if we want to do this at broker startup instead
-		Tagger.initTagger(language);
 		DepParserTree.initParser(language);
 
 		List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
@@ -210,7 +210,11 @@ public class RelationExtraction {
 					//lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
+//					String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+//					File f = FileFactory.generateFileInstance(pathToVerbnet2);
+//					String pathToVerbnet = f.getAbsolutePath();
 					String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+					
 					String subjectThemRole = null;
 					String objectThemRole = null;
 					VerbnetConnector verbnetConn = new VerbnetConnector ();
@@ -218,15 +222,6 @@ public class RelationExtraction {
 
 
 
-					for (WordLemmaTag SentenceList : tlSentence){
-						if (SentenceList.word().equals(connectingElement.word())){
-							relationLemma = SentenceList.lemma();
-							System.out.println("data running " + relationLemma);
-							wordnetInformationSet = wordnetConn.getWordnetInformation(relationLemma, pathToVerbnet);
-							System.out.println("subject " + subject + " object " + object );
-							verbnetConn.assignThetaRoles(subject, object, objectsDependency,  iobjectsDependency, relationLemma, pathToVerbnet);
-						}
-					}
 
 
 					if (!(subjectURI == null) && !(objectURI == null)){
@@ -304,8 +299,11 @@ public class RelationExtraction {
 
 				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
 					System.out.println();
+					System.out.println("sentenceCounter: " + sentenceCounter);
+					sentenceCounter = sentenceCounter +1;
 					System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
 					
+					//if there is a URI link it is added to the arguments, else: null
 					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object1, tagged, entityMap);
 
@@ -314,39 +312,19 @@ public class RelationExtraction {
 					// lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
-					 String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
-					//String pathToVerbnet = "C:\\Users\\pebo01\\Downloads\\verbnet-3.2\\new_vn";
-					String subjectThemRole = null;
-					String objectThemRole = null;
+
+					String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+					File f = FileFactory.generateFileInstance(pathToVerbnet2);
+					String pathToVerbnet = f.getAbsolutePath();
+
 					String objectsDependency = SVO_Object.getObjectRelationType(gs).reln().toString();
 					String iobjectsDependency = SVO_Object.getSecondObjectRelationType(gs).reln().toString();
 
+					//tlSentence contains all the words and their lemmata, compare that connectingElement to the list and return the lemma
 					for (WordLemmaTag SentenceList : tlSentence) {
 						if (SentenceList.word().equals(connectingElement1.word())) {
 							relationLemma = SentenceList.lemma();
-
-							// THETA ROLES' ASSIGNMENT
-							WordnetConnector wordnetConn = new WordnetConnector();
-							VerbnetConnector verbnetConn = new VerbnetConnector();
-
-							LinkedList<String> thetaRolesList = verbnetConn.assignThetaRoles(subject1, object1,
-									objectsDependency, iobjectsDependency, relationLemma, pathToVerbnet);
-							verbnetConn.getAssignedRolesList();
-
-							// System.out.println("PROCESSING START");
-							// wordEl.getSimplifiedPOSTagsList(gs);
-							// System.out.println("PROCESSING STOP");
-
-							System.out.println("size of theta roles " + thetaRolesList.size());
-							// System.out.println("###relationLemma " +
-							// relationLemma + "getWordByDep " +
-							// WordElement.getWordByDependency("nmod", gs) +
-							// "###");
-							if (thetaRolesList.size() > 0) {
-								subjectThemRole = thetaRolesList.get(0);
-								objectThemRole = thetaRolesList.get(1);
-								System.out.println("subject&object " + subjectThemRole + " obj " + objectThemRole);
-							}
+							
 							SVO_Verb verb = new SVO_Verb();
 							int listSize = verb.getDirectRootDependenciesList(gs).size();
 							// System.out.println("the POS tag of the
@@ -354,7 +332,7 @@ public class RelationExtraction {
 							// wordEl.getPOStagOfDependent(object1.word(),gs));
 							System.out.println("all direct verbDep: " + listSize);
 
-							/**
+							/** WORDNET 
 							 * 
 							 * 
 							 * //comparing the input verb to the list of verbs
@@ -386,34 +364,18 @@ public class RelationExtraction {
 							 **/
 						}
 
-						// SimilarityMeasure.getSublists(LSAmatrix);
 					}
-					// TODO
-					// extend the method to add the subject's and the
-					// objects' thematic roles
 
-					// EntityRelationTriple t =
-					// SVOTripleAssignment.setEntityRelationTriple(subjectURI,
-					// objectURI, gs);
-					// System.out.println("assignment end " + t.getSubject()
-					// + " obj " + t.getObject() + " rel "
-					// +t.getRelation());
 					ArrayList<EntityRelationTriple> ertripleList = SVOTripleAssignment
 							.getEntityRelationTripleList(subjectURI, objectURI, gs, sentenceStart, tagged);
-					// ert.addAll(ertripleList);
-					// ert.add(t);
+
 					for (EntityRelationTriple t : ertripleList){
 						ert.add(t);
 					}
-//					ert = (ArrayList<EntityRelationTriple>) Stream.concat(ert.stream(), ertripleList.stream())
-//							.collect(Collectors.toList());
 				}
 				
 			}
 		}
-//		for (EntityRelationTriple t : ert){
-//			System.out.println("debugging return vlaue of of tripe list:" + t.getStartIndex() +"|" + t.getEndIndex()+"|" + t.getRelation()+"|" + t.getSubject()+"|" + t.getLemma()+"|" + t.getObject()+"|" + t.getThemRoleSubj()+"|" + t.getThemRoleObj());
-//		}
 		return ert;
 	}
 
@@ -646,7 +608,11 @@ public class RelationExtraction {
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 
+
+		//String docFolder = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles";
+
 		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
+
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
 		/**
@@ -663,7 +629,13 @@ public class RelationExtraction {
 		System.out.println(df.getAbsolutePath());
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
 		Date d3 = new Date();
+
+		//String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
+
+		//
+		
 		String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
+
 		//String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
 		BufferedWriter brDebug = null;
 		//printWordNetInfo();
@@ -677,7 +649,10 @@ public class RelationExtraction {
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
 				ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+				
+				//here we get the triples from the raw nif model
 				ert = getDirectRelationsNIF(nifModel, "en", ert);
+				
 				// make the annotation in nif
 				for (EntityRelationTriple t : ert){
 					System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());

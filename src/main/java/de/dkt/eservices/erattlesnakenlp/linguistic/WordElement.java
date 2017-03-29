@@ -61,9 +61,30 @@ public class WordElement {
 		}
 		return posTag;
 	}
-
+	//here just the pos tags if a case-dependency
 	public String getPOStagOfDependent(String word, GrammaticalStructure gs){
+		String dependentPOStag1 = null;
+		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
+		TypedDependency typedDependency;
+		Object[] list = td.toArray();
 
+		for (Object object : list) {
+			typedDependency = (TypedDependency) object;
+
+
+			//System.out.println("typedDependencies " + typedDependency.dep().word() + " " + typedDependency.dep().tag());
+
+			if (typedDependency.gov().value().equals(word) && typedDependency.reln().getShortName().equals("case")) {
+				dependentPOStag1 = typedDependency.dep().tag();
+				System.out.println("dependentPOStag1: " + dependentPOStag1);
+			}
+
+		}
+		return dependentPOStag1;
+	}
+
+	public IndexedWord getDependentOfDependent(String word, GrammaticalStructure gs){
+		IndexedWord dependent = null;
 		Collection<TypedDependency> td = gs.typedDependenciesCollapsed();
 		TypedDependency typedDependency;
 		Object[] list = td.toArray();
@@ -75,14 +96,14 @@ public class WordElement {
 			//System.out.println("typedDependencies " + typedDependency.dep().word() + " " + typedDependency.dep().tag());
 
 			if (typedDependency.gov().value().equals(word)) {
-				dependentPOStag = typedDependency.dep().tag();
+				dependent= typedDependency.dep();
 			}
 
 		}
-		return dependentPOStag;
+		return dependent;
 	}
 
-	
+
 
 	public LinkedList <String> getPOStagsList (GrammaticalStructure gs){
 		LinkedList <String> simplifiedPOSTagsList = new LinkedList<String>();
