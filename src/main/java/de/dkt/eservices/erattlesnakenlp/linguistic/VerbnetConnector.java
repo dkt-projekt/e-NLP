@@ -18,7 +18,7 @@ import edu.stanford.nlp.trees.TypedDependency;
 public class VerbnetConnector {
 	LinkedList<String> assignedRolesList = new LinkedList<String> ();
 	ArrayList<String> simplifiedPOStags = new ArrayList<String>();
-
+	
 	public LinkedList<String> getAssignedRolesList (){
 		return assignedRolesList;
 	}
@@ -77,16 +77,25 @@ public class VerbnetConnector {
 	}
 
 
-	public void matchPOStagStructureWithVerbnet (IndexedWord verb, GrammaticalStructure gs, String pathToVerbnet) throws IOException{
+	public LinkedList<HashMap<String, String>> matchPOStagStructureWithVerbnet (IndexedWord verb, GrammaticalStructure gs, String pathToVerbnet) throws IOException{
 		FramenetConnector framenetConn = new FramenetConnector();
 		StanfordLemmatizer stanfordLemmatizer = new StanfordLemmatizer();
 		int amountOfPostVerbArguments = simplifiedPOStags.size() ;
-		System.out.println("verb.value(): " + verb.value() + " " + verb.lemma() + " " + stanfordLemmatizer.lemmatizeWord(verb.value()));
+		
+		System.out.println("verb.value(): " + verb.value() + " " + verb.lemma() + " " + stanfordLemmatizer.lemmatizeWord(verb.value()) + " amountOfPostVerbArguments " + amountOfPostVerbArguments);
+		
 		List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(amountOfPostVerbArguments);
+		LinkedList<HashMap<String, String>> frameAssigned = getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
+		
+		//List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(verb, pathToVerbnet).get(amountOfPostVerbArguments);
 
-		System.out.println("xxxxxx_size_ " + amountOfPostVerbArguments + " "  + frameListWithSpecifiedLength);
-		System.out.println("simple_structure_verbnet: ");
-		getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
+		//getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
+		System.out.println(frameAssigned + " LENGTH_FRAME_ASSIGNED ");
+
+		//System.out.println("xxxxxx_size_ " + amountOfPostVerbArguments + " "  + frameListWithSpecifiedLength);
+		//System.out.println("simple_structure_verbnet: ");
+		
+		
 
 		//		for (LinkedList<HashMap<String, String>> value : frameListWithSpecifiedLength) {
 		//
@@ -100,19 +109,8 @@ public class VerbnetConnector {
 		//			}
 
 
-		System.out.println("xxxxxx");
 
-
-
-		for (int i = 0; i < simplifiedPOStags.size(); i++){
-
-			for (LinkedList<HashMap<String, String>> value : frameListWithSpecifiedLength) {
-				if (simplifiedPOStags.get(i).equals("none") &&  value.get(i).keySet().toString().equals("[none]") || !simplifiedPOStags.get(i).equals("none") &&  !value.get(i).keySet().toString().equals("[none]")){
-					System.out.println("MATCHING_: " + simplifiedPOStags.get(i) + " " + value.get(i).keySet().toString());
-				}
-			}
-
-		}
+		return frameAssigned;
 
 	}
 
@@ -128,8 +126,12 @@ public class VerbnetConnector {
 
 
 	//public LinkedList<String> getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
-	public void getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
+
+	//comparison of the Stanford Dependencies' Simplified Structure and the Verbnet
+	public LinkedList<HashMap<String, String>> getSimplePhraseStructureofVerbnet(List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength ){
 		ArrayList<String> framenetEntryPOStag = new ArrayList<String>();
+		LinkedList<HashMap<String, String>> frameFoundAfterProcessing = new LinkedList<HashMap<String, String>>();
+		LinkedList<HashMap<String, String>> frameWithSpecificLength = new LinkedList<HashMap<String, String>>();
 		int verbnetNPcounter = 0;
 		int verbnetPPcounter = 0;
 		int parserNPcounter = 0;
@@ -142,54 +144,132 @@ public class VerbnetConnector {
 				parserPPcounter = parserPPcounter +1;
 		}
 
-		for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-			Iterator<HashMap<String, String>> iterator = frameListWithSpecifiedLength.get(i).iterator();
-			System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
-			for (int j=0; j<frameListWithSpecifiedLength.get(i).size(); j++){
-				//				System.out.println("next_el: " 
-				//						+ frameListWithSpecifiedLength.get(i).get(j) + " " 
-				//						+ frameListWithSpecifiedLength.get(i).get(j).keySet() + " "
-				//						+ frameListWithSpecifiedLength.get(i).get(j).values()+ " equals NP/PREP? "
-				//						+  frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[NP]")
-				//						+  frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[PREP]"));
+		if (parserNPcounter > 3 && parserPPcounter == 0){
+			frameWithSpecificLength = frameListWithSpecifiedLength.get(3);
 
-				if ( frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[NP]")){
-					framenetEntryPOStag.add("NP");
-					System.out.println("NP_adddeeeed");
-					verbnetNPcounter = verbnetNPcounter+1;
-				}
-				else if (frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[PREP]")){
-					framenetEntryPOStag.add("none");
-					System.out.println("noooone");
-					verbnetPPcounter = verbnetPPcounter + 1;
-				}
+			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
+			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
+
+			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+			if(listComparisonElementsAmount)
+			{
+									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+				framenetEntryPOStag = new ArrayList<String>();
+				frameFoundAfterProcessing = frameWithSpecificLength;
+			}
+		}
+		else if (parserNPcounter > 3	|| parserPPcounter == 1){
+			frameWithSpecificLength = frameListWithSpecifiedLength.get(4);
 
 
-				if (j== frameListWithSpecifiedLength.get(i).size()){
-					System.out.println(framenetEntryPOStag.size());
-					for (int x = 0; x < simplifiedPOStags.size(); x++){
-						if (framenetEntryPOStag.size()==simplifiedPOStags.size()){
+			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
+			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
 
+			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+			if(listComparisonElementsAmount)
+			{
+									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+				framenetEntryPOStag = new ArrayList<String>();
+				frameFoundAfterProcessing = frameWithSpecificLength;
+			}
 
-							System.out.println("print_the_list: " + framenetEntryPOStag.get(x) + " " + simplifiedPOStags.get(x) + " equals? " + simplifiedPOStags.get(x).equals(framenetEntryPOStag.get(x)));
-						}
-					}
-				}
+		}
+		else if (parserNPcounter > 3	|| parserPPcounter > 2){
+			frameWithSpecificLength = frameListWithSpecifiedLength.get(5);
+
+			verbnetNPcounter = verbnetPhraseCounter("[NP]", frameWithSpecificLength);
+			verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameWithSpecificLength);
+
+			boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
+			boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
+			boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
+			if(listComparisonElementsAmount)
+			{
+									System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+						" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+				framenetEntryPOStag = new ArrayList<String>();
+				frameFoundAfterProcessing = frameWithSpecificLength;
+
+			}
+
+		}
+
+		else {
+
+			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
+				//	Iterator<HashMap<String, String>> iterator = frameListWithSpecifiedLength.get(i).iterator();
+				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
+				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
+				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
 
 				boolean PPscomparison = (parserPPcounter == verbnetPPcounter);
 				boolean NPscomparison = (parserNPcounter == verbnetNPcounter);
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
-				System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + "compare the amount of NPs and PPs: " + listComparisonElementsAmount + parserNPcounter + " " +
-						verbnetNPcounter+ " "  +	parserPPcounter + " " + verbnetPPcounter);
-				framenetEntryPOStag = new ArrayList<String>();
+				if(listComparisonElementsAmount)
+				{
+										System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					framenetEntryPOStag = new ArrayList<String>();
+
+				}
 			}
 
 		}
+
 		parserNPcounter = 0;
 		parserPPcounter = 0;
 		verbnetNPcounter = 0;
 		verbnetPPcounter = 0;
+		
+		return frameWithSpecificLength;
 	}
+	
+	
+	
+	
+	
+	
+	
+
+	public int verbnetPhraseCounter(String phrase, LinkedList<HashMap<String, String>>frameListWithSpecifiedLength ){
+		LinkedList<String> framenetEntryPOStag = new LinkedList<String>();
+		int phraseCounter = 0;
+
+		for (int j=0; j<frameListWithSpecifiedLength.size(); j++){
+
+			if ( frameListWithSpecifiedLength.get(j).values().toString().equals(phrase)){
+				framenetEntryPOStag.add(phrase);
+				System.out.println("-- " + phrase);
+				phraseCounter = phraseCounter + 1;
+			}
+
+		}
+		return phraseCounter;
+	}
+
+
+
+	//		for (int j=0; j<frameListWithSpecifiedLength.get(i).size(); j++){
+	//
+	//			if ( frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[NP]")){
+	//				framenetEntryPOStag.add("NP");
+	//				System.out.println("NP_adddeeeed");
+	//				verbnetNPcounter = verbnetNPcounter+1;
+	//			}
+	//			else if (frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[PREP]")){
+	//				framenetEntryPOStag.add("none");
+	//				System.out.println("noooone");
+	//				verbnetPPcounter = verbnetPPcounter + 1;
+	//			}
+	//		}
+
 
 	public static boolean compareList(List ls1,List ls2){
 		return ls1.toString().contentEquals(ls2.toString())?true:false;
@@ -381,4 +461,6 @@ public class VerbnetConnector {
 		}
 		return assignedRolesList;
 	}
+
+
 }

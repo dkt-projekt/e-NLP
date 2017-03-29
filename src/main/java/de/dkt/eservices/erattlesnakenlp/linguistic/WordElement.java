@@ -70,18 +70,19 @@ public class WordElement {
 
 		for (Object object : list) {
 			typedDependency = (TypedDependency) object;
-			TypedDependency current = null;
-			TypedDependency previous = null;
+
 
 			//System.out.println("typedDependencies " + typedDependency.dep().word() + " " + typedDependency.dep().tag());
 
-			if (typedDependency.dep().word().equals(word)) {
+			if (typedDependency.gov().value().equals(word)) {
 				dependentPOStag = typedDependency.dep().tag();
 			}
 
 		}
 		return dependentPOStag;
 	}
+
+	
 
 	public LinkedList <String> getPOStagsList (GrammaticalStructure gs){
 		LinkedList <String> simplifiedPOSTagsList = new LinkedList<String>();

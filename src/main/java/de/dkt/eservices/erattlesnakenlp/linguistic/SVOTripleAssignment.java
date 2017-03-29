@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,9 +20,12 @@ public class SVOTripleAssignment {
 	static List<String> englishSubjectRelationTypes = new ArrayList<>(Arrays.asList("nsubj", "nsubjpass", "csubj", "csubjpass"));
 	static List<String> englishObjectRelationTypes = new ArrayList<>(Arrays.asList("dobj", "cop", "nmod", "iobj", "advmod", "case", "ccomp")); 
 	static List<String> englishIndirectObjectRelationTypes = new ArrayList<>(Arrays.asList("iobj", "case"));
-	//
-	static List<String> excludedPosTagObjects = new ArrayList<>(Arrays.asList("PRP$", "POS", "TO", "JJ", "DT", "IN", "RB", "PRP", "POS"));
+	static String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
+
+	
+	static List<String> excludedPosTagObjects = new ArrayList<>(Arrays.asList("PRP$", "POS", "TO", "JJ", "DT", "IN", "RB",  "POS"));
 	static SVO_VerbRelationType verbRelType = new SVO_VerbRelationType();
+	private static IndexedWord currentverb;
 
 	//There is a slight difference between these two function getSubject() and getSubjectConjunction()
 	//The first one is needed to return an IndexedWord, which contains all the grammatical information that is needed for further processing
@@ -90,16 +94,21 @@ public class SVOTripleAssignment {
 	public static ArrayList<EntityRelationTriple> getEntityRelationTripleList(String subjectURI, String objectURI, GrammaticalStructure gs, int sentenceStart, List<TaggedWord> tagged) throws IOException{
 		ArrayList <EntityRelationTriple> entityRelationTripleList = new ArrayList <EntityRelationTriple> ();
 		EntityRelationTriple t = new EntityRelationTriple();
+		VerbnetConnector verbnetConnector = new VerbnetConnector();
 
 		ArrayList <TypedDependency> objectsList = SVO_Object.getIndirectObjectList(gs);
 
 		for (int i = 0; i <objectsList.size(); i++){
 			TypedDependency objectDependencyType = objectsList.get(i);
+		
+			
 
 			if (!excludedPosTagObjects.contains(getObject(gs, objectDependencyType).tag())){
 				//System.out.println(getObject(gs, objectDependencyType).toString() + "getObj: " + getObject(gs, objectDependencyType) + " " + getObject(gs, objectDependencyType).tag());
 				t = setEntityRelationTriple(subjectURI,objectURI, gs, objectDependencyType, sentenceStart, tagged);
+					
 				entityRelationTripleList.add(t);
+
 
 			}
 		}
@@ -132,7 +141,12 @@ public class SVOTripleAssignment {
 		}
 		return thematicRolesList;
 	}
-
+	public static IndexedWord setCurrentVerb(IndexedWord verb){
+		return currentverb;
+	}
+	public static IndexedWord getCurrentVerb(){
+		return currentverb;
+	}
 	
 	//There are a few cases that need to be checked in order to assign the right arguments, like:
 	//copula, conjunction (both: in the subject and in the verb position), advcl relation and passive
@@ -142,7 +156,6 @@ public class SVOTripleAssignment {
 		String verbConjRelation = getVerbConjRelation(gs);
 		IndexedWord relationVerb = getVerb(gs);
 		VerbnetConnector verbnetConnector = new VerbnetConnector();
-		String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
 
 		//Copula: the object is recognized as the verb, and the verb is an object; here-> swapped (He is an actor)
 		//found triple: (he, an actor, is); changed to: (he, is an actor)
@@ -198,12 +211,26 @@ public class SVOTripleAssignment {
 
 		System.out.println("--- start --- thematic role assignment.");
 		verbnetConnector.assignThematicRoles(relationVerb, gs, pathToVerbnet);
-		verbnetConnector.matchPOStagStructureWithVerbnet(relationVerb, gs, pathToVerbnet);
-		System.out.println("--- stop --- thematic role assignment.");
+		LinkedList<HashMap<String, String>> listOfThemRoles = verbnetConnector.matchPOStagStructureWithVerbnet(relationVerb, gs, pathToVerbnet);
+		WordElement wordEl = new WordElement();
+		System.out.println("--- stop --- thematic role assignment. LENGTH"+ listOfThemRoles);
+		
+		for (int i=0; i<listOfThemRoles.size(); i++){
+			System.out.println("listeeeeee: " +listOfThemRoles.get(i).values() + " " +listOfThemRoles.get(i).keySet() + " short name: " +objectDependencyType.reln().getShortName() + " " + objectDependencyType.reln().getLongName() + objectDependencyType.gov() + " " +objectDependencyType.dep().ner() + objectDependencyType.dep().tag() + " " + wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs));
+			
+			if (objectDependencyType.reln().getShortName().equals("nmod") && listOfThemRoles.get(i).keySet().equals("[PREP]")){
+				
+				
+			}
+			
+			
+		
+		}
+		
+		
 
 		//		String apposVerb = verbRelType .apposRelation(gs);
 		//		System.out.println("apposition found: " + apposVerb);
-
 		return t;
 	}
 

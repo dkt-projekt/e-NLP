@@ -75,7 +75,7 @@ public class FramenetConnector {
 					frameEntry = new HashMap <String, String>();
 					ISyntaxArgDesc postVerbNextElement = postVerbElemIterator.next();
 
-					frameEntry.put((postVerbNextElement.getNounPhraseType() == null ? "none" : postVerbNextElement.getNounPhraseType().toString()), postVerbNextElement.getType().toString());
+					frameEntry.put((postVerbNextElement.getNounPhraseType() == null ? "[PREP]" : postVerbNextElement.getNounPhraseType().toString()), postVerbNextElement.getType().toString());
 					frameLinkedList.add(frameEntry);
 					//System.out.println("POST_VERB_DESCRIPTOR " + postVerbNextElement.getNounPhraseType() + " " + postVerbNextElement.getValue( ).toString());
 				}
