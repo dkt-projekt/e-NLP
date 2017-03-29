@@ -164,13 +164,13 @@ public class SVOTripleAssignment {
 		String verbConjRelation = getVerbConjRelation(gs);
 		IndexedWord relationVerb = getVerb(gs);
 		VerbnetConnector verbnetConnector = new VerbnetConnector();
-		//		<<<<<<< HEAD
+		
 		//		=======
-		//		String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
-		//		File f = FileFactory.generateFileInstance(pathToVerbnet2);
-		//		String pathToVerbnet = f.getAbsolutePath();
-		String pathToVerbnet = "/home/agata/Documents/programming/verbnet";
-		//		>>>>>>> branch 'master' of https://github.com/dkt-projekt/e-NLP
+		String pathToVerbnet2 = "verbnet" + File.separator + "new_vn_3.2" + File.separator;
+		File f = FileFactory.generateFileInstance(pathToVerbnet2);
+		String pathToVerbnet = f.getAbsolutePath();
+		
+		
 
 		//Copula: the object is recognized as the verb, and the verb is an object; here-> swapped (He is an actor)
 		//found triple: (he, an actor, is); changed to: (he, is an actor)
