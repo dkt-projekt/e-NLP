@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.dkt</groupId>
 	<artifactId>e-NLP</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 
 	<parent>
 		<groupId>eu.freme-project</groupId>
@@ -134,7 +134,7 @@
 		<connection>scm:git:git@github.com:dkt-projekt/e-NLP.git</connection>
 		<url>scm:git:git@github.com/dkt-projekt/e-NLP.git</url>
 		<developerConnection>scm:git:git@github.com:dkt-projekt/e-NLP.git</developerConnection>
-		<tag>e-NLP-0.6</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<profiles>
