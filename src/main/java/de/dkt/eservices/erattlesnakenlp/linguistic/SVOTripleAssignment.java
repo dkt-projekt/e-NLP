@@ -187,28 +187,28 @@ public class SVOTripleAssignment {
 		if (verbRelType.getCopula(gs).length()>1){
 			t = setTriple(getSubjectConjunction(gs), getObject(gs, objectDependencyType).word(),  relationVerb.word(), subjectURI, objectURI , tagged.get(getObject(gs, objectDependencyType).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getObject(gs, objectDependencyType).index()-1).endPosition() + sentenceStartIndex);
 //			System.out.println("----- FINAL TRIPLE 1 (copula)--- " + getSubjectConjunction(gs) + " verb: " + getObject(gs, objectDependencyType).toString() + " object: " + getVerb(gs).word());		
-			System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).toString() + " ," + getVerb(gs).word());		
+			//System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).toString() + " ," + getVerb(gs).word());		
 
 		}
 		else {
 			if (WordElement.getPositionWordInSentence(verbConjRelation, gs) > WordElement.getPositionWordInSentence(getObject(gs, objectDependencyType).word(), gs)){
 				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				//System.out.println("----- FINAL TRIPLE 2 not(copula)--- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
-				System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).word() + "  ," + getVerb(gs).word());
+				//System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).word() + "  ," + getVerb(gs).word());
 
 			}
 			else if (verbConjRelation != null){ 
 				if (verbConjRelation.length()>1){
 					t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  "" , subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 					//System.out.println("----- FINAL TRIPLE 3 (VerbConj, SV) --- " + getSubjectConjunction(gs) + " object: " + "empty" + "  verb: " + getVerb(gs).word());
-					System.out.println(getSubjectConjunction(gs) + " , " + " ,"   + getVerb(gs).word());
+					//System.out.println(getSubjectConjunction(gs) + " , " + " ,"   + getVerb(gs).word());
 
 				}
 			}
 			else {
 				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				//System.out.println("----- FINAL TRIPLE 4 (VerbConj, SVO) --- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
-				System.out.println( getSubjectConjunction(gs) + " , " + getObject(gs, objectDependencyType).word() + "  , " + getVerb(gs).word());
+				//System.out.println( getSubjectConjunction(gs) + " , " + getObject(gs, objectDependencyType).word() + "  , " + getVerb(gs).word());
 
 			}
 		}
@@ -218,7 +218,7 @@ public class SVOTripleAssignment {
 				relationVerb = verbRelType.advclRelation(gs);
 				t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				//System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
-				System.out.println(getSubjectConjunction(gs) + " , " + verbRelType.advclRelation(gs) + " , " + getSecondObject(gs));
+				//System.out.println(getSubjectConjunction(gs) + " , " + verbRelType.advclRelation(gs) + " , " + getSecondObject(gs));
 
 			}
 		}
@@ -230,7 +230,7 @@ public class SVOTripleAssignment {
 				t = setTriple(getSubjectConjunction(gs), verbRelType.conjRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex,  tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
 				//System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
 						//getSecondObject(gs) + " objConjRel:" + SVO_Object.assignObjectConjRelation(gs, objectDependencyType));
-				System.out.println( getSubjectConjunction(gs) + " , " + verbConjRelation + " , " +  getSecondObject(gs).word() );
+				//System.out.println( getSubjectConjunction(gs) + " , " + verbConjRelation + " , " +  getSecondObject(gs).word() );
 
 			}
 		}
@@ -243,7 +243,7 @@ public class SVOTripleAssignment {
 			//System.out.println("--- " + " PASSIVE VOICE: " + subjPass + " v: " + getVerb(gs).word() + "objPass: " + objPass);
 			t = setTriple(objPass, relationVerb.word(), subjPass, subjectURI, objectURI , tagged.get(getVerb(gs).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getVerb(gs).index()-1).endPosition() + sentenceStartIndex);
 			//System.out.println("----- FINAL TRIPLE 7 (pass) --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
-			System.out.println(objPass + " , " + getVerb(gs).word() + " , " + subjPass);
+			//System.out.println(objPass + " , " + getVerb(gs).word() + " , " + subjPass);
 
 		}
 
