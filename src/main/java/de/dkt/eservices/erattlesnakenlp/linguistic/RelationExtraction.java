@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URL;
@@ -609,46 +611,17 @@ public class RelationExtraction {
 	//	}
 
 
-
-
-
-	public static void main(String args[]) throws JWNLException, IOException{
-
+	public static ArrayList<EntityRelationTriple> nifToTripleList( String filePath){
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
-
-
-		String docFolder = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles";
-
-		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
-
-		//String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
-		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
-		/**
-		 * another examples
-		 **/
-		// CONJ in subject position
-		//Sumner and his family moved to Tallahatchie County, Mississippi from Alabama around January, 1872.
-
-		//	String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
-
-		//	extractEventsFromTheSource(filePath);
-
+		String docFolder = filePath;
+		ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+		
 		File df = new File(docFolder);
 		System.out.println(df.getAbsolutePath());
-		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
-		Date d3 = new Date();
 
-		String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
-		
-		//
-		
-		//String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
-
-		//String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
-		BufferedWriter brDebug = null;
-		//printWordNetInfo();
 		int c = 0;
+		
 		for (File f : df.listFiles()) {
 			c += 1;
 			String fileContent;
@@ -657,22 +630,18 @@ public class RelationExtraction {
 				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
 				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
 				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
-				ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+				
 				
 				//here we get the triples from the raw nif model
 				ert = getDirectRelationsNIF(nifModel, "en", ert);
 				
-				// make the annotation in nif
+				// print triples
 				for (EntityRelationTriple t : ert){
 				//	System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());
-					NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
-					out.println( t.getSubject() + ", " + t.getRelation() + ", " + t.getObject());
+					System.out.println( t.getSubject() + ", " + t.getRelation() + ", " + t.getObject()+" ,"+t.getStartIndex()+"|"+t.getEndIndex());
 
 				}
-				//out.println("DEBUGGING nif output:\n" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
-				for (EntityRelationTriple t : ert) {
-					masterList.add(t);
-				}
+
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -681,20 +650,104 @@ public class RelationExtraction {
 			}
 
 		}
+		
+		return ert;
+		
+	}
 
-		try {
-			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
-			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
-			JSONObject jsonMap = new JSONObject(m);
-			brDebug.write(jsonMap.toString(4));
-			brDebug.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		System.out.println("Done."); 
-		out.close();
+	public static void main(String args[]) throws JWNLException, IOException{
+		
+		ArrayList<EntityRelationTriple> ent = nifToTripleList("C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles");
+		
+		
+// -----THIS IS THE ACTUAL MAIN METHOD-----------------------------------------------------
+//		
+//		PrintStream out = new PrintStream(new FileOutputStream("C:\\Users\\Sabine\\Desktop\\WörkWörk\\RelationOut.txt"));
+//		System.setOut(out);
+//
+//		Tagger.initTagger("en");
+//		DepParserTree.initParser("en");
+//
+//
+//		String docFolder = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles";
+//
+//		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
+//
+//		//String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
+//		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
+//		/**
+//		 * another examples
+//		 **/
+//		// CONJ in subject position
+//		//Sumner and his family moved to Tallahatchie County, Mississippi from Alabama around January, 1872.
+//
+//		//	String filePath = "/home/agata/Documents/programming/files_relation_extraction/NIFfiles_biographies/AllenGinsberg.nif";   	
+//
+//		//	extractEventsFromTheSource(filePath);
+//
+//		File df = new File(docFolder);
+//		System.out.println(df.getAbsolutePath());
+//		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
+//		Date d3 = new Date();
+//
+//		String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
+//		
+//		//
+//		
+//		//String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
+//
+//		//String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+//		BufferedWriter brDebug = null;
+//		//printWordNetInfo();
+//		int c = 0;
+//		for (File f : df.listFiles()) {
+//			c += 1;
+//			String fileContent;
+//			System.out.println("Processing file: " + f.getName());
+//			try {
+//				fileContent = readFile(f.getAbsolutePath(), StandardCharsets.UTF_8);
+//				Model nifModel = NIFReader.extractModelFromFormatString(fileContent, RDFSerialization.TURTLE);
+//				//ArrayList<EntityRelationTriple> ert = getRelationsNIF(nifModel);
+//				ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+//				
+//				//here we get the triples from the raw nif model
+//				ert = getDirectRelationsNIF(nifModel, "en", ert);
+//				
+//				// make the annotation in nif
+//				for (EntityRelationTriple t : ert){
+//				//	System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());
+//					NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
+//					System.out.println( t.getSubject() + ", " + t.getRelation() + ", " + t.getObject());
+//
+//				}
+//				System.out.println("DEBUGGING nif output:\n" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
+//				for (EntityRelationTriple t : ert) {
+//					masterList.add(t);
+//				}
+//
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//
+//			}
+//
+//		}
+//
+//		try {
+//			brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+//			HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(masterList);
+//			JSONObject jsonMap = new JSONObject(m);
+//			brDebug.write(jsonMap.toString(4));
+//			brDebug.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		System.out.println("Done."); 
+//		out.close();
+//-----------------------------------------------------------------------------------------------------------
 
 	}
 
