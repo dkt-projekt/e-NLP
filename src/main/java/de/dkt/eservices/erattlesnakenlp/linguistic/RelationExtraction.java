@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -98,6 +99,16 @@ import edu.mit.jverbnet.index.VerbIndex;
  *
  */
 public class RelationExtraction {
+	
+	static PrintWriter out;
+	static {
+	    try {
+	      out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\RelationOut.txt"); 
+	    } catch (Exception e) {
+	      System.out.println("FILE NOT FOUND");
+	    } // end try-catch
+	  } // end static init block
+	
 	static HashMap <String, HashMap<LinkedList<String>, LinkedList<String>>> ListOfAllVerbs = new HashMap ();
 	static ArrayList <String> LSAmatrix = new ArrayList <String> ();
 	static int sentenceCounter = 0;
@@ -299,15 +310,13 @@ public class RelationExtraction {
 
 				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
 					System.out.println();
-					System.out.println("sentenceCounter: " + sentenceCounter);
 					sentenceCounter = sentenceCounter +1;
-					System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
+					//System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
 					
 					//if there is a URI link it is added to the arguments, else: null
 					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object1, tagged, entityMap);
 
-					System.out.println("subjectURI " + subjectURI + " objectRI " + objectURI + "--");
 
 					// lemma of the connectingElement
 					String relationLemma = null;
@@ -330,7 +339,7 @@ public class RelationExtraction {
 							// System.out.println("the POS tag of the
 							// object: " +
 							// wordEl.getPOStagOfDependent(object1.word(),gs));
-							System.out.println("all direct verbDep: " + listSize);
+							//System.out.println("all direct verbDep: " + listSize);
 
 							/** WORDNET 
 							 * 
@@ -631,7 +640,7 @@ public class RelationExtraction {
 		Date d3 = new Date();
 
 		String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
-
+		
 		//
 		
 		//String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
@@ -655,11 +664,12 @@ public class RelationExtraction {
 				
 				// make the annotation in nif
 				for (EntityRelationTriple t : ert){
-					System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());
+				//	System.out.println("debugging the relation triple:" + t.getSubject() + t.getObject() + t.getRelation() + t.getLemma());
 					NIFWriter.addAnnotationRelation(nifModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
+					out.println( t.getSubject() + ", " + t.getRelation() + ", " + t.getObject());
+
 				}
-				System.out.println("DEBUGGING nif output:\n" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
-				
+				//out.println("DEBUGGING nif output:\n" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 				for (EntityRelationTriple t : ert) {
 					masterList.add(t);
 				}
@@ -684,6 +694,7 @@ public class RelationExtraction {
 		}
 
 		System.out.println("Done."); 
+		out.close();
 
 	}
 

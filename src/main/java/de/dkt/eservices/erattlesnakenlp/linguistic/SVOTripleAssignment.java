@@ -124,7 +124,7 @@ public class SVOTripleAssignment {
 
 				entityRelationTripleList.add(t);
 				tripleCounter = tripleCounter +1;
-				System.out.println("tripleCounter: " + tripleCounter);
+			//	System.out.println("tripleCounter: " + tripleCounter);
 
 
 			}
@@ -186,22 +186,30 @@ public class SVOTripleAssignment {
 		//found triple: (he, an actor, is); changed to: (he, is an actor)
 		if (verbRelType.getCopula(gs).length()>1){
 			t = setTriple(getSubjectConjunction(gs), getObject(gs, objectDependencyType).word(),  relationVerb.word(), subjectURI, objectURI , tagged.get(getObject(gs, objectDependencyType).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getObject(gs, objectDependencyType).index()-1).endPosition() + sentenceStartIndex);
-			System.out.println("----- FINAL TRIPLE 1 (copula)--- " + getSubjectConjunction(gs) + " verb: " + getObject(gs, objectDependencyType).toString() + " object: " + getVerb(gs).word());		
+//			System.out.println("----- FINAL TRIPLE 1 (copula)--- " + getSubjectConjunction(gs) + " verb: " + getObject(gs, objectDependencyType).toString() + " object: " + getVerb(gs).word());		
+			System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).toString() + " ," + getVerb(gs).word());		
+
 		}
 		else {
 			if (WordElement.getPositionWordInSentence(verbConjRelation, gs) > WordElement.getPositionWordInSentence(getObject(gs, objectDependencyType).word(), gs)){
 				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
-				System.out.println("----- FINAL TRIPLE 2 not(copula)--- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
+				//System.out.println("----- FINAL TRIPLE 2 not(copula)--- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
+				System.out.println(getSubjectConjunction(gs) + " ," + getObject(gs, objectDependencyType).word() + "  ," + getVerb(gs).word());
+
 			}
 			else if (verbConjRelation != null){ 
 				if (verbConjRelation.length()>1){
 					t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  "" , subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
-					System.out.println("----- FINAL TRIPLE 3 (VerbConj, SV) --- " + getSubjectConjunction(gs) + " object: " + "empty" + "  verb: " + getVerb(gs).word());
+					//System.out.println("----- FINAL TRIPLE 3 (VerbConj, SV) --- " + getSubjectConjunction(gs) + " object: " + "empty" + "  verb: " + getVerb(gs).word());
+					System.out.println(getSubjectConjunction(gs) + " , " + " ,"   + getVerb(gs).word());
+
 				}
 			}
 			else {
 				t = setTriple(getSubjectConjunction(gs), relationVerb.word(),  getObject(gs, objectDependencyType).word(), subjectURI, objectURI  , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
-				System.out.println("----- FINAL TRIPLE 4 (VerbConj, SVO) --- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
+				//System.out.println("----- FINAL TRIPLE 4 (VerbConj, SVO) --- " + getSubjectConjunction(gs) + " object: " + getObject(gs, objectDependencyType).word() + "  verb: " + getVerb(gs).word());
+				System.out.println( getSubjectConjunction(gs) + " , " + getObject(gs, objectDependencyType).word() + "  , " + getVerb(gs).word());
+
 			}
 		}
 
@@ -209,7 +217,8 @@ public class SVOTripleAssignment {
 			if (verbRelType.advclRelation(gs).word().length()>1){ 
 				relationVerb = verbRelType.advclRelation(gs);
 				t = setTriple(getSubjectConjunction(gs), verbRelType.advclRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex, tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
-				System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
+				//System.out.println("----- FINAL TRIPLE 5 (AdvCl) --- " + getSubjectConjunction(gs) + " verb: " + verbRelType.advclRelation(gs) + " object: " + getSecondObject(gs));
+				System.out.println(getSubjectConjunction(gs) + " , " + verbRelType.advclRelation(gs) + " , " + getSecondObject(gs));
 
 			}
 		}
@@ -219,8 +228,10 @@ public class SVOTripleAssignment {
 			if (verbConjRelation.length()>1){
 				relationVerb = verbRelType.conjRelation(gs);
 				t = setTriple(getSubjectConjunction(gs), verbRelType.conjRelation(gs).word(),  getSecondObject(gs).word(), subjectURI, objectURI , tagged.get(relationVerb.index()-1).beginPosition() + sentenceStartIndex,  tagged.get(relationVerb.index()-1).endPosition() + sentenceStartIndex);
-				System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
-						getSecondObject(gs) + " objConjRel:" + SVO_Object.assignObjectConjRelation(gs, objectDependencyType));
+				//System.out.println("----- FINAL TRIPLE 6 --- " + getSubjectConjunction(gs) + " verb: " + verbConjRelation + " object: " +
+						//getSecondObject(gs) + " objConjRel:" + SVO_Object.assignObjectConjRelation(gs, objectDependencyType));
+				System.out.println( getSubjectConjunction(gs) + " , " + verbConjRelation + " , " +  getSecondObject(gs).word() );
+
 			}
 		}
 
@@ -231,10 +242,12 @@ public class SVOTripleAssignment {
 		if (subjPass.length()>1 && objPass.length()>1){
 			//System.out.println("--- " + " PASSIVE VOICE: " + subjPass + " v: " + getVerb(gs).word() + "objPass: " + objPass);
 			t = setTriple(objPass, relationVerb.word(), subjPass, subjectURI, objectURI , tagged.get(getVerb(gs).index()-1).beginPosition() + sentenceStartIndex, tagged.get(getVerb(gs).index()-1).endPosition() + sentenceStartIndex);
-			System.out.println("----- FINAL TRIPLE 7 (pass) --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
+			//System.out.println("----- FINAL TRIPLE 7 (pass) --- " + objPass + " verb: " + getVerb(gs).word() + " object: " + subjPass);
+			System.out.println(objPass + " , " + getVerb(gs).word() + " , " + subjPass);
+
 		}
 
-		System.out.println("--- start --- thematic role assignment.");
+		//System.out.println("--- start --- thematic role assignment.");
 		verbnetConnector.assignThematicRoles(relationVerb, gs, pathToVerbnet);
 		//LinkedList as Hashmap with thematic roles ([A], [P]...) & the phrase structure  (NP/PP)
 		LinkedList<HashMap<String, String>> listOfThemRoles = verbnetConnector.matchPOStagStructureWithVerbnet(relationVerb, gs, pathToVerbnet);
@@ -248,14 +261,14 @@ public class SVOTripleAssignment {
 		//START
 		//values -> NP/PREP; keySet() -> thematic roles
 		for (int i=0; i<listOfThemRoles.size(); i++){
-			System.out.println("themRolesValues " +listOfThemRoles.get(i).values() + " " +listOfThemRoles.get(i).keySet() + " short name: " +objectDependencyType.reln().getShortName() + " " + objectDependencyType.reln().getLongName() + objectDependencyType.gov() + " " +objectDependencyType.dep().ner() + objectDependencyType.dep().tag() + " " + wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs));
+			//System.out.println("themRolesValues " +listOfThemRoles.get(i).values() + " " +listOfThemRoles.get(i).keySet() + " short name: " +objectDependencyType.reln().getShortName() + " " + objectDependencyType.reln().getLongName() + objectDependencyType.gov() + " " +objectDependencyType.dep().ner() + objectDependencyType.dep().tag() + " " + wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs));
 
 
 			if (objectDependencyType.reln().getShortName().equals("nmod") && listOfThemRoles.get(i).keySet().toString().equals("[[PREP]]") || listOfThemRoles.get(i).keySet().toString().equals("[PREP]")){
 				String posTagOfTheDependent = wordEl.getPOStagOfDependent(objectDependencyType.dep().value(), gs);
-				System.out.println("inside --------------------------------------------------" + listOfThemRoles.get(i).keySet().toString() + " " +listOfThemRoles.get(i).keySet().toString().equals("[[PREP]]"));
+				//System.out.println("inside --------------------------------------------------" + listOfThemRoles.get(i).keySet().toString() + " " +listOfThemRoles.get(i).keySet().toString().equals("[[PREP]]"));
 
-				System.out.println("postag: posTagOfTheDependent" + posTagOfTheDependent + listOfThemRoles.get(i).keySet().toString().equals("[PREP]"));
+				//System.out.println("postag: posTagOfTheDependent" + posTagOfTheDependent + listOfThemRoles.get(i).keySet().toString().equals("[PREP]"));
 
 				if (i<listOfThemRoles.size()){
 
@@ -265,7 +278,7 @@ public class SVOTripleAssignment {
 					
 						//t.setThemRoleObj(listOfThemRoles.get(i+1).keySet().toString());
 						
-						System.out.println("NMOD, CASE 1: themRole (LOCATION)/TIME " + listOfThemRoles.get(i+1).keySet());
+						//System.out.println("NMOD, CASE 1: themRole (LOCATION)/TIME " + listOfThemRoles.get(i+1).keySet());
 						nmodCounter = nmodCounter +1;
 						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
 
@@ -273,7 +286,7 @@ public class SVOTripleAssignment {
 					else if (posTagOfTheDependent.equals("TO") && i<=listOfThemRoles.size() && listOfThemRoles.get(i+1).keySet().toString().equals("[G]") || listOfThemRoles.get(i+1).keySet().toString().equals("[D]")){
 
 
-						System.out.println("NMOD, CASE 2: themRole (GOAL&DESTINATION) " + listOfThemRoles.get(i+1).keySet());
+						//System.out.println("NMOD, CASE 2: themRole (GOAL&DESTINATION) " + listOfThemRoles.get(i+1).keySet());
 						nmodCounter = nmodCounter +1;
 						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
 
@@ -282,7 +295,7 @@ public class SVOTripleAssignment {
 
 						nmodCounter = nmodCounter +1;
 
-						System.out.println("NMOD, CASE 3: themRole (BENEFICIARY) " + listOfThemRoles.get(i+1).keySet());
+						//System.out.println("NMOD, CASE 3: themRole (BENEFICIARY) " + listOfThemRoles.get(i+1).keySet());
 
 						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
 
@@ -291,7 +304,7 @@ public class SVOTripleAssignment {
 
 						nmodCounter = nmodCounter +1;
 
-						System.out.println("NMOD, CASE 4: themRole (SOURCE) " + listOfThemRoles.get(i+1).keySet());
+						//System.out.println("NMOD, CASE 4: themRole (SOURCE) " + listOfThemRoles.get(i+1).keySet());
 						nmodPrepGeneralizationsCounter = nmodPrepGeneralizationsCounter +1;
 
 					}
@@ -301,7 +314,7 @@ public class SVOTripleAssignment {
 
 
 			}
-			System.out.println("_____________themRolesCounter: " + themRolesFoundCounter +"_____nmodPrepGeneralizationsCounter: " + nmodPrepGeneralizationsCounter);
+			//System.out.println("_____________themRolesCounter: " + themRolesFoundCounter +"_____nmodPrepGeneralizationsCounter: " + nmodPrepGeneralizationsCounter);
 			//System.out.println("NMOD_COUNTER: --------------------------------------------------" + nmodCounter +);
 
 
