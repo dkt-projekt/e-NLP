@@ -4,7 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URL;
@@ -632,8 +634,8 @@ public class RelationExtraction {
 		Date d3 = new Date();
 		//	PrintWriter out = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\RelationOut.txt"); 
 		//PrintWriter out = new PrintWriter("/home/agata/Documents/programming/files_relation_extraction/debug_relationExtraction30_03.txt"); 
-		
-		PrintWriter out = new PrintWriter("/home/agata/Documents/programming/files_relation_extraction/debug_relationExtraction30_03_2017.txt"); 
+		PrintStream out = new PrintStream(new FileOutputStream("/home/agata/Documents/programming/files_relation_extraction/debug_relationExtraction30_03_2017.txt"));System.setOut(out);
+		//PrintWriter out = new PrintWriter("/home/agata/Documents/programming/files_relation_extraction/debug_relationExtraction30_03_2017.txt"); 
 
 		out.println("TEST");
 
