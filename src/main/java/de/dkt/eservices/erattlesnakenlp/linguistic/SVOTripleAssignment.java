@@ -90,6 +90,16 @@ public class SVOTripleAssignment {
 			t.setThemRoleSubj("themRoleSubj");
 			t.setThemRoleSubj("themRoleObj");
 		}
+		else {
+			t.setSubject(String.format("%s(%s)", subject, subjectURI));
+			t.setRelation(verb);
+			t.setObject(String.format("%s(%s)", object, objectURI));
+			t.setStartIndex(start);
+			t.setEndIndex(end);
+			t.setLemma(lemmatizer.lemmatizeWord(verb));
+			t.setThemRoleSubj("themRoleSubj");
+			t.setThemRoleSubj("themRoleObj");
+		}
 
 		return t;
 	}
