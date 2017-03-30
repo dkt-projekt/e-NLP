@@ -609,9 +609,9 @@ public class RelationExtraction {
 		DepParserTree.initParser("en");
 
 
-		//String docFolder = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles";
+		String docFolder = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles";
 
-		String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
+		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/run_example";
 
 		//String docFolder = "C:\\Users\\pebo01\\Desktop\\debugRelExtract\\nifs";
 		//String docFolder = "/home/agata/Documents/programming/files_relation_extraction/englishNifsCorefinized";
@@ -630,11 +630,11 @@ public class RelationExtraction {
 		ArrayList<EntityRelationTriple> masterList = new ArrayList<EntityRelationTriple>();
 		Date d3 = new Date();
 
-		//String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
+		String debugOut = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\out.txt";
 
 		//
 		
-		String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
+		//String debugOut = "/home/agata/Documents/programming/files_relation_extraction/debug.txt";
 
 		//String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
 		BufferedWriter brDebug = null;

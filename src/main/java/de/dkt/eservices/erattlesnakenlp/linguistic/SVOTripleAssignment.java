@@ -90,6 +90,16 @@ public class SVOTripleAssignment {
 			t.setThemRoleSubj("themRoleSubj");
 			t.setThemRoleSubj("themRoleObj");
 		}
+		else {
+			t.setSubject(String.format("%s(%s)", subject, subjectURI));
+			t.setRelation(verb);
+			t.setObject(String.format("%s(%s)", object, objectURI));
+			t.setStartIndex(start);
+			t.setEndIndex(end);
+			t.setLemma(lemmatizer.lemmatizeWord(verb));
+			t.setThemRoleSubj("themRoleSubj");
+			t.setThemRoleSubj("themRoleObj");
+		}
 
 		return t;
 	}
@@ -253,7 +263,7 @@ public class SVOTripleAssignment {
 							||  listOfThemRoles.get(i+1).keySet().toString().equals("[T]") 
 							|| listOfThemRoles.get(i+1).keySet().toString().equals("ILocation")){ //ILocation
 					
-						t.setThemRoleObj(listOfThemRoles.get(i+1).keySet().toString());
+						//t.setThemRoleObj(listOfThemRoles.get(i+1).keySet().toString());
 						
 						System.out.println("NMOD, CASE 1: themRole (LOCATION)/TIME " + listOfThemRoles.get(i+1).keySet());
 						nmodCounter = nmodCounter +1;
