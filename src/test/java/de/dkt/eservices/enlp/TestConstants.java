@@ -98,6 +98,18 @@ public class TestConstants {
 					"        nif:endIndex             \"86\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:isString             \"Angela Merkel is not an alien. She was born in Hamburg. She then moved to Brandenburg.\"^^xsd:string .\n" +
 					"\n" +
+					"<http://dkt.dfki.de/documents/#char=14,16>\n" +
+				    "        a                        nif:RFC5147String , nif:String ;\n" +
+				    "        nif:anchorOf             \"is\"^^xsd:string ;\n" +
+				    "        nif:beginIndex           \"14\"^^xsd:nonNegativeInteger ;\n" +
+				    "        nif:endIndex             \"16\"^^xsd:nonNegativeInteger ;\n" +
+				    "        nif:referenceContext     <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+				    "        nif:relationAction       <be> ;\n" +
+				    "        nif:relationObject       <alien(null)> ;\n" +
+				    "        nif:relationSubject      <Merkel(http://dkt.dfki.de/documents/#char=0,13)> ;\n" +
+				    "        nif:thematicRoleSubject  <themRoleObj> ;\n" +
+				    "        itsrdf:taIdentRef        <http://dkt.dfki.de/entities/relation> .\n" +
+				    "\n" +
 					"<http://dkt.dfki.de/documents/#char=47,54>\n" +
 					"        a                     nif:String , nif:RFC5147String ;\n" +
 					"        nif:anchorOf          \"Hamburg\"^^xsd:string ;\n" +
