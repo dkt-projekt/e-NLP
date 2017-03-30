@@ -49,13 +49,13 @@ public class VerbnetConnector {
 
 
 		for (int i = 0; i < amountOfArguments; i++){
-			//System.out.println("assignThematicRoles_verbDependenciesList: " + verbDependenciesList.get(i).reln().toString() + verbDependenciesList.get(i).reln().getShortName() + " " + verbDependenciesList.get(i).reln().toString() + " " );
+			////System.out.println("assignThematicRoles_verbDependenciesList: " + verbDependenciesList.get(i).reln().toString() + verbDependenciesList.get(i).reln().getShortName() + " " + verbDependenciesList.get(i).reln().toString() + " " );
 
 			if (verbDependenciesList.get(i).reln().toString().equals("nsubj") || verbDependenciesList.get(i).reln().toString().equals("nsubjpass")){
 			}
 			//translate all relevant postVerbDependencies
 			else {
-				//System.out.println(verbDependenciesList.get(i) +" " +verbDependenciesList.get(i).dep() + " " + verbDependenciesList.get(i).dep().tag() + " " + verbDependenciesList.get(i).dep() );
+				////System.out.println(verbDependenciesList.get(i) +" " +verbDependenciesList.get(i).dep() + " " + verbDependenciesList.get(i).dep().tag() + " " + verbDependenciesList.get(i).dep() );
 				if (verbDependenciesList.get(i).reln().toString().equals("nmod")){
 
 					simplifiedPOStags.add("none");
@@ -82,7 +82,7 @@ public class VerbnetConnector {
 		StanfordLemmatizer stanfordLemmatizer = new StanfordLemmatizer();
 		int amountOfPostVerbArguments = simplifiedPOStags.size() ;
 
-		System.out.println("verb.value(): " + verb.value() + " " + verb.lemma() + " " + stanfordLemmatizer.lemmatizeWord(verb.value()) + " amountOfPostVerbArguments " + amountOfPostVerbArguments);
+		//System.out.println("verb.value(): " + verb.value() + " " + verb.lemma() + " " + stanfordLemmatizer.lemmatizeWord(verb.value()) + " amountOfPostVerbArguments " + amountOfPostVerbArguments);
 
 		List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(amountOfPostVerbArguments);
 		//LinkedList<HashMap<String, String>> frameAssigned = getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
@@ -93,21 +93,21 @@ public class VerbnetConnector {
 		//List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(verb, pathToVerbnet).get(amountOfPostVerbArguments);
 
 		//getSimplePhraseStructureofVerbnet(frameListWithSpecifiedLength);
-		System.out.println(frameAssigned + " LENGTH_FRAME_ASSIGNED ");
+		//System.out.println(frameAssigned + " LENGTH_FRAME_ASSIGNED ");
 
-		//System.out.println("xxxxxx_size_ " + amountOfPostVerbArguments + " "  + frameListWithSpecifiedLength);
-		//System.out.println("simple_structure_verbnet: ");
+		////System.out.println("xxxxxx_size_ " + amountOfPostVerbArguments + " "  + frameListWithSpecifiedLength);
+		////System.out.println("simple_structure_verbnet: ");
 
 
 
 		//		for (LinkedList<HashMap<String, String>> value : frameListWithSpecifiedLength) {
 		//
 		//			for (int i = 0; i < simplifiedPOStags.size(); i++){
-		//				System.out.println("postag-postag");
+		//				//System.out.println("postag-postag");
 		//
-		//				System.out.println(simplifiedPOStags.get(i));
+		//				//System.out.println(simplifiedPOStags.get(i));
 		//				if (simplifiedPOStags.get(i).equals("none") &&  value.get(i).keySet().toString().equals("[none]") || !simplifiedPOStags.get(i).equals("none") &&  !value.get(i).keySet().toString().equals("[none]")){
-		//					System.out.println("MATCHING_: " + simplifiedPOStags.get(i) + " " + value.get(i).keySet().toString());
+		//					//System.out.println("MATCHING_: " + simplifiedPOStags.get(i) + " " + value.get(i).keySet().toString());
 		//				}
 		//			}
 
@@ -156,7 +156,7 @@ public class VerbnetConnector {
 			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(3);
 
 			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				//System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
 				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
 				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
 				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
@@ -166,8 +166,8 @@ public class VerbnetConnector {
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
 				if(listComparisonElementsAmount)
 				{
-					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					//System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+					//		" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
 					framenetEntryPOStag = new ArrayList<String>();
 					frameFoundAfterProcessing = frameWithSpecificLength;
 
@@ -179,7 +179,7 @@ public class VerbnetConnector {
 			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(4);
 
 			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				//System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
 				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
 				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
 				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
@@ -189,8 +189,8 @@ public class VerbnetConnector {
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
 				if(listComparisonElementsAmount)
 				{
-					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					//System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+					//		" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
 					framenetEntryPOStag = new ArrayList<String>();
 					frameFoundAfterProcessing = frameWithSpecificLength;
 				}
@@ -201,7 +201,7 @@ public class VerbnetConnector {
 			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(5);
 
 			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				//System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
 				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
 				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
 				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
@@ -211,8 +211,8 @@ public class VerbnetConnector {
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
 				if(listComparisonElementsAmount)
 				{
-					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					//System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							//" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
 					framenetEntryPOStag = new ArrayList<String>();
 					frameFoundAfterProcessing = frameWithSpecificLength;
 
@@ -226,7 +226,7 @@ public class VerbnetConnector {
 			List<LinkedList<HashMap<String, String>>> frameListWithSpecifiedLength = framenetConn.getSortedFramesWithArguments(stanfordLemmatizer.lemmatizeWord(verb.value()), pathToVerbnet).get(parserNPcounter + parserPPcounter);
 
 			for (int i =0; i<frameListWithSpecifiedLength.size(); i++){
-				System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
+				//System.out.println("frameListWithSpecifiedLength.get(i)" + frameListWithSpecifiedLength.get(i) + " " + frameListWithSpecifiedLength.get(i).toArray());
 				frameWithSpecificLength = frameListWithSpecifiedLength.get(i);
 				verbnetNPcounter = verbnetPhraseCounter("[NP]", frameListWithSpecifiedLength.get(i));
 				verbnetPPcounter = verbnetPhraseCounter("[PREP]", frameListWithSpecifiedLength.get(i));
@@ -236,8 +236,8 @@ public class VerbnetConnector {
 				boolean listComparisonElementsAmount = (PPscomparison && NPscomparison);
 				if(listComparisonElementsAmount)
 				{
-					System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
-							" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
+					//System.out.println("compare lists: " +compareList(framenetEntryPOStag, simplifiedPOStags) + " compare the amount of NPs and PPs: " + listComparisonElementsAmount + " parserNPcounter: " + parserNPcounter + " " +
+							//" verbnetNPcounter " +	verbnetNPcounter+ " parserPPcounter "  +	parserPPcounter + " verbnetPPcounter " + verbnetPPcounter);
 					framenetEntryPOStag = new ArrayList<String>();
 
 				}
@@ -268,7 +268,7 @@ public class VerbnetConnector {
 
 			if ( frameListWithSpecifiedLength.get(j).values().toString().equals(phrase)){
 				framenetEntryPOStag.add(phrase);
-				System.out.println("-- " + phrase);
+				//System.out.println("-- " + phrase);
 				phraseCounter = phraseCounter + 1;
 			}
 
@@ -282,12 +282,12 @@ public class VerbnetConnector {
 	//
 	//			if ( frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[NP]")){
 	//				framenetEntryPOStag.add("NP");
-	//				System.out.println("NP_adddeeeed");
+	//				//System.out.println("NP_adddeeeed");
 	//				verbnetNPcounter = verbnetNPcounter+1;
 	//			}
 	//			else if (frameListWithSpecifiedLength.get(i).get(j).values().toString().equals("[PREP]")){
 	//				framenetEntryPOStag.add("none");
-	//				System.out.println("noooone");
+	//				//System.out.println("noooone");
 	//				verbnetPPcounter = verbnetPPcounter + 1;
 	//			}
 	//		}
@@ -302,15 +302,15 @@ public class VerbnetConnector {
 		ArrayList<TypedDependency> listOnlyArguments = new ArrayList<TypedDependency>();
 		SVO_Verb Verb = new SVO_Verb();
 		String relationLemma = Lemmatizer.lemmatize(verb.word(), verb.tag()).word();
-		System.out.println(relationLemma);
+		//System.out.println(relationLemma);
 
 		ArrayList<TypedDependency> verbDependenciesList = Verb.getDirectVerbDependencies(gs, relationLemma);
-		//System.out.println(Lemmatizer.lemmatize(verb.word(), verb.tag()).lemma() + "direct verb dependencies: " + verbDependenciesList.size());
+		////System.out.println(Lemmatizer.lemmatize(verb.word(), verb.tag()).lemma() + "direct verb dependencies: " + verbDependenciesList.size());
 		for (int i = 0; i < verbDependenciesList.size(); i++){
 			TypedDependency currentDependency = verbDependenciesList.get(i);
 
 			if (!SVOTripleAssignment.excludedPosTagObjects.contains(currentDependency.dep().tag())){
-				//	System.out.println("currentDependency: " + currentDependency.reln().toString() + " " + currentDependency.reln().getLongName());
+				//	//System.out.println("currentDependency: " + currentDependency.reln().toString() + " " + currentDependency.reln().getLongName());
 				listOnlyArguments.add(currentDependency);
 			}
 		}
@@ -351,7 +351,7 @@ public class VerbnetConnector {
 					assignedRolesList.add(subjectThemRole);
 					assignedRolesList.add(objectThemRole);
 					assignedRolesList.add(iobjThemRole);
-					System.out.println("Valency 3, following roles assigned: " + subjectThemRole + " " + objectThemRole + " " + iobjThemRole);			
+					//System.out.println("Valency 3, following roles assigned: " + subjectThemRole + " " + objectThemRole + " " + iobjThemRole);			
 
 				}
 			}	
@@ -370,12 +370,12 @@ public class VerbnetConnector {
 			 * VALENCY 2, CASE 1: 2 arguments, the 2nd a dobj
 			 */
 
-			System.out.println("frameNet INFO: " + framenetConn.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
+			//System.out.println("frameNet INFO: " + framenetConn.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1));
 
 			if (objectsDependency.equals("dobj") & framenetConn.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1)!= null){
 				List<LinkedList<HashMap<String, String>>> keySetFrameArguments = framenetConn.getSortedFramesWithArguments(relationLemma, pathToVerbnet).get(1);
 
-				System.out.println("->subject: " + subject + " object: " + object + " <-" );
+				//System.out.println("->subject: " + subject + " object: " + object + " <-" );
 
 				for (LinkedList<HashMap<String, String>> value : keySetFrameArguments) {
 
@@ -391,8 +391,8 @@ public class VerbnetConnector {
 						assignedRolesList.add(objectThemRole);
 
 
-						System.out.println("CASE 1: them role " +  subjectThemRole + " dobj " + objectThemRole);
-						System.out.println();
+						//System.out.println("CASE 1: them role " +  subjectThemRole + " dobj " + objectThemRole);
+						//System.out.println();
 					}
 					else {
 						subjectThemRole = value.get(0).keySet().toString();
@@ -400,8 +400,8 @@ public class VerbnetConnector {
 
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
-						System.out.println("CASE 1.01: them role " +  subjectThemRole + " dobj " + objectThemRole);
-						System.out.println();
+						//System.out.println("CASE 1.01: them role " +  subjectThemRole + " dobj " + objectThemRole);
+						//System.out.println();
 
 					}
 
@@ -421,7 +421,7 @@ public class VerbnetConnector {
 				//the first postVerbElement is empty because it is a preposition
 				if (value.get(1).keySet().toString().equals("[none]")){
 
-					System.out.println("[NONE] true");
+					//System.out.println("[NONE] true");
 
 					subjectThemRole = value.get(0).keySet().toString();
 					objectThemRole = value.get(2).keySet().toString();
@@ -434,7 +434,7 @@ public class VerbnetConnector {
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 
-						System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
+						//System.out.println("CASE 2: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					//GOAL/DESTINATION
@@ -443,7 +443,7 @@ public class VerbnetConnector {
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 
-						System.out.println("CASE 3A: them role " + subjectThemRole + " nmod " + objectThemRole);
+						//System.out.println("CASE 3A: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					//SOURCE
@@ -452,7 +452,7 @@ public class VerbnetConnector {
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 
-						System.out.println("CASE 3B: them role " + subjectThemRole + " nmod " + objectThemRole);
+						//System.out.println("CASE 3B: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 
@@ -462,7 +462,7 @@ public class VerbnetConnector {
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 
-						System.out.println("CASE 3C: them role " + subjectThemRole + " nmod " + objectThemRole);
+						//System.out.println("CASE 3C: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 					else if (objectThemRole.equals(null)){
@@ -470,12 +470,12 @@ public class VerbnetConnector {
 						assignedRolesList.add("0");
 					}
 					else {
-						System.out.println("print TAGS " + object.tag() );
+						//System.out.println("print TAGS " + object.tag() );
 
 						assignedRolesList.add(subjectThemRole);
 						assignedRolesList.add(objectThemRole);
 
-						System.out.println("CASE 4: them role " + subjectThemRole + " nmod " + objectThemRole);
+						//System.out.println("CASE 4: them role " + subjectThemRole + " nmod " + objectThemRole);
 
 					}
 				}
