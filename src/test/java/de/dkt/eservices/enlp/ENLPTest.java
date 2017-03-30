@@ -1245,6 +1245,8 @@ public class ENLPTest {
 		
 		Assert.assertEquals(TestConstants.relationExtractionExpectedOutput, response.getBody());
 	}
+
+
 	
 //	@Test
 //	public void relationExtractionTest2() throws UnirestException, IOException,
