@@ -290,9 +290,12 @@ public static void traverse (Tree tree, Tree wholet){
 //    //tree.pennPrint();
    
 }
-public static String lexiconPath = "C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt";
+
+
+//public static String lexiconPath = "C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt";
+public static String lexiconPath = "C:\\Users\\pebo01\\Desktop\\dictionary.txt";
 public static String determineGender(String word) throws FileNotFoundException{
-	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Downloads\\german-pos-dict-1.1\\german-pos-dict-1.1\\dictionary.txt"));
+	Scanner txtscan = new Scanner(new File(lexiconPath));
 	String ret = "NOG";
 	int masc = 0;
 	int fem = 0;
@@ -469,7 +472,8 @@ public static String findModifiers(CorefMention Mention){
 }
 
 public static boolean isDemonym(String one, String two) throws FileNotFoundException{
-	Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Desktop\\WörkWörk\\demonyms.txt"));
+	//Scanner txtscan = new Scanner(new File("C:\\Users\\Sabine\\Desktop\\WörkWörk\\demonyms.txt"));
+	Scanner txtscan = new Scanner(new File("C:\\Users\\pebo01\\AppData\\Roaming\\Skype\\My Skype Received Files\\demonyms.txt"));
 	boolean ret = false;
 	
 	

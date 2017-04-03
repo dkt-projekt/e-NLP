@@ -14,6 +14,7 @@ import opennlp.tools.util.Span;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.base.Joiner;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -65,7 +67,8 @@ public class Corefinizer {
 //			 System.out.println(dep.dependent());
 //		 }
 		 
-		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\de.trial(2).txt");
+		 findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tubaFirst5kSents.txt");
+		 
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\7.txt");
 		 //dummy("Im letzten Moment gibt es noch Hoffnung für die Männer und Frauen");
@@ -137,39 +140,39 @@ public class Corefinizer {
 	 
 	 public static LinkedHashSet<String[]> getNamedEntityIndexes(String inputString) throws Exception{
 			
-		 HttpResponse<String> response = Unirest.post("https://dev.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition")
-			     .queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG" )
-			     .queryString("analysis", "ner")
-			     .queryString("language", "de")
-			     .queryString("mode", "spot")
-			     .body(inputString)
-			     .asString();
+			HttpResponse<String> response = Unirest
+					.post("https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition")
+					.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG")
+					.queryString("analysis", "ner").queryString("language", "de").queryString("mode", "spot")
+					.body(inputString).asString();
 
-			   String nifString = response.getBody();
-			   System.out.println(nifString);
-			   Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-			   List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
-			   
-			   LinkedHashSet<String[]> entityIndexes = new LinkedHashSet<>(); 
+			String nifString = response.getBody();
+		// System.out.println(nifString);
+		Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 
-			   if (!(entityMap==null)){
-				   for(String[] index: entityMap){
-					   String[]	indexes = new String[3];
-					   indexes[0]=index[3];
-					   indexes[1]=index[4];
-				   
-					   	if(index[2].contains("Organisation")){
-					   		indexes[2]="org";
-					   	}if(index[2].contains("Person")){
-					   		indexes[2]="per";
-					   	}if(index[2].contains("Location")){
-					   		indexes[2]="loc";
-					   	}
-					   entityIndexes.add(indexes);
-				   }
-			   }
-			   
-		 return entityIndexes;
+		LinkedHashSet<String[]> entityIndexes = new LinkedHashSet<>();
+
+		if (!(entityMap == null)) {
+			for (String[] index : entityMap) {
+				String[] indexes = new String[3];
+				indexes[0] = index[3];
+				indexes[1] = index[4];
+
+				if (index[2].contains("Organisation")) {
+					indexes[2] = "org";
+				}
+				if (index[2].contains("Person")) {
+					indexes[2] = "per";
+				}
+				if (index[2].contains("Location")) {
+					indexes[2] = "loc";
+				}
+				entityIndexes.add(indexes);
+			}
+		}
+
+		return entityIndexes;
 	 }
 	 
 	 public static void findCoreferences(String inputFile) throws Exception{
@@ -192,6 +195,19 @@ public class Corefinizer {
 		     sentenceMap.put(sentenceCounter, sentence);
 		     sentenceCounter++;
 		 }
+		 // bypassing sentence segmentation because the tubaDZ is already tokenised. Use only for evaluation, when tokenisation is done already (e.g., whitespace-splitting results in a proper token list)
+//		 String[] sentences = everything.split("\n");
+//		 int i = 0;
+//		 for (String s : sentences){
+//			 SpanWord ss = new SpanWord(s, i, i+s.length());
+//			 sentenceMap.put(sentenceCounter, ss);
+//			 i += s.length()+1;
+//			 sentenceCounter++;
+//		 }
+		 
+		 
+		 
+		 
 		 //get all the NPs and PPERs and make them into mentions. Pack the mentions in sentence-packages in the right order. 
 		 //(Walk trough the mention and make each mention its own cluster)
 		 
@@ -201,6 +217,7 @@ public class Corefinizer {
 		 
 		 //everything that happens in this loop works per sentence
 		 for (Map.Entry<Integer, SpanWord> entry : sentenceMap.entrySet()){
+//			 try{ //try/catch for evaluation
 	 
 			 //clean text before giving it to the parser to avoid errors with quotation marks and brackets later
 			 //String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
@@ -286,7 +303,10 @@ public class Corefinizer {
 //					 System.out.println(c.getContents()+" index: "+c.getStartIndex()+"-"+c.getEndIndex());
 //				 }
 //			 }
-		 } 
+//		 } catch(Exception e){
+//			 System.out.println("WARNING: Processing failed for: " + entry.getValue().getText());
+//		 }
+		 }
 		 
 		 
 		 //Put the NER tags into the Coref Mentions
@@ -529,10 +549,12 @@ public class Corefinizer {
 			}
 		//}
 			}
-		 prepareConll(clusterIdMap,CorefUtils.getWordNumbers(inputFile));
+		 prepareConll(clusterIdMap,CorefUtils.getWordNumbers(inputFile), everything, sentenceMap);
 
 	 }
 	 
+	 
+	
 		 
 	
 	 public static void compareMentionsWithinSentence(LinkedHashSet<CorefMention> a, int sieveNumber) throws FileNotFoundException{
@@ -1203,30 +1225,69 @@ public class Corefinizer {
 		 
 	 } 
 	 
-	 public static void prepareConll(TreeMap<Integer,CorefCluster> idMap,Map<Integer,Integer[]> wordIndexMap){
-		 Map<Integer, List<Integer>> wordClusterMap = new TreeMap<>();
-		 
-			//List<Integer> clusterList = new LinkedList<>();
-		 for (Entry<Integer,Integer[]> i : wordIndexMap.entrySet()){
+	public static void prepareConll(TreeMap<Integer, CorefCluster> idMap, Map<Integer, Integer[]> wordIndexMap,	String completeText, TreeMap<Integer, SpanWord> sentenceMap) {
+		
+		PrintWriter conllOut = null;
+		try{
+		 conllOut = new PrintWriter("C:\\Users\\pebo01\\Desktop\\corefConll.txt");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		Map<Integer, List<Integer>> wordClusterMap = new TreeMap<>();
+		HashMap<Integer, Integer> index2sentence = new HashMap<Integer, Integer>();
+		for (int sentId : sentenceMap.keySet()){
+			int sentStart = sentenceMap.get(sentId).getStartSpan();
+			int sentEnd = sentenceMap.get(sentId).getEndSpan();
+			for (int i = sentStart; i < sentEnd; i++){
+				index2sentence.put(i, sentId);
+			}
+		}
+		for (Entry<Integer, Integer[]> i : wordIndexMap.entrySet()) {
 			Integer[] array = i.getValue();
 
 			List<Integer> clusterList = new LinkedList<>();
-			for (Entry<Integer,CorefCluster> c : idMap.entrySet()){
+			for (Entry<Integer, CorefCluster> c : idMap.entrySet()) {
 				CorefCluster cluster = c.getValue();
 				Set<CorefMention> mentions = cluster.getCorefMentions();
-				for (CorefMention m : mentions){
+				for (CorefMention m : mentions) {
 
-					if(array[0]>=m.getStartIndex()&&array[1]<=m.getEndIndex()){
+					if (array[0] >= m.getStartIndex() && array[1] <= m.getEndIndex()) {
 						clusterList.add(m.getClusterID());
-//						System.out.println("ClusterID: "+m.getClusterID()+" Index: "+m.getStartIndex()+"|"+m.getEndIndex()
-//						+"\tArray "+array[0]+"|"+array[1]);
 					}
 				}
 			}
-		 wordClusterMap.put(i.getKey(), clusterList);
-		 }
-	wordClusterMap.forEach((k,v)->System.out.println("Wordnumber: "+k+" Clusternumbers: "+v.toString()));
-	 }
-	 
+			wordClusterMap.put(i.getKey(), clusterList);
+		}
+		int wid = 1;
+		int prevSentId = 1;
+		for (int k : wordClusterMap.keySet()){
+			int sid = index2sentence.get(wordIndexMap.get(k)[0]);
+			String cv = "-";
+			if (wordClusterMap.get(k).size() > 0){
+				cv = Joiner.on(",").join(wordClusterMap.get(k));
+			}
+			if (sid == prevSentId){
+				//System.out.println(String.format("%s\t%s\t%s\t%s", Integer.toString(sid), wid, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), wordClusterMap.get(k).toString()));
+				conllOut.write(String.format("%s\t%s\t%s\t%s\n", Integer.toString(sid), wid, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), cv));
+				prevSentId = sid;
+				wid++;
+			}
+			else{
+				wid = 1;
+				//System.out.println(String.format("\n%s\t%s\t%s\t%s", Integer.toString(sid), wid, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), wordClusterMap.get(k).toString()));
+				conllOut.write(String.format("\n%s\t%s\t%s\t%s\n", Integer.toString(sid), wid, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), cv));
+				wid++;
+				prevSentId = sid;
+			}
+			//System.out.println(String.format("%s\t%s\t%s\t%s", Integer.toString(sid), k, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), wordClusterMap.get(k).toString()));
+		}
+		try{
+			conllOut.close();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		//wordClusterMap.forEach((k, v) -> System.out.println(String.format("%s\t%s\t%s\t%s", "sid", k, completeText.substring(wordIndexMap.get(k)[0], wordIndexMap.get(k)[1]), v.toString())));
+	}	 
 
 }
