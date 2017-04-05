@@ -5,6 +5,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.FileReadUtilities;
 import de.dkt.common.tools.ParameterChecker;
+import de.dkt.eservices.eopennlp.EOpenNLPService;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
@@ -27,6 +28,7 @@ import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +43,9 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 public class ERattlesnakeNLPService {
     
 	Logger logger = Logger.getLogger(ERattlesnakeNLPService.class);
+	
+	@Autowired
+	EOpenNLPService openNLPService;
 
 	public ResponseEntity<String> segmentParagraphs(String inputFile, String language) {
 		ResponseEntity<String> responseCode = null;
@@ -98,6 +103,51 @@ public class ERattlesnakeNLPService {
 		
 		return nifModel;
 
+	}
+	
+	public Model extractEvents(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
+
+		try{
+			String prefix = "";
+			Model auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+					languageParam, 
+					"ner", 
+					"ner-wikinerEn_PER;ner-wikinerEn_LOC;ner-wikinerEn_ORG",  
+					inFormat, 
+					"all", 
+					prefix);
+			auxModel = openNLPService.analyze(NIFReader.extractIsString(auxModel), 
+					languageParam, 
+					"temp", 
+					"englishDates",
+					inFormat, 
+					"all", 
+					prefix);
+			
+			ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
+			ert = RelationExtraction.getDirectRelationsNIF(auxModel, languageParam, ert);
+			for (EntityRelationTriple t : ert){
+				if (t.getRelation() != null && t.getSubject() != null && t.getObject() != null && t.getLemma() != null){ // TODO: find out why there is an empty first item in this list
+					NIFWriter.addAnnotationRelation(auxModel, t.getStartIndex(), t.getEndIndex(), t.getRelation(), t.getSubject(), t.getLemma(), t.getObject(), t.getThemRoleSubj(), t.getThemRoleObj());
+				}
+			}
+			
+			//Combine the entities of NER with the elements in the relation extraction.
+			
+			
+			
+			//Do some timelining????
+			
+			
+			//Do some .....
+
+			
+			return auxModel;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return nifModel;
+		}
 	}
 	
 	
