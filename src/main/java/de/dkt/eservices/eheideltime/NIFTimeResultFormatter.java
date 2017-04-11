@@ -18,18 +18,16 @@ import de.unihd.dbs.uima.types.heideltime.Timex3Interval;
 /**
  * Result formatter based on TimeML. 
  */ 
-public class JavaTimeResultFormatter implements ResultFormatter { 
+public class NIFTimeResultFormatter implements ResultFormatter { 
 	private TreeMap<Integer, Timex3Interval> intervals = new TreeMap<Integer, Timex3Interval>(); 
 	private TreeMap<Integer, Timex3> forwardTimexes = new TreeMap<Integer, Timex3>(); 
 
-	public String format(JCas jcas) throws Exception {
+	public String format(JCas jcas) throws Exception { 
 		final String documentText = jcas.getDocumentText(); 
 		String outText = new String(); 
 
 		// get the timex3 intervals, do some pre-selection on them 
-		FSIterator iterIntervals = jcas.getAnnotationIndex(Timex3Interval.type) 
-				.iterator(); 
-
+		FSIterator iterIntervals = jcas.getAnnotationIndex(Timex3Interval.type).iterator(); 
 		intervals.clear(); 
 
 		while (iterIntervals.hasNext()) { 
@@ -37,10 +35,12 @@ public class JavaTimeResultFormatter implements ResultFormatter {
 
 			// disregard intervals that likely aren't a real interval, but just 
 			// a timex-translation 
-			if (t.getTimexValueEB().equals(t.getTimexValueLB()) 
-					&& t.getTimexValueEE().equals(t.getTimexValueLE())) 
-				continue; 
+//			if (t.getTimexValueEB().equals(t.getTimexValueLB()) 
+//					&& t.getTimexValueEE().equals(t.getTimexValueLE())) 
+//				continue; 
 
+			//We do not want to discard anything.
+			
 			if (intervals.containsKey(t.getBegin())) { 
 				Timex3Interval tInt = intervals.get(t.getBegin()); 
 

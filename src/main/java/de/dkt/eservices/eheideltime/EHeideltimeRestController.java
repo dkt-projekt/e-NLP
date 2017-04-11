@@ -25,8 +25,10 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 import de.dkt.common.feedback.InteractionManagement;
 import de.dkt.common.niftools.DKTNIF;
+import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.tools.ParameterChecker;
 import eu.freme.common.conversion.rdf.RDFConstants;
+import eu.freme.common.conversion.rdf.RDFConversionService;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 import eu.freme.common.rest.BaseRestController;
@@ -40,6 +42,9 @@ public class EHeideltimeRestController extends BaseRestController {
 	
 	@Autowired
 	EHeideltimeService service;
+	
+	@Autowired
+	RDFConversionService rdfConversionService;
 	
 	@RequestMapping(value = "/e-heideltime/testURL", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<String> testURL(
@@ -75,8 +80,7 @@ public class EHeideltimeRestController extends BaseRestController {
             @RequestBody(required = false) String postBody) throws Exception {
         
 		// Check the language parameter.
-		ParameterChecker.checkInList(language, "en;de", "language", logger);
-        ParameterChecker.checkNotNullOrEmpty(models, "models", logger);
+		ParameterChecker.checkInList(language, "en;de;fr;es", "language", logger);
         if (input == null) {
 			input = i;
 		}
@@ -93,19 +97,6 @@ public class EHeideltimeRestController extends BaseRestController {
 			prefix = DKTNIF.getDefaultPrefix();
 		}
 
-//        if(analysis == null) {
-//			String msg = "Unspecified analysis type.";
-//			logger.error(msg);
-//			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", msg, "", "Exception", msg, "");
-//			throw new BadRequestException(msg);
-//        }
-//        else if (analysis.equalsIgnoreCase("dict") || analysis.equalsIgnoreCase("temp")){
-//        	// mode in combination with dict or temp analysis makes no sense. Possibly may want to tell this to the user here... (But now mode is set to all by default, so this will always be triggered, also when user did not specify mode
-//        	//if (mode != null){
-//        		//throw new BadRequestException("Analysis type " + analysis + " in combination with mode " + mode + " not supported.");
-//        	//}
-//        }
-        
         if(allParams.get("input")==null){
         	allParams.put("input", input);
         }
@@ -118,15 +109,16 @@ public class EHeideltimeRestController extends BaseRestController {
         if(allParams.get("prefix")==null){
         	allParams.put("prefix", prefix);
         }
-        
+        Model inModel = null;
         NIFParameterSet nifParameters = this.normalizeNif(postBody, acceptHeader, contentTypeHeader, allParams, false);
-        
         String textForProcessing = null;
+        Model outModel = null;
         if (nifParameters.getInformat().equals(RDFConstants.RDFSerialization.PLAINTEXT)) {
             textForProcessing = nifParameters.getInput();
+        	outModel = service.annotateTimeInText(textForProcessing, language, nifParameters.getPrefix());
         } else {
-            //inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
-        	textForProcessing = postBody;
+            inModel = rdfConversionService.unserializeRDF(nifParameters.getInput(), nifParameters.getInformat());
+        	textForProcessing = NIFReader.extractIsString(inModel);
             if (textForProcessing == null) {
     			String msg = "No text to process.";
     			logger.error(msg);
@@ -134,11 +126,10 @@ public class EHeideltimeRestController extends BaseRestController {
     					"", "Exception", msg, "");
     			throw new BadRequestException(msg);
             }
+        	outModel = service.annotateTime(inModel, language);
         }
         
-        
         try {
-        	Model outModel = service.analyze(textForProcessing, language, analysis, models, nifParameters.getInformat(), mode, nifParameters.getPrefix());
             outModel.removeAll(null, RDF.type, OWL.ObjectProperty);
             outModel.removeAll(null, RDF.type, OWL.DatatypeProperty);
             outModel.removeAll(null, RDF.type, OWL.Class);
@@ -148,14 +139,14 @@ public class EHeideltimeRestController extends BaseRestController {
                 Resource res = resIter.next();
                 outModel.removeAll(res, null, (RDFNode) null);
             }
-    		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "e-NLP/openNLP/namedEntityRecognition", "Success", "", "", "", "");
+    		InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "usage", "/e-heideltime/analyze", "Success", "", "", "", "");
             return createSuccessResponse(outModel, nifParameters.getOutformat());
         } catch (BadRequestException e) {
-			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", e.getMessage(), "", "Exception", e.getMessage(), "");
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "/e-heideltime/analyze", e.getMessage(), "", "Exception", e.getMessage(), "");
         	logger.error(e.getMessage());
             throw e;
         } catch (ExternalServiceFailedException e) {
-			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e-NLP/openNLP/namedEntityRecognition", e.getMessage(), "", "Exception", e.getMessage(), "");
+			InteractionManagement.sendInteraction("dkt-usage@"+request.getRemoteAddr(), "error", "e/e-heideltime/analyze", e.getMessage(), "", "Exception", e.getMessage(), "");
         	logger.error(e.getMessage());
             throw e;
         }
