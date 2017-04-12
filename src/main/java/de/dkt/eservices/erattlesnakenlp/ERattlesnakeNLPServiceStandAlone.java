@@ -255,9 +255,9 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
         return response;
 	}
 	
-	@RequestMapping(value = "/e-nlp/extractEvents", method = {
+	@RequestMapping(value = "/e-nlp/detectEvents", method = {
             RequestMethod.POST, RequestMethod.GET })
-	public ResponseEntity<String> extractEvents(
+	public ResponseEntity<String> detectEvents(
 			HttpServletRequest request,
 			@RequestParam(value = "input", required = false) String input,
 			   @RequestParam(value = "i", required = false) String i,
@@ -316,7 +316,7 @@ public class ERattlesnakeNLPServiceStandAlone extends BaseRestController {
 				throw new BadRequestException("Check the input format ["+nifParameters.getInformat()+"]!!");
 			}
         }
-        Model nifModel = service.extractEvents(inModel, language, nifParameters.getInformat());
+        Model nifModel = service.detectEvents(inModel, language, nifParameters.getInformat());
 		HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Content-Type", nifParameters.getOutformatString());
         ResponseEntity<String> response = new ResponseEntity<String>(NIFReader.model2String(nifModel, nifParameters.getOutformat()), responseHeaders, HttpStatus.OK);

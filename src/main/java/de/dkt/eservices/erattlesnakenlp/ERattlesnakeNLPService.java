@@ -5,6 +5,7 @@ import de.dkt.common.niftools.NIFReader;
 import de.dkt.common.niftools.NIFWriter;
 import de.dkt.common.tools.FileReadUtilities;
 import de.dkt.common.tools.ParameterChecker;
+import de.dkt.eservices.eheideltime.EHeideltimeService;
 import de.dkt.eservices.eopennlp.EOpenNLPService;
 import de.dkt.eservices.eopennlp.modules.DictionaryNameF;
 import de.dkt.eservices.eopennlp.modules.NameFinder;
@@ -15,6 +16,7 @@ import de.dkt.eservices.erattlesnakenlp.linguistic.RelationExtraction;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
 import eu.freme.common.conversion.rdf.RDFConstants;
+import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 
@@ -46,6 +48,9 @@ public class ERattlesnakeNLPService {
 	
 	@Autowired
 	EOpenNLPService openNLPService;
+
+	@Autowired
+	EHeideltimeService heideltimeService;
 
 	public ResponseEntity<String> segmentParagraphs(String inputFile, String language) {
 		ResponseEntity<String> responseCode = null;
@@ -105,8 +110,7 @@ public class ERattlesnakeNLPService {
 
 	}
 	
-	public Model extractEvents(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
-
+	public Model detectEvents(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
 		try{
 			String prefix = "";
 			Model auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
@@ -116,14 +120,13 @@ public class ERattlesnakeNLPService {
 					inFormat, 
 					"all", 
 					prefix);
-			auxModel = openNLPService.analyze(NIFReader.extractIsString(auxModel), 
-					languageParam, 
-					"temp", 
-					"englishDates",
-					inFormat, 
-					"all", 
-					prefix);
 			
+			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+			
+			auxModel = heideltimeService.annotateTime(auxModel, languageParam);
+
+			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+
 			ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 			ert = RelationExtraction.getDirectRelationsNIF(auxModel, languageParam, ert);
 			for (EntityRelationTriple t : ert){
@@ -134,13 +137,19 @@ public class ERattlesnakeNLPService {
 			
 			//Combine the entities of NER with the elements in the relation extraction.
 			
+			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 			
 			
 			//Do some timelining????
 			
 			
+			
+			
+			
 			//Do some .....
 
+			
+			
 			
 			return auxModel;
 		}
