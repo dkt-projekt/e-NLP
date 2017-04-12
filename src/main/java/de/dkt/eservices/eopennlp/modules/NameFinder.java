@@ -11,10 +11,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -412,70 +415,100 @@ public class NameFinder {
 //			  return new String(encoded, encoding);
 //			}
 	
-	public static void main(String[] args) {
+	public static String[] staticreadLines(String filename) throws IOException {
+		FileReader fileReader = new FileReader(filename);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		List<String> lines = new ArrayList<String>();
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			lines.add(line);
+		}
+		bufferedReader.close();
+		return lines.toArray(new String[lines.size()]);
+	}
+	
+	public static void main(String[] args) throws IOException {
 		
+//		Charset charset = Charset.forName("UTF-8");
+//		ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStream("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\opennlp.train"), charset);
+//		ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
+//
+//		String modelName = "namedEventModel";
+//		TokenNameFinderModel model;
+//		OutputStream modelOut = null;
+//		File newModel = null;
+//		newModel = new File("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
+//		newModel.createNewFile();
 //		try {
-//			PrintWriter out = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
-//			for (int i = 0; i < 1000; i++){
-//				//System.out.println(i);
-//				System.gc();
-//				MemoryUsage m_inter_initial = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-//				String text = "aap noot mies";
-//				Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(text, "en-sent.bin");
-//				for (Span sentenceSpan : sentenceSpans) {
-//					String sentence = text.substring(sentenceSpan.getStart(), sentenceSpan.getEnd());
-//					Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sentence);
-//				}
-//				MemoryUsage m_inter_end = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-//				out.println(i + "\t" + m_inter_initial.getUsed() +"\t"+ m_inter_end.getUsed());
-//				System.gc();
-//			}
-//			out.close();
-//		} catch (FileNotFoundException e) {
+//			
+//			TrainingParameters tp = new TrainingParameters();
+//			tp.put(TrainingParameters.CUTOFF_PARAM, "1");
+//			tp.put(TrainingParameters.ITERATIONS_PARAM, "10");//100
+//			TokenNameFinderFactory tnff = new TokenNameFinderFactory();
+//			model = NameFinderME.train("en", modelName, sampleStream, tp, tnff);
+//			
+//			modelOut = new BufferedOutputStream(new FileOutputStream(newModel));
+//			model.serialize(modelOut);
+//		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
+//		} finally {
+//			sampleStream.close();
+//			if (modelOut != null)
+//				modelOut.close();
 //		}
 
-		//		String nifString = 
-		//				"@prefix dktnif: <http://dkt.dfki.de/ontologies/nif#> .\n" +
-		//						"@prefix geo:   <http://www.w3.org/2003/01/geo/wgs84_pos/> .\n" +
-		//						"@prefix dbo:   <http://dbpedia.org/ontology/> .\n" +
-		//						"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
-		//						"@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n" +
-		//						"@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .\n" +
-		//						"@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .\n" +
-		//						"@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n" +
-		//						"@prefix time:  <http://www.w3.org/2006/time#> .\n" +
-		//						"<http://freme-project.eu/#char=11,18>\n" +
-		//						"        a                     nif:String , nif:RFC5147String , nif:Phrase ;\n" +
-		//						"        nif:anchorOf          \"Antwerp\"@en ;\n" +
-		//						"        nif:beginIndex        \"11\"^^xsd:nonNegativeInteger ;\n" +
-		//						"        nif:endIndex          \"18\"^^xsd:nonNegativeInteger ;\n" +
-		//						"        nif:referenceContext  <http://freme-project.eu/#char=0,41> ;\n" +
-		//						"        itsrdf:translate \"false\";\n" +
-		//						"        itsrdf:taClassRef     <http://dbpedia.org/ontology/Place> ;\n" +
-		//						"        itsrdf:taIdentRef     <http://dbpedia.org/resource/Antwerp> .\n";
-		//		
-		//		
-		//				
-		//		try {
-		//			Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
-		//			for (String[] sa : NIFReader.extractEntityIndices(nifModel)){
-		//				//System.out.println(Arrays.toString(sa));
-		//				String arabicLabel = Sparqler.getDBPediaLabelForLanguage(sa[0], "ar");
-		//				if (arabicLabel != null){
-		//					NIFWriter.addEntityProperty(nifModel, Integer.parseInt(sa[3]), Integer.parseInt(sa[4]), "http://freme-project.eu/", arabicLabel, RDFS.arabicLabel, XSDDatatype.XSDnormalizedString);
-		//					System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
-		//				}
-		//			}
-		//		} catch (Exception e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-//		System.out.println("Done!");
-				
 		
+		///////////////////spotting section
+		NameFinderME nameFinder = null;
+		InputStream tnfNERModel;
+		File modelbin = FileFactory.generateOrCreateFileInstance("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
+		tnfNERModel = new FileInputStream(modelbin);
+		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+		nameFinder = new NameFinderME(tnfModel);
+		tnfNERModel.close();
+		
+		
+		String folder = "C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\forsabine";
+		PrintWriter debug = new PrintWriter("C:\\Users\\pebo01\\Desktop\\debug.txt");
+		File df = FileFactory.generateOrCreateDirectoryInstance(folder);
+		for (File f : df.listFiles()) {
+			String[] lines = staticreadLines(f.getAbsolutePath());
+			for (String l : lines){
+				String[] sents = SentenceDetector.detectSentences(l, "en-sent.bin");
+				for (String sent : sents){
+					//System.out.println("Sentence:" + sent);
+					debug.println(sent);
+					Span tokenSpans[] = Tokenizer.simpleTokenizeIndices(sent);
+					String tokens[] = Span.spansToStrings(tokenSpans, sent);
+					Span[] nameSpans;
+					synchronized (nameFinder) {
+						nameSpans = nameFinder.find(tokens);
+					}
+					//Span[] nameSpans = nameFinder.find(tokens);
+					for (Span s : nameSpans){
+						int nameStartIndex = 0;
+						int nameEndIndex = 0;
+						for (int i = 0; i <= tokenSpans.length; i++) {
+							if (i == s.getStart()) {
+								nameStartIndex = tokenSpans[i].getStart();
+							} else if (i == s.getEnd()) {
+								nameEndIndex = tokenSpans[i - 1].getEnd();
+							}
+						}
+						debug.println("\tFound entity: " + sent.substring(nameStartIndex, nameEndIndex));
+						//System.out.println("Found:" + sent.substring(nameStartIndex, nameEndIndex));
+					}
+				}
+			}
+			System.out.println("INFO: Processed file " + f.getName());
+		}
+		System.out.println("INFO: Done.");
+		
+				
 	}
+	
+	
 
 
 }

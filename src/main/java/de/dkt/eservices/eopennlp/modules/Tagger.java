@@ -67,8 +67,10 @@ public class Tagger {
 		POSModel model = null;
 		InputStream dataIn = null;
 		try {
+
 		  dataIn = new FileInputStream(trainDataCPR.getPath());
 		  ObjectStream<String> lineStream =	new PlainTextByLineStream((InputStreamFactory) dataIn, "UTF-8");
+
 		  //dataIn = new FileInputStream(trainDataCPR.getPath());
 		  InputStreamFactory isf = new InputStreamFactory() {
 	            public InputStream createInputStream() throws IOException {
@@ -79,7 +81,7 @@ public class Tagger {
 		  //ObjectStream<String> lineStream =	new PlainTextByLineStream((isf, "UTF-8");
 		  ObjectStream<POSSample> sampleStream = new WordTagSampleStream(lineStream);
 
-		  model = POSTaggerME.train("en", sampleStream, ModelType.MAXENT, null, null, 100, 5);
+		  model = POSTaggerME.train("en", sampleStream, null, null);
 		}
 		catch (IOException e) {
 		  e.printStackTrace();

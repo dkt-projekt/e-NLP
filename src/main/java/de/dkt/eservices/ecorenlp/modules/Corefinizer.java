@@ -5,8 +5,7 @@ import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
-import edu.stanford.nlp.util.Pair;
-import edu.stanford.nlp.dcoref.MentionExtractor;
+import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import opennlp.tools.util.Span;
 
@@ -26,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 
@@ -35,15 +35,10 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.eservices.eopennlp.modules.SentenceDetector;
+import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
-import edu.stanford.nlp.ling.Label;
-import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.trees.Dependency;
-import edu.stanford.nlp.trees.LabeledScoredTreeNode;
-import edu.stanford.nlp.trees.Tree;
-import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import opennlp.tools.util.Span;
+
+import de.dkt.eservices.eopennlp.modules.NameFinder;
 
 @SuppressWarnings("deprecation")
 public class Corefinizer {
@@ -66,8 +61,8 @@ public class Corefinizer {
 //		 for (Dependency<Label,Label,Object> dep : tree.dep){
 //			 System.out.println(dep.dependent());
 //		 }
-		 
-		 findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tubaFirst5kSents.txt");
+		 findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\corefEvaluation\\tuba5kSubset.txt");
+		 //findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tubaVerySmallPlaintext.txt");
 		 
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\annotations\\7.txt");
@@ -140,15 +135,25 @@ public class Corefinizer {
 	 
 	 public static LinkedHashSet<String[]> getNamedEntityIndexes(String inputString) throws Exception{
 			
-			HttpResponse<String> response = Unirest
-					.post("https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition")
-					.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG")
-					.queryString("analysis", "ner").queryString("language", "de").queryString("mode", "spot")
-					.body(inputString).asString();
-
-			String nifString = response.getBody();
-		// System.out.println(nifString);
-		Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+//			HttpResponse<String> response = Unirest
+//					.post("https://api.digitale-kuratierung.de/api/e-nlp/namedEntityRecognition")
+//					.queryString("models", "ner-de_aij-wikinerTrainLOC;ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG")
+//					.queryString("analysis", "ner").queryString("language", "de").queryString("mode", "spot")
+//					.body(inputString).asString();
+//
+//			String nifString = response.getBody();
+		 // PB: better not to make this dependent on availability of the live server
+		 
+		//System.out.println(nifString);
+		//Model nifModel = NIFReader.extractModelFromFormatString(nifString, RDFSerialization.TURTLE);
+		ArrayList<String> statModels = new ArrayList<String>();
+		statModels.add("ner-de_aij-wikinerTrainLOC.bin");
+		statModels.add("ner-de_aij-wikinerTrainPER.bin");
+		statModels.add("ner-de_aij-wikinerTrainORG.bin");
+		NameFinder nameFinder = new NameFinder();
+		Model nifModel = NIFWriter.initializeOutputModel();
+		NIFWriter.addInitialString(nifModel, inputString, null);
+		nifModel = nameFinder.spotEntitiesNIF(nifModel, statModels, "en-sent.bin", "en");
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
 
 		LinkedHashSet<String[]> entityIndexes = new LinkedHashSet<>();
@@ -186,24 +191,24 @@ public class Corefinizer {
 		 String sent = new String();
 		 int sentenceCounter = 1;
 		 
-		 Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
-		 for (Span sentenceSpan : sentenceSpans){
-			 int sentenceStart = sentenceSpan.getStart();
-		     int sentenceEnd = sentenceSpan.getEnd();
-		     sent = everything.substring(sentenceStart, sentenceEnd);
-		     SpanWord sentence = new SpanWord(sent,sentenceStart,sentenceEnd);
-		     sentenceMap.put(sentenceCounter, sentence);
-		     sentenceCounter++;
-		 }
-		 // bypassing sentence segmentation because the tubaDZ is already tokenised. Use only for evaluation, when tokenisation is done already (e.g., whitespace-splitting results in a proper token list)
-//		 String[] sentences = everything.split("\n");
-//		 int i = 0;
-//		 for (String s : sentences){
-//			 SpanWord ss = new SpanWord(s, i, i+s.length());
-//			 sentenceMap.put(sentenceCounter, ss);
-//			 i += s.length()+1;
-//			 sentenceCounter++;
+//		 Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(everything, "en-sent.bin");
+//		 for (Span sentenceSpan : sentenceSpans){
+//			 int sentenceStart = sentenceSpan.getStart();
+//		     int sentenceEnd = sentenceSpan.getEnd();
+//		     sent = everything.substring(sentenceStart, sentenceEnd);
+//		     SpanWord sentence = new SpanWord(sent,sentenceStart,sentenceEnd);
+//		     sentenceMap.put(sentenceCounter, sentence);
+//		     sentenceCounter++;
 //		 }
+		 // bypassing sentence segmentation because the tubaDZ is already tokenised. Use only for evaluation, when tokenisation is done already (e.g., whitespace-splitting results in a proper token list)
+		 String[] sentences = everything.split("\n");
+		 int i = 0;
+		 for (String s : sentences){
+			 SpanWord ss = new SpanWord(s, i, i+s.length());
+			 sentenceMap.put(sentenceCounter, ss);
+			 i += s.length()+1;
+			 sentenceCounter++;
+		 }
 		 
 		 
 		 
@@ -323,8 +328,38 @@ public class Corefinizer {
 			 		}
 			 	}
 		 }
+		 //deleting any cluster that does not contain a single mention that has been recognized as an entity (or contains a substring that was, like "AWO-mitarbeiterin")
+//		 System.out.println("debugging number of clusters before:" + clusterIdMap.size());
+		 ArrayList<Integer> deleteKeys = new ArrayList<Integer>();
+		 ArrayList<CorefMention> deletedMentions = new ArrayList<CorefMention>();
+		 for (Integer key : clusterIdMap.keySet()){
+			 CorefCluster cc = clusterIdMap.get(key);
+			 boolean keep = false;
+			 for (CorefMention cm : cc.getCorefMentions()){
+				 if (cm.getNerTags() != null){
+					 keep = true;
+				 }
+			 }
+			 if (!keep){
+				 deleteKeys.add(key);
+			 }
+		 }
 		 
-
+		 for (int k : deleteKeys){
+			 for (CorefMention cm : clusterIdMap.get(k).getCorefMentions()){
+				 deletedMentions.add(cm);
+			 }
+			 clusterIdMap.remove(k);
+			 sentenceOrderMap.remove(k); // apparently this doesn't cut the mustard, extra cleaning needed (lines below)
+		 }
+		 for (int j : sentenceOrderMap.keySet()){
+			 for (CorefMention cm : deletedMentions){
+				 sentenceOrderMap.get(j).remove(cm);
+			 }
+		 }
+		 
+		 
+//		 System.out.println("debugging number of clusters after:" + clusterIdMap.size());
 		 
 		 //Put a cluster in the first sieve. Let the sieve walk trough the antecedent mentions. Clusters may merge.
 		
@@ -666,7 +701,7 @@ public class Corefinizer {
 		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
 		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
 		 
-		 if(twoClusterContents.matches(".*\\b"+oneHead+"\\b.*")){
+		 if(twoClusterContents.matches(".*\\b"+Pattern.quote(oneHead)+"\\b.*")){
 			 first = true;
 		 }
 		 
@@ -769,7 +804,7 @@ public class Corefinizer {
 		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
 		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
 		 
-		 if(twoClusterContents.matches(".*\\b"+oneHead+"\\b.*")){
+		 if(twoClusterContents.matches(".*\\b"+Pattern.quote(oneHead)+"\\b.*")){
 			 first = true;
 		 }
 		 
@@ -817,7 +852,7 @@ public class Corefinizer {
 		 CorefCluster clusterOfTwo = clusterIdMap.get(two.getClusterID());
 		 String twoClusterContents = clusterOfTwo.getContentsOfClusterAsString();
 		 
-		 if(twoClusterContents.matches(".*\\b"+oneHead+"\\b.*")){
+		 if(twoClusterContents.matches(".*\\b"+Pattern.quote(oneHead)+"\\b.*")){
 			 first = true;
 		 }
 		 
@@ -864,7 +899,7 @@ public class Corefinizer {
 		 
 		 if(!(one.getNerTags()==null)&&!(two.getNerTags()==null)&&
 				 one.getNerTags()[2].equals(two.getNerTags()[2])){
-		 	if(twoClusterContents.matches(".*\\b"+oneContents+"\\b.*")){
+		 	if(twoClusterContents.matches(".*\\b"+Pattern.quote(oneContents)+"\\b.*")){
 			 first = true;
 		 	}
 		 }

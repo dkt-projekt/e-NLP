@@ -34,6 +34,7 @@ import opennlp.tools.tokenize.TokenSampleStream;
 import opennlp.tools.tokenize.TokenizerFactory;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
@@ -143,6 +144,23 @@ public class Tokenizer {
 		Span[] tokens = tokenizer.tokenizePos(inputText);
 		return tokens;
 	}
+	
+	public static Span[] whitespaceTokenizeIndices(String inputText) throws ExternalServiceFailedException {
+		
+		String[] tokens = WhitespaceTokenizer.INSTANCE.tokenize(inputText);
+		//String[] tokens = inputText.split(" ");
+		Span[] tokenSpans = new Span[tokens.length];
+		int j = 0;
+		for (int i = 0; i < tokens.length; i++){
+			String tok = tokens[i];
+			Span t = new Span(j, j+tok.length());
+			j += tok.length() + 1;
+			tokenSpans[i] = t;
+		}
+		
+		return tokenSpans;
+	}
+	
 
 	public static String[] simpleTokenizeInput(String inputText) throws ExternalServiceFailedException {
 		SimpleTokenizer tokenizer= new SimpleTokenizer();
