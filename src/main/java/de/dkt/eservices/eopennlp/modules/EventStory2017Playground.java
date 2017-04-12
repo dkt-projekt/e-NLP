@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,6 +18,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.base.Joiner;
 
@@ -26,6 +35,7 @@ import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
 import de.dkt.eservices.erattlesnakenlp.linguistic.DepParserTree;
 import de.dkt.eservices.erattlesnakenlp.linguistic.StanfordLemmatizer;
+import de.dkt.eservices.erattlesnakenlp.modules.RattleSpan;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
@@ -34,15 +44,18 @@ import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalRelation;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
+import opennlp.tools.cmdline.namefind.TokenNameFinderModelLoader;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
+
 
 public class EventStory2017Playground {
 
@@ -80,7 +93,12 @@ public class EventStory2017Playground {
 		
 
 		Charset charset = Charset.forName("UTF-8");
-		ObjectStream<String> lineStream = new PlainTextByLineStream(new FileInputStream(filePath), charset);
+		InputStreamFactory isf = new InputStreamFactory() {
+            public InputStream createInputStream() throws IOException {
+                return new FileInputStream(filePath);
+            }
+        };
+		ObjectStream<String> lineStream = new PlainTextByLineStream(isf, charset);
 		ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
 		OutputStream modelOut = null;
 		File newModel = null;
@@ -153,6 +171,7 @@ public class EventStory2017Playground {
 		File modelbin = FileFactory.generateOrCreateFileInstance("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\" + File.separator + modelName + ".bin");
 		tnfNERModel = new FileInputStream(modelbin);
 		TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
+		
 		nameFinder = new NameFinderME(tnfModel);
 		tnfNERModel.close();
 		ArrayList<String> conllLines = new ArrayList<String>();
@@ -172,6 +191,7 @@ public class EventStory2017Playground {
 				}
 				ArrayList<String> names = new ArrayList<String>();
 				for (Span s : nameSpans){
+					String nameType = s.getType();
 					int nameStartIndex = 0;
 					int nameEndIndex = 0;
 					for (int i = 0; i <= tokenSpans.length; i++) {
@@ -181,6 +201,8 @@ public class EventStory2017Playground {
 							nameEndIndex = tokenSpans[i - 1].getEnd();
 						}
 					}
+					//System.out.println("DEBUG: recognized:" + sent.substring(nameStartIndex, nameEndIndex));
+					//System.out.println("DEBUG type:" + nameType);
 					for (String sub : sent.substring(nameStartIndex, nameEndIndex).split(" ")){
 						names.add(sub);
 					}
@@ -263,73 +285,87 @@ public class EventStory2017Playground {
 	}
 	
 	
-	public static ArrayList<Span> combineNamesWithDepgraphs(HashMap<List<TaggedWord>, GrammaticalStructure> gsMap, String modelPath){
+	public static NameFinderME initiateNameFinder(String modelPath){
 		
-		ArrayList<Span> nameSpans = new ArrayList<Span>();
-		
+		NameFinderME nameFinder = null;
+		//InputStream tnfNERModel;
+		File modelbin;
 		try {
-			NameFinderME nameFinder = null;
-			InputStream tnfNERModel;
-			File modelbin = FileFactory.generateOrCreateFileInstance(modelPath);
-			tnfNERModel = new FileInputStream(modelbin);
-			TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
-			nameFinder = new NameFinderME(tnfModel);
-			tnfNERModel.close();
-			for (List<TaggedWord> tagged : gsMap.keySet()){
-				List<String> sl = new ArrayList<String>();
-				for (TaggedWord tw : tagged){
-					sl.add(tw.word());
-				}
-				String sentence = Joiner.on(" ").join(sl);
-				Span[] tokenSpans = Tokenizer.whitespaceTokenizeIndices(sentence);
-				String tokens[] = Span.spansToStrings(tokenSpans, sentence);
-				System.out.println("Sentence: " + sentence);
-				Span[] ns = null;
-				synchronized (nameFinder) {
-					ns = nameFinder.find(tokens);
-				}
-				for (Span s : ns) {
-					int nameStartIndex = 0;
-					int nameEndIndex = 0;
-					for (int i = 0; i <= tokenSpans.length; i++) {
-						if (i == s.getStart()) {
-							nameStartIndex = tokenSpans[i].getStart();
-						} else if (i == s.getEnd()) {
-							nameEndIndex = tokenSpans[i - 1].getEnd();
-						}
-					}
-					String name = sentence.substring(nameStartIndex, nameEndIndex);
-					nameSpans.add(s);
-					System.out.println("\tEVENT FOUND: " + name);
-					for (TypedDependency td : gsMap.get(tagged).typedDependencies()){
-						GrammaticalRelation reln = td.reln();
-						IndexedWord gov = td.gov();
-						IndexedWord dep = td.dep();
-						if (!gov.value().equalsIgnoreCase("ROOT")) { // TODO: write another condition for this
-							int govStart = tagged.get(gov.index() - 1).beginPosition();
-							int govEnd = tagged.get(gov.index() - 1).endPosition();
-							int depStart = tagged.get(dep.index() - 1).beginPosition();
-							int depEnd = tagged.get(dep.index() - 1).endPosition();
-							System.out.println("name: " + nameStartIndex + "|" + nameEndIndex);
-							System.out.println("td:" + td);
-							System.out.println("gov: " + govStart + "|" + govEnd);
-							System.out.println("dep: " + depStart + "|" + depEnd);
-							if (nameStartIndex <= govStart && nameEndIndex >= govEnd) { // TODO: get some more suitable data/good example and work this out. (if found event is gov or dep, get governing node, get dep/gov from there and connect the two)
-								System.out.println("\tEntity is gov: " + gov.word());
-							} 
-							else if (nameStartIndex <= depStart && nameEndIndex >= depEnd) {
-								System.out.println("\tEntity is dep: " + dep.word());
-							}
-						}
-						
-					}
-				}
-				//}
-			}
+			modelbin = FileFactory.generateOrCreateFileInstance(modelPath);
+			//tnfNERModel = new FileInputStream(modelbin);
+			//TokenNameFinderModel tnfModel = new TokenNameFinderModel(tnfNERModel);
 			
+			TokenNameFinderModel model = new TokenNameFinderModelLoader().load(modelbin);
+			nameFinder = new NameFinderME(model);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+
+		return nameFinder;
+	}
+	
+	public static ArrayList<Span> combineNamesWithDepgraphs(HashMap<List<TaggedWord>, GrammaticalStructure> gsMap, NameFinderME nameFinder){
+		
+		ArrayList<Span> nameSpans = new ArrayList<Span>();
+		
+		nameFinder.clearAdaptiveData();
+		
+		//nameFinder = new NameFinderME(tnfModel);
+		//tnfNERModel.close();
+		for (List<TaggedWord> tagged : gsMap.keySet()){
+			List<String> sl = new ArrayList<String>();
+			for (TaggedWord tw : tagged){
+				sl.add(tw.word());
+			}
+			String sentence = Joiner.on(" ").join(sl);
+			Span[] tokenSpans = Tokenizer.whitespaceTokenizeIndices(sentence);
+			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+			System.out.println("Sentence: " + sentence);
+			Span[] ns = null;
+			//synchronized (nameFinder) {
+			//ns = nameFinder.find(tokens);
+			List<Span> names = new ArrayList<Span>();
+			Collections.addAll(names, nameFinder.find(tokens));
+			Span reducedNames[] = NameFinderME.dropOverlappingSpans(names.toArray(new Span[names.size()]));
+			//}
+			for (Span s : reducedNames) {
+				int nameStartIndex = 0;
+				int nameEndIndex = 0;
+				for (int i = 0; i <= tokenSpans.length; i++) {
+					if (i == s.getStart()) {
+						nameStartIndex = tokenSpans[i].getStart();
+					} else if (i == s.getEnd()) {
+						nameEndIndex = tokenSpans[i - 1].getEnd();
+					}
+				}
+				String name = sentence.substring(nameStartIndex, nameEndIndex);
+				nameSpans.add(s);
+				System.out.println("\tEVENT FOUND: " + name + " (type): " + s.getType());
+				for (TypedDependency td : gsMap.get(tagged).typedDependencies()){
+					GrammaticalRelation reln = td.reln();
+					IndexedWord gov = td.gov();
+					IndexedWord dep = td.dep();
+					if (!gov.value().equalsIgnoreCase("ROOT")) { // TODO: write another condition for this
+						int govStart = tagged.get(gov.index() - 1).beginPosition();
+						int govEnd = tagged.get(gov.index() - 1).endPosition();
+						int depStart = tagged.get(dep.index() - 1).beginPosition();
+						int depEnd = tagged.get(dep.index() - 1).endPosition();
+//							System.out.println("name: " + nameStartIndex + "|" + nameEndIndex);
+//							System.out.println("td:" + td);
+//							System.out.println("gov: " + govStart + "|" + govEnd);
+//							System.out.println("dep: " + depStart + "|" + depEnd);
+						if (nameStartIndex <= govStart && nameEndIndex >= govEnd) { // TODO: get some more suitable data/good example and work this out. (if found event is gov or dep, get governing node, get dep/gov from there and connect the two)
+//								System.out.println("\tEntity is gov: " + gov.word());
+						} 
+						else if (nameStartIndex <= depStart && nameEndIndex >= depEnd) {
+//								System.out.println("\tEntity is dep: " + dep.word());
+						}
+					}
+					
+				}
+			}
+			//}
 		}
 		
 		
@@ -365,16 +401,284 @@ public class EventStory2017Playground {
 		
 	}
 	
+	//TODO after lunch: take data from ankit, extract plaintext from ace xmls(sgmls) and check character indices of trigger verbs, calculate overlap. This will be very low. Next step would be to combine this with Jan's code of triggerverb extraction through dep parsing
+	
+	public static ArrayList<RattleSpan> extractEventSpansFromACEAnnotations(String fp){
+		
+		ArrayList<RattleSpan> eventSpans = new ArrayList<RattleSpan>();
+		
+		try {
+			File inputFile = new File(fp);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(inputFile);
+			doc.getDocumentElement().normalize();
+//			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+			//System.out.println("complete text:" + doc.getDocumentElement().getTextContent());
+			NodeList events = doc.getElementsByTagName("event");
+//			System.out.println("----------------------------");
+			for (int temp = 0; temp < events.getLength(); temp++) {
+				Node eventNode = events.item(temp);
+				//System.out.println("\nCurrent Element :" + nNode.getNodeName());
+				NodeList eventMentions = eventNode.getChildNodes();
+				for (int i = 0; i < eventMentions.getLength(); i++){
+					NodeList mentionSubnodes = eventMentions.item(i).getChildNodes();
+					for (int j = 0; j < mentionSubnodes.getLength(); j++){
+						if (mentionSubnodes.item(j).getNodeName().equalsIgnoreCase("anchor")){
+							String anchorText = mentionSubnodes.item(j).getTextContent();
+							//System.out.println("\nAnchortext: " + anchorText);
+							Node subnode = mentionSubnodes.item(j);
+							Node charseq = subnode.getChildNodes().item(1);
+							String startVal = charseq.getAttributes().getNamedItem("START").getNodeValue();
+							String endVal = charseq.getAttributes().getNamedItem("END").getNodeValue();
+							RattleSpan sp = new RattleSpan(Integer.parseInt(startVal), Integer.parseInt(endVal+1), anchorText); // the +1 because they have a somewhat weird convention in ACE...
+							eventSpans.add(sp);
+						}
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return eventSpans;
+
+	}
+	
+	public static String parseACE_SGML(String filePath){
+		
+		String fullText = "";
+		try{
+			File inputFile = new File(filePath);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(inputFile);
+			doc.getDocumentElement().normalize();
+			Element de = doc.getDocumentElement();
+			fullText = de.getTextContent();
+			//System.out.println(fullText);
+			//System.out.println("debug: " + fullText.substring(940,  943)); // NOTE that we have to do a +1 for end index for the words to match. Weird convention from ACE....
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		return fullText;
+	}
+	
+	public static Integer getWordCount(String plainText){
+		int wordCount = 0;
+		for (String sentence : SentenceDetector.detectSentences(plainText, "en-sent.bin")){
+			String[] tokens = Tokenizer.simpleTokenizeInput(sentence);
+			wordCount += tokens.length;
+		}
+		return wordCount;
+	}
+	public static Integer getSentenceCount(String plainText){
+		String[] sents =  SentenceDetector.detectSentences(plainText, "en-sent.bin");
+		return sents.length;
+	}
+	
+	public static ArrayList<RattleSpan> getRattleNameSpans(String plainText, NameFinderME nameFinder){
+		
+		ArrayList<RattleSpan> names = new ArrayList<RattleSpan>();
+		
+		nameFinder.clearAdaptiveData();
+		Span[] sentenceSpans = SentenceDetector.detectSentenceSpans(plainText, "en-sent.bin");
+		for (Span sentspan : sentenceSpans){
+			String sentence = plainText.substring(sentspan.getStart(), sentspan.getEnd());
+			Span[] tokenSpans = Tokenizer.simpleTokenizeIndices(sentence);
+			String tokens[] = Span.spansToStrings(tokenSpans, sentence);
+			Span[] nameSpans = nameFinder.find(tokens);
+			for (Span ns : nameSpans){
+				int nameStartIndex = 0;
+				int nameEndIndex = 0;
+				for (int i = 0; i <= tokenSpans.length; i++) {
+					if (i == ns.getStart()) {
+						nameStartIndex = tokenSpans[i].getStart() + sentspan.getStart();
+					} else if (i == ns.getEnd()) {
+						nameEndIndex = tokenSpans[i - 1].getEnd() + sentspan.getStart();
+					}
+				}
+				String nameText = plainText.substring(nameStartIndex, nameEndIndex);
+				RattleSpan rs = new RattleSpan(nameStartIndex, nameEndIndex, nameText);
+				names.add(rs);
+			}
+		}
+		return names;
+	}
+	
+	public static ArrayList<RattleSpan> matchACESpansWithEventNames(ArrayList<RattleSpan> ACENames, ArrayList<RattleSpan> eventNames){
+		
+		ArrayList<RattleSpan> overlap = new ArrayList<RattleSpan>();
+
+		for (RattleSpan eventNameSpan : eventNames) {
+			for (RattleSpan aceName : ACENames) {
+				if (eventNameSpan.getBegin() <= aceName.getBegin() && eventNameSpan.getEnd() >= aceName.getEnd()) {
+					overlap.add(eventNameSpan);
+				}
+
+			}
+		}
+		return overlap;		
+	}
+	
+	public static void getWikiCorpusTriggerVerbs(String trainingData){
+		
+		final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
+		Tagger.initTagger("en");
+		DepParserTree.initParser("en");
+		
+		HashMap<String, Integer> depMap = new HashMap<String, Integer>();
+		HashMap<String, Integer> govMap = new HashMap<String, Integer>();
+		
+		try {
+			String[] flines = staticreadLines(trainingData);
+			// not feeling like doing all this stuff with character indices, assuming that if a string is annotated as an event, it always is (within the same sentence, so assume that "This is <START:event> an event <END> and this is not an event" does not happen... (think that is reasonable)
+			for (String line : flines) {
+				Matcher m = Pattern.compile("<START:event> ([^<]+) <END>").matcher(line);
+				System.out.println(line);
+				ArrayList<String> namedEvents = new ArrayList<String>();
+				while (m.find()) {
+					String namedEvent = m.group(1);
+					namedEvents.add(namedEvent);
+				}
+				String newline = line.replaceAll("<START:event> ", "").replaceAll(" <END>", "");
+				ArrayList<Span> events = new ArrayList<Span>();
+				for (String ne : namedEvents){
+					Matcher m2 = Pattern.compile(ne).matcher(newline);
+					while (m2.find()){
+						Span s = new Span(m2.start(), m2.end());
+						events.add(s);
+					}
+				}
+				DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(newline));
+				for (List<HasWord> sentence : tokenizer) {
+					List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+					final List<WordLemmaTag> tlSentence = new ArrayList<WordLemmaTag>();
+					for (TaggedWord tw : tagged) {
+						tlSentence.add((lemmatizer).lemmatize(tw));
+					}
+					GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
+//					System.out.println("Debug gstd: " + gs.typedDependencies());
+					for (TypedDependency td : gs.typedDependencies()){
+//						System.out.println("td: " + td);
+						GrammaticalRelation reln = td.reln();
+						IndexedWord gov = td.gov();
+						IndexedWord dep = td.dep();
+						if (!gov.value().equalsIgnoreCase("ROOT")) {
+							int govStart = tagged.get(gov.index() - 1).beginPosition();
+							int govEnd = tagged.get(gov.index() - 1).endPosition();
+							int depStart = tagged.get(dep.index() - 1).beginPosition();
+							int depEnd = tagged.get(dep.index() - 1).endPosition();
+							for (Span s : events) {
+//								System.out.println("name found: " + newline.substring(s.getStart(), s.getEnd()));
+								if (s.getStart() <= govStart && s.getEnd() >= govEnd) {
+									// check if dep is verb
+									String depPosType = tagged.get(dep.index()-1).tag();
+									if (depPosType.startsWith("V")){
+										String lemma = tlSentence.get(dep.index()-1).lemma();
+										//System.out.println("pos type lemma: " + lemma);
+										int c = depMap.containsKey(lemma) ? depMap.get(lemma) + 1 : 1;
+										depMap.put(lemma, c);
+									}
+									
+									//System.out.println("named event is (part of) gov: " + gov);
+								} else if (s.getStart() <= depStart && s.getEnd() >= depEnd) {
+									// check if gov is verb
+									String govPosType = tagged.get(gov.index()-1).tag();
+									if (govPosType.startsWith("V")){
+										String lemma = tlSentence.get(gov.index()-1).lemma();
+										//System.out.println("pos type lemma: " + lemma);
+										int c = govMap.containsKey(lemma) ? govMap.get(lemma) + 1 : 1;
+										govMap.put(lemma, c);
+										// get normal verb lemmas
+									}
+									//System.out.println("named event is (part of) dep: " + dep);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
 	public static void main(String[] args){
+		
+		
+		NameFinderME nameFinder = null;
+		//NameFinderME nameFinder = initiateNameFinder("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\eventStoryToymodel.bin");
+		//NameFinderME nameFinder = initiateNameFinder("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
+//
+//		HashMap<String, String> basename2sgm = new HashMap<String, String>(); 
+//		HashMap<String, String> basename2xml = new HashMap<String, String>();
+//		File df1;
+//		try {
+//			df1 = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ACE\\for_Peter");
+//			for (File f : df1.listFiles()){
+//				String basename = f.getName().replaceAll("\\.apf\\.xml$", "").replaceAll("\\.sgm$", "");
+//				if (f.getAbsolutePath().matches(".*\\.sgm$")){
+//					basename2sgm.put(basename, f.getAbsolutePath());
+//				}
+//				else if (f.getAbsolutePath().matches(".*\\.xml$")){
+//					basename2xml.put(basename, f.getAbsolutePath());
+//				}
+//			}
+//			
+//		} catch (IOException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
+//		if (basename2sgm.keySet().size() != basename2xml.keySet().size()){
+//			System.out.println("ERROR: filesets do not match. Dying now.");
+//			System.exit(1);
+//		}
+//		int wordCount = 0;
+//		int sentenceCount = 0;
+//		int aceEventTriggers = 0;
+//		int namedEventInstances = 0;
+//		int c = 0;
+//		for (String basename : basename2sgm.keySet()){
+//			//System.out.println("INFO: Processing file: " + basename);
+//			String plainText = parseACE_SGML(basename2sgm.get(basename));
+//			wordCount += getWordCount(plainText);
+//			sentenceCount += getSentenceCount(plainText);
+//			ArrayList<RattleSpan> eventNameSpans = getRattleNameSpans(plainText, nameFinder);
+//			ArrayList<RattleSpan> sl = extractEventSpansFromACEAnnotations(basename2xml.get(basename));
+//			ArrayList<RattleSpan> overlap = matchACESpansWithEventNames(sl, eventNameSpans);
+//			aceEventTriggers += sl.size();
+//			namedEventInstances += eventNameSpans.size();
+//			c += overlap.size();
+//		}
+//		System.out.println("INFO: wordCount and sentenceCount for ACE corpus: " + wordCount + "|" + sentenceCount);
+//		System.out.println("INFO: ACE event triggers in data: " + aceEventTriggers);
+//		System.out.println("INFO: Wkipedia Named Events in data: " + namedEventInstances);
+//		System.out.println("INFO: Overlap: " + c);
+//		
+//		
+//		System.exit(1);
+		getWikiCorpusTriggerVerbs("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\opennlpSmall.train");
+		System.exit(1);
+		//TODO: get the trigger verbs myself through dep parser, then calculate overlap between trigger verbs and ace anchor verbs (normalize trigger verbs by dividing by total frequency)
+		
+		
 		
 		File df;
 		try {
-			df = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\forsabine\\singlefile");
+			df = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\forsabine\\");
 			for (File f : df.listFiles()) {
 				System.out.println("INFO: Processing " + f.getName());
 				String[] flines = staticreadLines(f.getAbsolutePath());
 				HashMap<List<TaggedWord>, GrammaticalStructure> gsMap = getDepGraphs(flines);
-				combineNamesWithDepgraphs(gsMap, "C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
+				combineNamesWithDepgraphs(gsMap, nameFinder);
 				
 				//TODO; do NP extraction (must be something in coref code for this) to fix cases like ""Israeli Foreign Minister Silvan Shalom on Wednesday stressed Qatar 's relationship..."
 				// where only Qatar is found as an entity
@@ -387,7 +691,7 @@ public class EventStory2017Playground {
 		
 		System.exit(1);
 		
-		int numIterations = 5;
+		int numIterations = 1;
 		double p = 0;
 		double r = 0;
 		double f = 0;

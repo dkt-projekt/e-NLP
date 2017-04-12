@@ -7,12 +7,15 @@ import java.util.Arrays;
 
 import org.springframework.core.io.ClassPathResource;
 
+import com.google.common.base.Charsets;
+
 import eu.freme.common.exception.BadRequestException;
 import eu.freme.common.exception.ExternalServiceFailedException;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSSample;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.postag.WordTagSampleStream;
+import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.model.ModelType;
@@ -64,11 +67,17 @@ public class Tagger {
 		POSModel model = null;
 		InputStream dataIn = null;
 		try {
-		  dataIn = new FileInputStream(trainDataCPR.getPath());
-		  ObjectStream<String> lineStream =	new PlainTextByLineStream(dataIn, "UTF-8");
+		  //dataIn = new FileInputStream(trainDataCPR.getPath());
+		  InputStreamFactory isf = new InputStreamFactory() {
+	            public InputStream createInputStream() throws IOException {
+	                return new FileInputStream(trainDataCPR.getPath());
+	            }
+	        };
+			ObjectStream<String> lineStream = new PlainTextByLineStream(isf, Charsets.UTF_8);
+		  //ObjectStream<String> lineStream =	new PlainTextByLineStream((isf, "UTF-8");
 		  ObjectStream<POSSample> sampleStream = new WordTagSampleStream(lineStream);
 
-		  model = POSTaggerME.train("en", sampleStream, ModelType.MAXENT, null, null, 100, 5);
+		  model = POSTaggerME.train("en", sampleStream, null, null);
 		}
 		catch (IOException e) {
 		  e.printStackTrace();

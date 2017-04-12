@@ -27,11 +27,11 @@ public class ParagraphDetector {
 		//System.out.println("DEBUGGING whole string:" + str);
 		int beginIndex = 0;
 		//System.out.println("DEBUGGINg str length:" + str.length());
-		List<Span> spanList = new ArrayList<Span>();
+		List<RattleSpan> spanList = new ArrayList<RattleSpan>();
 		for (int i = 0; i < str.length(); i++) {
 			if (str.charAt(i) == '\n'){
 				//System.out.println("DEBUGGING paragraph found from to:" + str.substring(beginIndex, i) + beginIndex + "|"+  i);
-				Span parSpan = new Span();
+				RattleSpan parSpan = new RattleSpan();
 				parSpan.setBegin(beginIndex);
 				parSpan.setEnd(i);
 				spanList.add(parSpan);
@@ -39,7 +39,7 @@ public class ParagraphDetector {
 			}
 		}
 		
-		for (Span s : spanList){
+		for (RattleSpan s : spanList){
 			if (!str.substring(s.getBegin(), s.getEnd()).matches("^\\s+$")){
 				NIFWriter.addParagraphEntity(nifModel, s.getBegin(), s.getEnd());
 			}
