@@ -205,7 +205,9 @@ public class RelationExtraction {
 
 		String isstr = NIFReader.extractIsString(nifModel);
 
+
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
 

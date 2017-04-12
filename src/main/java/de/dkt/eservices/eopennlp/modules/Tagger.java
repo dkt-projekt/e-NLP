@@ -67,6 +67,10 @@ public class Tagger {
 		POSModel model = null;
 		InputStream dataIn = null;
 		try {
+
+		  dataIn = new FileInputStream(trainDataCPR.getPath());
+		  ObjectStream<String> lineStream =	new PlainTextByLineStream((InputStreamFactory) dataIn, "UTF-8");
+
 		  //dataIn = new FileInputStream(trainDataCPR.getPath());
 		  InputStreamFactory isf = new InputStreamFactory() {
 	            public InputStream createInputStream() throws IOException {
