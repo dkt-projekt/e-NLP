@@ -37,7 +37,7 @@ public class DepParserTree {
 	root(ROOT-0, shipped-11), case(you-14, to-12), cc:preconj(you-14, both-13), nmod(shipped-11, you-14), 
 	cc(you-14, and-15), conj(you-14, Rice-16), punct(shipped-11, .-17)]*/
 
-	static DependencyParser parser;
+	public static DependencyParser parser;
 	static String currentLanguage = "none";
 
 	public static void initParser(String language){

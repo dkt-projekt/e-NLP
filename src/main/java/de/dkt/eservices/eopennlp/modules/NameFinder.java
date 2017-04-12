@@ -46,6 +46,7 @@ import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.InputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
@@ -358,7 +359,7 @@ public class NameFinder {
 			//charset = Charset.forName("UTF-8");
 			//ClassPathResource cprOne = new ClassPathResource(inputTrainData);
 			ByteArrayInputStream bais = new ByteArrayInputStream(inputTrainData.getBytes());
-			lineStream = new PlainTextByLineStream(bais,"utf-8");
+			lineStream = new PlainTextByLineStream((InputStreamFactory) bais,"utf-8");
 			//lineStream = new PlainTextByLineStream(new FileInputStream(cprOne.getFile()), charset);
 			sampleStream = new NameSampleDataStream(lineStream);
 

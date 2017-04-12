@@ -1,97 +1,31 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import org.json.JSONObject;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.hp.hpl.jena.graph.compose.Union;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
-import de.dkt.common.niftools.NIFWriter;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.Annotator;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.DocumentPreprocessor;
-import edu.stanford.nlp.process.PTBTokenizer;
-import edu.stanford.nlp.time.SUTime.Duration;
-import edu.stanford.nlp.time.SUTime.Range;
-import edu.stanford.nlp.time.SUTime.Temporal;
-import edu.stanford.nlp.time.TimeAnnotator;
-import edu.stanford.nlp.time.TimeExpression;
 import edu.stanford.nlp.trees.GrammaticalStructure;
-import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TypedDependency;
-import edu.stanford.nlp.trees.WordStemmer;
-import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.TypesafeMap;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
-import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
-import net.didion.jwnl.data.IndexWord;
-import net.didion.jwnl.data.POS;
-import net.didion.jwnl.data.Synset;
-import net.didion.jwnl.dictionary.Dictionary;
-import opennlp.tools.lemmatizer.SimpleLemmatizer;
-import edu.stanford.nlp.ling.Word; 
 import edu.stanford.nlp.ling.WordLemmaTag;
-import edu.mit.jverbnet.data.FrameType;
-import edu.mit.jverbnet.data.IFrame;
-import edu.mit.jverbnet.data.IMember;
-import edu.mit.jverbnet.data.IThematicRole;
-import edu.mit.jverbnet.data.IVerbClass;
-import edu.mit.jverbnet.data.IWordnetKey;
-import edu.mit.jverbnet.data.syntax.ISyntaxArgDesc;
-import edu.mit.jverbnet.index.IVerbIndex;
-import edu.mit.jverbnet.index.VerbIndex;
 
 
 
@@ -271,7 +205,9 @@ public class RelationExtraction {
 
 		String isstr = NIFReader.extractIsString(nifModel);
 
+
 		List<String[]> entityMap = NIFReader.extractEntityIndices(nifModel);
+		
 		// extract sameAs annotations and add them to the entityMap
 		List<String[]> sameAsMentions = NIFReader.extractSameAsAnnotations(nifModel);
 
