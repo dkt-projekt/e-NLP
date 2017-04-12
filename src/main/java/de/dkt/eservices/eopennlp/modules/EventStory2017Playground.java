@@ -507,12 +507,24 @@ public class EventStory2017Playground {
 		return names;
 	}
 	
-	public static ArrayList<RattleSpan> matchACESpansWithEventNames(ArrayList<RattleSpan> ACENames, ArrayList<RattleSpan> eventNames){
+	public static ArrayList<RattleSpan> matchACESpansWithEventNames(ArrayList<RattleSpan> ACENames, ArrayList<RattleSpan> eventNames, String plainText){
 		
 		ArrayList<RattleSpan> overlap = new ArrayList<RattleSpan>();
+		boolean debug = true;
 
 		for (RattleSpan eventNameSpan : eventNames) {
 			for (RattleSpan aceName : ACENames) {
+				if (debug){
+					if (eventNameSpan.getText().equalsIgnoreCase(aceName.getText())){
+						System.out.println("DEBUG: comparing '" + eventNameSpan.getText() + "' and '" + aceName.getText() + "', in context:");
+						int contextStartENS = Math.max(0, eventNameSpan.getBegin() - 10);
+						int contextEndENS = Math.min(plainText.length(), eventNameSpan.getEnd() + 10);
+						int contextStartAN = Math.max(0, aceName.getBegin() - 10);
+						int contextEndAN = Math.min(plainText.length(), aceName.getEnd() + 10);
+						System.out.println("Event Name Span: '" + plainText.substring(contextStartENS, contextEndENS) + "'");
+						System.out.println("ACE trigger: '" + plainText.substring(contextStartAN, contextEndAN) + "'");
+					}
+				}
 				if (eventNameSpan.getBegin() <= aceName.getBegin() && eventNameSpan.getEnd() >= aceName.getEnd()) {
 					overlap.add(eventNameSpan);
 				}
@@ -522,7 +534,7 @@ public class EventStory2017Playground {
 		return overlap;		
 	}
 	
-	public static void getWikiCorpusTriggerVerbs(String trainingData){
+	public static HashMap<String, Double> getWikiCorpusTriggerVerbs(String trainingData){
 		
 		final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
 		Tagger.initTagger("en");
@@ -530,13 +542,14 @@ public class EventStory2017Playground {
 		
 		HashMap<String, Integer> depMap = new HashMap<String, Integer>();
 		HashMap<String, Integer> govMap = new HashMap<String, Integer>();
+		HashMap<String, Integer> verbs = new HashMap<String, Integer>();
 		
 		try {
 			String[] flines = staticreadLines(trainingData);
 			// not feeling like doing all this stuff with character indices, assuming that if a string is annotated as an event, it always is (within the same sentence, so assume that "This is <START:event> an event <END> and this is not an event" does not happen... (think that is reasonable)
 			for (String line : flines) {
 				Matcher m = Pattern.compile("<START:event> ([^<]+) <END>").matcher(line);
-				System.out.println(line);
+//				System.out.println(line);
 				ArrayList<String> namedEvents = new ArrayList<String>();
 				while (m.find()) {
 					String namedEvent = m.group(1);
@@ -556,7 +569,12 @@ public class EventStory2017Playground {
 					List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 					final List<WordLemmaTag> tlSentence = new ArrayList<WordLemmaTag>();
 					for (TaggedWord tw : tagged) {
+						String lemma = (lemmatizer).lemmatize(tw).lemma();
 						tlSentence.add((lemmatizer).lemmatize(tw));
+						if (tw.tag().startsWith("V")){
+							int c = verbs.containsKey(lemma) ? verbs.get(lemma) + 1 : 1;
+							verbs.put(lemma, c);
+						}
 					}
 					GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 //					System.out.println("Debug gstd: " + gs.typedDependencies());
@@ -591,7 +609,6 @@ public class EventStory2017Playground {
 										//System.out.println("pos type lemma: " + lemma);
 										int c = govMap.containsKey(lemma) ? govMap.get(lemma) + 1 : 1;
 										govMap.put(lemma, c);
-										// get normal verb lemmas
 									}
 									//System.out.println("named event is (part of) dep: " + dep);
 								}
@@ -607,8 +624,50 @@ public class EventStory2017Playground {
 			e.printStackTrace();
 		}
 		
+		// combining gov's and dep's for now. Maybe split this at some point...
+		HashMap<String, Double> triggerVerbs = new HashMap<String, Double>();
+		for (String k : govMap.keySet()){
+			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + govMap.get(k) : govMap.get(k); // implicit conversion to integer! Oh behave!
+			triggerVerbs.put(k,  d);
+		}
+		for (String k : depMap.keySet()){
+			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + depMap.get(k) : depMap.get(k); // implicit conversion to integer! Oh behave!
+			triggerVerbs.put(k,  d);
+		}
+		
+		// normalize
+		for (String k : triggerVerbs.keySet()){
+			Double d = triggerVerbs.get(k) / verbs.get(k);
+			triggerVerbs.put(k, d);
+		}
+		return triggerVerbs;
 	}
 	
+	
+	public static ArrayList<RattleSpan> annotateTriggerVerbsAsNames(HashMap<String, Double> triggerVerbs, Double threshold, String plainText){
+		
+		final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
+		DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(plainText));
+		ArrayList<RattleSpan> tvSpans = new ArrayList<RattleSpan>();
+		for (List<HasWord> sentence : tokenizer) {
+			List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
+			for (TaggedWord tw : tagged) {
+				int startIndex = tw.beginPosition();
+				int endIndex = tw.endPosition();
+				WordLemmaTag lemma = (lemmatizer).lemmatize(tw); 
+				for (String tv : triggerVerbs.keySet()){
+					if (triggerVerbs.get(tv) > threshold){
+						if (lemma.lemma().equalsIgnoreCase(tv)){
+							RattleSpan rs = new RattleSpan(startIndex, endIndex, tv);
+							tvSpans.add(rs);
+						}
+					}
+				}
+			}
+		}
+		return tvSpans;
+		
+	}
 	
 	
 	public static void main(String[] args){
@@ -616,56 +675,79 @@ public class EventStory2017Playground {
 		
 		NameFinderME nameFinder = null;
 		//NameFinderME nameFinder = initiateNameFinder("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\eventStoryToymodel.bin");
-		//NameFinderME nameFinder = initiateNameFinder("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
-//
-//		HashMap<String, String> basename2sgm = new HashMap<String, String>(); 
-//		HashMap<String, String> basename2xml = new HashMap<String, String>();
-//		File df1;
-//		try {
-//			df1 = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ACE\\for_Peter");
-//			for (File f : df1.listFiles()){
-//				String basename = f.getName().replaceAll("\\.apf\\.xml$", "").replaceAll("\\.sgm$", "");
-//				if (f.getAbsolutePath().matches(".*\\.sgm$")){
-//					basename2sgm.put(basename, f.getAbsolutePath());
-//				}
-//				else if (f.getAbsolutePath().matches(".*\\.xml$")){
-//					basename2xml.put(basename, f.getAbsolutePath());
-//				}
-//			}
-//			
-//		} catch (IOException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
+		nameFinder = initiateNameFinder("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\namedEventModel.bin");
+		
+		System.out.println("INFO: Getting triggerVerbs.");
+		HashMap<String, Double> triggerVerbs = getWikiCorpusTriggerVerbs("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\opennlpSmall.train");
+		System.out.println("INFO: Finished getting triggerVerbs.");
+//		for (String tv : triggerVerbs.keySet()){
+//			System.out.println("tv: " + tv);
+//			System.out.println("val: " + triggerVerbs.get(tv));
 //		}
-//		if (basename2sgm.keySet().size() != basename2xml.keySet().size()){
-//			System.out.println("ERROR: filesets do not match. Dying now.");
-//			System.exit(1);
-//		}
-//		int wordCount = 0;
-//		int sentenceCount = 0;
-//		int aceEventTriggers = 0;
-//		int namedEventInstances = 0;
-//		int c = 0;
-//		for (String basename : basename2sgm.keySet()){
-//			//System.out.println("INFO: Processing file: " + basename);
-//			String plainText = parseACE_SGML(basename2sgm.get(basename));
-//			wordCount += getWordCount(plainText);
-//			sentenceCount += getSentenceCount(plainText);
-//			ArrayList<RattleSpan> eventNameSpans = getRattleNameSpans(plainText, nameFinder);
-//			ArrayList<RattleSpan> sl = extractEventSpansFromACEAnnotations(basename2xml.get(basename));
-//			ArrayList<RattleSpan> overlap = matchACESpansWithEventNames(sl, eventNameSpans);
-//			aceEventTriggers += sl.size();
-//			namedEventInstances += eventNameSpans.size();
-//			c += overlap.size();
-//		}
-//		System.out.println("INFO: wordCount and sentenceCount for ACE corpus: " + wordCount + "|" + sentenceCount);
-//		System.out.println("INFO: ACE event triggers in data: " + aceEventTriggers);
-//		System.out.println("INFO: Wkipedia Named Events in data: " + namedEventInstances);
-//		System.out.println("INFO: Overlap: " + c);
-//		
-//		
+
+		HashMap<String, String> basename2sgm = new HashMap<String, String>(); 
+		HashMap<String, String> basename2xml = new HashMap<String, String>();
+		ArrayList<RattleSpan> sl = new ArrayList<RattleSpan>();
+		File df1;
+		try {
+			df1 = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ACE\\for_Peter");
+			for (File f : df1.listFiles()){
+				String basename = f.getName().replaceAll("\\.apf\\.xml$", "").replaceAll("\\.sgm$", "");
+				if (f.getAbsolutePath().matches(".*\\.sgm$")){
+					basename2sgm.put(basename, f.getAbsolutePath());
+				}
+				else if (f.getAbsolutePath().matches(".*\\.xml$")){
+					basename2xml.put(basename, f.getAbsolutePath());
+				}
+			}
+			
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		if (basename2sgm.keySet().size() != basename2xml.keySet().size()){
+			System.out.println("ERROR: filesets do not match. Dying now.");
+			System.exit(1);
+		}
+		int wordCount = 0;
+		int sentenceCount = 0;
+		int aceEventTriggers = 0;
+		int namedEventInstances = 0;
+		int c = 0;
+		int tvo = 0;
+		int tvSpans = 0;
+		for (String basename : basename2sgm.keySet()){
+			//System.out.println("INFO: Processing file: " + basename);
+			String plainText = parseACE_SGML(basename2sgm.get(basename));
+			wordCount += getWordCount(plainText);
+			sentenceCount += getSentenceCount(plainText);
+			ArrayList<RattleSpan> eventNameSpans = getRattleNameSpans(plainText, nameFinder);
+			sl = extractEventSpansFromACEAnnotations(basename2xml.get(basename));
+			//TODO: extract not event anchors, but arguments of event mentions
+			ArrayList<RattleSpan> overlap = matchACESpansWithEventNames(sl, eventNameSpans, plainText);
+			aceEventTriggers += sl.size();
+			namedEventInstances += eventNameSpans.size();
+			c += overlap.size();
+			// now annotate triggerverbs as names and check overlap
+			ArrayList<RattleSpan> triggerVerbSpans = annotateTriggerVerbsAsNames(triggerVerbs, 0.5, plainText);
+			ArrayList<RattleSpan> tvOverlap = matchACESpansWithEventNames(sl, triggerVerbSpans, plainText);
+			tvSpans += triggerVerbSpans.size();
+			tvo += tvOverlap.size();
+			
+		}
+		System.out.println("INFO: wordCount and sentenceCount for ACE corpus: " + wordCount + "|" + sentenceCount);
+		System.out.println("INFO: ACE event triggers in data: " + aceEventTriggers);
+		System.out.println("INFO: Wkipedia Named Events in data: " + namedEventInstances);
+		System.out.println("INFO: Overlap: " + c);
+		System.out.println("INFO: Wikipedia extracted trigger verbs in data: " + tvSpans);
+		System.out.println("INFO: Overlap of extracted trigger verbs and ACE triggers: " + tvo);
+		
+		
+		
 //		System.exit(1);
-		getWikiCorpusTriggerVerbs("C:\\Users\\pebo01\\Desktop\\dbpediaNamedEventData\\opennlpSmall.train");
+		
+		
+		
 		System.exit(1);
 		//TODO: get the trigger verbs myself through dep parser, then calculate overlap between trigger verbs and ace anchor verbs (normalize trigger verbs by dividing by total frequency)
 		
