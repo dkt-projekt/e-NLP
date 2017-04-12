@@ -68,18 +68,23 @@ public class Tagger {
 		InputStream dataIn = null;
 		try {
 
-		  dataIn = new FileInputStream(trainDataCPR.getPath());
-		  ObjectStream<String> lineStream =	new PlainTextByLineStream((InputStreamFactory) dataIn, "UTF-8");
-
-		  //dataIn = new FileInputStream(trainDataCPR.getPath());
-		  InputStreamFactory isf = new InputStreamFactory() {
-	            public InputStream createInputStream() throws IOException {
-	                return new FileInputStream(trainDataCPR.getPath());
-	            }
-	        };
-			ObjectStream<String> lineStream = new PlainTextByLineStream(isf, Charsets.UTF_8);
-		  //ObjectStream<String> lineStream =	new PlainTextByLineStream((isf, "UTF-8");
-		  ObjectStream<POSSample> sampleStream = new WordTagSampleStream(lineStream);
+			
+			dataIn = new FileInputStream("en-pos.train");
+			  ObjectStream<String> lineStream = new PlainTextByLineStream((InputStreamFactory) dataIn, "UTF-8");
+			  ObjectStream<POSSample> sampleStream = new WordTagSampleStream(lineStream);
+//		  dataIn = new FileInputStream(trainDataCPR.getPath());
+//		  ObjectStream<String> lineStream =	new PlainTextByLineStream((InputStreamFactory) dataIn, "UTF-8");
+//
+//		  dataIn = new FileInputStream(trainDataCPR.getPath());
+////		  InputStreamFactory isf = new InputStreamFactory() {
+////	            public InputStream createInputStream() throws IOException {
+////	                return new FileInputStream(trainDataCPR.getPath());
+////	            }
+////	        };
+////			ObjectStream<String> lineStream = new PlainTextByLineStream(isf, Charsets.UTF_8);
+//		  ObjectStream<String> lineStream =	new PlainTextByLineStream((isf, "UTF-8");
+		  
+		  //ObjectStream<POSSample> sampleStream = new WordTagSampleStream(lineStream);
 
 		  model = POSTaggerME.train("en", sampleStream, null, null);
 		}

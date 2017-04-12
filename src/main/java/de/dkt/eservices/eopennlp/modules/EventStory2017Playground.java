@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.omg.Messaging.SyncScopeHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -401,7 +402,53 @@ public class EventStory2017Playground {
 		
 	}
 	
-	//TODO after lunch: take data from ankit, extract plaintext from ace xmls(sgmls) and check character indices of trigger verbs, calculate overlap. This will be very low. Next step would be to combine this with Jan's code of triggerverb extraction through dep parsing
+
+	
+	public static ArrayList<RattleSpan> extractEventArgumentSpansFromACEAnnotations(String fp){
+		
+		ArrayList<RattleSpan> argumentSpans = new ArrayList<RattleSpan>();
+		try {
+			File inputFile = new File(fp);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(inputFile);
+			doc.getDocumentElement().normalize();
+//			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+			//System.out.println("complete text:" + doc.getDocumentElement().getTextContent());
+			NodeList events = doc.getElementsByTagName("event");
+//			System.out.println("----------------------------");
+			for (int temp = 0; temp < events.getLength(); temp++) {
+				Node eventNode = events.item(temp);
+				//System.out.println("\nCurrent Element :" + nNode.getNodeName());
+				NodeList eventMentions = eventNode.getChildNodes();
+				for (int i = 0; i < eventMentions.getLength(); i++){
+					NodeList mentionSubnodes = eventMentions.item(i).getChildNodes();
+					for (int j = 0; j < mentionSubnodes.getLength(); j++){
+						if (mentionSubnodes.item(j).getNodeName().equalsIgnoreCase("event_mention_argument")){
+							Node ema = mentionSubnodes.item(j);
+							for (int k = 0; k < ema.getChildNodes().getLength(); k++){
+								if (ema.getChildNodes().item(k).getNodeName().equalsIgnoreCase("extent")){
+									Node charseq = ema.getChildNodes().item(k).getChildNodes().item(1);
+									String txt = charseq.getTextContent();
+									String startVal = charseq.getAttributes().getNamedItem("START").getNodeValue();
+									int endValue = Integer.parseInt(startVal) + txt.length();
+									RattleSpan sp = new RattleSpan(Integer.parseInt(startVal), endValue, txt);
+									argumentSpans.add(sp);
+									//System.out.println("DEBUG: adding argument span: " + txt);
+								}
+							}
+						}
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return argumentSpans;
+		
+	}
+	
 	
 	public static ArrayList<RattleSpan> extractEventSpansFromACEAnnotations(String fp){
 		
@@ -430,8 +477,9 @@ public class EventStory2017Playground {
 							Node subnode = mentionSubnodes.item(j);
 							Node charseq = subnode.getChildNodes().item(1);
 							String startVal = charseq.getAttributes().getNamedItem("START").getNodeValue();
-							String endVal = charseq.getAttributes().getNamedItem("END").getNodeValue();
-							RattleSpan sp = new RattleSpan(Integer.parseInt(startVal), Integer.parseInt(endVal+1), anchorText); // the +1 because they have a somewhat weird convention in ACE...
+							//String endVal = charseq.getAttributes().getNamedItem("END").getNodeValue(); // got plenty of spans till the end of document, so tyring the following:
+							int endValue = Integer.parseInt(startVal) + anchorText.length();
+							RattleSpan sp = new RattleSpan(Integer.parseInt(startVal), endValue, anchorText); // the +1 because they have a somewhat weird convention in ACE...
 							eventSpans.add(sp);
 						}
 					}
@@ -510,7 +558,7 @@ public class EventStory2017Playground {
 	public static ArrayList<RattleSpan> matchACESpansWithEventNames(ArrayList<RattleSpan> ACENames, ArrayList<RattleSpan> eventNames, String plainText){
 		
 		ArrayList<RattleSpan> overlap = new ArrayList<RattleSpan>();
-		boolean debug = true;
+		boolean debug = false;
 
 		for (RattleSpan eventNameSpan : eventNames) {
 			for (RattleSpan aceName : ACENames) {
@@ -523,9 +571,15 @@ public class EventStory2017Playground {
 						int contextEndAN = Math.min(plainText.length(), aceName.getEnd() + 10);
 						System.out.println("Event Name Span: '" + plainText.substring(contextStartENS, contextEndENS) + "'");
 						System.out.println("ACE trigger: '" + plainText.substring(contextStartAN, contextEndAN) + "'");
+						System.out.println("eventSpan: " + eventNameSpan.getBegin() + "|" + eventNameSpan.getEnd());
+						System.out.println("aceSpan: " + aceName.getBegin() + "|" + aceName.getEnd());
 					}
 				}
 				if (eventNameSpan.getBegin() <= aceName.getBegin() && eventNameSpan.getEnd() >= aceName.getEnd()) {
+					overlap.add(eventNameSpan);
+				}
+				// with argument spans, the aceName can also be longer than eventNameSpan, so checking the other way round as well
+				else if (aceName.getBegin() <= eventNameSpan.getBegin() && aceName.getEnd() >= eventNameSpan.getEnd()) {
 					overlap.add(eventNameSpan);
 				}
 
@@ -687,7 +741,6 @@ public class EventStory2017Playground {
 
 		HashMap<String, String> basename2sgm = new HashMap<String, String>(); 
 		HashMap<String, String> basename2xml = new HashMap<String, String>();
-		ArrayList<RattleSpan> sl = new ArrayList<RattleSpan>();
 		File df1;
 		try {
 			df1 = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ACE\\for_Peter");
@@ -716,14 +769,19 @@ public class EventStory2017Playground {
 		int c = 0;
 		int tvo = 0;
 		int tvSpans = 0;
+		int argumentInstances = 0;
+		int argumentOverlapCount = 0;
 		for (String basename : basename2sgm.keySet()){
 			//System.out.println("INFO: Processing file: " + basename);
 			String plainText = parseACE_SGML(basename2sgm.get(basename));
 			wordCount += getWordCount(plainText);
 			sentenceCount += getSentenceCount(plainText);
 			ArrayList<RattleSpan> eventNameSpans = getRattleNameSpans(plainText, nameFinder);
-			sl = extractEventSpansFromACEAnnotations(basename2xml.get(basename));
-			//TODO: extract not event anchors, but arguments of event mentions
+			ArrayList<RattleSpan> sl = extractEventSpansFromACEAnnotations(basename2xml.get(basename));
+			ArrayList<RattleSpan> argumentSpans = extractEventArgumentSpansFromACEAnnotations(basename2xml.get(basename));
+			argumentInstances += argumentSpans.size();
+			ArrayList<RattleSpan> argumentOverlap = matchACESpansWithEventNames(sl, argumentSpans, plainText);
+			argumentOverlapCount += argumentOverlap.size();
 			ArrayList<RattleSpan> overlap = matchACESpansWithEventNames(sl, eventNameSpans, plainText);
 			aceEventTriggers += sl.size();
 			namedEventInstances += eventNameSpans.size();
@@ -738,7 +796,9 @@ public class EventStory2017Playground {
 		System.out.println("INFO: wordCount and sentenceCount for ACE corpus: " + wordCount + "|" + sentenceCount);
 		System.out.println("INFO: ACE event triggers in data: " + aceEventTriggers);
 		System.out.println("INFO: Wkipedia Named Events in data: " + namedEventInstances);
-		System.out.println("INFO: Overlap: " + c);
+		System.out.println("INFO: Event Anchor Overlap: " + c);
+		System.out.println("INFO: ACE Event Arguments in data: " + argumentInstances);
+		System.out.println("INFO: Event Argument Overlap: " + argumentOverlapCount);
 		System.out.println("INFO: Wikipedia extracted trigger verbs in data: " + tvSpans);
 		System.out.println("INFO: Overlap of extracted trigger verbs and ACE triggers: " + tvo);
 		
