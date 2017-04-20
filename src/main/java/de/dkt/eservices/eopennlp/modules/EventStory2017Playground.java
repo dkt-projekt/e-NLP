@@ -681,17 +681,17 @@ public class EventStory2017Playground {
 		// combining gov's and dep's for now. Maybe split this at some point...
 		HashMap<String, Double> triggerVerbs = new HashMap<String, Double>();
 		for (String k : govMap.keySet()){
-			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + govMap.get(k) : govMap.get(k); // implicit conversion to integer! Oh behave!
+			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + (double)govMap.get(k) : (double)govMap.get(k);
 			triggerVerbs.put(k,  d);
 		}
 		for (String k : depMap.keySet()){
-			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + depMap.get(k) : depMap.get(k); // implicit conversion to integer! Oh behave!
+			Double d = triggerVerbs.containsKey(k) ? triggerVerbs.get(k) + (double)depMap.get(k) : (double)depMap.get(k);
 			triggerVerbs.put(k,  d);
 		}
 		
 		// normalize
 		for (String k : triggerVerbs.keySet()){
-			Double d = triggerVerbs.get(k) / verbs.get(k);
+			Double d = triggerVerbs.get(k) / (double)verbs.get(k);
 			triggerVerbs.put(k, d);
 		}
 		return triggerVerbs;
