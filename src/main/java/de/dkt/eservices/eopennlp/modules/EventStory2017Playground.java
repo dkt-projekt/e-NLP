@@ -809,7 +809,6 @@ public class EventStory2017Playground {
 		
 		
 		System.exit(1);
-		//TODO: get the trigger verbs myself through dep parser, then calculate overlap between trigger verbs and ace anchor verbs (normalize trigger verbs by dividing by total frequency)
 		
 		
 		

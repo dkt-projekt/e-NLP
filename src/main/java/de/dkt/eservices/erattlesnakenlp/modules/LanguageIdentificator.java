@@ -5,11 +5,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.core.io.ClassPathResource;
@@ -38,7 +44,7 @@ public class LanguageIdentificator {
 			fModelsDirectory = cprDir.getFile();
 			for (File lm : fModelsDirectory.listFiles()){
 				String language = lm.getName().substring(0,lm.getName().indexOf(".ngram"));
-				//System.out.println("debugging lang:" + language);
+				System.out.println("INFO: intializing language: " + language);
 				FileInputStream fis;
 		        fis = new FileInputStream(lm);
 				ObjectInputStream ois = new ObjectInputStream(fis);
@@ -146,23 +152,82 @@ public class LanguageIdentificator {
 		
 	}
 	
+	static String readFile(String path, Charset encoding) 
+			  throws IOException 
+			{
+			  byte[] encoded = Files.readAllBytes(Paths.get(path));
+			  return new String(encoded, encoding);
+			}
 	
+	public static String detectLanguagePlainTextFile(String fp) throws IOException{
+		
+		String fstr = readFile(fp, Charset.defaultCharset());
+		Double highestScore = 0.0;
+		String highestScoringLanguage = null;
+		Iterator it = ngrampMapDict.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry)it.next();
+		    String language = (String) pair.getKey();
+//		    System.out.println("DEBUGGING lang:" + language);
+		    HashMap<String,Double> lm = (HashMap<String, Double>) pair.getValue();
+		    Double languageScore = 0.0;
+			for (int i = minNgramSize; i <= maxNgramsize; i++){
+			    for (int j = 0; j <= fstr.length() - i; j++){
+			    	String ngram = fstr.substring(j, j+i);
+			    	if (lm.containsKey(ngram)){
+			    		languageScore += lm.get(ngram);
+			    	}
+				}
+			}
+			if (languageScore > highestScore){
+				highestScoringLanguage = language;
+				highestScore = languageScore;
+			}
+//			System.out.println("lang score:" + languageScore);
+		}
+//		System.out.println("Debugging:" + fstr);
+//		System.out.println("lang:" + highestScoringLanguage);
+//		System.out.println("\n\n");
+
+		return highestScoringLanguage;
+	}
 	
 
 	public static void main(String[] args) throws Exception {
 
-		/*
-		long start = System.currentTimeMillis();
-		createLanguageNgramModel("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\englishSentences.txt", "en");
-		long time = System.currentTimeMillis() - start;
-		System.out.println("Done creating ngramModel. Took " + time + " milliseconds.\n");
-		*/
+		
+//		long start = System.currentTimeMillis();
+//		createLanguageNgramModel("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\frenchSents.txt", "fr");
+//		long time = System.currentTimeMillis() - start;
+//		System.out.println("Done creating ngramModel. Took " + time + " milliseconds.\n");
+//		System.exit(1);
+		
+
 		
 		//detectLanguageNIF("aapje");
 		long startInit = System.currentTimeMillis();
 		initializeNgramMaps();
 		System.out.println("done initializing in " + (System.currentTimeMillis() - startInit));
+
 		
+		HashMap<String, Integer> langMap = new HashMap<String, Integer>();
+		File folder;
+		try {
+			folder = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\allCleanLetters");
+			for (File f : folder.listFiles()){
+				String lang = detectLanguagePlainTextFile(f.getAbsolutePath());
+				int c = langMap.containsKey(lang) ? langMap.get(lang) + 1 : 1;
+				langMap.put(lang, c);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		for (String k : langMap.keySet()){
+			System.out.println("Language: " + k);
+			System.out.println("Number of files: " + langMap.get(k));
+		}
+		System.exit(1);
 		
 		String turtleInput3 = 
 				"@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n" +
