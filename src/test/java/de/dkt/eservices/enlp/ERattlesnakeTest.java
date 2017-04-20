@@ -104,15 +104,12 @@ public class ERattlesnakeTest {
 		HttpResponse<String> response = detectEvents()
 				.queryString("informat", "text")
 				.queryString("language", "en")
-				.body("President Obama has decided to invade Syria during summer to get some petrol.")
+				.body("President Obama has decided to invade Syria during summer and Bill Clinton wants to obtain some petrol.")
 				.asString();
-			
-
 		//System.out.println("DEBUGGING response:" + response.getBody());
 		assertTrue(response.getStatus() == 200);
 		assertTrue(response.getBody().length() > 0);
 		String expectedResp = TestConstants.expectedResponse57;
-
 		Assert.assertEquals(expectedResp, response.getBody());
 		
 	}

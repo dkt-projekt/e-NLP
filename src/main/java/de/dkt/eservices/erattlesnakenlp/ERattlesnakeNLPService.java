@@ -12,6 +12,7 @@ import de.dkt.eservices.eopennlp.modules.NameFinder;
 import de.dkt.eservices.eopennlp.modules.RegexFinder;
 import de.dkt.eservices.erattlesnakenlp.linguistic.EntityCandidateExtractor;
 import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
+import de.dkt.eservices.erattlesnakenlp.linguistic.MovementActionEvent;
 import de.dkt.eservices.erattlesnakenlp.linguistic.RelationExtraction;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
@@ -52,6 +53,9 @@ public class ERattlesnakeNLPService {
 	@Autowired
 	EHeideltimeService heideltimeService;
 
+	@Autowired
+	LanguageIdentificator languageIdentificator;
+
 	public ResponseEntity<String> segmentParagraphs(String inputFile, String language) {
 		ResponseEntity<String> responseCode = null;
 		FileSystemResource fsr = new FileSystemResource(inputFile);
@@ -86,12 +90,12 @@ public class ERattlesnakeNLPService {
 			}
 		}
     	// ideally do initialization of ngramMaps as early as possible (or at least make sure that it is done only once). Depending on the size of the training corpus, it can take a while.
-    	if (LanguageIdentificator.ngrampMapDict.isEmpty()){
+    	if (languageIdentificator.ngrampMapDict.isEmpty()){
     		System.out.println("ngramMap is empty, initializing...");
-    		LanguageIdentificator.initializeNgramMaps();
+    		languageIdentificator.initializeNgramMaps();
     	}
     	
-		LanguageIdentificator.detectLanguageNIF(nifModel);
+		languageIdentificator.detectLanguageNIF(nifModel);
     	return nifModel;
 	}
 	
@@ -121,11 +125,11 @@ public class ERattlesnakeNLPService {
 					"all", 
 					prefix);
 			
-			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 			
 			auxModel = heideltimeService.annotateTime(auxModel, languageParam);
 
-			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 
 			ArrayList<EntityRelationTriple> ert = new ArrayList<EntityRelationTriple>();
 			ert = RelationExtraction.getDirectRelationsNIF(auxModel, languageParam, ert);
@@ -137,7 +141,7 @@ public class ERattlesnakeNLPService {
 			
 			//Combine the entities of NER with the elements in the relation extraction.
 			
-			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 			
 			
 			//Do some timelining????
@@ -159,6 +163,100 @@ public class ERattlesnakeNLPService {
 		}
 	}
 	
+	public Model detectSextuples(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
+		try{
+			
+			String documentURI = NIFReader.extractDocumentWholeURI(nifModel);
+			/**
+			 * It only works for EN/DE.(If we want more languages, we should add more langiuage models.)
+			 */
+			String detectedLanguage = languageIdentificator.getLanguageNIF(nifModel);
+			/**
+			 * TODO If not english, translate it.
+			 */
+			
+			
+			
+			Model auxModel = null;
+			String prefix = "";
+			if(detectedLanguage.equalsIgnoreCase("en")){
+				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+						detectedLanguage, 
+						"ner", 
+						"ner-wikinerEn_PER;ner-wikinerEn_LOC;ner-wikinerEn_ORG",  
+						inFormat, 
+						"all", 
+						prefix);
+
+				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+						detectedLanguage, 
+						"temp", 
+						"englishDates",
+						inFormat, 
+						"all", 
+						prefix);
+			}
+			else{
+				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+						detectedLanguage, 
+						"ner", 
+						"ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainLOC",
+						inFormat, 
+						"all", 
+						prefix);
+
+				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+						detectedLanguage, 
+						"temp", 
+						"germanDates",
+						inFormat, 
+						"all", 
+						prefix);
+			}			
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+			
+			auxModel = heideltimeService.annotateTime(auxModel, detectedLanguage);
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+
+			/**
+			 * TODO Author detection of the letter (use case mendelsohn).
+			 */
+			String letterAuthor = "";			
+			
+			/**
+			 * TODO Timestamp detection of the letter (use case mendelsohn).
+			 */
+			String letterDate = "";			
+			
+			/**
+			 * TODO Location detection of the letter (use case mendelsohn).
+			 */
+			String letterLocation = "";			
+
+			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
+			/**
+			 * TODO Event Detection
+			 *   If we get good quality in the event detection, we will get the information for the MAE from the event, 
+			 *    if not, we will get it from the author, location and date of the letter.
+			// Just fill the list of movement action events.
+			 */
+			
+			
+			for (MovementActionEvent mae : maes) {
+				NIFWriter.addSextupleMAEAnnotation(auxModel, documentURI, 
+						mae.getPerson(),mae.getOrigin(),mae.getDestination(),
+						mae.getDepartureTime(),mae.getArrivalTime(),mae.getTravelMode(),
+						mae.getStartIndex(),mae.getEndIndex()
+						);
+			}
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));			
+			return auxModel;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return nifModel;
+		}
+	}
 	
 	public HashMap<String, String> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {

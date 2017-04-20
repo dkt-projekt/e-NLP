@@ -18,7 +18,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -28,15 +31,17 @@ import de.dkt.common.niftools.NIFWriter;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import eu.freme.common.exception.ExternalServiceFailedException;
 
+@Component
 public class LanguageIdentificator {
 	
 	static int minNgramSize = 2;
 	static int maxNgramsize = 5;
 	
-	public static String languageModelsDirectory = "languageModels";
-	public static HashMap<String, HashMap<String,Double>> ngrampMapDict = new HashMap<String, HashMap<String,Double>>(); 
+	public String languageModelsDirectory = "languageModels";
+	public HashMap<String, HashMap<String,Double>> ngrampMapDict = new HashMap<String, HashMap<String,Double>>(); 
 	
-	public static void initializeNgramMaps(){
+	@PostConstruct
+	public void initializeNgramMaps(){
 		
 		try {
 			ClassPathResource cprDir = new ClassPathResource(languageModelsDirectory);
@@ -62,11 +67,17 @@ public class LanguageIdentificator {
 		}
 		
 	}
-	
-	public static Model detectLanguageNIF(Model nifModel) throws ExternalServiceFailedException {		
-		
+
+	public Model detectLanguageNIF(Model nifModel) throws ExternalServiceFailedException {		
 		String isString = NIFReader.extractIsString(nifModel);
-		
+		String highestScoringLanguage = getLanguageNIF(nifModel);
+		String docURI = NIFReader.extractDocumentURI(nifModel);
+		NIFWriter.addLanguageAnnotation(nifModel, isString, docURI, highestScoringLanguage);
+		return nifModel;
+	}
+
+	public String getLanguageNIF(Model nifModel) throws ExternalServiceFailedException {		
+		String isString = NIFReader.extractIsString(nifModel);
 		Double highestScore = 0.0;
 		String highestScoringLanguage = null;
 		// list all available ngram maps
@@ -92,14 +103,11 @@ public class LanguageIdentificator {
 				highestScore = languageScore;
 			}
 		}
-		
-		String docURI = NIFReader.extractDocumentURI(nifModel);
-		NIFWriter.addLanguageAnnotation(nifModel, isString, docURI, highestScoringLanguage);
-		return nifModel;
+		return highestScoringLanguage;
 	}
 	
 	
-	public static void createLanguageNgramModel(String corpusFilePath, String inputLanguage){
+	public void createLanguageNgramModel(String corpusFilePath, String inputLanguage){
 		
 		File cp = new File(corpusFilePath);
 		HashMap<String, Double> ngrams = new HashMap<String, Double>();
@@ -159,7 +167,7 @@ public class LanguageIdentificator {
 			  return new String(encoded, encoding);
 			}
 	
-	public static String detectLanguagePlainTextFile(String fp) throws IOException{
+	public String detectLanguagePlainTextFile(String fp) throws IOException{
 		
 		String fstr = readFile(fp, Charset.defaultCharset());
 		Double highestScore = 0.0;
@@ -203,10 +211,10 @@ public class LanguageIdentificator {
 //		System.exit(1);
 		
 
-		
+		LanguageIdentificator li = new LanguageIdentificator();
 		//detectLanguageNIF("aapje");
 		long startInit = System.currentTimeMillis();
-		initializeNgramMaps();
+		li.initializeNgramMaps();
 		System.out.println("done initializing in " + (System.currentTimeMillis() - startInit));
 
 		
@@ -215,7 +223,7 @@ public class LanguageIdentificator {
 		try {
 			folder = FileFactory.generateOrCreateDirectoryInstance("C:\\Users\\pebo01\\Desktop\\data\\3pc_Data\\allCleanLetters");
 			for (File f : folder.listFiles()){
-				String lang = detectLanguagePlainTextFile(f.getAbsolutePath());
+				String lang = li.detectLanguagePlainTextFile(f.getAbsolutePath());
 				int c = langMap.containsKey(lang) ? langMap.get(lang) + 1 : 1;
 				langMap.put(lang, c);
 			}
@@ -246,7 +254,7 @@ public class LanguageIdentificator {
 		
 		
 		long startRecog = System.currentTimeMillis();
-		nifModel = detectLanguageNIF(nifModel);
+		nifModel = li.detectLanguageNIF(nifModel);
 		System.out.println("done recognizing in " + (System.currentTimeMillis() - startRecog));
 		System.out.println("model:" + NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
 	}

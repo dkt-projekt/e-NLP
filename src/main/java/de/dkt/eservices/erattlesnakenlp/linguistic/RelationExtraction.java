@@ -10,22 +10,27 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import com.hp.hpl.jena.rdf.model.Model;
+
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
+import edu.stanford.nlp.ling.CoreLabel.OutputFormat;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalStructure;
+import edu.stanford.nlp.trees.TreeGraphNode;
 import edu.stanford.nlp.trees.TypedDependency;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import net.didion.jwnl.JWNLException;
-import edu.stanford.nlp.ling.WordLemmaTag;
 
 
 
@@ -232,6 +237,22 @@ public class RelationExtraction {
 
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 
+				System.out.println("DEBUG: " + gs.toString());
+
+				TreeGraphNode root4 = gs.root();
+				Collection<TypedDependency> coll = gs.allTypedDependencies();
+				Collection<TypedDependency> coll2 = gs.getRoots(coll);
+				for (TypedDependency td : coll2) {
+					System.out.println("----------");
+					System.out.println("DEBUG4: "+td.toString(OutputFormat.ALL));
+					System.out.println("DEBUG4: "+td.toString(OutputFormat.VALUE));
+				}
+//				TreeGraphNode [] arr = root4.children();
+//				for (TreeGraphNode tgn: arr) {
+//					System.out.println("DEBUG4: "+tgn.toPrettyString(1));
+//				}
+				System.out.println("DEBUG: ----------");
+
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject1 = SVOTripleAssignment.getSubject(gs);
 				IndexedWord connectingElement1 = SVOTripleAssignment.getVerb(gs);
@@ -254,8 +275,6 @@ public class RelationExtraction {
 					//if there is a URI link it is added to the arguments, else: null
 					String subjectURI = SVOTripleAssignment.getURI(subject1,tagged, entityMap);
 					String objectURI = SVOTripleAssignment.getURI(object1, tagged, entityMap);
-
-
 					// lemma of the connectingElement
 					String relationLemma = null;
 					LinkedList<String> wordnetInformationSet = null;
