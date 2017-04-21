@@ -221,17 +221,17 @@ public class ERattlesnakeNLPService {
 			/**
 			 * TODO Author detection of the letter (use case mendelsohn).
 			 */
-			String letterAuthor = "";			
+			String letterAuthor = "";
 			
 			/**
 			 * TODO Timestamp detection of the letter (use case mendelsohn).
 			 */
-			String letterDate = "";			
+			String letterDate = "";
 			
 			/**
 			 * TODO Location detection of the letter (use case mendelsohn).
 			 */
-			String letterLocation = "";			
+			String letterLocation = "";
 
 			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
 			/**
@@ -240,7 +240,8 @@ public class ERattlesnakeNLPService {
 			 *    if not, we will get it from the author, location and date of the letter.
 			// Just fill the list of movement action events.
 			 */
-			
+//			List<MovementActionEvent> maes = method_that_retrieves_events(auxModel, detectedLanguage, 
+//					letterAuthor, letterDate, letterLocation);
 			
 			for (MovementActionEvent mae : maes) {
 				NIFWriter.addSextupleMAEAnnotation(auxModel, documentURI, 
