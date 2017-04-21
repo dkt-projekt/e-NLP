@@ -115,6 +115,13 @@
 			<version>2.8.1</version>
 		</dependency>
 
+<!-- comment this string similarity dep (only used for some mendelsohn experiments) -->
+	<dependency>
+		<groupId>info.debatty</groupId>
+		<artifactId>java-string-similarity</artifactId>
+		<version>RELEASE</version>
+	</dependency>
+
 	</dependencies>
 	<repositories>
 		<repository>

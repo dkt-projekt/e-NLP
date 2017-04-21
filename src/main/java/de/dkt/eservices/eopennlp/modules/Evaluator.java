@@ -37,7 +37,7 @@ public class Evaluator {
 	public static void main(String[] args) {
 		
 		// ints are numIterations (of whole procedure), numTrainingIterations (for individual trainings), cutoffValue
-		evaluateNameFinder(10, 20, 1, "C:\\Users\\pebo01\\Desktop\\various\\nerModels\\aij-wikiner-de.LOC.opennlp.out", "evalDummy", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTrainFile.txt", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTestFile.txt");
+		evaluateNameFinder(10, 20, 1, "C:\\Users\\pebo01\\Desktop\\various\\nerModels\\aij-wikiner-de.PER.opennlp.out", "evalDummy", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTrainFile.txt", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTestFile.txt");
 		
 	}
 

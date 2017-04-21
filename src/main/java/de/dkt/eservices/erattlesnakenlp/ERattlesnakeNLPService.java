@@ -15,6 +15,7 @@ import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
 import de.dkt.eservices.erattlesnakenlp.linguistic.MovementActionEvent;
 import de.dkt.eservices.erattlesnakenlp.linguistic.RelationExtraction;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
+import de.dkt.eservices.erattlesnakenlp.modules.MendelsohnParser;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
 import eu.freme.common.conversion.rdf.RDFConstants;
 import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
@@ -55,6 +56,9 @@ public class ERattlesnakeNLPService {
 
 	@Autowired
 	LanguageIdentificator languageIdentificator;
+	
+	@Autowired
+	MendelsohnParser mendelsohnParser;
 
 	public ResponseEntity<String> segmentParagraphs(String inputFile, String language) {
 		ResponseEntity<String> responseCode = null;
@@ -171,10 +175,11 @@ public class ERattlesnakeNLPService {
 			 * It only works for EN/DE.(If we want more languages, we should add more langiuage models.)
 			 */
 			String detectedLanguage = languageIdentificator.getLanguageNIF(nifModel);
+			// TODO; this initialises the language models every time, perhaps do this at initiasation instead
 			/**
 			 * TODO If not english, translate it.
 			 */
-			
+			System.out.println("DEBUGGING detectedlang:" + detectedLanguage);
 			
 			
 			Model auxModel = null;
@@ -215,23 +220,24 @@ public class ERattlesnakeNLPService {
 			}			
 //			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 			
-			auxModel = heideltimeService.annotateTime(auxModel, detectedLanguage);
+			//auxModel = heideltimeService.annotateTime(auxModel, detectedLanguage); // TODO: fix this one
 //			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 
-			/**
-			 * TODO Author detection of the letter (use case mendelsohn).
-			 */
-			String letterAuthor = "";
+			// get md5 hash key (this is they key of the serialzed hashmap with all metadata)
+			byte[] key = mendelsohnParser.getHashKey(NIFReader.extractIsString(nifModel)); // done on the base of (smallest) edit distance
+			//TODO: this loads the serialized metadata everytime, perhaps do this at initiation (of the broker, through spring magic)
 			
-			/**
-			 * TODO Timestamp detection of the letter (use case mendelsohn).
-			 */
-			String letterDate = "";
+			String letterAuthor = mendelsohnParser.getAuthor(key);
 			
-			/**
-			 * TODO Location detection of the letter (use case mendelsohn).
-			 */
-			String letterLocation = "";
+			String letterDate = mendelsohnParser.getDate(key);
+			
+			String letterLocation = mendelsohnParser.getLocation(key);
+			
+			//TODO: next step to get an actual DBPedia uri/proper date for dates, and fill slots.
+			
+			System.out.println("DEBUGGING info:" + letterAuthor);
+			System.out.println("DEBUGGING info:" + letterDate);
+			System.out.println("DEBUGGING info:" + letterLocation);
 
 			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
 			/**
