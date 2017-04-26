@@ -41,9 +41,9 @@ public class Lemmatizer {
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 lemmas.add(token.get(LemmaAnnotation.class));
-                System.out.println("Token:" + token);
-                System.out.println("Lemma:" + token.get(LemmaAnnotation.class));
-                String lemma = token.get(LemmaAnnotation.class);
+//                System.out.println("Token:" + token);
+//                System.out.println("Lemma:" + token.get(LemmaAnnotation.class));
+//                String lemma = token.get(LemmaAnnotation.class);
                 
             }
         }
