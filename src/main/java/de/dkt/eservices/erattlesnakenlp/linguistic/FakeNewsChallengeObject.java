@@ -1,7 +1,7 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
 
-public class FakeNewsChallengeItem {
+public class FakeNewsChallengeObject {
 	
 	private int id;
 	private int articleId;
@@ -52,7 +52,7 @@ public class FakeNewsChallengeItem {
 	public void setHeader(String header) {
 		this.header = header;
 	}
-	public FakeNewsChallengeItem(int id, int articleId, String stance, String article, String header) {
+	public FakeNewsChallengeObject(int id, int articleId, String stance, String article, String header) {
 		super();
 		this.id = id;
 		this.articleId = articleId;
@@ -60,15 +60,17 @@ public class FakeNewsChallengeItem {
 		this.article = article;
 		this.header = header;
 	}
-	public FakeNewsChallengeItem(int id, int articleId, String stance, String article, String header, String headerLemmas, String articleLemmas) {
+	public FakeNewsChallengeObject(int id, int articleId, String stance, String article, String header, String headerLemmas, String articleLemmas) {
 		super();
 		this.id = id;
 		this.articleId = articleId;
 		this.stance = stance;
 		this.article = article;
 		this.header = header;
+		this.headerLemmas = headerLemmas;
+		this.articleLemmas = articleLemmas;
 	}
-	public FakeNewsChallengeItem() {
+	public FakeNewsChallengeObject() {
 		super();
 	}
 
