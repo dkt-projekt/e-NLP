@@ -206,6 +206,8 @@ public class CorefScorerSandbox {
 //		System.out.println("Final denominatorSum: "+denominatorSum);
 		double MUCPrecision = counterSum2/denominatorSum2;
 		System.out.println("MUCPrecision: "+MUCPrecision);
+		double MUCF1 = (2*MUCPrecision*MUCRecall)/(MUCPrecision+MUCRecall);
+		System.out.println("MUCF1 :"+MUCF1);
 		
 		//B^3 
 		//Recall
