@@ -75,6 +75,7 @@ public class EOpenNLPService {
     				nifModel = NIFReader.extractModelFromFormatString(textToProcess,inFormat);
     			}
     			catch(RiotException e){
+    				e.printStackTrace();
     				throw new BadRequestException("Check the input format ["+inFormat+"]!!");
     			}
     		}

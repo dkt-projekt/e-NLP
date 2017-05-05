@@ -12,12 +12,20 @@ public class MovementActionEvent {
 	private Date departureTime;
 	private Date arrivalTime;
 	/**
-	 * Travel mode refers tot he transportation mode.
+	 * Travel mode refers to the transportation mode.
 	 */
 	private String travelMode;
+	/**
+	 * Text refers to the text where the MAE appears.
+	 */
+	private String text;
+	/**
+	 * Confidence of the MAE.
+	 */
+	private float score;
 	
 	public MovementActionEvent(int startIndex, int endIndex, String person, String origin, String destination,
-			Date departureTime, Date arrivalTime, String travelMode) {
+			Date departureTime, Date arrivalTime, String travelMode, String text, float score) {
 		super();
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
@@ -27,6 +35,8 @@ public class MovementActionEvent {
 		this.departureTime = departureTime;
 		this.arrivalTime = arrivalTime;
 		this.travelMode = travelMode;
+		this.text = text;
+		this.score = score;
 	}
 
 	public MovementActionEvent() {
@@ -96,5 +106,22 @@ public class MovementActionEvent {
 	public void setEndIndex(int endIndex) {
 		this.endIndex = endIndex;
 	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public float getScore() {
+		return score;
+	}
+
+	public void setScore(float score) {
+		this.score = score;
+	}
+	
 	
 }
