@@ -37,7 +37,8 @@ public class Evaluator {
 	public static void main(String[] args) {
 		
 		// ints are numIterations (of whole procedure), numTrainingIterations (for individual trainings), cutoffValue
-		evaluateNameFinder(10, 20, 1, "C:\\Users\\pebo01\\Desktop\\various\\nerModels\\aij-wikiner-de.PER.opennlp.out", "evalDummy", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTrainFile.txt", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTestFile.txt");
+		//evaluateNameFinder(10, 20, 1, "C:\\Users\\pebo01\\Desktop\\various\\nerModels\\aij-wikiner-de.PER.opennlp.out", "evalDummy", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTrainFile.txt", "C:\\Users\\pebo01\\Desktop\\EventStory2017\\tempTestFile.txt");
+		evaluateNameFinder(100, 500, 3, "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\pccConnectives.gold.opennlp", "evalDummy", "C:\\Users\\pebo01\\Desktop\\phd\\tempPCCtrain.txt", "C:\\Users\\pebo01\\Desktop\\phd\\tempPCCtest.txt");
 		
 	}
 
@@ -318,7 +319,6 @@ public class Evaluator {
 //				}
 				System.out.println(String.format("INFO: Spotting done. (%s of %s)", Integer.toString(q + 1),
 						Integer.toString(numIterations)));
-
 				HashMap<String, Double> scores = evaluate(testConllGold, testConll);
 				if (scores.get("precision") == -1.0 && scores.get("recall") == -1.0 && scores.get("f") == -1.0) {
 					q--;

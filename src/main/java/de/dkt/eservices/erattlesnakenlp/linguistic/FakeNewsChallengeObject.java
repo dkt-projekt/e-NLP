@@ -1,5 +1,8 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.util.ArrayList;
+
+import edu.stanford.nlp.trees.GrammaticalStructure;
 
 public class FakeNewsChallengeObject {
 	
@@ -10,9 +13,25 @@ public class FakeNewsChallengeObject {
 	private String header;
 	private String headerLemmas;
 	private String articleLemmas;
+	private ArrayList<GrammaticalStructure> gsArticle;
+	private ArrayList<GrammaticalStructure> gsHeader;
+	
 	public int getId() {
 		return id;
 	}
+	public void setArticleGS(ArrayList<GrammaticalStructure> gs){
+		this.gsArticle = gs;
+	}
+	public void setHeaderGS(ArrayList<GrammaticalStructure> gs){
+		this.gsHeader = gs;
+	}
+	public ArrayList<GrammaticalStructure> getArticleGS(){
+		return gsArticle;
+	}
+	public ArrayList<GrammaticalStructure> getHeaderGS(){
+		return gsHeader;
+	}
+	
 	public String getHeaderLemmas() {
 		return headerLemmas;
 	}

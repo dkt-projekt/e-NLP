@@ -1,5 +1,6 @@
 package de.dkt.eservices.erattlesnakenlp.linguistic;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +15,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.json.JSONObject;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -85,7 +88,7 @@ public class RelationExtraction {
 		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
-				System.out.println("Sentence: " + sentence);
+//				System.out.println("Sentence: " + sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 
 				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
@@ -155,9 +158,9 @@ public class RelationExtraction {
 						}
 					}									
 					//					// Mendelsohn exception:
-					//					if (subject.word().equalsIgnoreCase("i")){
-					//						subjectURI = "Eric";
-					//					}		
+//										if (subject.word().equalsIgnoreCase("i")){
+//											subjectURI = "Eric";
+//										}		
 
 					//lemma of the connectingElement
 					String relationLemma = null;
@@ -224,7 +227,7 @@ public class RelationExtraction {
 		if (entityMap != null) {
 			DocumentPreprocessor tokenizer = new DocumentPreprocessor(new StringReader(isstr));
 			for (List<HasWord> sentence : tokenizer) {
-				System.out.println(sentence);
+//				System.out.println(sentence);
 				List<TaggedWord> tagged = Tagger.tagger.tagSentence(sentence);
 
 				final StanfordLemmatizer lemmatizer = StanfordLemmatizer.getInstance(); 
@@ -237,21 +240,21 @@ public class RelationExtraction {
 
 				GrammaticalStructure gs = DepParserTree.parser.predict(tagged);
 
-				System.out.println("DEBUG: " + gs.toString());
+//				System.out.println("DEBUG: " + gs.toString());
 
 				TreeGraphNode root4 = gs.root();
 				Collection<TypedDependency> coll = gs.allTypedDependencies();
 				Collection<TypedDependency> coll2 = gs.getRoots(coll);
 				for (TypedDependency td : coll2) {
-					System.out.println("----------");
-					System.out.println("DEBUG4: "+td.toString(OutputFormat.ALL));
-					System.out.println("DEBUG4: "+td.toString(OutputFormat.VALUE));
+//					System.out.println("----------");
+//					System.out.println("DEBUG4: "+td.toString(OutputFormat.ALL));
+//					System.out.println("DEBUG4: "+td.toString(OutputFormat.VALUE));
 				}
 //				TreeGraphNode [] arr = root4.children();
 //				for (TreeGraphNode tgn: arr) {
 //					System.out.println("DEBUG4: "+tgn.toPrettyString(1));
 //				}
-				System.out.println("DEBUG: ----------");
+//				System.out.println("DEBUG: ----------");
 
 				HashMap<IndexedWord, IndexedWordTuple> relMap = new HashMap<IndexedWord, IndexedWordTuple>();
 				IndexedWord subject1 = SVOTripleAssignment.getSubject(gs);
@@ -268,7 +271,7 @@ public class RelationExtraction {
 
 
 				if (!(subject1 == null) && !(connectingElement1 == null) && !(object1 == null)){
-					System.out.println();
+//					System.out.println();
 					sentenceCounter = sentenceCounter +1;
 					//System.out.println("DEBUGGING relation found:" + subject1 + " TAG "+subject1.tag() + "___" + connectingElement1 + "___" + object1 + " " + object1.tag());
 					
@@ -336,6 +339,7 @@ public class RelationExtraction {
 							.getEntityRelationTripleList(subjectURI, objectURI, gs, sentenceStart, tagged);
 
 					for (EntityRelationTriple t : ertripleList){
+//						System.out.println("DEBUG: Adding triple here: " + t.getSubject() + "|" + t.getRelation() + "|" + t.getObject());
 						ert.add(t);
 					}
 				}
@@ -613,7 +617,15 @@ public class RelationExtraction {
 
 	public static void main(String args[]) throws JWNLException, IOException{
 		
-		ArrayList<EntityRelationTriple> ent = nifToTripleList("C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles");
+		//ArrayList<EntityRelationTriple> ent = nifToTripleList("C:\\Users\\Sabine\\Desktop\\WörkWörk\\testfiles");
+		ArrayList<EntityRelationTriple> ent = nifToTripleList("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ObamaTripsDocuments\\subsetNifs");
+		String debugOut = "C:\\Users\\pebo01\\Desktop\\debug.txt";
+		BufferedWriter brDebug = FileFactory.generateOrCreateBufferedWriterInstance(debugOut, "utf-8", false);
+		HashMap<String,HashMap<String,HashMap<String,Integer>>> m = convertRelationTripleListToHashMap(ent);
+		JSONObject jsonMap = new JSONObject(m);
+		brDebug.write(jsonMap.toString(4));
+		brDebug.close();
+		
 		
 		
 // -----THIS IS THE ACTUAL MAIN METHOD-----------------------------------------------------

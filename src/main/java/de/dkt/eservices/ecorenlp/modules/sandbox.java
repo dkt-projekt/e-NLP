@@ -1,21 +1,17 @@
 package de.dkt.eservices.ecorenlp.modules;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-import java.io.FileWriter;
-
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import java.util.LinkedHashMap;
@@ -23,45 +19,26 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Queue;
 
 import java.util.Scanner;
-import java.util.SortedSet;
-
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import de.dkt.common.niftools.NIFReader;
 import de.dkt.eservices.erattlesnakenlp.linguistic.SpanWord;
-import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.trees.Constituent;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.international.negra.NegraHeadFinder;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
-import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.PropertiesUtils;
-import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 import edu.stanford.nlp.trees.Tree;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.Span;
-
-import edu.stanford.nlp.naturalli.ClauseSplitter;
-import edu.stanford.nlp.naturalli.OpenIE;
-import edu.stanford.nlp.naturalli.SentenceFragment;
 
 public class sandbox {
 	public static LexicalizedParser parser = null;
@@ -91,6 +68,40 @@ public class sandbox {
     
     
     public static void main(String[] args) throws IOException{
+    	
+    	
+    	Path p = new File("C:\\Users\\pebo01\\Desktop\\movementVerbs.txt").toPath();
+		List<String> movementVerbs = Files.readAllLines(p);
+		
+		try {
+			JSONObject jo = (JSONObject) new JSONParser().parse(new FileReader("C:\\Users\\pebo01\\Desktop\\EventStory2017\\ObamaTripsDocuments\\subRelationJson\\relations.json"));
+			for(Iterator iterator = jo.keySet().iterator(); iterator.hasNext();) {
+			    String s = (String) iterator.next();
+//			    System.out.println("SUBJECT: " + s);
+			    JSONObject jo2 = (JSONObject)jo.get(s);
+			    for(Iterator iterator2 = jo2.keySet().iterator(); iterator2.hasNext();) {
+			    	String v = (String) iterator2.next();
+//			    	System.out.println("\tVERB: " + v);
+			    	JSONObject jo3 = (JSONObject)jo2.get(v);
+				    for(Iterator iterator3 = jo3.keySet().iterator(); iterator3.hasNext();) {
+				    	String o = (String) iterator3.next();
+//				    	System.out.println("\t\tOBJECT: " + o);
+//				    	if (movementVerbs.contains(v)){
+				    		System.out.println("triple: " + s + "|" + "|" + v +"|" + o);
+//				    	}
+				    	
+				    }
+			    }
+			    
+			    
+			    
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	System.exit(1);
     	
     	
     	

@@ -225,7 +225,7 @@ public class NameFinder {
 		Date d_inter_final2 = new Date();
 		MemoryUsage m_inter_final2 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 //		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Detect Entities With models", d_inter_initial2, d_inter_final2, m_inter_initial2, m_inter_final2);
-		System.out.println("SPOT TIME: "+(d_inter_final2.getTime()-d_inter_initial2.getTime()));
+//		System.out.println("SPOT TIME: "+(d_inter_final2.getTime()-d_inter_initial2.getTime()));
 		Date d_inter_initial3 = new Date();
 		MemoryUsage m_inter_initial3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 
@@ -268,7 +268,7 @@ public class NameFinder {
 //		System.gc();
 		Date d_inter_final3 = new Date();
 		MemoryUsage m_inter_final3 = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-		System.out.println("SPOT2 TIME: "+(d_inter_final3.getTime()-d_inter_initial3.getTime()));
+//		System.out.println("SPOT2 TIME: "+(d_inter_final3.getTime()-d_inter_initial3.getTime()));
 //		ENLPPerformanceTest.printUsageData(ENLPPerformanceTest.bw, "Adding annotation to model", d_inter_initial3, d_inter_final3, m_inter_initial3, m_inter_final3);
 
 		return nifModel;

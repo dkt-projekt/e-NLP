@@ -76,7 +76,7 @@ public class WordElement {
 
 			if (typedDependency.gov().value().equals(word) && typedDependency.reln().getShortName().equals("case")) {
 				dependentPOStag1 = typedDependency.dep().tag();
-				System.out.println("dependentPOStag1: " + dependentPOStag1);
+//				System.out.println("dependentPOStag1: " + dependentPOStag1);
 			}
 
 		}
@@ -127,7 +127,7 @@ public class WordElement {
 	}
 
 	public LinkedList <String> getSimplifiedPOSTagsList(GrammaticalStructure gs){
-		System.out.println("simplified");
+//		System.out.println("simplified");
 		LinkedList <String> posTagsList = getPOStagsList(gs);
 		LinkedList <String> simplifiedPOSTagsList = new LinkedList <String>();
 
@@ -141,22 +141,22 @@ public class WordElement {
 			if (i>0 && simplifiedNPs.contains(currentPOStag)){
 				if (!simplifiedPPs.contains(posTagsList.get(i-1))){
 					simplifiedPOSTagsList.add("NP");
-					System.out.println("NP added");
+//					System.out.println("NP added");
 				}
 			}
 			else if (i==0 && simplifiedNPs.contains(currentPOStag)){
 				simplifiedPOSTagsList.add("NP");
-				System.out.println("NP added");
+//				System.out.println("NP added");
 
 			}
 			else if (simplifiedVPs.contains(currentPOStag)){
 				simplifiedPOSTagsList.add("VP");
-				System.out.println("VP added");
+//				System.out.println("VP added");
 
 			}
 			else if (simplifiedPPs.contains(currentPOStag)){
 				simplifiedPOSTagsList.add("PP");
-				System.out.println("PP added");
+//				System.out.println("PP added");
 			}
 		}
 		return simplifiedPOSTagsList;

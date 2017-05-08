@@ -100,7 +100,7 @@ public class SVO_Object {
 				if (SVOTripleAssignment.englishObjectRelationTypes.contains(td.reln().toString())  &&  WordElement.getPositionWordInSentence(td.dep().word(), gs)> WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs)) {
 					if (td.gov().beginPosition() == connectingElement.beginPosition()
 							&& td.gov().endPosition() == connectingElement.endPosition()) {
-						System.out.println("objPosition: " + WordElement.getPositionWordInSentence(td.dep().word(), gs) + " subj: " +  WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs));
+//						System.out.println("objPosition: " + WordElement.getPositionWordInSentence(td.dep().word(), gs) + " subj: " +  WordElement.getPositionWordInSentence(SVO_Subject.assignSubject(gs).word(), gs));
 
 						objectRelationType = td;
 						//TODO!
@@ -163,9 +163,9 @@ public class SVO_Object {
 	public static String getPassiveVoiceObject(GrammaticalStructure gs){
 		String passiveVoiceObject = "";
 		if (!SVO_Subject.passiveVoiceSubject(gs).equals("")){
-			System.out.println("word by dependency " + WordElement.getWordByDependency("nmod:agent",gs));
+//			System.out.println("word by dependency " + WordElement.getWordByDependency("nmod:agent",gs));
 			passiveVoiceObject = WordElement.getWordByDependency("nmod:agent",gs);
-			System.out.println(" obj Pass : " + passiveVoiceObject);
+//			System.out.println(" obj Pass : " + passiveVoiceObject);
 		}
 		return passiveVoiceObject;
 	}
