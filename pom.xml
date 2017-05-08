@@ -50,6 +50,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<!--  ONLY USED FOR FAKE NEWS CHALLENGE EXPERIMENTS. DO NOT COMMIT!  -->
+		<dependency>
+			<groupId>de.dkt</groupId>
+			<artifactId>e-Clustering</artifactId>
+			<version>0.7-SNAPSHOT</version>
+		</dependency>
+		
 <!-- 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>
@@ -116,11 +124,11 @@
 		</dependency>
 
 <!-- comment this string similarity dep (only used for some mendelsohn experiments) -->
-	<dependency>
-		<groupId>info.debatty</groupId>
-		<artifactId>java-string-similarity</artifactId>
-		<version>RELEASE</version>
-	</dependency>
+<!-- 	<dependency> -->
+<!-- 		<groupId>info.debatty</groupId> -->
+<!-- 		<artifactId>java-string-similarity</artifactId> -->
+<!-- 		<version>RELEASE</version> -->
+<!-- 	</dependency> -->
 
 	</dependencies>
 	<repositories>
