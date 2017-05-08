@@ -52,11 +52,11 @@
 		</dependency>
 		
 		<!--  ONLY USED FOR FAKE NEWS CHALLENGE EXPERIMENTS. DO NOT COMMIT!  -->
-		<dependency>
+<!-- 		<dependency>
 			<groupId>de.dkt</groupId>
 			<artifactId>e-Clustering</artifactId>
 			<version>0.7-SNAPSHOT</version>
-		</dependency>
+		</dependency>  -->
 		
 <!-- 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
