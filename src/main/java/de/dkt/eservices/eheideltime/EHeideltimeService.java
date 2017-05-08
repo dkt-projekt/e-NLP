@@ -49,8 +49,8 @@ public class EHeideltimeService {
 	
 	private static final String CONFIG_PROPS = "config.props"; 
 
-	//private static final String RESOURCE_NAME = "/opt/heideltime-kit/conf/" + CONFIG_PROPS; 
-	private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
+	private static final String RESOURCE_NAME = "/opt/heideltime-kit/conf/" + CONFIG_PROPS; 
+//	private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
 	
 	private String configPath; 
 
@@ -60,35 +60,40 @@ public class EHeideltimeService {
 	private Set<Date> dates = new TreeSet<>(); 
 	private Date normDate; 
 
-	public EHeideltimeService() throws Exception {
-//		InputStream in = EHeideltimeService.class.getResourceAsStream(RESOURCE_NAME); 
-		InputStream in = new FileInputStream(RESOURCE_NAME);
-		String tempDir = System.getProperty("java.io.tmpdir"); 
-		configPath = Paths.get(tempDir, CONFIG_PROPS).toString(); 
-
-		// File f = new File(configPath); 
-		// if (!f.exists()) { 
-		OutputStream out = new FileOutputStream(configPath); 
-		try { 
-			IOUtils.copy(in, out); 
-		} finally { 
-			in.close(); 
-			out.close(); 
+	public EHeideltimeService() {
+		try{
+	//		InputStream in = EHeideltimeService.class.getResourceAsStream(RESOURCE_NAME); 
+			InputStream in = new FileInputStream(RESOURCE_NAME);
+			String tempDir = System.getProperty("java.io.tmpdir"); 
+			configPath = Paths.get(tempDir, CONFIG_PROPS).toString(); 
+	
+			// File f = new File(configPath); 
+			// if (!f.exists()) { 
+			OutputStream out = new FileOutputStream(configPath); 
+			try { 
+				IOUtils.copy(in, out); 
+			} finally { 
+				in.close(); 
+				out.close(); 
+			}
+			
+			heidels = new HashMap<String, HeidelTimeStandalone>();
+			heidels.put("en", new HeidelTimeStandalone(Language.ENGLISH, DocumentType.NEWS, 
+					OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
+					true));
+			heidels.put("de", new HeidelTimeStandalone(Language.GERMAN, DocumentType.NEWS, 
+					OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
+					true));
+			heidels.put("es", new HeidelTimeStandalone(Language.SPANISH, DocumentType.NEWS, 
+					OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
+					true));
+			heidels.put("fr", new HeidelTimeStandalone(Language.FRENCH, DocumentType.NEWS, 
+					OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
+					true));
 		}
-		
-		heidels = new HashMap<String, HeidelTimeStandalone>();
-		heidels.put("en", new HeidelTimeStandalone(Language.ENGLISH, DocumentType.NEWS, 
-				OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
-				true));
-		heidels.put("de", new HeidelTimeStandalone(Language.GERMAN, DocumentType.NEWS, 
-				OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
-				true));
-		heidels.put("es", new HeidelTimeStandalone(Language.SPANISH, DocumentType.NEWS, 
-				OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
-				true));
-		heidels.put("fr", new HeidelTimeStandalone(Language.FRENCH, DocumentType.NEWS, 
-				OutputType.TIMEML, configPath, POSTagger.TREETAGGER, 
-				true));
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	} 
 
 	@PostConstruct
