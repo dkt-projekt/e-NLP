@@ -378,12 +378,6 @@ public class ERattlesnakeNLPService {
 								for (DktAnnotation time1 : iTimes) {
 									for (DktAnnotation time2: iTimes) {
 										for (DktAnnotation mode: iModes) {
-											MovementActionEvent auxmae = new MovementActionEvent(sentenceOffset, sentenceEnd, 
-													person.getText(), 
-													location1.getText(), location2.getText(), 
-													new Date(time1.getText()), new Date(time2.getText()), 
-													mode.getText());
-											
 											float perVal=1,loc1Val=1,loc2Val=2,tim1Val=1,tim2Val=1,modVal=1;
 											if(person.getType().equalsIgnoreCase("empty")){
 												perVal=0;
@@ -405,6 +399,12 @@ public class ERattlesnakeNLPService {
 											}
 											float maeScore = perVal*personWeight + loc1Val*originWeight + loc2Val*destinationWeight + 
 													tim1Val*departureTimeWeight + tim2Val*arrivalTimeWeight + modVal*modeWeight;
+											
+											MovementActionEvent auxmae = new MovementActionEvent(sentenceOffset, sentenceEnd, 
+													person.getText(), 
+													location1.getText(), location2.getText(), 
+													new Date(time1.getText()), new Date(time2.getText()), 
+													mode.getText(),sentence.get(CoreAnnotations.TextAnnotation.class),maeScore);
 											
 											if(maeScore > threshold){
 												maes.add(auxmae);
@@ -433,7 +433,8 @@ public class ERattlesnakeNLPService {
 				NIFWriter.addSextupleMAEAnnotation(auxModel, documentURI, 
 						mae.getPerson(),mae.getOrigin(),mae.getDestination(),
 						mae.getDepartureTime(),mae.getArrivalTime(),mae.getTravelMode(),
-						mae.getStartIndex(),mae.getEndIndex()
+						mae.getStartIndex(),mae.getEndIndex(),
+						mae.getText(),mae.getScore()
 						);
 			}
 			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));	
