@@ -3,7 +3,7 @@
 
 The e-NLP module performs Named Entity Recognition and Temporal Analysis. Given either a trained model, a dictionary file or a temporal expression model, new input can be analyzed and annotated for entities and additional information (like DBpedia URI) in NIF format.
 
-##Named Entity Recognition
+## Named Entity Recognition
 The NER endpoint bundles several different approaches. 
 The first one is based on NER models which are trained using previously annotated data to extract certain features. These features are then used to select candidate entities. The second one is a simple dictionary approach. A dictionary is uploaded and in new input, every instance of a (group of) word(s) that can be found in the dictionary is annotated as being an entity. 
 The third one is a temporal analyzer module. This is based on a regular expression grammar to detect temporal expressions in input and annotate them in the output NIF.
