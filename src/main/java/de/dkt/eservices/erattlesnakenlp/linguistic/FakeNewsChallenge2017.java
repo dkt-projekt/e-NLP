@@ -152,21 +152,42 @@ public class FakeNewsChallenge2017 {
 		return rl;
 	}
 	
-	private HashMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier){
+	private HashMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier, PrintWriter debug){
 		HashMap<FakeNewsChallengeObject, String> hm = new HashMap<FakeNewsChallengeObject, String>();
 		
 		// prerequisites...
 		deserializeStopwords("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\stopwords\\english.ser");
 		populateHashMaps(l);
 		
-		
-		//actual classification...
+		double above3classThreshold = 0.0;
+		double above3classThresholdCorrect = 0.0;
+		double above3classThresholdIncorrect = 0.0;
+		double below3classThreshold = 0.0;
+		double below3classThresholdCorrect = 0.0;
+		double below3classThresholdIncorrect = 0.0;
+		double binaryCorrect = 0.0;
+		double binaryIncorrect = 0.0;
+		boolean used3classvalue = false;
+		boolean usedUnrelated = false;
 		for (FakeNewsChallengeObject fnco : l) {
 			String val = binaryClassifyInstanceForRelatedness(fnco, threshold);
 			if (val.equalsIgnoreCase("unrelated")){
+				usedUnrelated = true;
 				hm.put(fnco,  val);
+//				if (val.equalsIgnoreCase(fnco.getStance())){
+//					binaryCorrect++;
+//				}
+//				else{
+//					binaryIncorrect++;
+//				}
 			}
 			else{
+//				if (fnco.getStance().equalsIgnoreCase("unrelated")){
+//					binaryIncorrect++;
+//				}
+//				else{
+//					binaryCorrect++;
+//				}
 				String cl = "";
 
 				// figures on question mark... not very helpful, given that discuss is the fallback anyway
@@ -202,7 +223,7 @@ public class FakeNewsChallenge2017 {
 //					cl = "agree"; // this decreases score dramatically...
 //				}
 //				else{
-				HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeader(), fallbackHeadlineClassifier, numClasses); // TODO: fix here! (see below)
+				HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeader(), fallbackHeadlineClassifier, numClasses);
 				
 				
 				
@@ -222,8 +243,16 @@ public class FakeNewsChallenge2017 {
 //				}
 				double highestScore = getHighestScore(classScores);
 				double diffBetween1and2 = getDiffInScores(classScores, highestScore);
-				if (diffBetween1and2 > 0.7){ // re-visit optimal threshold value when other classification method is implemented
+				if (diffBetween1and2 > 0.7){ // TODO: re-visit optimal threshold value when other classification method is implemented
+					used3classvalue = true;
 					cl = sorted[0];
+//					above3classThreshold++;
+					if (cl.equalsIgnoreCase(fnco.getStance())){
+//						above3classThresholdCorrect++;
+					}
+					else{
+//						above3classThresholdIncorrect++;
+					}
 				}
 				else{
 					String first = sorted[0];
@@ -231,14 +260,21 @@ public class FakeNewsChallenge2017 {
 					// making a list to decrease number of if checks...
 					List<String> _12 = new ArrayList<>(Arrays.asList(first.toLowerCase(), second.toLowerCase()));
 					if (_12.contains("agree") && _12.contains("disagree")){
-						cl = DocumentClassification.classifyString(fnco.getHeader(), binaryAgreeOrDisagreeClassifier); //TODO: fix here tha\t I'm not only feeding the header, but also the article!!!!!
+						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDisagreeClassifier);
 					}
 					else if (_12.contains("agree") && _12.contains("discuss")){
-						cl = DocumentClassification.classifyString(fnco.getHeader(), binaryAgreeOrDiscussClassifier);
+						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDiscussClassifier);
 					}
 					else if (_12.contains("discuss") && _12.contains("disagree")){
-						cl = DocumentClassification.classifyString(fnco.getHeader(), binaryDiscussOrDisagreeClassifier);
+						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryDiscussOrDisagreeClassifier);
 					}
+//					below3classThreshold++;
+//					if (cl.equalsIgnoreCase(fnco.getStance())){
+//						below3classThresholdCorrect++;
+//					}
+//					else{
+//						below3classThresholdIncorrect++;
+//					}
 				}
 				
 //				}
@@ -249,7 +285,39 @@ public class FakeNewsChallenge2017 {
 				
 				hm.put(fnco,  cl);
 				
-				
+				String actualValue = fnco.getStance();
+				String classifiedValue = cl;
+				if (actualValue.equalsIgnoreCase("unrelated") && classifiedValue.equalsIgnoreCase("unrelated")){
+					binaryCorrect++;
+				}
+				else if (actualValue.equalsIgnoreCase("unrelated") && isRelated(classifiedValue)){
+					binaryIncorrect++;
+				}
+				else if (isRelated(actualValue) && classifiedValue.equalsIgnoreCase("unrelated")){
+					binaryIncorrect++;
+				}
+				else if (isRelated(actualValue) && isRelated(classifiedValue)){
+					binaryCorrect++;
+					if (used3classvalue){
+						above3classThreshold++;
+						if (actualValue.equalsIgnoreCase(classifiedValue)){
+							above3classThresholdCorrect++;
+						}
+						else{
+							above3classThresholdIncorrect++;
+						}
+					}
+					else{
+						below3classThreshold++;
+						if (actualValue.equalsIgnoreCase(classifiedValue)){
+							below3classThresholdCorrect++;
+						}
+						else{
+							below3classThresholdIncorrect++;
+						}
+					}
+					
+				}
 				
 				//hm.put(fnco, "discuss"); // baseline (popular vote...)
 				
@@ -257,6 +325,21 @@ public class FakeNewsChallenge2017 {
 				
 			}
 		}
+		
+		// print debug scores to output
+		debug.println("total" + "\t" + l.size());
+		debug.println("binary correct" + "\t" + binaryCorrect);
+		debug.println("binary incorrect" + "\t" + binaryIncorrect);
+		debug.println("binary score" + "\t" + binaryCorrect / (binaryCorrect + binaryIncorrect));
+		debug.println("above threshold" + "\t" + above3classThreshold);
+		debug.println("above threshold correct" + "\t" + above3classThresholdCorrect);
+		debug.println("above threshold incorrect" + "\t" + above3classThresholdIncorrect);
+		debug.println("above threshold score" + "\t" + above3classThresholdCorrect / above3classThreshold);
+		debug.println("below threshold" + "\t" + below3classThreshold);
+		debug.println("below threshold correct" + "\t" + below3classThresholdCorrect);
+		debug.println("below threshold incorrect" + "\t" + below3classThresholdIncorrect);
+		debug.println("below threshold score" + "\t" + below3classThresholdCorrect / below3classThreshold);
+		debug.println("\n");
 		
 		return hm;
 	}
@@ -555,7 +638,16 @@ public class FakeNewsChallenge2017 {
 		
 	}
 	
-	private Double evaluate(HashMap<FakeNewsChallengeObject, String> results, ArrayList<FakeNewsChallengeObject> l){
+	private boolean isRelated(String cl){
+		if (cl.equalsIgnoreCase("discuss") || cl.equalsIgnoreCase("disagree") || cl.equalsIgnoreCase("agree")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	private ArrayList<Double> evaluate(HashMap<FakeNewsChallengeObject, String> results, ArrayList<FakeNewsChallengeObject> l){
 		
 		double relatednessScore = 0.0;
 		double fineGrainedScore = 0.0;
@@ -565,30 +657,72 @@ public class FakeNewsChallenge2017 {
 		relatedClasses.add("disagree");
 		relatedClasses.add("agree");
 		
+		
+		
+		
 		for (FakeNewsChallengeObject fnco : l){
-			if (results.get(fnco).equalsIgnoreCase("unrelated") && fnco.getStance().equalsIgnoreCase("unrelated")){
+			String actualStance = fnco.getStance();
+			String classifiedStance = results.get(fnco);
+			if (actualStance.equalsIgnoreCase("unrelated") && classifiedStance.equalsIgnoreCase("unrelated")){
 				relatednessScore++;
 			}
-			else if (relatedClasses.contains(fnco.getStance())){
+			else if (actualStance.equalsIgnoreCase("unrelated") && isRelated(classifiedStance)){
+				// no points added
+			}
+			else if (isRelated(actualStance) && classifiedStance.equalsIgnoreCase("unrelated")){
 				totalRelated++;
-				if (relatedClasses.contains(results.get(fnco))){
-					relatednessScore++;
-					if (results.get(fnco).equalsIgnoreCase(fnco.getStance())){
-						fineGrainedScore++;
-					}
+				// no points added
+			}
+			else if (isRelated(actualStance) && isRelated(classifiedStance)){
+				totalRelated++;
+				relatednessScore++;
+				if (actualStance.equalsIgnoreCase(classifiedStance)){
+					fineGrainedScore++;
+				}
+				else{
+					// no points added
 				}
 			}
-			else{
-				// no points scored :(
-			}
 		}
+		
+		
+//		for (FakeNewsChallengeObject fnco : l){
+//			if (!fnco.getStance().equalsIgnoreCase("unrelated")){
+//				totalRelated++;
+//			}
+//			if (results.get(fnco).equalsIgnoreCase("unrelated") && fnco.getStance().equalsIgnoreCase("unrelated")){
+//				relatednessScore++;
+////				fineGrainedScore++;
+//			}
+////			else if (results.get(fnco).equalsIgnoreCase("unrelated") || fnco.getStance().equalsIgnoreCase("unrelated")){
+////				
+////			}
+//			else if (relatedClasses.contains(fnco.getStance())){
+//				//totalRelated++;
+//				if (relatedClasses.contains(results.get(fnco))){
+//					relatednessScore++;
+//					if (results.get(fnco).equalsIgnoreCase(fnco.getStance())){
+//						fineGrainedScore++;
+//					}
+//				}
+//			}
+//			else{
+//				// no points scored :(
+//			}
+//		}
 		double rs = relatednessScore / l.size();
+//		double fs = fineGrainedScore / l.size();
+		
 		double fs = fineGrainedScore / totalRelated;
 //		System.out.println("debug relatednessScore:" + rs);
 //		System.out.println("debug finegrainedScore:" + fs);
 		double finalScore = ((fs * 3) + (rs * 1)) / 4;
 //		System.out.println("INFO: Weighted score:" + finalScore);
-		return finalScore;
+		ArrayList<Double> s = new ArrayList<Double>();
+		s.add(rs);
+		s.add(fs);
+		s.add(finalScore);
+		return s;
 		
 	}
 	
@@ -745,8 +879,8 @@ public class FakeNewsChallenge2017 {
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 		
-		int numIterations = 50;
-		ArrayList<Double> scores = new ArrayList<Double>();
+		int numIterations = 1;
+		ArrayList<ArrayList<Double>> scores = new ArrayList<ArrayList<Double>>();
 		
 //		//String sentence = "The claim in this article is denied.";
 //		//String sentence = "The is not a headline.";
@@ -771,7 +905,7 @@ public class FakeNewsChallenge2017 {
 		//String alg = "maxent";
 		String[] algs = {"maxent"};//, "mcmaxent", "bayesem", "bayes", "winnow"};
 		try {
-			//PrintWriter debug = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
+			PrintWriter debug = new PrintWriter(new File("C:\\Users\\pebo01\\Desktop\\debug.txt"));
 			for (String alg : algs){
 				System.out.println("INFO: Currently using algorithm: " + alg);
 			l = fnc.parseTsv(fnc.readLines(data), true);
@@ -879,11 +1013,11 @@ public class FakeNewsChallenge2017 {
 			System.out.println("INFO: Starting classification.");
 			double threshold = 0.0096;
 			//HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(l, threshold, fallbackHeadlineClassifier);
-			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
+			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier, debug); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
 			System.out.println("INFO: Done with classification. Evaluating now...");
 			//double weightedScore = fnc.evaluate(results, l);
-			double weightedScore = fnc.evaluate(results, testList); // NOTE: same here (see comment above on testList)
-			scores.add(weightedScore);
+			ArrayList<Double> s = fnc.evaluate(results, testList); // NOTE: same here (see comment above on testList)
+			scores.add(s);
 			//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 			
 			//+++++++++++++++++ general playing around ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -960,14 +1094,21 @@ public class FakeNewsChallenge2017 {
 			
 			//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 			}
+			double totalRelated = 0.0;
+			double totalFinegrained = 0.0;
+			double totalWeighted = 0.0;
 			double t = 0.0;
-			for (double d : scores){
-				t += d;
+			for (ArrayList<Double> il : scores){
+				t++;
+				totalRelated += il.get(0);
+				totalFinegrained += il.get(1);
+				totalWeighted += il.get(2);
 			}
-			System.out.println(String.format("INFO: Result of %s-fold cross-validation for algorithm: %s\t%s.", Integer.toString(numIterations), alg, Double.toString(t/scores.size())));
+			
+			System.out.println(String.format("INFO: Result of %s-fold cross-validation for algorithm: %s\n\t\t\t\trelatedness:%s\n\t\t\t\tfinegrained:%s\n\t\t\t\tweighted:%s.", Integer.toString(numIterations), alg, Double.toString(totalRelated/t), Double.toString(totalFinegrained/t), Double.toString(totalWeighted/t)));
 			//debug.println(String.format("INFO: Result of %s-fold cross-validation for algorithm: %s\t%s.", Integer.toString(numIterations), alg, Double.toString(t/scores.size())));
 			}
-			//debug.close();
+			debug.close();
 			System.out.println("INFO: Done.");
 			debugOut.close();
 		} catch (IOException e) {
