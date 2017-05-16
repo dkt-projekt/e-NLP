@@ -167,12 +167,10 @@ public class FakeNewsChallenge2017 {
 		double below3classThresholdIncorrect = 0.0;
 		double binaryCorrect = 0.0;
 		double binaryIncorrect = 0.0;
-		boolean used3classvalue = false;
-		boolean usedUnrelated = false;
 		for (FakeNewsChallengeObject fnco : l) {
+			boolean used3classvalue = false;
 			String val = binaryClassifyInstanceForRelatedness(fnco, threshold);
 			if (val.equalsIgnoreCase("unrelated")){
-				usedUnrelated = true;
 				hm.put(fnco,  val);
 //				if (val.equalsIgnoreCase(fnco.getStance())){
 //					binaryCorrect++;
@@ -285,43 +283,45 @@ public class FakeNewsChallenge2017 {
 				
 				hm.put(fnco,  cl);
 				
-				String actualValue = fnco.getStance();
-				String classifiedValue = cl;
-				if (actualValue.equalsIgnoreCase("unrelated") && classifiedValue.equalsIgnoreCase("unrelated")){
-					binaryCorrect++;
-				}
-				else if (actualValue.equalsIgnoreCase("unrelated") && isRelated(classifiedValue)){
-					binaryIncorrect++;
-				}
-				else if (isRelated(actualValue) && classifiedValue.equalsIgnoreCase("unrelated")){
-					binaryIncorrect++;
-				}
-				else if (isRelated(actualValue) && isRelated(classifiedValue)){
-					binaryCorrect++;
-					if (used3classvalue){
-						above3classThreshold++;
-						if (actualValue.equalsIgnoreCase(classifiedValue)){
-							above3classThresholdCorrect++;
-						}
-						else{
-							above3classThresholdIncorrect++;
-						}
-					}
-					else{
-						below3classThreshold++;
-						if (actualValue.equalsIgnoreCase(classifiedValue)){
-							below3classThresholdCorrect++;
-						}
-						else{
-							below3classThresholdIncorrect++;
-						}
-					}
-					
-				}
+				val = cl;
 				
 				//hm.put(fnco, "discuss"); // baseline (popular vote...)
 				
 				
+				
+			}
+			
+			String actualValue = fnco.getStance();
+			String classifiedValue = val;
+			if (actualValue.equalsIgnoreCase("unrelated") && classifiedValue.equalsIgnoreCase("unrelated")){
+				binaryCorrect++;
+			}
+			else if (actualValue.equalsIgnoreCase("unrelated") && isRelated(classifiedValue)){
+				binaryIncorrect++;
+			}
+			else if (isRelated(actualValue) && classifiedValue.equalsIgnoreCase("unrelated")){
+				binaryIncorrect++;
+			}
+			else if (isRelated(actualValue) && isRelated(classifiedValue)){
+				binaryCorrect++;
+				if (used3classvalue){
+					above3classThreshold++;
+					if (actualValue.equalsIgnoreCase(classifiedValue)){
+						above3classThresholdCorrect++;
+					}
+					else{
+						above3classThresholdIncorrect++;
+					}
+				}
+				else{
+					below3classThreshold++;
+					if (actualValue.equalsIgnoreCase(classifiedValue)){
+						below3classThresholdCorrect++;
+					}
+					else{
+						below3classThresholdIncorrect++;
+					}
+				}
 				
 			}
 		}
@@ -873,13 +873,47 @@ public class FakeNewsChallenge2017 {
 		return p;
 	}
 	
+	private ArrayList<FakeNewsChallengeObject> fabricateGoldSetForEvaluationDebugging(){
+		ArrayList<FakeNewsChallengeObject> l = new ArrayList<FakeNewsChallengeObject>();
+		
+		FakeNewsChallengeObject fnco1 = new FakeNewsChallengeObject(1, 1, "unrelated", "aapje", "boompje");
+		FakeNewsChallengeObject fnco2 = new FakeNewsChallengeObject(2, 2, "discuss", "aapje", "boompje");
+		FakeNewsChallengeObject fnco3 = new FakeNewsChallengeObject(3, 3, "disagree", "aapje", "boompje");
+		FakeNewsChallengeObject fnco4 = new FakeNewsChallengeObject(4, 4, "agree", "aapje", "boompje");
+		FakeNewsChallengeObject fnco5 = new FakeNewsChallengeObject(5, 5, "unrelated", "aapje", "boompje");
+		
+		l.add(fnco1);
+		l.add(fnco2);
+		l.add(fnco3);
+		l.add(fnco4);
+		l.add(fnco5);
+		
+		return l;
+	}
+	
+	private HashMap<FakeNewsChallengeObject, String> fabricateTestMapForEvaluationDebugging(ArrayList<FakeNewsChallengeObject> l){
+		HashMap<FakeNewsChallengeObject, String> m = new HashMap<FakeNewsChallengeObject, String>();
+		m.put(l.get(0), "unrelated");
+		m.put(l.get(1), "discuss");
+		m.put(l.get(2), "agree");
+		m.put(l.get(3), "disagree");
+		m.put(l.get(4), "unrelated");
+		
+		return m;
+	}
+	
 	public static void main (String[] args){
 		
 		FakeNewsChallenge2017 fnc = new FakeNewsChallenge2017();
 		Tagger.initTagger("en");
 		DepParserTree.initParser("en");
 		
-		int numIterations = 1;
+//		ArrayList<FakeNewsChallengeObject> goldList = fnc.fabricateGoldSetForEvaluationDebugging();
+//		HashMap<FakeNewsChallengeObject, String> classifiedMap = fnc.fabricateTestMapForEvaluationDebugging(goldList);
+//		fnc.evaluate(classifiedMap, goldList);
+//		System.exit(1);
+		
+		int numIterations = 50;
 		ArrayList<ArrayList<Double>> scores = new ArrayList<ArrayList<Double>>();
 		
 //		//String sentence = "The claim in this article is denied.";
