@@ -30,8 +30,8 @@ public class CorefScorerSandbox {
 		
 		//-------------------extract gold mentions from document--------------------------------
 		HashMap<String, String> goldMap= new HashMap<String,String>();
-		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaCorefScore.tsv";
-		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
+		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaCorefScore.tsv";
+		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
 		BufferedReader br = new BufferedReader(new FileReader(file));  
 		String line; 
 		while ((line = br.readLine()) != null) {  
@@ -135,229 +135,238 @@ public class CorefScorerSandbox {
 				//ourClusters.forEach((k,v)->System.out.println("Key : " + k + " Value : " + v.toString()));
 		
 		//-------------------Implement different mentrics--------------------------------
-//		//MUC
-//		//Recall
-//		double counterSum = 0;
-//		double denominatorSum = 0;
-//		
-//		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//			int wordNumInGold = entryGold.getValue().size();
-//			int partitions = 0;
-//			Set<String> goldSet = entryGold.getValue();
-//
-//			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//
-//				Set<String> ourSet = entryOur.getValue();
-//				//System.out.println("ourSet: "+ourSet.toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(goldSet);
-////				System.out.println("goldSet in Loop: "+overlapSet.toString());
-////				System.out.println("ourSet in Loop: "+ourSet);
-//				overlapSet.retainAll(ourSet);
-//
-//				if(!overlapSet.isEmpty()){
-//					partitions++;
-////					System.out.println("PARTIAL OVERLAP");
-////					System.out.println("overlapSet: "+overlapSet.toString());
-//				}
+		//MUC
+		//Recall
+		double counterSum = 0;
+		double denominatorSum = 0;
+		
+		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+			int wordNumInGold = entryGold.getValue().size();
+			int partitions = 0;
+			Set<String> goldSet = entryGold.getValue();
+
+			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+
+				Set<String> ourSet = entryOur.getValue();
+				//System.out.println("ourSet: "+ourSet.toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(goldSet);
+//				System.out.println("goldSet in Loop: "+overlapSet.toString());
+//				System.out.println("ourSet in Loop: "+ourSet);
+				overlapSet.retainAll(ourSet);
+
+				if(!overlapSet.isEmpty()){
+					partitions++;
+//					System.out.println("PARTIAL OVERLAP");
+//					System.out.println("overlapSet: "+overlapSet.toString());
+				}
+			}
+			
+			if (partitions>wordNumInGold){
+				partitions=wordNumInGold;
+			}
+			
+			if (partitions==0){
+				partitions=wordNumInGold;
+			}
+			
+//			if (partitions!=0){
+				counterSum+=(wordNumInGold-partitions);
+				denominatorSum+=(wordNumInGold-1);
+//				System.out.println("counterSum: "+counterSum);
+//				System.out.println("denominatorSum: "+denominatorSum);
 //			}
-//			
-//			if (partitions>wordNumInGold){
-//				partitions=wordNumInGold;
+			
+		}
+//		System.out.println("Final counterSum: "+counterSum);
+//		System.out.println("Final denominatorSum: "+denominatorSum);
+		double MUCRecall = counterSum/denominatorSum;
+		System.out.println("MUCRecall: "+MUCRecall);
+		
+		//Precision
+		double counterSum2 = 0;
+		double denominatorSum2 = 0;
+		
+		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+			int wordNumInOur = entryOur.getValue().size();
+			int partitions = 0;
+			Set<String> ourSet = entryOur.getValue();
+
+			for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+
+				Set<String> goldSet = entryGold.getValue();
+				//System.out.println("ourSet: "+ourSet.toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(ourSet);
+//				System.out.println("goldSet in Loop: "+overlapSet.toString());
+//				System.out.println("ourSet in Loop: "+ourSet);
+				overlapSet.retainAll(goldSet);
+
+				if(!overlapSet.isEmpty()){
+					partitions++;
+//					System.out.println("PARTIAL OVERLAP");
+//					System.out.println("overlapSet: "+overlapSet.toString());
+				}
+			}
+			
+			if (partitions>wordNumInOur){
+				partitions=wordNumInOur;
+			}
+			
+			if (partitions==0){
+				partitions=wordNumInOur;
+			}
+			
+//			if (partitions!=0){
+				counterSum2+=(wordNumInOur-partitions);
+				denominatorSum2+=(wordNumInOur-1);
+//				System.out.println("counterSum: "+counterSum);
+//				System.out.println("denominatorSum: "+denominatorSum);
 //			}
-//			
-//			if (partitions==0){
-//				partitions=wordNumInGold;
-//			}
-//			
-////			if (partitions!=0){
-//				counterSum+=(wordNumInGold-partitions);
-//				denominatorSum+=(wordNumInGold-1);
-////				System.out.println("counterSum: "+counterSum);
-////				System.out.println("denominatorSum: "+denominatorSum);
-////			}
-//			
-//		}
-////		System.out.println("Final counterSum: "+counterSum);
-////		System.out.println("Final denominatorSum: "+denominatorSum);
-//		double MUCRecall = counterSum/denominatorSum;
-//		System.out.println("MUCRecall: "+MUCRecall);
-//		
-//		//Precision
-//		double counterSum2 = 0;
-//		double denominatorSum2 = 0;
-//		
-//		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//			int wordNumInOur = entryOur.getValue().size();
-//			int partitions = 0;
-//			Set<String> ourSet = entryOur.getValue();
-//
-//			for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//
-//				Set<String> goldSet = entryGold.getValue();
-//				//System.out.println("ourSet: "+ourSet.toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(ourSet);
-////				System.out.println("goldSet in Loop: "+overlapSet.toString());
-////				System.out.println("ourSet in Loop: "+ourSet);
-//				overlapSet.retainAll(goldSet);
-//
-//				if(!overlapSet.isEmpty()){
-//					partitions++;
-////					System.out.println("PARTIAL OVERLAP");
-////					System.out.println("overlapSet: "+overlapSet.toString());
-//				}
-//			}
-//			
-//			if (partitions>wordNumInOur){
-//				partitions=wordNumInOur;
-//			}
-//			
-//			if (partitions==0){
-//				partitions=wordNumInOur;
-//			}
-//			
-////			if (partitions!=0){
-//				counterSum2+=(wordNumInOur-partitions);
-//				denominatorSum2+=(wordNumInOur-1);
-////				System.out.println("counterSum: "+counterSum);
-////				System.out.println("denominatorSum: "+denominatorSum);
-////			}
-//			
-//		}
-////		System.out.println("Final counterSum: "+counterSum);
-////		System.out.println("Final denominatorSum: "+denominatorSum);
-//		double MUCPrecision = counterSum2/denominatorSum2;
-//		System.out.println("MUCPrecision: "+MUCPrecision);
-//		double MUCF1 = (2*MUCPrecision*MUCRecall)/(MUCPrecision+MUCRecall);
-//		System.out.println("MUCF1 :"+MUCF1);
+			
+		}
+//		System.out.println("Final counterSum: "+counterSum);
+//		System.out.println("Final denominatorSum: "+denominatorSum);
+		double MUCPrecision = counterSum2/denominatorSum2;
+		System.out.println("MUCPrecision: "+MUCPrecision);
+		double MUCF1 = (2*MUCPrecision*MUCRecall)/(MUCPrecision+MUCRecall);
+		System.out.println("MUCF1 :"+MUCF1);
+		System.out.println("-----------------------------------------------------------------------------------");
 		
 		//B^3 
 		//Recall
-//		double counter =0;
-//		double denominator=0;
-//	
-//		
-//		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//			denominator += entryGold.getValue().size();
-//			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//				
-//				Set<String> goldSet = entryGold.getValue();
-//				//System.out.println("ourSet: "+entryOur.getValue().toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(entryOur.getValue());
-//				//System.out.println("goldSet in Loop: "+overlapSet.toString());
-//				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
-//				overlapSet.retainAll(goldSet);
-//
-//				if(!overlapSet.isEmpty()){
-//					double f = (overlapSet.size()*overlapSet.size());
-//					double e = goldSet.size();
-//					counter += e/f;
-//				}
-//			}
-//		}
-//		
-//		double B3Recall = counter/denominator;
-//		System.out.println("B3 Recall: "+B3Recall);
-//		//Precision
-//		
-//		double counter2 =0;
-//		double denominator2=0;
-//	
-//		
-//		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//			denominator2 += entryOur.getValue().size();
-//			for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//				
-//				Set<String> goldSet = entryGold.getValue();
-//				//System.out.println("ourSet: "+entryOur.getValue().toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(entryOur.getValue());
-//				//System.out.println("goldSet in Loop: "+overlapSet.toString());
-//				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
-//				overlapSet.retainAll(goldSet);
-//
-//				if(!overlapSet.isEmpty()){
-//					double f = (overlapSet.size()*overlapSet.size());
-//					double e = entryOur.getValue().size();
-//					counter2 += e/f;
-//				}
-//			}
-//		}
-//		
-//		double B3Precision = counter2/denominator2;
-//		System.out.println("B3 Precsion: "+B3Precision);
+		double counter =0;
+		double denominator=0;
+	
+		
+		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+			denominator += entryGold.getValue().size();
+			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+				
+				Set<String> goldSet = entryGold.getValue();
+				//System.out.println("ourSet: "+entryOur.getValue().toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(entryOur.getValue());
+				//System.out.println("goldSet in Loop: "+overlapSet.toString());
+				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
+				overlapSet.retainAll(goldSet);
+
+				if(!overlapSet.isEmpty()){
+					double f = (overlapSet.size()*overlapSet.size());
+					double e = goldSet.size();
+					counter += e/f;
+				}
+			}
+		}
+		
+		double B3Recall = counter/denominator;
+		System.out.println("B3 Recall: "+B3Recall);
+		//Precision
+		
+		double counter2 =0;
+		double denominator2=0;
+	
+		
+		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+			denominator2 += entryOur.getValue().size();
+			for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+				
+				Set<String> goldSet = entryGold.getValue();
+				//System.out.println("ourSet: "+entryOur.getValue().toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(entryOur.getValue());
+				//System.out.println("goldSet in Loop: "+overlapSet.toString());
+				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
+				overlapSet.retainAll(goldSet);
+
+				if(!overlapSet.isEmpty()){
+					double f = (overlapSet.size()*overlapSet.size());
+					double e = entryOur.getValue().size();
+					counter2 += e/f;
+				}
+			}
+		}
+		
+		double B3Precision = counter2/denominator2;
+		System.out.println("B3 Precsion: "+B3Precision);
+		double B3F1 = (2*B3Precision*B3Recall)/(B3Precision+B3Recall);
+		System.out.println("B3F1 :"+B3F1);
+		System.out.println("--------------------------------------------------------------------------");
 		
 		//CEAF
 		//Recall
-//		double overlapSize=0;
-//		double keySetSize = 0;
-//		int maxAlignment = 0;
-//		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//			keySetSize+=entryGold.getValue().size();
-//			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//				//walk trough all the respose sets and find the one with perfect alignment
-//				//if found, save overlap size. save key set size seperatly
-//
-//				Set<String> goldSet = entryGold.getValue();
-//				//System.out.println("ourSet: "+entryOur.getValue().toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(entryOur.getValue());
-//				//System.out.println("goldSet in Loop: "+overlapSet.toString());
-//				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
-//				overlapSet.retainAll(goldSet);
-//
-//				if(!overlapSet.isEmpty()&&(overlapSet.size()>maxAlignment)){
-//					maxAlignment=overlapSet.size();
-//				}
-//			}if (maxAlignment!=0){
-//				overlapSize+=maxAlignment;	
-//			}
-//		}
-//		double CEAFRecall=overlapSize/keySetSize;
-//		System.out.println("CEAF Recall: "+CEAFRecall);
-//		
-//		//Precision
-//		double overlapSize2=0;
-//		double keySetSize2 = 0;
-//		int maxAlignment2 = 0;
-//		
-//		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
-//			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//				//walk trough all the respose sets and find the one with perfect alignment
-//				//if found, save overlap size. save key set size seperatly
-//
-//				Set<String> goldSet = entryGold.getValue();
-//				//System.out.println("ourSet: "+entryOur.getValue().toString());
-//				Set<String> overlapSet = new HashSet<String>();
-//				overlapSet.addAll(entryOur.getValue());
-//				//System.out.println("goldSet in Loop: "+overlapSet.toString());
-//				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
-//				overlapSet.retainAll(goldSet);
-//
-//				if(!overlapSet.isEmpty()&&(overlapSet.size()>maxAlignment2)){
-//					maxAlignment2=overlapSet.size();
-//				}
-//			}if (maxAlignment2!=0){
+		double overlapSize=0;
+		double keySetSize = 0;
+		int maxAlignment = 0;
+		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+			keySetSize+=entryGold.getValue().size();
+			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+				//walk trough all the respose sets and find the one with perfect alignment
+				//if found, save overlap size. save key set size seperatly
+
+				Set<String> goldSet = entryGold.getValue();
+				//System.out.println("ourSet: "+entryOur.getValue().toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(entryOur.getValue());
+				//System.out.println("goldSet in Loop: "+overlapSet.toString());
+				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
+				overlapSet.retainAll(goldSet);
+
+				if(!overlapSet.isEmpty()&&(overlapSet.size()>maxAlignment)){
+					maxAlignment=overlapSet.size();
+				}
+			}if (maxAlignment!=0){
+				//overlapSize+=maxAlignment;
+				overlapSize+=1;
+			}
+		}
+		double CEAFRecall=overlapSize/keySetSize;
+		System.out.println("CEAF Recall: "+CEAFRecall);
+		
+		//Precision
+		double overlapSize2=0;
+		double keySetSize2 = 0;
+		int maxAlignment2 = 0;
+		
+		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+				//walk trough all the respose sets and find the one with perfect alignment
+				//if found, save overlap size. save key set size seperatly
+
+				Set<String> goldSet = entryGold.getValue();
+				//System.out.println("ourSet: "+entryOur.getValue().toString());
+				Set<String> overlapSet = new HashSet<String>();
+				overlapSet.addAll(entryOur.getValue());
+				//System.out.println("goldSet in Loop: "+overlapSet.toString());
+				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
+				overlapSet.retainAll(goldSet);
+
+				if(!overlapSet.isEmpty()&&(overlapSet.size()>maxAlignment2)){
+					maxAlignment2=overlapSet.size();
+				}
+			}if (maxAlignment2!=0){
 //				overlapSize2+=maxAlignment;
-//			}
-//		}  
-//		
-//		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-//			keySetSize2+=entryOur.getValue().size();
-//		}
-//		
-//		
-//		double CEAFPrecision=overlapSize2/keySetSize2;
-//		System.out.println("CEAF Precision: "+CEAFPrecision);
+				overlapSize2+=1;
+			}
+		}  
+		
+		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
+			keySetSize2+=entryOur.getValue().size();
+		}
+		
+		
+		double CEAFPrecision=overlapSize2/keySetSize2;
+		System.out.println("CEAF Precision: "+CEAFPrecision);
+		double CEAFF1 = (2*CEAFPrecision*CEAFRecall)/(CEAFPrecision+CEAFRecall);
+		System.out.println("CEAFF1 :"+CEAFF1);
+		System.out.println("-----------------------------------------------------------------------------------------");
 		
 		
 		//BLANC
 		//creating the set of gold linked/unlinked mentions
 		// to solve the out of memory error try sliding window
-		Set<Map<String,String>> linkedGoldPairs = new LinkedHashSet<Map<String, String>>();
-		Set<Map<String,String>> unlinkedGoldPairs = new HashSet<Map<String, String>>();
+//		Set<Map<Integer,Integer>> linkedGoldPairs = new LinkedHashSet<Map<Integer, Integer>>();
+//		Set<Map<Integer,Integer>> unlinkedGoldPairs = new HashSet<Map<Integer, Integer>>();
 		
 		@SuppressWarnings("unchecked")
 		//Entry<String,String>[] values =  (Entry<String, String>[]) goldMap.entrySet().toArray(); // returns a Map.Entry<K,V>[]
@@ -382,34 +391,39 @@ public class CorefScorerSandbox {
 //			  }
 //			}
 		
-
+		Set<Float[]> linkedGoldPairs = new LinkedHashSet<Float[]>();
+		Set<Float[]> unlinkedGoldPairs = new HashSet<Float[]>();
 		
 		String[] looplist = new String[goldMap.size()];
-		int counter = 0;
+		int counterx = 0;
 		for (String entry : goldMap.keySet()){
-			looplist[counter]=entry;
-			counter++;
+			looplist[counterx]=entry;
+			counterx++;
 		}
 
-		TreeMap<String,String> linkedPair = new TreeMap<String,String>();
+		
 		
 		for (int i = 0; i < looplist.length; i++) {
 			int key = i;
 			  for (int j = i+1; j< Math.min(looplist.length, key+100); j++) {
-			    if (goldMap.get(looplist[i]).equals(goldMap.get(looplist[j]))) {
-			    	linkedPair.clear();
-					linkedPair.put(looplist[i], looplist[j]);
-					System.out.println("Linked Pair: "+linkedPair.toString());
+			    if (goldMap.get(looplist[i]).equals(goldMap.get(looplist[j]))&&!looplist[i].equals("")&&!looplist[j].equals("")) {
+			    	Float[] linkedPair = new Float[2];
+					linkedPair[0]=Float.parseFloat(looplist[i].replaceAll("[^0-9]", "."));
+					linkedPair[1]=Float.parseFloat(looplist[j].replaceAll("[^0-9]", "."));
+					//System.out.println("Linked Pair: "+linkedPair.toString());
 					linkedGoldPairs.add(linkedPair);
-					System.out.println("linkedGoldpairs: "+linkedGoldPairs.toString());
-			    }else{
-			    	linkedPair.clear();
-			    	linkedPair.put(looplist[i], looplist[j]);
+					//System.out.println("linkedGoldpairs: "+linkedGoldPairs.toString());
+			    }if (!goldMap.get(looplist[i]).equals(goldMap.get(looplist[j]))&&!looplist[i].equals("")&&!looplist[j].equals("")){
+			    	Float[] linkedPair = new Float[2];
+					linkedPair[0]=Float.parseFloat(looplist[i].replaceAll("[^0-9]", "."));
+					linkedPair[1]=Float.parseFloat(looplist[j].replaceAll("[^0-9]", "."));
 					unlinkedGoldPairs.add(linkedPair);
 			    }
 			  }
 			}
-System.out.println("FINAL linkedGoldpairs: "+linkedGoldPairs.toString());
+//		for (Integer[] in :linkedGoldPairs){
+//			System.out.println(Arrays.deepToString(in));
+//		}
 		
 //		for (int i = 0; i < values.length; i++) {
 //		  for (int j = i+1; j<values.length; j++) {
@@ -448,33 +462,37 @@ System.out.println("FINAL linkedGoldpairs: "+linkedGoldPairs.toString());
 		
 		
 		//creating the set of gold linked/unlinked mentions
-		Set<Map<String,String>> linkedOurPairs = new HashSet<Map<String, String>>();
-		Set<Map<String,String>> unlinkedOurPairs = new HashSet<Map<String, String>>();
+	Set<Float[]> linkedOurPairs = new LinkedHashSet<Float[]>();
+	Set<Float[]> unlinkedOurPairs = new HashSet<Float[]>();
 		
 		
 		String[] looplist2 = new String[ourMap.size()];
-		int counter2 = 0;
+		int counter2x = 0;
 		for (String entry : ourMap.keySet()){
-			looplist2[counter2]=entry;
-			counter2++;
+			looplist2[counter2x]=entry;
+			counter2x++;
 		}
 
 		for (int i = 0; i < looplist2.length; i++) {
 			int key = i;
 			  for (int j = i+1; j< Math.min(looplist2.length, key+100); j++) {
-			//for (int j = i+1; j< looplist2.length; j++) {
-			    if (ourMap.get(looplist2[i]).equals(ourMap.get(looplist2[j]))) {
-			    	linkedPair.clear();
-					linkedPair.put(looplist2[i], looplist2[j]);
+
+			    if (ourMap.get(looplist2[i]).equals(ourMap.get(looplist2[j]))&&!looplist2[i].equals("")&&!looplist2[j].equals("")) {
+			    	Float[] linkedPair = new Float[2];
+					linkedPair[0]=Float.parseFloat(looplist2[i].replaceAll("[^0-9]", "."));
+					linkedPair[1]=Float.parseFloat(looplist2[j].replaceAll("[^0-9]", "."));
 					linkedOurPairs.add(linkedPair);
-			    }else{
-			    	linkedPair.clear();
-			    	linkedPair.put(looplist2[i], looplist2[j]);
+			    }if (!ourMap.get(looplist2[i]).equals(ourMap.get(looplist2[j]))&&!looplist2[i].equals("")&&!looplist2[j].equals("")) {
+			    	Float[] linkedPair = new Float[2];
+					linkedPair[0]=Float.parseFloat(looplist2[i].replaceAll("[^0-9]", "."));
+					linkedPair[1]=Float.parseFloat(looplist2[j].replaceAll("[^0-9]", "."));
 					unlinkedOurPairs.add(linkedPair);
 			    }
 			  }
 			}
-		System.out.println("LinkedOurPairs: "+linkedOurPairs.toString());
+//		for (Integer[] in :linkedOurPairs){
+//			System.out.println(Arrays.deepToString(in));
+//		}
 		
 //		@SuppressWarnings("unchecked")
 //		Entry<String,String>[] values2 =  (Entry<String, String>[]) ourMap.entrySet().toArray(); // returns a Map.Entry<K,V>[]
@@ -514,24 +532,14 @@ System.out.println("FINAL linkedGoldpairs: "+linkedGoldPairs.toString());
 //			}
 		
 		//Recall Coreference
-		double sharedPairs  = 0;
-		Collection<String> temp1 = new HashSet<String>();
-		Collection<String> temp2 = new HashSet<String>();
-		for (Map<String,String> entry1:linkedGoldPairs){
-			//System.out.println("entry1: "+entry1.toString());
-			for (Map<String,String> entry2:linkedOurPairs){
-				//System.out.println("entry2: "+entry2.toString());
-//				temp1= entry1.values();
-//				temp1.retainAll(entry2.values());
-//				temp2 = entry1.keySet();
-//				temp2.retainAll(entry2.keySet());
-//				//System.out.println(entry1.toString()+"|"+entry2.toString()+"|"+temp1.toString()+"|"+temp2.toString());
-//				if(!temp1.isEmpty()&&!temp2.isEmpty()){
-//					sharedPairs++;
-//					
-//				}
-//				temp1.clear();
-//				temp2.clear();
+	double sharedPairs  = 0;
+		for (Float[] entry1:linkedGoldPairs){
+			//System.out.println("entry1: "+Arrays.deepToString(entry1));
+			for (Float[] entry2:linkedOurPairs){
+			if(entry1[0]==entry2[0]&&entry1[1]==entry2[1]){
+				sharedPairs++;
+
+			}
 			}
 		}
 		System.out.println("Shared Pairs: "+sharedPairs);
