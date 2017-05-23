@@ -31,7 +31,8 @@ public class CorefScorerSandbox {
 		//-------------------extract gold mentions from document--------------------------------
 		HashMap<String, String> goldMap= new HashMap<String,String>();
 		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaCorefScore.tsv";
-		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
+		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
+		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
 		BufferedReader br = new BufferedReader(new FileReader(file));  
 		String line; 
 		while ((line = br.readLine()) != null) {  
@@ -83,8 +84,9 @@ public class CorefScorerSandbox {
 			
 		//-------------------extract our mentions from document------------------------------------------
 		TreeMap<String, String> ourMap= new TreeMap<String,String>();
-		String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefConll.txt";
-		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\ourDummy.txt";
+		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefConll.txt";
+		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\corefConllS2.txt";
+		String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
 		BufferedReader br2 = new BufferedReader(new FileReader(file2));  
 		String line2; 
 			while ((line2 = br2.readLine()) != null) {  
@@ -237,10 +239,12 @@ public class CorefScorerSandbox {
 		//Recall
 		double counter =0;
 		double denominator=0;
+		
 	
 		
 		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
 			denominator += entryGold.getValue().size();
+			double maxOverlap=0;
 			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
 				
 				Set<String> goldSet = entryGold.getValue();
@@ -250,15 +254,22 @@ public class CorefScorerSandbox {
 				//System.out.println("goldSet in Loop: "+overlapSet.toString());
 				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
 				overlapSet.retainAll(goldSet);
-
-				if(!overlapSet.isEmpty()){
+				
+				if(overlapSet.size()==entryOur.getValue().size()){
 					double f = (overlapSet.size()*overlapSet.size());
 					double e = goldSet.size();
-					counter += e/f;
+					counter += f/e;
+					break;
+				}
+
+				if(!overlapSet.isEmpty()&&overlapSet.size()>maxOverlap){
+					double f = (overlapSet.size()*overlapSet.size());
+					double e = goldSet.size();
+					counter += f/e;
+					maxOverlap+=overlapSet.size();
 				}
 			}
 		}
-		
 		double B3Recall = counter/denominator;
 		System.out.println("B3 Recall: "+B3Recall);
 		//Precision
@@ -269,6 +280,7 @@ public class CorefScorerSandbox {
 		
 		for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
 			denominator2 += entryOur.getValue().size();
+			double maxOverlap=0;
 			for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
 				
 				Set<String> goldSet = entryGold.getValue();
@@ -279,10 +291,18 @@ public class CorefScorerSandbox {
 				//System.out.println("ourSet in Loop: "+entryOur.getValue().toString());
 				overlapSet.retainAll(goldSet);
 
-				if(!overlapSet.isEmpty()){
+				if(overlapSet.size()==entryOur.getValue().size()){
 					double f = (overlapSet.size()*overlapSet.size());
-					double e = entryOur.getValue().size();
-					counter2 += e/f;
+					double e = goldSet.size();
+					counter2 += f/e;
+					break;
+				}
+
+				if(!overlapSet.isEmpty()&&overlapSet.size()>maxOverlap){
+					double f = (overlapSet.size()*overlapSet.size());
+					double e = goldSet.size();
+					counter2 += f/e;
+					maxOverlap+=overlapSet.size();
 				}
 			}
 		}
@@ -297,11 +317,12 @@ public class CorefScorerSandbox {
 		//Recall
 		double overlapSize=0;
 		double keySetSize = 0;
-		int maxAlignment = 0;
+	
 		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
 			keySetSize+=entryGold.getValue().size();
+			int maxAlignment = 0;
 			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
-				//walk trough all the respose sets and find the one with perfect alignment
+				//walk trough all the response sets and find the one with perfect alignment
 				//if found, save overlap size. save key set size seperatly
 
 				Set<String> goldSet = entryGold.getValue();
@@ -316,8 +337,8 @@ public class CorefScorerSandbox {
 					maxAlignment=overlapSet.size();
 				}
 			}if (maxAlignment!=0){
-				//overlapSize+=maxAlignment;
-				overlapSize+=1;
+				overlapSize+=maxAlignment;
+//				overlapSize+=1;
 			}
 		}
 		double CEAFRecall=overlapSize/keySetSize;
@@ -326,9 +347,10 @@ public class CorefScorerSandbox {
 		//Precision
 		double overlapSize2=0;
 		double keySetSize2 = 0;
-		int maxAlignment2 = 0;
+	
 		
 		for(Entry<String, Set<String>> entryGold : goldClusters.entrySet()){
+			int maxAlignment2 = 0;
 			for(Entry<String, Set<String>> entryOur : ourClusters.entrySet()){
 				//walk trough all the respose sets and find the one with perfect alignment
 				//if found, save overlap size. save key set size seperatly
@@ -345,8 +367,8 @@ public class CorefScorerSandbox {
 					maxAlignment2=overlapSet.size();
 				}
 			}if (maxAlignment2!=0){
-//				overlapSize2+=maxAlignment;
-				overlapSize2+=1;
+				overlapSize2+=maxAlignment2;
+				//overlapSize2+=1;
 			}
 		}  
 		
@@ -462,7 +484,7 @@ public class CorefScorerSandbox {
 		
 		
 		//creating the set of gold linked/unlinked mentions
-	Set<Float[]> linkedOurPairs = new LinkedHashSet<Float[]>();
+	Set<Float[]> linkedOurPairs = new HashSet<Float[]>();
 	Set<Float[]> unlinkedOurPairs = new HashSet<Float[]>();
 		
 		
@@ -532,23 +554,38 @@ public class CorefScorerSandbox {
 //			}
 		
 		//Recall Coreference
-	double sharedPairs  = 0;
+	float sharedPairs  = 0;
 		for (Float[] entry1:linkedGoldPairs){
-			//System.out.println("entry1: "+Arrays.deepToString(entry1));
 			for (Float[] entry2:linkedOurPairs){
-			if(entry1[0]==entry2[0]&&entry1[1]==entry2[1]){
+				if((Math.abs(entry1[0] - entry2[0]) < 0.00000001)&&(Math.abs(entry1[1] - entry2[1]) < 0.00000001)){
 				sharedPairs++;
 
 			}
 			}
 		}
+		
+//		float unsharedPairs  = 0;
+//		for (Float[] entry1:unlinkedGoldPairs){
+//			for (Float[] entry2:unlinkedOurPairs){
+//				if((Math.abs(entry1[0] - entry2[0]) < 0.00000001)&&(Math.abs(entry1[1] - entry2[1]) < 0.00000001)){
+//				unsharedPairs++;
+//
+//			}
+//			}
+//		}
 		System.out.println("Shared Pairs: "+sharedPairs);
-		System.out.println("linkedGoldPairs.size(): "+linkedGoldPairs.size());
-		System.out.println("linkedOurPairs.size(): "+linkedOurPairs.size());
+		//System.out.println("Unshared Pairs: "+unsharedPairs);
+		
 		double recallCoreference = sharedPairs/linkedGoldPairs.size();
-		System.out.println("Recall BLANC :"+recallCoreference);
+		System.out.println("Recall BLANC Coreference:"+recallCoreference);
+		//double recallUncoreference = unsharedPairs/unlinkedGoldPairs.size();
+		//System.out.println("Recall BLANC Uncoreference:"+recallUncoreference);
 		//Precision
 		double precisionCoreference = sharedPairs/linkedOurPairs.size();
-		System.out.println("Precision BLANC: "+precisionCoreference);
+		System.out.println("Precision BLANC Coreference: "+precisionCoreference);
+		//double precisionUncoreference = unsharedPairs/unlinkedOurPairs.size();
+		//System.out.println("Precision BLANC Uncoreference: "+precisionUncoreference);
+		double BLANCF1 = ((2*precisionCoreference * recallCoreference)/precisionCoreference+ recallCoreference);
+		System.out.println("BLANCF1 :"+BLANCF1);
 	}
 }
