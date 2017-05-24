@@ -55,6 +55,7 @@ import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
 import de.dkt.eservices.erattlesnakenlp.modules.MendelsohnParser;
 import de.dkt.eservices.erattlesnakenlp.modules.TravelModeDetection;
 import de.dkt.eservices.erattlesnakenlp.modules.mae.MovementVerbDetection;
+import de.dkt.eservices.execution.GenericEvent.Component;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -65,7 +66,7 @@ import eu.freme.common.conversion.rdf.RDFConstants.RDFSerialization;
 
 public class ProcessMendelsohnLettersNIF {
 
-	MendelsohnParser mendelsohnParser = new MendelsohnParser();
+//	MendelsohnParser mendelsohnParser = new MendelsohnParser();
 
 	TravelModeDetection travelModeDetection = new TravelModeDetection();
 	MovementVerbDetection movementVerbDetection = new MovementVerbDetection();
@@ -88,7 +89,7 @@ public class ProcessMendelsohnLettersNIF {
 	private String password="r{XjnF18X,IU";
 
 	public static void main(String[] args) throws Exception {
-		ProcessMendelsohnLettersNIF pml = new ProcessMendelsohnLettersNIF();		
+		ProcessMendelsohnLettersNIF pml = new ProcessMendelsohnLettersNIF();
 //		String sFolder = "/Users/jumo04/Documents/DFKI/Conferences/EventsStories/MendelsohnLetters/manual/";
 //		String sFolder = "/Users/jumo04/Downloads/allCleanLetters2/";
 //		String sFolder = "/Users/jumo04/Downloads/newsCorpus/";
@@ -101,22 +102,70 @@ public class ProcessMendelsohnLettersNIF {
 //		float[] fs2 = new float[1];
 //		String outputFolder = "nif_MD/";
 //		pml.processInitialDocuments(sFolder, fs2, outputFolder);
+		
+		pml.evaluate(sFolder,"Events_MD_WithoutDuplicates_OnlyTriggered_ALL_Sentences",true,true,true);
+		pml.evaluate(sFolder,"Events_MD_WithoutDuplicates_ALL_Sentences",false,true,true);
+	}
+		
+	public void evaluate(String sFolder, String folderPart, boolean triggered, boolean includeMetadata, boolean deleteDuplicates) throws Exception{
 		float [][] weights = {
 //				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f},
 //				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f},
-//				{0.55f,0.15f,0.15f,0.05f,0.05f,0.05f},
-//				{0.167f,0.167f,0.167f,0.167f,0.167f,0.167f},
+				{0.55f,0.15f,0.15f,0.05f,0.05f,0.05f},
+				{0.167f,0.167f,0.167f,0.167f,0.167f,0.167f},
 				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f}
 				};
 		int counter = 1;
 		for (float[] fs : weights) {
-			String outputFolder = "nif_MD_WithoutDuplicates__OnlyTriggered_ALL_Sentences_"+counter+"/";
-			pml.processSentences(sFolder,fs,outputFolder);
-			pml.computeResults(sFolder+outputFolder);
+			String outputFolder = "nif_"+folderPart+"_"+counter+"/";
+			processSentences(sFolder,fs,outputFolder,triggered,includeMetadata,deleteDuplicates);
 			counter++;
 		}
+		counter=1;
+		String output = "";
+		for (float[] fs : weights) {
+			String outputFolder = "nif_"+folderPart+"_"+counter+"/";
+			output += computeResults(sFolder+outputFolder);
+			counter++;
+		}
+		System.out.println(output);
 	}
 
+	public List<GenericEvent> getGenericEvents(String sFolder, String fileName){
+		try{
+			File file = new File(sFolder + fileName);
+			if(!file.exists()){
+				return new LinkedList<GenericEvent>();
+			}
+			String inputText = IOUtils.toString(new FileInputStream(file));
+	//				System.out.println(inputText);
+			List<GenericEvent> events = new LinkedList<GenericEvent>();
+			JSONArray array = new JSONArray(inputText);
+			for (int i = 0; i < array.length(); i++) {
+				JSONObject obj = (JSONObject) array.get(i);
+				GenericEvent ev = new GenericEvent();
+				ev.id = (i+1)+"";
+				ev.sentenceId = obj.getString("sentID");
+				ev.docId = obj.getString("docID");
+				ev.type = obj.getString("eventType");
+				JSONArray jsonComps = obj.getJSONArray("components");
+				for (int j = 0; j < jsonComps.length(); j++) {
+					JSONObject obj2 = (JSONObject) jsonComps.get(j);
+					ev.addComponent(Integer.parseInt(obj2.getString("initialSentPos")), 
+							Integer.parseInt(obj2.getString("finalSentPos")), 
+							obj2.getString("type"), 
+							obj2.getString("text"));
+				}
+				events.add(ev);
+			}
+			return events;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public void processDocuments(String sFolder,float[] weights,String outputFolder) throws Exception {
 		File folder = new File(sFolder+"nif_MD2/");
 		File[] files = folder.listFiles();
@@ -137,7 +186,10 @@ public class ProcessMendelsohnLettersNIF {
 		}
 	}
 	
-	public void processSentences(String sFolder,float[] weights,String outputFolder) throws Exception {
+	int errorCounter = 0;
+	
+	public void processSentences(String sFolder,float[] weights,String outputFolder,
+			boolean triggered, boolean includeMetadata, boolean deleteDuplicates) throws Exception {
 		File folder = new File(sFolder+"nifs_MD2/");
 		File[] files = folder.listFiles();
 		for (File file : files) {
@@ -145,16 +197,31 @@ public class ProcessMendelsohnLettersNIF {
 				String inputText = IOUtils.toString(new FileInputStream(file));
 //				System.out.println(inputText);
 				String language = "en";
-				Model inputModel = NIFReader.extractModelFromFormatString(inputText, RDFSerialization.TURTLE);
-				Model outputModel = detectSextuples(inputModel,language,RDFSerialization.TURTLE,weights);
-//				Model outputModel = addLetterInformation(inputModel,language,RDFSerialization.TURTLE,weights);
-				File outputFile = new File(sFolder+File.separator+outputFolder+File.separator+file.getName());
-				File outputFolderAux = new File(sFolder+File.separator+outputFolder+File.separator);
-				outputFolderAux.mkdirs();
-				outputFile.createNewFile();
-				IOUtils.write(NIFReader.model2String(outputModel, RDFSerialization.TURTLE),new FileOutputStream(outputFile));
+				
+				String fileName = file.getName().substring(0, file.getName().indexOf("."))+".txt.events.json";
+				String sourceFileName = sFolder+"events/"+file.getName().substring(0, file.getName().indexOf("."))+".txt";
+				File sourceEventsFile = new File(sourceFileName);
+				String sourceEventsText = IOUtils.toString(new FileInputStream(sourceEventsFile));
+				List<GenericEvent> events = getGenericEvents(sFolder+"events/", fileName);
+				if(events.size()>0){
+//					System.out.println(fileName);
+//					System.out.println("\t"+events.size());
+					Model inputModel = NIFReader.extractModelFromFormatString(inputText, RDFSerialization.TURTLE);
+					
+					Model outputModel = detectSextuplesWithEvents(sourceEventsText, inputModel, language, RDFSerialization.TURTLE,weights,events,triggered,includeMetadata,deleteDuplicates);
+//					Model outputModel = detectSextuples(inputModel,language,RDFSerialization.TURTLE,weights);
+//					Model outputModel = addLetterInformation(inputModel,language,RDFSerialization.TURTLE,weights);
+					File outputFile = new File(sFolder+File.separator+outputFolder+File.separator+file.getName());
+					File outputFolderAux = new File(sFolder+File.separator+outputFolder+File.separator);
+					outputFolderAux.mkdirs();
+					outputFile.createNewFile();
+					IOUtils.write(NIFReader.model2String(outputModel, RDFSerialization.TURTLE),new FileOutputStream(outputFile));
+					
+				}
+				
 			}
 		}
+		System.out.println("ERRORS: "+errorCounter);
 	}
 
 	public Model removeSextuples(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
@@ -175,11 +242,11 @@ public class ProcessMendelsohnLettersNIF {
 	public Model addLetterInformation(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, float [] weights) throws IOException{
 		try{
 			String documentURI = NIFReader.extractDocumentWholeURI(nifModel);
-			byte[] key = mendelsohnParser.getHashKey(NIFReader.extractIsString(nifModel)); // done on the base of (smallest) edit distance
-			String letterAuthor = mendelsohnParser.getAuthor(key);
-			String letterDate = mendelsohnParser.getDate(key);
-			String letterLocation = mendelsohnParser.getLocation(key);
-			NIFWriter.addMetaDataInformation(nifModel, documentURI, letterAuthor, letterDate, letterLocation);
+//			byte[] key = mendelsohnParser.getHashKey(NIFReader.extractIsString(nifModel)); // done on the base of (smallest) edit distance
+//			String letterAuthor = mendelsohnParser.getAuthor(key);
+//			String letterDate = mendelsohnParser.getDate(key);
+//			String letterLocation = mendelsohnParser.getLocation(key);
+//			NIFWriter.addMetaDataInformation(nifModel, documentURI, letterAuthor, letterDate, letterLocation);
 			return nifModel;
 		}
 		catch(Exception e){
@@ -398,6 +465,262 @@ public class ProcessMendelsohnLettersNIF {
 							}
 						}
 					}
+				}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				return nifModel;
+			}
+			
+//			/**
+//			 * Detect Transportation modes: indirectly from some self-defined rules taking information from the defined MAEs.
+//			 */
+//			auxModel = travelModeDetection.detectIndirectTransportationModes(auxModel, languageParam, inFormat);
+
+			for (MovementActionEvent mae : maes) {
+				NIFWriter.addSextupleMAEAnnotation(nifModel, documentURI, 
+						mae.getPerson(),mae.getOrigin(),mae.getDestination(),
+						mae.getDepartureTime(),mae.getArrivalTime(),mae.getTravelMode(),
+						mae.getStartIndex(),mae.getEndIndex(),
+						mae.getText(),mae.getScore()
+						);
+			}
+//			System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));	
+			return nifModel;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return nifModel;
+		}
+	}
+
+	public Model detectSextuplesWithEvents(String t, Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, float [] weights, List<GenericEvent> events,
+			boolean triggered, boolean includeMetadata, boolean deleteDuplicates) throws IOException{
+		try{
+			String documentURI = NIFReader.extractDocumentWholeURI(nifModel);
+//			System.out.println(NIFReader.model2String(nifModel, RDFSerialization.TURTLE));
+			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
+			/**
+			 * Assign weights to the elements of the sextuple.
+			 */
+			float personWeight = weights[0];
+			float originWeight = weights[1];
+			float destinationWeight = weights[2];
+			float departureTimeWeight = weights[3];
+			float arrivalTimeWeight = weights[4];
+			float modeWeight = weights[5];
+
+			/*
+			 * Split the text into sentences 
+			 */
+			try{
+				String inputText = NIFReader.extractIsString(nifModel);
+//				Annotation document = new Annotation(inputText);
+				Annotation document = new Annotation(t);
+				pipeline.annotate(document);
+//				Annotation document2 = new Annotation(inputText);
+//				pipeline.annotate(document2);
+				
+				List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
+//				List<CoreMap> sentences2 = document2.get(CoreAnnotations.SentencesAnnotation.class);
+//				if(sentences.size()!=sentences2.size()){
+//					errorCounter++;
+//					System.out.println("ERROR in sentences size in file: "+documentURI);
+//					System.out.println("-----");
+//					System.out.println(t);
+//					System.out.println("-----");
+//					System.out.println(inputText);
+//					System.exit(0);
+//				}
+//				return nifModel;
+				Map<String, DktAnnotation> elements = NIFReader.extractAnnotations(nifModel);
+				if(elements==null){
+					return nifModel;
+				}
+
+				for (GenericEvent event : events) {
+					int tokenCounter = 0;
+//					System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//					System.out.println(event.toString());
+					int sentenceId = Integer.parseInt(event.sentenceId);
+					CoreMap sentence = sentences.get(sentenceId);
+//					System.out.println(sentence.get(CoreAnnotations.TextAnnotation.class));
+					int sentenceEnd = 0;
+					int sentenceOffset = inputText.length();
+	                for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+	                	if(tokenCounter>=event.ini && tokenCounter<=event.end){
+		                	int tokenStart = token.beginPosition();
+		                	int tokenEnd = token.endPosition();
+		                	if(tokenStart<sentenceOffset){
+		                		sentenceOffset=tokenStart;
+		                	}
+		                	if(tokenEnd>sentenceEnd){
+		                		sentenceEnd=tokenEnd;
+		                	}
+	                	}
+	                	tokenCounter++;
+	                }
+//	                System.out.println(sentenceOffset+"--"+sentenceEnd);
+					/**
+					 * Check in every sentence if there are alements of the sextuple (take them from the NIF)
+					 */
+					
+//					System.out.println(elements.size());
+					List<DktAnnotation> iPersons = new LinkedList<DktAnnotation>();
+					List<DktAnnotation> iLocations= new LinkedList<DktAnnotation>();
+					List<DktAnnotation> iTimes= new LinkedList<DktAnnotation>();
+					List<DktAnnotation> iModes = new LinkedList<DktAnnotation>();
+					List<DktAnnotation> iTriggers = new LinkedList<DktAnnotation>();
+
+					Set<String> elementsKeys = elements.keySet();
+					for (String elementKey : elementsKeys) {
+						DktAnnotation object = elements.get(elementKey);
+						if( (object.getStart()>sentenceOffset && object.getStart()<sentenceEnd)
+								||
+								(object.getEnd()>sentenceOffset && object.getEnd()<sentenceEnd)){
+							if(object.getType().equalsIgnoreCase("person")){
+								iPersons.add(object);
+							}
+							else if(object.getType().equalsIgnoreCase("location")){
+								iLocations.add(object);
+							}
+							else if(object.getType().equalsIgnoreCase("temp")){
+								iTimes.add(object);
+							}
+							else if(object.getType().equalsIgnoreCase("mode")){
+								iModes.add(object);
+							}
+							else if(object.getType().equalsIgnoreCase("triggerVerb")){
+								iTriggers.add(object);
+							}
+							else if(object.getType().equalsIgnoreCase("triggerTerm")){
+								iTriggers.add(object);
+							}
+						}
+					}
+					
+					List<Component> components = event.components;
+					for (Component c : components) {
+						// ORG or GPE
+						if(c.type.equalsIgnoreCase("PER")){
+							iPersons.add(c.getDktAnnotation());
+						}
+						else if(c.type.equalsIgnoreCase("ORG")){
+							iPersons.add(c.getDktAnnotation());
+						}
+						else if(c.type.equalsIgnoreCase("GPE")){
+							iPersons.add(c.getDktAnnotation());
+						}
+						else if(c.type.equalsIgnoreCase("LOC")){
+							iLocations.add(c.getDktAnnotation());
+						}
+						else if(c.type.equalsIgnoreCase("TIME")){
+							iTimes.add(c.getDktAnnotation());
+						}
+//						else if(c.type.equalsIgnoreCase("mode")){
+//							iModes.add(c.getDktAnnotation());
+//						}
+//						else if(c.type.equalsIgnoreCase("triggerVerb")){
+//							iTriggers.add(c.getDktAnnotation());
+//						}
+//						else if(c.type.equalsIgnoreCase("triggerTerm")){
+//							iTriggers.add(c.getDktAnnotation());
+//						}
+					}
+					
+//					System.out.println(iPersons.size()+"--"+iLocations.size()+"--"+iTimes.size()+"--"+iModes.size()+"--"+iTriggers.size());
+//					System.exit(0);
+/**
+ * If person, location or time are empty, then include the letter information.
+ */	
+					iPersons.add(new DktAnnotation());
+					iLocations.add(new DktAnnotation());
+					iTimes.add(new DktAnnotation());
+					iModes.add(new DktAnnotation());
+
+					String metaData [] = NIFReader.extractMetaData(nifModel);
+					if(triggered && iTriggers.isEmpty()){
+						continue;
+					}
+
+					/**
+					 * Generate all the possible sextuples
+					 */
+					for (DktAnnotation person: iPersons) {
+//						System.out.println("--------");
+						for (DktAnnotation location1 : iLocations) {
+							for (DktAnnotation location2 : iLocations) {
+								if( !(!location1.isEmpty() && !location2.isEmpty() && 
+										location1.getText().equalsIgnoreCase(location2.getText())) ){
+									for (DktAnnotation time1 : iTimes) {
+										for (DktAnnotation time2: iTimes) {
+											if( !( !time1.isEmpty() && !time2.isEmpty() && 
+													time1.getText().equalsIgnoreCase(time2.getText())) ){
+											for (DktAnnotation mode: iModes) {
+//												System.out.println(time1.getText());
+												DateFormat format3 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+//										        2017-04-21T00:00:00
+												Date dTime1 = null;
+												try{
+													dTime1 = (time1.getText()!=null) ? format3.parse(time1.getText()) : null;
+												}
+												catch(Exception e){
+												}
+												Date dTime2 = null; 
+												try{
+													dTime2 = (time2.getText()!=null) ? format3.parse(time2.getText()) : null;
+												}
+												catch(Exception e){
+												}
+
+												float perVal=1,loc1Val=1,loc2Val=1,tim1Val=1,tim2Val=1,modVal=1;
+												if(person.getType().equalsIgnoreCase("empty")){
+													perVal=0;
+												}
+												if(location1.getType().equalsIgnoreCase("empty")){
+													loc1Val=0;
+												}
+												if(location2.getType().equalsIgnoreCase("empty")){
+													loc2Val=0;
+												}
+												if(time1.getType().equalsIgnoreCase("empty")){
+													tim1Val=0;
+												}
+												if(time2.getType().equalsIgnoreCase("empty")){
+													tim2Val=0;
+												}
+												if(mode.getType().equalsIgnoreCase("empty")){
+													modVal=0;
+												}
+												float maeScore = perVal*personWeight + loc1Val*originWeight + loc2Val*destinationWeight + 
+														tim1Val*departureTimeWeight + tim2Val*arrivalTimeWeight + modVal*modeWeight;
+
+//											System.out.println("DEBUG TEXT: --------------");
+//											System.out.println("DEBUG TEXT: "+sentence.get(CoreAnnotations.OriginalTextAnnotation.class));
+//											System.out.println("DEBUG TEXT: "+sentence.get(CoreAnnotations.TextAnnotation.class));
+//											System.out.println("DEBUG TEXT: "+sentence.get(CoreAnnotations.SentenceBeginAnnotation.class));
+//											System.out.println("DEBUG TEXT: "+sentence.get(CoreAnnotations.OriginalTextAnnotation.class));
+												MovementActionEvent auxmae = new MovementActionEvent(sentenceOffset, sentenceEnd, 
+														person.getText(), 
+														location1.getText(), location2.getText(), 
+														dTime1, dTime2, 
+														mode.getText(),
+														sentence.get(CoreAnnotations.TextAnnotation.class),
+														//sentence,
+														maeScore);
+
+												maes.add(auxmae);
+											}
+										}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				for (CoreMap sentence : sentences) {
 				}
 			}
 			catch(Exception e){
@@ -649,8 +972,9 @@ public class ProcessMendelsohnLettersNIF {
 		}
 	}
 
-	public void computeResults(String sFolder) throws Exception {
+	public String computeResults(String sFolder) throws Exception {
 		List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
+		String output = "";
 		File folder = new File(sFolder);
 		File[] files = folder.listFiles();
 		for (File file : files) {
@@ -683,7 +1007,8 @@ public class ProcessMendelsohnLettersNIF {
 				}
 			}
 		}
-		System.out.println("Folder: "+sFolder);
+//		System.out.println("Folder: "+sFolder);
+		output += "Folder: "+sFolder+"\n";
 		float thresholds [] = {0.1f,0.2f,0.3f,0.4f,0.5f,0.6f,0.7f,0.8f,0.9f,1f};
 		for (float th : thresholds) {
 			int counter = 1;
@@ -706,10 +1031,13 @@ public class ProcessMendelsohnLettersNIF {
 					array.put(obj);
 				}
 			}
-			System.out.println("\tThreshold: "+th+"\tNumber of MAEs: "+array.length());
+//			System.out.println("\tThreshold: "+th+"\tNumber of MAEs: "+array.length());
+//			System.out.println(array.length());
+			output += array.length()+"\n";
 			File outputFile = new File(sFolder+File.separator+th+".json");
 			outputFile.createNewFile();
 			IOUtils.write(array.toString(1),new FileOutputStream(outputFile));
 		}
+		return output;
 	}
 }
