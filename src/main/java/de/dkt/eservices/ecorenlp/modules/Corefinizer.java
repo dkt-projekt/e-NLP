@@ -1,5 +1,6 @@
 package de.dkt.eservices.ecorenlp.modules;
 
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
@@ -61,7 +62,7 @@ public class Corefinizer {
 //		 for (Dependency<Label,Label,Object> dep : tree.dep){
 //			 System.out.println(dep.dependent());
 //		 }
-		 findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\corefEvaluation\\tuba5kSubset.txt");
+		 findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tuba5kSubset.txt");
 		 //findCoreferences("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tubaVerySmallPlaintext.txt");
 		 
 		 //findCoreferences("C:\\Users\\Sabine\\Desktop\\WörkWörk\\14cleaned.txt");
@@ -228,7 +229,14 @@ public class Corefinizer {
 			 //String sentence = entry.getValue().getText().replace("\"", "").replace("(", "").replace(")", "").replace("/", "").replaceAll("-", "");
 			 String sentence = entry.getValue().getText();
 			 //Tree tree = lexParser.parse(sentence);
-			 Tree tree = lexParser.parse(CorefUtils.tokenize(sentence));
+			Tree tree = lexParser.parse(CorefUtils.tokenize(sentence));
+			//Tree tree = lexParser.parse(CorefUtils.whitespaceTokenize(sentence));
+//			 List<CoreLabel> tokens = new ArrayList<CoreLabel>();
+//			 for (String s : sentence.split(" ")){
+//			 tokens.add(s);
+//			 }
+			 //Tree tree = lexParser.parse(tokens);
+			 
 			 
 			 //this is where the mentions get all the mention information 
 			 //TODO: breadth first traversal is not exactly the same as in Standford NLP, check that again!
@@ -328,35 +336,7 @@ public class Corefinizer {
 			 		}
 			 	}
 		 }
-		 //deleting any cluster that does not contain a single mention that has been recognized as an entity (or contains a substring that was, like "AWO-mitarbeiterin")
-//		 System.out.println("debugging number of clusters before:" + clusterIdMap.size());
-		 ArrayList<Integer> deleteKeys = new ArrayList<Integer>();
-		 ArrayList<CorefMention> deletedMentions = new ArrayList<CorefMention>();
-		 for (Integer key : clusterIdMap.keySet()){
-			 CorefCluster cc = clusterIdMap.get(key);
-			 boolean keep = false;
-			 for (CorefMention cm : cc.getCorefMentions()){
-				 if (cm.getNerTags() != null){
-					 keep = true;
-				 }
-			 }
-			 if (!keep){
-				 deleteKeys.add(key);
-			 }
-		 }
-		 
-		 for (int k : deleteKeys){
-			 for (CorefMention cm : clusterIdMap.get(k).getCorefMentions()){
-				 deletedMentions.add(cm);
-			 }
-			 clusterIdMap.remove(k);
-			 sentenceOrderMap.remove(k); // apparently this doesn't cut the mustard, extra cleaning needed (lines below)
-		 }
-		 for (int j : sentenceOrderMap.keySet()){
-			 for (CorefMention cm : deletedMentions){
-				 sentenceOrderMap.get(j).remove(cm);
-			 }
-		 }
+
 		 
 		 
 //		 System.out.println("debugging number of clusters after:" + clusterIdMap.size());
@@ -572,17 +552,50 @@ public class Corefinizer {
 //			  }
 //		  }
 		  
+//			 deleting any cluster that does not contain a single mention that has been recognized as an entity (or contains a substring that was, like "AWO-mitarbeiterin")
+			// System.out.println("debugging number of clusters before:" + clusterIdMap.size());
+			 ArrayList<Integer> deleteKeys = new ArrayList<Integer>();
+			 ArrayList<CorefMention> deletedMentions = new ArrayList<CorefMention>();
+			 for (Integer key : clusterIdMap.keySet()){
+				 CorefCluster cc = clusterIdMap.get(key);
+				 boolean keep = false;
+				 for (CorefMention cm : cc.getCorefMentions()){
+					 if (cm.getNerTags() != null){
+						 keep = true;
+					 }
+				 }
+				 if (!keep){
+					 deleteKeys.add(key);
+				 }
+			 }
+			 
+			 for (int k : deleteKeys){
+				 for (CorefMention cm : clusterIdMap.get(k).getCorefMentions()){
+					 deletedMentions.add(cm);
+				 }
+				 clusterIdMap.remove(k);
+				 sentenceOrderMap.remove(k); // apparently this doesn't cut the mustard, extra cleaning needed (lines below)
+			 }
+			 for (int j : sentenceOrderMap.keySet()){
+				 for (CorefMention cm : deletedMentions){
+					 sentenceOrderMap.get(j).remove(cm);
+				 }
+			 }
+		  
 		  for (Entry<Integer,CorefCluster> a : clusterIdMap.entrySet()){
 			//System.out.println(a.toString());
 			  System.out.println("-----------------"+a.getValue().getClusterID()+"----------------");
-			Set<CorefMention> z = a.getValue().getCorefMentions();
-			//if (z.size()>1){
-			for (CorefMention f : z){
-				System.out.println("Sentence Number: "+f.getSentenceNumber()+ ": "+sentenceMap.get(f.getSentenceNumber()).getText()+
+			  Set<CorefMention> z = a.getValue().getCorefMentions();
+			  //if (z.size()>1){
+				for (CorefMention f : z){
+//				System.out.println("Sentence Number: "+f.getSentenceNumber()+ ": "+sentenceMap.get(f.getSentenceNumber()).getText()+
+//				"; Mention: "+f.getContents()+"; Index: "+f.getStartIndex
+//				()+"-"+f.getEndIndex());
+				System.out.println("Sentence Number: "+f.getSentenceNumber()+
 				"; Mention: "+f.getContents()+"; Index: "+f.getStartIndex
 				()+"-"+f.getEndIndex());
-			}
-		//}
+				}
+			  //}
 			}
 		 prepareConll(clusterIdMap,CorefUtils.getWordNumbers(inputFile), everything, sentenceMap);
 
@@ -1264,7 +1277,7 @@ public class Corefinizer {
 		
 		PrintWriter conllOut = null;
 		try{
-		 conllOut = new PrintWriter("C:\\Users\\pebo01\\Desktop\\corefConll.txt");
+		 conllOut = new PrintWriter("C:\\Users\\Sabine\\Desktop\\WörkWörk\\corefConllS2.txt");
 		}catch (Exception e){
 			e.printStackTrace();
 		}

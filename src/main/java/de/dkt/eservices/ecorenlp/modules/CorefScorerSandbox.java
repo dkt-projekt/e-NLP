@@ -31,8 +31,8 @@ public class CorefScorerSandbox {
 		//-------------------extract gold mentions from document--------------------------------
 		HashMap<String, String> goldMap= new HashMap<String,String>();
 		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaCorefScore.tsv";
-		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
-		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
+		String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy.txt";
+		//String file = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
 		BufferedReader br = new BufferedReader(new FileReader(file));  
 		String line; 
 		while ((line = br.readLine()) != null) {  
@@ -85,8 +85,9 @@ public class CorefScorerSandbox {
 		//-------------------extract our mentions from document------------------------------------------
 		TreeMap<String, String> ourMap= new TreeMap<String,String>();
 		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefConll.txt";
-		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\corefConllS2.txt";
-		String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
+		String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\corefConllS2.txt";
+		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\tubaDummy2.txt";
+		//String file2 = "C:\\Users\\Sabine\\Desktop\\WörkWörk\\CorefEval\\noCoref.txt";
 		BufferedReader br2 = new BufferedReader(new FileReader(file2));  
 		String line2; 
 			while ((line2 = br2.readLine()) != null) {  
@@ -573,19 +574,20 @@ public class CorefScorerSandbox {
 //			}
 //			}
 //		}
-		System.out.println("Shared Pairs: "+sharedPairs);
-		//System.out.println("Unshared Pairs: "+unsharedPairs);
 		
-		double recallCoreference = sharedPairs/linkedGoldPairs.size();
-		System.out.println("Recall BLANC Coreference:"+recallCoreference);
-		//double recallUncoreference = unsharedPairs/unlinkedGoldPairs.size();
-		//System.out.println("Recall BLANC Uncoreference:"+recallUncoreference);
-		//Precision
-		double precisionCoreference = sharedPairs/linkedOurPairs.size();
-		System.out.println("Precision BLANC Coreference: "+precisionCoreference);
-		//double precisionUncoreference = unsharedPairs/unlinkedOurPairs.size();
-		//System.out.println("Precision BLANC Uncoreference: "+precisionUncoreference);
-		double BLANCF1 = ((2*precisionCoreference * recallCoreference)/precisionCoreference+ recallCoreference);
-		System.out.println("BLANCF1 :"+BLANCF1);
+//		System.out.println("Shared Pairs: "+sharedPairs);
+//		//System.out.println("Unshared Pairs: "+unsharedPairs);
+//		
+//		double recallCoreference = sharedPairs/linkedGoldPairs.size();
+//		System.out.println("Recall BLANC Coreference:"+recallCoreference);
+//		//double recallUncoreference = unsharedPairs/unlinkedGoldPairs.size();
+//		//System.out.println("Recall BLANC Uncoreference:"+recallUncoreference);
+//		//Precision
+//		double precisionCoreference = sharedPairs/linkedOurPairs.size();
+//		System.out.println("Precision BLANC Coreference: "+precisionCoreference);
+//		//double precisionUncoreference = unsharedPairs/unlinkedOurPairs.size();
+//		//System.out.println("Precision BLANC Uncoreference: "+precisionUncoreference);
+//		double BLANCF1 = ((2*precisionCoreference * recallCoreference)/precisionCoreference+ recallCoreference);
+//		System.out.println("BLANCF1 :"+BLANCF1);
 	}
 }
