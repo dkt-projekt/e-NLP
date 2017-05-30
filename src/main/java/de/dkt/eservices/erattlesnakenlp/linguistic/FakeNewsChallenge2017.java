@@ -53,6 +53,63 @@ public class FakeNewsChallenge2017 {
 	static HashMap<String, HashMap<String, Integer>> ngramMemoryMap = new HashMap<String, HashMap<String, Integer>>();
 	static List<String> enStopwords = new ArrayList<String>();;
 	
+	private ArrayList<FakeNewsChallengeObject> parseTestTsv(String[] flines, boolean lemmatise){
+		Lemmatizer.initLemmatizer();
+		ArrayList<FakeNewsChallengeObject> l = new ArrayList<FakeNewsChallengeObject>();
+		HashMap<String, String> memoryMap = new HashMap<String, String>();
+		int hi = 0;
+		int ai = 0;
+		for (String s : flines){
+			String[] parts = s.split("\t");
+			int id = Integer.parseInt(parts[0]);
+			String stance = parts[1].replaceAll("\"", ""); // TODO: this one is not present probably in the test lines, so depending on that format, this one and the following indices should be changed
+			int articleId = Integer.parseInt(parts[2]);
+			String article = parts[3];
+			String header = parts[4];
+			FakeNewsChallengeObject fnco = null;
+			if (lemmatise){
+				String headerLemmas = "";
+				if (memoryMap.containsKey(header)){
+					headerLemmas = memoryMap.get(header);
+				}
+				else{
+					headerLemmas = getLemmas(header);
+					memoryMap.put(header,  headerLemmas);
+				}
+				//String articleLemmas = getLemmas(article);
+				// because lemmatising takes a bit long, using a memory hashmap to only lemmatise an article once
+				String articleLemmas = "";
+				if (memoryMap.containsKey(article)){
+					articleLemmas = memoryMap.get(article);
+				}
+				else{
+					articleLemmas = getLemmas(article);
+					memoryMap.put(article,  articleLemmas);
+				}
+				// lemmatising fails sometimes, due to untokenizable chars
+				if (headerLemmas.equalsIgnoreCase("")){
+					headerLemmas = header;
+					hi++;
+				}
+				if (articleLemmas.equalsIgnoreCase("")){
+					articleLemmas = article;
+					ai++;
+				}
+				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
+				
+			}
+			else{
+				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header);
+			}
+			l.add(fnco);
+			
+		}
+//		System.out.println(String.format("INFO: %s out of %s headers using raw instead of lemmas.", Integer.toString(hi), Integer.toString(flines.length)));
+//		System.out.println(String.format("INFO: %s out of %s articles using raw instead of lemmas.", Integer.toString(ai), Integer.toString(flines.length)));
+		return l;
+	}
+	
+	
 	private ArrayList<FakeNewsChallengeObject> parseTsv(String[] flines, boolean lemmatise){
 		Lemmatizer.initLemmatizer();
 		ArrayList<FakeNewsChallengeObject> l = new ArrayList<FakeNewsChallengeObject>();
@@ -152,7 +209,7 @@ public class FakeNewsChallenge2017 {
 		return rl;
 	}
 	
-	private HashMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier, PrintWriter debug){
+	private HashMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier){//, PrintWriter debug){
 		HashMap<FakeNewsChallengeObject, String> hm = new HashMap<FakeNewsChallengeObject, String>();
 		
 		// prerequisites...
@@ -207,7 +264,7 @@ public class FakeNewsChallenge2017 {
 				// negation/disagree classifier (parse headline and get distance from negation to root (stolen from Frreira & Vlachos, 2016))
 //				double articleDenialScore = negationScore(fnco, "article");
 //				double headerDenialScore = negationScore(fnco, "header");
-				
+//				
 //				if (fnco.getStance().equalsIgnoreCase("agree")){
 //					System.out.println("DEBUGGING_agree\t" + headerDenialScore + "\t" + articleDenialScore + "\t" + (articleDenialScore - headerDenialScore));
 //				}
@@ -217,9 +274,11 @@ public class FakeNewsChallenge2017 {
 //				else if (fnco.getStance().equalsIgnoreCase("discuss")){
 //					System.out.println("DEBUGGING_discuss\t" + headerDenialScore + "\t" + articleDenialScore + "\t" + (articleDenialScore - headerDenialScore));
 //				}
-//				if (articleDenialScore - headerDenialScore < 0.1){
+				/// this part is doing the negation stuff
+//				if (articleDenialScore - headerDenialScore < 0.05){
 //					cl = "agree"; // this decreases score dramatically...
 //				}
+				// then comment out this else to de-activate the negation stuff
 //				else{
 				HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeader(), fallbackHeadlineClassifier, numClasses);
 				
@@ -241,6 +300,9 @@ public class FakeNewsChallenge2017 {
 //				}
 				double highestScore = getHighestScore(classScores);
 				double diffBetween1and2 = getDiffInScores(classScores, highestScore);
+				//cl = sorted[0];
+				// ++++++++++++++++++++++++++++++++++++++++++++ use the lines below (line directly above is to test difference between one classifier and, in case of uncertainty, three binary classifiers ++++
+				
 				if (diffBetween1and2 > 0.7){ // TODO: re-visit optimal threshold value when other classification method is implemented
 					used3classvalue = true;
 					cl = sorted[0];
@@ -274,6 +336,7 @@ public class FakeNewsChallenge2017 {
 //						below3classThresholdIncorrect++;
 //					}
 				}
+				// ++++++++++++++++++++++++++++ use lines above (this is just to test three binary classifiers vs. one in case of uncertainty) ++++++++++++
 				
 //				}
 				
@@ -327,19 +390,19 @@ public class FakeNewsChallenge2017 {
 		}
 		
 		// print debug scores to output
-		debug.println("total" + "\t" + l.size());
-		debug.println("binary correct" + "\t" + binaryCorrect);
-		debug.println("binary incorrect" + "\t" + binaryIncorrect);
-		debug.println("binary score" + "\t" + binaryCorrect / (binaryCorrect + binaryIncorrect));
-		debug.println("above threshold" + "\t" + above3classThreshold);
-		debug.println("above threshold correct" + "\t" + above3classThresholdCorrect);
-		debug.println("above threshold incorrect" + "\t" + above3classThresholdIncorrect);
-		debug.println("above threshold score" + "\t" + above3classThresholdCorrect / above3classThreshold);
-		debug.println("below threshold" + "\t" + below3classThreshold);
-		debug.println("below threshold correct" + "\t" + below3classThresholdCorrect);
-		debug.println("below threshold incorrect" + "\t" + below3classThresholdIncorrect);
-		debug.println("below threshold score" + "\t" + below3classThresholdCorrect / below3classThreshold);
-		debug.println("\n");
+//		debug.println("total" + "\t" + l.size());
+//		debug.println("binary correct" + "\t" + binaryCorrect);
+//		debug.println("binary incorrect" + "\t" + binaryIncorrect);
+//		debug.println("binary score" + "\t" + binaryCorrect / (binaryCorrect + binaryIncorrect));
+//		debug.println("above threshold" + "\t" + above3classThreshold);
+//		debug.println("above threshold correct" + "\t" + above3classThresholdCorrect);
+//		debug.println("above threshold incorrect" + "\t" + above3classThresholdIncorrect);
+//		debug.println("above threshold score" + "\t" + above3classThresholdCorrect / above3classThreshold);
+//		debug.println("below threshold" + "\t" + below3classThreshold);
+//		debug.println("below threshold correct" + "\t" + below3classThresholdCorrect);
+//		debug.println("below threshold incorrect" + "\t" + below3classThresholdIncorrect);
+//		debug.println("below threshold score" + "\t" + below3classThresholdCorrect / below3classThreshold);
+//		debug.println("\n");
 		
 		return hm;
 	}
@@ -855,6 +918,7 @@ public class FakeNewsChallenge2017 {
 			for (FakeNewsChallengeObject fnco : trainInstances){
 				if (!fnco.getStance().equalsIgnoreCase("unrelated") && !fnco.getStance().equalsIgnoreCase(deleteCandidate)){
 					targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeader(), fnco.getArticle())); // TODO: maybe multiply the header a couple of times to give it more weight?
+					//targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeaderLemmas(), fnco.getArticleLemmas())); // NOTE: this decreased the score from 89 to 81
 					lineno++;
 				}
 			}
@@ -902,7 +966,106 @@ public class FakeNewsChallenge2017 {
 		return m;
 	}
 	
+	public static void processTestData(String trainingFile, String testFile, String outputFile, String tempFile){
+		
+		FakeNewsChallenge2017 fnc = new FakeNewsChallenge2017();
+		Tagger.initTagger("en");
+		DepParserTree.initParser("en");
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(new File(outputFile));
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		String alg = "maxent";
+		try {
+			ArrayList<FakeNewsChallengeObject> l = fnc.parseTestTsv(fnc.readLines(trainingFile), true);
+			ArrayList<FakeNewsChallengeObject> testInstances = fnc.parseTestTsv(fnc.readLines(testFile), true); // TODO: this parseTestTsv needs to be changed, depending on what the test format looks like!!!
+			PrintWriter tempTrain = new PrintWriter(new File(tempFile));
+			HashMap<String, Integer> tempMap = new HashMap<String, Integer>();
+			int q = 1;
+			for (FakeNewsChallengeObject fnco : l) {
+				// filtering out unrelated cases, as this can be done pretty accurately with ngram overlap already
+				if (!fnco.getStance().equalsIgnoreCase("unrelated")){
+					// id class data
+					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					tempMap.put(fnco.getStance(), 1); // ugly way of getting set...
+					q++;
+				}
+			}
+			tempTrain.close();
+			int numClasses = tempMap.size();
+			
+			// ++++++++ three-class classifier +++++++++++++
+			DocumentClassification.trainClassifier(tempFile, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "fakeNewsChallengeStanceModel", "en", alg);
+			Classifier fallbackHeadlineClassifier;
+			File fallbackModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-fakeNewsChallengeStanceModel.EXT");
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fallbackModelFile));
+			fallbackHeadlineClassifier = (Classifier) ois.readObject();
+			ois.close();
+
+			// ++++++++ binary classifiers +++++++++++++
+			Classifier binaryAgreeOrDisagreeClassifier;
+			String binaryAgreeOrDisagreeTrainData = fnc.createTrainingDataDeleteClass(l, "discuss");
+			DocumentClassification.trainClassifier(binaryAgreeOrDisagreeTrainData, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "binaryAgreeOrDisagreeModel", "en", alg);
+			File binaryAgreeOrDisagreeModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-binaryAgreeOrDisagreeModel.EXT");
+			ObjectInputStream ois3 = new ObjectInputStream(new FileInputStream(binaryAgreeOrDisagreeModelFile));
+			binaryAgreeOrDisagreeClassifier = (Classifier) ois3.readObject();
+			ois3.close();
+			
+			Classifier binaryAgreeOrDiscussClassifier;
+			String binaryAgreeOrDiscussTrainData = fnc.createTrainingDataDeleteClass(l, "disagree");
+			DocumentClassification.trainClassifier(binaryAgreeOrDiscussTrainData, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "binaryAgreeOrDiscussModel", "en", alg);
+			File binaryAgreeOrDiscussModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-binaryAgreeOrDiscussModel.EXT");
+			ObjectInputStream ois4 = new ObjectInputStream(new FileInputStream(binaryAgreeOrDiscussModelFile));
+			binaryAgreeOrDiscussClassifier = (Classifier) ois4.readObject();
+			ois4.close();
+			
+			Classifier binaryDiscussOrDisagreeClassifier;
+			String binaryDiscussOrDisagreeTrainData = fnc.createTrainingDataDeleteClass(l, "agree");
+			DocumentClassification.trainClassifier(binaryDiscussOrDisagreeTrainData, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "binaryDiscussOrDisagreeModel", "en", alg);
+			File binaryDiscussOrDisagreeModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-binaryDiscussOrDisagreeModel.EXT");
+			ObjectInputStream ois5 = new ObjectInputStream(new FileInputStream(binaryDiscussOrDisagreeModelFile));
+			binaryDiscussOrDisagreeClassifier = (Classifier) ois5.readObject();
+			ois5.close();
+			
+			
+			// +++++++++ classification starts here +++++++++++++++
+			double threshold = 0.0096;
+			//HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(l, threshold, fallbackHeadlineClassifier);
+			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testInstances, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier);
+			
+			// now write to output file
+			writeOutput(results, out); // TODO: check if the organisers expect the output in the same order (incremental id) as the input test set (this is probably not the case because of all the hashmaps etc.)
+			out.close();
+			System.out.println(String.format("INFO: Done. Output written to %s.", outputFile));
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	public static void writeOutput(HashMap<FakeNewsChallengeObject, String> results, PrintWriter out){
+		
+		// required format: Headline,Body ID,Stance
+		for (FakeNewsChallengeObject fnco : results.keySet()){
+			// key is fnco, value is the classified value
+			out.println(String.format("%s,%s,%s", fnco.getHeader(), Integer.toString(fnco.getArticleId()), results.get(fnco)));
+		}
+		
+	}
+	
+	
 	public static void main (String[] args){
+		
+		// training data: https://drive.google.com/open?id=0B8Jaci3t46toN3VGZXBRZzA5RDQ
+		// for tempTestDummy I just copied the first three lines of the training data, but this should obviously be the test data when it is released
+		processTestData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempTestDummyFNC.txt", "C:\\Users\\pebo01\\Desktop\\debug.txt", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\tempTrainData.txt");
+		System.out.println("INFO: Dying now due to system exit!");
+		System.exit(1);
 		
 		FakeNewsChallenge2017 fnc = new FakeNewsChallenge2017();
 		Tagger.initTagger("en");
@@ -913,6 +1076,8 @@ public class FakeNewsChallenge2017 {
 //		fnc.evaluate(classifiedMap, goldList);
 //		System.exit(1);
 		
+		
+		//TODO: prepare the code so that i can train using all training data, and that when the test data comes in, I have to make minimal changes!!!
 		int numIterations = 50;
 		ArrayList<ArrayList<Double>> scores = new ArrayList<ArrayList<Double>>();
 		
@@ -944,10 +1109,10 @@ public class FakeNewsChallenge2017 {
 				System.out.println("INFO: Currently using algorithm: " + alg);
 			l = fnc.parseTsv(fnc.readLines(data), true);
 			System.out.println("INFO: Done parsing tsv.");
-			//System.out.println("INFO: Hashing GrammaticalStructures.");
-			//fnc.hashGrammaticalStructures(l);
-			//System.out.println("INFO: Done hashing GrammaticalStructures.");
-			
+//			System.out.println("INFO: Hashing GrammaticalStructures.");
+//			fnc.hashGrammaticalStructures(l);  
+//			System.out.println("INFO: Done hashing GrammaticalStructures.");
+			//TODO: maybe use the negation score, and the other metrics (question mark at the end, etc.) to get the numbers and then also put them in the paper
 			
 //			fnc.printNegationStats(l, debugOut); // NOTE: try threshold 0.1 (if diff < 0.1, class is agree)
 //			//fnc.printDiscussStats(l, debugOut);
@@ -977,6 +1142,7 @@ public class FakeNewsChallenge2017 {
 				if (!fnco.getStance().equalsIgnoreCase("unrelated")){
 					// id class data
 					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					//tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeaderLemmas())); // NOTE: this decreased the score from 89 to 81
 					tempMap.put(fnco.getStance(), 1); // ugly way of getting set...
 					q++;
 					// to train a binary discuss/other (agree or disagree) classifier
@@ -1047,7 +1213,7 @@ public class FakeNewsChallenge2017 {
 			System.out.println("INFO: Starting classification.");
 			double threshold = 0.0096;
 			//HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(l, threshold, fallbackHeadlineClassifier);
-			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier, debug); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
+			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
 			System.out.println("INFO: Done with classification. Evaluating now...");
 			//double weightedScore = fnc.evaluate(results, l);
 			ArrayList<Double> s = fnc.evaluate(results, testList); // NOTE: same here (see comment above on testList)
