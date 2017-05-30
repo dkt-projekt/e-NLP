@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import edu.stanford.nlp.trees.GrammaticalStructure;
 
-public class FakeNewsChallengeObject {
+public class FakeNewsChallengeObject implements Comparable{
 	
 	private int id;
 	private int articleId;
@@ -16,6 +16,15 @@ public class FakeNewsChallengeObject {
 	private ArrayList<GrammaticalStructure> gsArticle;
 	private ArrayList<GrammaticalStructure> gsHeader;
 	
+	private int orderId;
+	
+	
+	public int getOrderId() {
+		return orderId;
+	}
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
 	public int getId() {
 		return id;
 	}
@@ -91,6 +100,12 @@ public class FakeNewsChallengeObject {
 	}
 	public FakeNewsChallengeObject() {
 		super();
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		FakeNewsChallengeObject o2 = (FakeNewsChallengeObject) o ;
+		return orderId-o2.orderId;
 	}
 
 	

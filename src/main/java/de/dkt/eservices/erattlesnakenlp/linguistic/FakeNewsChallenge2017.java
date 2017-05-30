@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -59,6 +60,7 @@ public class FakeNewsChallenge2017 {
 		HashMap<String, String> memoryMap = new HashMap<String, String>();
 		int hi = 0;
 		int ai = 0;
+		int counter=0;
 		for (String s : flines){
 			String[] parts = s.split("\t");
 			int id = Integer.parseInt(parts[0]);
@@ -96,10 +98,13 @@ public class FakeNewsChallenge2017 {
 					ai++;
 				}
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
-				
+				fnco.setOrderId(counter);
+				counter++;
 			}
 			else{
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header);
+				fnco.setOrderId(counter);
+				counter++;
 			}
 			l.add(fnco);
 			
@@ -116,6 +121,7 @@ public class FakeNewsChallenge2017 {
 		HashMap<String, String> memoryMap = new HashMap<String, String>();
 		int hi = 0;
 		int ai = 0;
+		int counter = 0;
 		for (String s : flines){
 			String[] parts = s.split("\t");
 			int id = Integer.parseInt(parts[0]);
@@ -153,10 +159,14 @@ public class FakeNewsChallenge2017 {
 					ai++;
 				}
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
+				fnco.setOrderId(counter);
+				counter++;
 				
 			}
 			else{
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header);
+				fnco.setOrderId(counter);
+				counter++;
 			}
 			l.add(fnco);
 			
@@ -209,8 +219,8 @@ public class FakeNewsChallenge2017 {
 		return rl;
 	}
 	
-	private HashMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier){//, PrintWriter debug){
-		HashMap<FakeNewsChallengeObject, String> hm = new HashMap<FakeNewsChallengeObject, String>();
+	private TreeMap<FakeNewsChallengeObject, String> classifyInstances(ArrayList<FakeNewsChallengeObject> l, double threshold, Classifier fallbackHeadlineClassifier, int numClasses , Classifier binaryAgreeOrDisagreeClassifier, Classifier binaryAgreeOrDiscussClassifier, Classifier binaryDiscussOrDisagreeClassifier){//, PrintWriter debug){
+		TreeMap<FakeNewsChallengeObject, String> hm = new TreeMap<FakeNewsChallengeObject, String>();
 		
 		// prerequisites...
 		deserializeStopwords("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\stopwords\\english.ser");
@@ -710,7 +720,7 @@ public class FakeNewsChallenge2017 {
 		}
 	}
 	
-	private ArrayList<Double> evaluate(HashMap<FakeNewsChallengeObject, String> results, ArrayList<FakeNewsChallengeObject> l){
+	private ArrayList<Double> evaluate(TreeMap<FakeNewsChallengeObject, String> results, ArrayList<FakeNewsChallengeObject> l){
 		
 		double relatednessScore = 0.0;
 		double fineGrainedScore = 0.0;
@@ -966,6 +976,8 @@ public class FakeNewsChallenge2017 {
 		return m;
 	}
 	
+
+	
 	public static void processTestData(String trainingFile, String testFile, String outputFile, String tempFile){
 		
 		FakeNewsChallenge2017 fnc = new FakeNewsChallenge2017();
@@ -979,7 +991,8 @@ public class FakeNewsChallenge2017 {
 		}
 		String alg = "maxent";
 		try {
-			ArrayList<FakeNewsChallengeObject> l = fnc.parseTestTsv(fnc.readLines(trainingFile), true);
+			String[] flines = fnc.readLines(trainingFile);
+			ArrayList<FakeNewsChallengeObject> l = fnc.parseTestTsv(flines, true);
 			ArrayList<FakeNewsChallengeObject> testInstances = fnc.parseTestTsv(fnc.readLines(testFile), true); // TODO: this parseTestTsv needs to be changed, depending on what the test format looks like!!!
 			PrintWriter tempTrain = new PrintWriter(new File(tempFile));
 			HashMap<String, Integer> tempMap = new HashMap<String, Integer>();
@@ -997,7 +1010,7 @@ public class FakeNewsChallenge2017 {
 			int numClasses = tempMap.size();
 			
 			// ++++++++ three-class classifier +++++++++++++
-			DocumentClassification.trainClassifier(tempFile, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "fakeNewsChallengeStanceModel", "en", alg);
+			//DocumentClassification.trainClassifier(tempFile, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "fakeNewsChallengeStanceModel", "en", alg);
 			Classifier fallbackHeadlineClassifier;
 			File fallbackModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-fakeNewsChallengeStanceModel.EXT");
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fallbackModelFile));
@@ -1033,7 +1046,7 @@ public class FakeNewsChallenge2017 {
 			// +++++++++ classification starts here +++++++++++++++
 			double threshold = 0.0096;
 			//HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(l, threshold, fallbackHeadlineClassifier);
-			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testInstances, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier);
+			TreeMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testInstances, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier);
 			
 			// now write to output file
 			writeOutput(results, out); // TODO: check if the organisers expect the output in the same order (incremental id) as the input test set (this is probably not the case because of all the hashmaps etc.)
@@ -1048,22 +1061,26 @@ public class FakeNewsChallenge2017 {
 		
 	}
 	
-	public static void writeOutput(HashMap<FakeNewsChallengeObject, String> results, PrintWriter out){
+	public static void writeOutput(TreeMap<FakeNewsChallengeObject, String> results, PrintWriter out){
 		
 		// required format: Headline,Body ID,Stance
-		for (FakeNewsChallengeObject fnco : results.keySet()){
-			// key is fnco, value is the classified value
-			out.println(String.format("%s,%s,%s", fnco.getHeader(), Integer.toString(fnco.getArticleId()), results.get(fnco)));
+		out.println("Headline,Body ID,Stance");
+		for (FakeNewsChallengeObject fnco : results.keySet()){ // NOTE: this is a whole lot of unnecessary loooping, but otherwise I need to make a hashmap again, and it's not really a showstopper in terms of processing time... I'm lazy, I know.
+				// key is fnco, value is the classified value
+				out.println(String.format("%s,%s,%s", fnco.getHeader(), Integer.toString(fnco.getArticleId()), results.get(fnco))); // TODO: perhaps remove quotes if there is no comma in the header
 		}
+		
 		
 	}
 	
 	
 	public static void main (String[] args){
 		
+		// the test data as released (probably test_bodies.csv and test_stances.tsv) will first have to be converted to the proper input format (like the one in fncData.tsv). I used the following script for this:
+		// https://drive.google.com/open?id=0B8Jaci3t46toTjFicXkwcDhFRHM
 		// training data: https://drive.google.com/open?id=0B8Jaci3t46toN3VGZXBRZzA5RDQ
-		// for tempTestDummy I just copied the first three lines of the training data, but this should obviously be the test data when it is released
-		processTestData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\tempTestDummyFNC.txt", "C:\\Users\\pebo01\\Desktop\\debug.txt", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\tempTrainData.txt");
+		// for now just testing on the full training data
+		processTestData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\submission.csv", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\tempTrainData.txt");
 		System.out.println("INFO: Dying now due to system exit!");
 		System.exit(1);
 		
@@ -1213,7 +1230,7 @@ public class FakeNewsChallenge2017 {
 			System.out.println("INFO: Starting classification.");
 			double threshold = 0.0096;
 			//HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(l, threshold, fallbackHeadlineClassifier);
-			HashMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
+			TreeMap<FakeNewsChallengeObject, String> results = fnc.classifyInstances(testList, threshold, fallbackHeadlineClassifier, numClasses, binaryAgreeOrDisagreeClassifier, binaryAgreeOrDiscussClassifier, binaryDiscussOrDisagreeClassifier); // NOTE: using only testList (10% of all data) now to prevent classifying seen data
 			System.out.println("INFO: Done with classification. Evaluating now...");
 			//double weightedScore = fnc.evaluate(results, l);
 			ArrayList<Double> s = fnc.evaluate(results, testList); // NOTE: same here (see comment above on testList)
