@@ -12,11 +12,9 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,25 +23,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
-import org.omg.Messaging.SyncScopeHelper;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.AttributeFactory;
+import org.apache.lucene.util.Version;
 
 import cc.mallet.classify.Classifier;
 import de.dkt.common.filemanagement.FileFactory;
 import de.dkt.eservices.ecorenlp.modules.Lemmatizer;
 import de.dkt.eservices.ecorenlp.modules.Tagger;
 import de.dkt.eservices.emallet.modules.DocumentClassification;
-import de.dkt.eservices.eopennlp.modules.Tokenizer;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.TaggedWord;
-import edu.stanford.nlp.ling.WordLemmaTag;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.GrammaticalStructure;
 import edu.stanford.nlp.trees.TypedDependency;
-import opennlp.tools.tokenize.SimpleTokenizer;
 
 public class FakeNewsChallenge2017 {
 	
@@ -53,6 +53,112 @@ public class FakeNewsChallenge2017 {
 	static HashMap<String, Double> ngramIDF = new HashMap<String, Double>();
 	static HashMap<String, HashMap<String, Integer>> ngramMemoryMap = new HashMap<String, HashMap<String, Integer>>();
 	static List<String> enStopwords = new ArrayList<String>();;
+	
+	private ArrayList<FakeNewsChallengeObject> parseTestTsvFromStancesAndBodies(String stanceFile, String bodyFile, boolean lemmatise) throws Exception{
+		Lemmatizer.initLemmatizer();
+		ArrayList<FakeNewsChallengeObject> l = new ArrayList<FakeNewsChallengeObject>();
+		HashMap<String, String> memoryMap = new HashMap<String, String>();
+		int hi = 0;
+		int ai = 0;
+		int counter=0;
+		
+		CsvReader bodies = new CsvReader(bodyFile, ',',Charset.forName("UTF8"));
+		  
+		bodies.readHeaders();
+		HashMap<String, String> bodiesMap = new HashMap<String, String>();
+		while (bodies.readRecord()) {
+			String ab = bodies.get("articleBody");
+			String bid = bodies.get("Body ID");
+			bodiesMap.put(bid, ab);
+		}
+
+		bodies.close();
+
+		CsvReader stances = new CsvReader(stanceFile, ',',Charset.forName("UTF8"));
+		List<String> flinesList = new LinkedList<String>();
+		  
+		stances.readHeaders();
+		int counter2 = 0;
+		while (stances.readRecord()) {
+			String headline = stances.get("Headline");
+			String bid = stances.get("Body ID");
+			
+			flinesList.add(counter2 + "\t" + "unknownStance" + "\t" + bid + "\t" + bodiesMap.get(bid).replaceAll("\t", "") + "\t" + headline.replaceAll("\t", ""));
+			counter2++;
+//			System.out.println(counter2 + "\t" + "unknownStance" + "\t" + bid + "\t\"" + bodiesMap.get(bid) + "\"\t\"" + headline + "\"");
+		}
+
+		stances.close();
+//		
+		String [] flines = new String[flinesList.size()];
+		for (int i = 0; i < flines.length; i++) {
+			flines[i] = flinesList.get(i);
+			String[] parts = flines[i].split("\t");
+//			System.out.println(parts[1]);
+		}
+
+//		System.exit(1);
+
+		for (String s : flines){
+			String[] parts = s.split("\t");
+			int id = Integer.parseInt(parts[0]);
+			String stance = parts[1].replaceAll("\"", ""); // TODO: this one is not present probably in the test lines, so depending on that format, this one and the following indices should be changed
+			int articleId = Integer.parseInt(parts[2]);
+			String article = parts[3];
+			String header = parts[4];
+			FakeNewsChallengeObject fnco = null;
+			if (lemmatise){
+				String headerLemmas = "";
+				if (memoryMap.containsKey(header)){
+					headerLemmas = memoryMap.get(header);
+				}
+				else{
+					headerLemmas = getLemmas(header);
+					memoryMap.put(header,  headerLemmas);
+				}
+				//String articleLemmas = getLemmas(article);
+				// because lemmatising takes a bit long, using a memory hashmap to only lemmatise an article once
+				String articleLemmas = "";
+				if (memoryMap.containsKey(article)){
+					articleLemmas = memoryMap.get(article);
+				}
+				else{
+					articleLemmas = getLemmas(article);
+					memoryMap.put(article,  articleLemmas);
+				}
+				// lemmatising fails sometimes, due to untokenizable chars
+				if (headerLemmas.equalsIgnoreCase("")){
+					headerLemmas = header;
+					hi++;
+				}
+				if (articleLemmas.equalsIgnoreCase("")){
+					articleLemmas = article;
+					ai++;
+				}
+				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
+				fnco.setOrderId(counter);
+				String articleWithoutStopwords = stopfilter2(article);
+				String headerWithoutStopwords = stopfilter2(header);
+//				String headerLemmasWithoutStopwords = stopwordFilter(headerLemmas);
+//				String articleLemmasWithoutStopwords = stopwordFilter(articleLemmas);
+				//fnco = new FakeNewsChallengeObject(id, articleId, stance, articleWithoutStopwords, headerWithoutStopwords, headerLemmasWithoutStopwords, articleLemmasWithoutStopwords);
+				fnco.setHeaderWithoutStopwords(headerWithoutStopwords);
+				fnco.setArticleWithoutStopwords(articleWithoutStopwords);
+				counter++;
+			}
+			else{
+				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header);
+				fnco.setOrderId(counter);
+				counter++;
+			}
+			l.add(fnco);
+			
+		}
+//		System.out.println(String.format("INFO: %s out of %s headers using raw instead of lemmas.", Integer.toString(hi), Integer.toString(flines.length)));
+//		System.out.println(String.format("INFO: %s out of %s articles using raw instead of lemmas.", Integer.toString(ai), Integer.toString(flines.length)));
+		return l;
+	}
+	
 	
 	private ArrayList<FakeNewsChallengeObject> parseTestTsv(String[] flines, boolean lemmatise){
 		Lemmatizer.initLemmatizer();
@@ -99,11 +205,19 @@ public class FakeNewsChallenge2017 {
 				}
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
 				fnco.setOrderId(counter);
+				String articleWithoutStopwords = stopfilter2(article);
+				String headerWithoutStopwords = stopfilter2(header);
+//				String headerLemmasWithoutStopwords = stopwordFilter(headerLemmas);
+//				String articleLemmasWithoutStopwords = stopwordFilter(articleLemmas);
+				//fnco = new FakeNewsChallengeObject(id, articleId, stance, articleWithoutStopwords, headerWithoutStopwords, headerLemmasWithoutStopwords, articleLemmasWithoutStopwords);
+				fnco.setHeaderWithoutStopwords(headerWithoutStopwords);
+				fnco.setArticleWithoutStopwords(articleWithoutStopwords);
 				counter++;
 			}
 			else{
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header);
 				fnco.setOrderId(counter);
+				
 				counter++;
 			}
 			l.add(fnco);
@@ -116,6 +230,7 @@ public class FakeNewsChallenge2017 {
 	
 	
 	private ArrayList<FakeNewsChallengeObject> parseTsv(String[] flines, boolean lemmatise){
+		deserializeStopwords("C:\\Users\\pebo01\\workspace\\e-NLP\\src\\main\\resources\\stopwords\\english.ser");
 		Lemmatizer.initLemmatizer();
 		ArrayList<FakeNewsChallengeObject> l = new ArrayList<FakeNewsChallengeObject>();
 		HashMap<String, String> memoryMap = new HashMap<String, String>();
@@ -159,6 +274,16 @@ public class FakeNewsChallenge2017 {
 					ai++;
 				}
 				fnco = new FakeNewsChallengeObject(id, articleId, stance, article, header, headerLemmas, articleLemmas);
+				String articleWithoutStopwords = stopfilter2(article);
+				String headerWithoutStopwords = stopfilter2(header);
+//				String headerLemmasWithoutStopwords = stopwordFilter(headerLemmas);
+//				String articleLemmasWithoutStopwords = stopwordFilter(articleLemmas);
+				//fnco = new FakeNewsChallengeObject(id, articleId, stance, articleWithoutStopwords, headerWithoutStopwords, headerLemmasWithoutStopwords, articleLemmasWithoutStopwords);
+				fnco.setHeaderWithoutStopwords(headerWithoutStopwords);
+				fnco.setArticleWithoutStopwords(articleWithoutStopwords);
+//				fnco.setHeaderLemmasWithoutStopwords(headerLemmasWithoutStopwords);
+//				fnco.setArticleLemmasWithoutStopwords(articleLemmasWithoutStopwords);
+				
 				fnco.setOrderId(counter);
 				counter++;
 				
@@ -174,6 +299,48 @@ public class FakeNewsChallenge2017 {
 //		System.out.println(String.format("INFO: %s out of %s headers using raw instead of lemmas.", Integer.toString(hi), Integer.toString(flines.length)));
 //		System.out.println(String.format("INFO: %s out of %s articles using raw instead of lemmas.", Integer.toString(ai), Integer.toString(flines.length)));
 		return l;
+	}
+	
+	private String stopfilter2(String input){
+		
+		CharArraySet stopWords = EnglishAnalyzer.getDefaultStopSet();
+		
+		AttributeFactory factory = AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY;
+
+		// Create the tokenizer and prepare it for reading
+		//  Lucene 4.x
+		StandardTokenizer tokenizer = 
+		        new StandardTokenizer(factory);
+		tokenizer.setReader(new StringReader(input));
+	    TokenStream tokenStream = new StandardTokenizer();
+
+	    tokenStream = new StopFilter(tokenizer, stopWords);
+	    StringBuilder sb = new StringBuilder();
+	    CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+	    try {
+			tokenStream.reset();
+		
+	    while (tokenStream.incrementToken()) {
+	        String term = charTermAttribute.toString();
+	        sb.append(term + " ");
+	    }
+	    } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return sb.toString();
+	}
+	
+	private String stopwordFilter(String input){
+		String output = "";
+		String[] tokens = input.split(" ");
+		for (String token : tokens){
+			if (!enStopwords.contains(token)){
+				output += " " + token;
+			}
+		}
+		return output.trim();
+		
 	}
 	
 	private String getLemmas(String text){
@@ -290,7 +457,9 @@ public class FakeNewsChallenge2017 {
 //				}
 				// then comment out this else to de-activate the negation stuff
 //				else{
-				HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeader(), fallbackHeadlineClassifier, numClasses);
+				//HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeader(), fallbackHeadlineClassifier, numClasses);
+//				System.out.println("DEBUGGING here:" + fnco.getHeaderWithoutStopwords());
+				HashMap<String, Double> classScores = DocumentClassification.classifyStringToScores(fnco.getHeaderWithoutStopwords(), fallbackHeadlineClassifier, numClasses);
 				
 				
 				
@@ -330,13 +499,16 @@ public class FakeNewsChallenge2017 {
 					// making a list to decrease number of if checks...
 					List<String> _12 = new ArrayList<>(Arrays.asList(first.toLowerCase(), second.toLowerCase()));
 					if (_12.contains("agree") && _12.contains("disagree")){
-						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDisagreeClassifier);
+						//cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDisagreeClassifier);
+						cl = DocumentClassification.classifyString(fnco.getHeaderWithoutStopwords() + " " + fnco.getArticleWithoutStopwords(), binaryAgreeOrDisagreeClassifier);
 					}
 					else if (_12.contains("agree") && _12.contains("discuss")){
-						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDiscussClassifier);
+						//cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryAgreeOrDiscussClassifier);
+						cl = DocumentClassification.classifyString(fnco.getHeaderWithoutStopwords() + " " + fnco.getArticleWithoutStopwords(), binaryAgreeOrDiscussClassifier);
 					}
 					else if (_12.contains("discuss") && _12.contains("disagree")){
-						cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryDiscussOrDisagreeClassifier);
+						//cl = DocumentClassification.classifyString(fnco.getHeader() + " " + fnco.getArticle(), binaryDiscussOrDisagreeClassifier);
+						cl = DocumentClassification.classifyString(fnco.getHeaderWithoutStopwords() + " " + fnco.getArticleWithoutStopwords(), binaryDiscussOrDisagreeClassifier);
 					}
 //					below3classThreshold++;
 //					if (cl.equalsIgnoreCase(fnco.getStance())){
@@ -927,7 +1099,8 @@ public class FakeNewsChallenge2017 {
 			ArrayList<String> targetlines = new ArrayList<String>();
 			for (FakeNewsChallengeObject fnco : trainInstances){
 				if (!fnco.getStance().equalsIgnoreCase("unrelated") && !fnco.getStance().equalsIgnoreCase(deleteCandidate)){
-					targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeader(), fnco.getArticle())); // TODO: maybe multiply the header a couple of times to give it more weight?
+					/////targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeader(), fnco.getArticle())); // TODO: maybe multiply the header a couple of times to give it more weight?
+					targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeaderWithoutStopwords(), fnco.getArticleWithoutStopwords()));
 					//targetlines.add(String.format("%s %s %s %s", Integer.toString(lineno), fnco.getStance(), fnco.getHeaderLemmas(), fnco.getArticleLemmas())); // NOTE: this decreased the score from 89 to 81
 					lineno++;
 				}
@@ -978,7 +1151,7 @@ public class FakeNewsChallenge2017 {
 	
 
 	
-	public static void processTestData(String trainingFile, String testFile, String outputFile, String tempFile){
+	public static void processTestData(String trainingFile, String testBodies, String testStances, String outputFile, String tempFile) throws Exception{
 		
 		FakeNewsChallenge2017 fnc = new FakeNewsChallenge2017();
 		Tagger.initTagger("en");
@@ -993,7 +1166,7 @@ public class FakeNewsChallenge2017 {
 		try {
 			String[] flines = fnc.readLines(trainingFile);
 			ArrayList<FakeNewsChallengeObject> l = fnc.parseTestTsv(flines, true);
-			ArrayList<FakeNewsChallengeObject> testInstances = fnc.parseTestTsv(fnc.readLines(testFile), true); // TODO: this parseTestTsv needs to be changed, depending on what the test format looks like!!!
+			ArrayList<FakeNewsChallengeObject> testInstances = fnc.parseTestTsvFromStancesAndBodies(testStances, testBodies, true);
 			PrintWriter tempTrain = new PrintWriter(new File(tempFile));
 			HashMap<String, Integer> tempMap = new HashMap<String, Integer>();
 			int q = 1;
@@ -1001,7 +1174,8 @@ public class FakeNewsChallenge2017 {
 				// filtering out unrelated cases, as this can be done pretty accurately with ngram overlap already
 				if (!fnco.getStance().equalsIgnoreCase("unrelated")){
 					// id class data
-					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					//tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeaderWithoutStopwords()));
 					tempMap.put(fnco.getStance(), 1); // ugly way of getting set...
 					q++;
 				}
@@ -1010,7 +1184,7 @@ public class FakeNewsChallenge2017 {
 			int numClasses = tempMap.size();
 			
 			// ++++++++ three-class classifier +++++++++++++
-			//DocumentClassification.trainClassifier(tempFile, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "fakeNewsChallengeStanceModel", "en", alg);
+			DocumentClassification.trainClassifier(tempFile, "C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification", "fakeNewsChallengeStanceModel", "en", alg);
 			Classifier fallbackHeadlineClassifier;
 			File fallbackModelFile = FileFactory.generateFileInstance("C:\\Users\\pebo01\\workspace\\e-Clustering\\src\\main\\resources\\trainedModels\\documentClassification\\en-fakeNewsChallengeStanceModel.EXT");
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fallbackModelFile));
@@ -1067,20 +1241,30 @@ public class FakeNewsChallenge2017 {
 		out.println("Headline,Body ID,Stance");
 		for (FakeNewsChallengeObject fnco : results.keySet()){ // NOTE: this is a whole lot of unnecessary loooping, but otherwise I need to make a hashmap again, and it's not really a showstopper in terms of processing time... I'm lazy, I know.
 				// key is fnco, value is the classified value
-				out.println(String.format("%s,%s,%s", fnco.getHeader(), Integer.toString(fnco.getArticleId()), results.get(fnco))); // TODO: perhaps remove quotes if there is no comma in the header
+				String header = fnco.getHeader();
+				if (header.contains(",") || header.contains("\"")){
+					header = "\"" + header.replaceAll("\"", "\"\"") + "\"";
+				}
+
+				out.println(String.format("%s,%s,%s", header, Integer.toString(fnco.getArticleId()), results.get(fnco))); // TODO: perhaps remove quotes if there is no comma in the header
 		}
 		
 		
 	}
 	
 	
-	public static void main (String[] args){
+	public static void main (String[] args) throws Exception{
+		
+//		FakeNewsChallenge2017 fnc2 = new FakeNewsChallenge2017();
+//		System.out.println(fnc2.stopfilter2("This is a santiy check"));
+//		System.exit(1);
 		
 		// the test data as released (probably test_bodies.csv and test_stances.tsv) will first have to be converted to the proper input format (like the one in fncData.tsv). I used the following script for this:
 		// https://drive.google.com/open?id=0B8Jaci3t46toTjFicXkwcDhFRHM
 		// training data: https://drive.google.com/open?id=0B8Jaci3t46toN3VGZXBRZzA5RDQ
 		// for now just testing on the full training data
-		processTestData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\submission.csv", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\tempTrainData.txt");
+		//public static void processTestData(String trainingFile, String testFile, String outputFile, String tempFile){
+		processTestData("C:\\Users\\pebo01\\Desktop\\ubuntuShare\\fncData.tsv", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\test_bodies.csv", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\test_stances_unlabeled.csv", "C:\\Users\\pebo01\\Desktop\\submission.csv", "C:\\Users\\pebo01\\Desktop\\FakeNewsChallenge2017\\tempTrainData.txt");
 		System.out.println("INFO: Dying now due to system exit!");
 		System.exit(1);
 		
@@ -1095,7 +1279,7 @@ public class FakeNewsChallenge2017 {
 		
 		
 		//TODO: prepare the code so that i can train using all training data, and that when the test data comes in, I have to make minimal changes!!!
-		int numIterations = 50;
+		int numIterations = 10;
 		ArrayList<ArrayList<Double>> scores = new ArrayList<ArrayList<Double>>();
 		
 //		//String sentence = "The claim in this article is denied.";
@@ -1158,7 +1342,8 @@ public class FakeNewsChallenge2017 {
 				// filtering out unrelated cases, as this can be done pretty accurately with ngram overlap already
 				if (!fnco.getStance().equalsIgnoreCase("unrelated")){
 					// id class data
-					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					/////tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeader()));
+					tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeaderWithoutStopwords()));
 					//tempTrain.println(String.format("%s %s %s", Integer.toString(q), fnco.getStance(), fnco.getHeaderLemmas())); // NOTE: this decreased the score from 89 to 81
 					tempMap.put(fnco.getStance(), 1); // ugly way of getting set...
 					q++;
