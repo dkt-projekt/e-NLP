@@ -40,7 +40,7 @@ public class LanguageIdentificator {
 	public String languageModelsDirectory = "languageModels";
 	public HashMap<String, HashMap<String,Double>> ngrampMapDict = new HashMap<String, HashMap<String,Double>>(); 
 	
-	@PostConstruct
+	//@PostConstruct
 	public void initializeNgramMaps(){
 		
 		try {

@@ -54,10 +54,10 @@ public class TestConstants {
 					"        nif:beginIndex           \"70\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:endIndex             \"74\"^^xsd:nonNegativeInteger ;\n" +
 					"        nif:referenceContext     <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
-					"        nif:relationAction       <bear> ;\n" +
-					"        nif:relationObject       <Hamburg(http://dkt.dfki.de/documents/#char=47,54)> ;\n" +
-					"        nif:relationSubject      <She(http://dkt.dfki.de/documents/#char=0,13)> ;\n" +
-					"        nif:thematicRoleSubject  <themRoleObj> ;\n" +
+					"        nif:relationAction       \"bear\"^^xsd:string ;\n" +
+					"        nif:relationObject       \"Hamburg(http://dkt.dfki.de/documents/#char=47,54)\"^^xsd:string ;\n" +
+					"        nif:relationSubject      \"She(http://dkt.dfki.de/documents/#char=0,13)\"^^xsd:string ;\n" +
+					"        nif:thematicRoleSubject  \"themRoleObj\"^^xsd:string ;\n" +
 					"        itsrdf:taIdentRef        <http://dkt.dfki.de/entities/relation> .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=0,13>\n" +
@@ -99,17 +99,17 @@ public class TestConstants {
 					"        nif:isString             \"Angela Merkel is not an alien. She was born in Hamburg. She then moved to Brandenburg.\"^^xsd:string .\n" +
 					"\n" +
 					"<http://dkt.dfki.de/documents/#char=14,16>\n" +
-				    "        a                        nif:RFC5147String , nif:String ;\n" +
-				    "        nif:anchorOf             \"is\"^^xsd:string ;\n" +
-				    "        nif:beginIndex           \"14\"^^xsd:nonNegativeInteger ;\n" +
-				    "        nif:endIndex             \"16\"^^xsd:nonNegativeInteger ;\n" +
-				    "        nif:referenceContext     <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
-				    "        nif:relationAction       <be> ;\n" +
-				    "        nif:relationObject       <alien(null)> ;\n" +
-				    "        nif:relationSubject      <Merkel(http://dkt.dfki.de/documents/#char=0,13)> ;\n" +
-				    "        nif:thematicRoleSubject  <themRoleObj> ;\n" +
-				    "        itsrdf:taIdentRef        <http://dkt.dfki.de/entities/relation> .\n" +
-				    "\n" +
+					"        a                        nif:RFC5147String , nif:String ;\n" +
+					"        nif:anchorOf             \"is\"^^xsd:string ;\n" +
+					"        nif:beginIndex           \"14\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:endIndex             \"16\"^^xsd:nonNegativeInteger ;\n" +
+					"        nif:referenceContext     <http://dkt.dfki.de/documents/#char=0,86> ;\n" +
+					"        nif:relationAction       \"be\"^^xsd:string ;\n" +
+					"        nif:relationObject       \"alien(null)\"^^xsd:string ;\n" +
+					"        nif:relationSubject      \"Merkel(http://dkt.dfki.de/documents/#char=0,13)\"^^xsd:string ;\n" +
+					"        nif:thematicRoleSubject  \"themRoleObj\"^^xsd:string ;\n" +
+					"        itsrdf:taIdentRef        <http://dkt.dfki.de/entities/relation> .\n" +
+					"\n" +
 					"<http://dkt.dfki.de/documents/#char=47,54>\n" +
 					"        a                     nif:String , nif:RFC5147String ;\n" +
 					"        nif:anchorOf          \"Hamburg\"^^xsd:string ;\n" +

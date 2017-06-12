@@ -50,7 +50,7 @@ public class EHeideltimeService {
 	private static final String CONFIG_PROPS = "config.props"; 
 
 	private static final String RESOURCE_NAME = "/opt/heideltime-kit/conf/" + CONFIG_PROPS; 
-//	private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
+	//private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
 	
 	private String configPath; 
 

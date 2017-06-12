@@ -50,6 +50,7 @@ import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.util.InputStreamFactory;
+import opennlp.tools.util.MarkableFileInputStreamFactory;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
@@ -359,12 +360,29 @@ public class NameFinder {
 		ObjectStream<NameSample> sampleStream;
 		File newModel = null;
 		try{
+		
+			File f = FileFactory.generateOrCreateFileInstance("trainedModels" + File.separator + "ner" + "tempTrainFile"); // ugly, but all of a sudden this code complained about the cast to InputStreamFactory of the ByteArrayInputStream (see below), so writing to temp file...
+			PrintWriter pw = new PrintWriter(f);
+			pw.write(inputTrainData);
+			pw.close();
+			InputStreamFactory isf = new InputStreamFactory() {
+	            public InputStream createInputStream() throws IOException {
+	                return new FileInputStream(f.getAbsolutePath());
+	            }
+	        };
+
+	        Charset charset = Charset.forName("UTF-8");
+	        lineStream = new PlainTextByLineStream(isf, charset);
+	        sampleStream = new NameSampleDataStream(lineStream);
+			
+			
 			//charset = Charset.forName("UTF-8");
 			//ClassPathResource cprOne = new ClassPathResource(inputTrainData);
-			ByteArrayInputStream bais = new ByteArrayInputStream(inputTrainData.getBytes());
-			lineStream = new PlainTextByLineStream((InputStreamFactory) bais,"utf-8");
-			//lineStream = new PlainTextByLineStream(new FileInputStream(cprOne.getFile()), charset);
-			sampleStream = new NameSampleDataStream(lineStream);
+			///ByteArrayInputStream bais = new ByteArrayInputStream(inputTrainData.getBytes());
+			///lineStream = new PlainTextByLineStream((InputStreamFactory) bais,"utf-8");
+			///lineStream = new PlainTextByLineStream((InputStreamFactory) bais,"utf-8");
+			//lineStream = new PlainTextByLineStream((InputStreamFactory) new FileInputStream(f), "utf-8");
+			//sampleStream = new NameSampleDataStream(lineStream);
 
 			TokenNameFinderModel model;
 
@@ -385,6 +403,7 @@ public class NameFinder {
 			}
 			finally {
 				sampleStream.close();
+				lineStream.close();
 			}
 
 			OutputStream modelOut = null;

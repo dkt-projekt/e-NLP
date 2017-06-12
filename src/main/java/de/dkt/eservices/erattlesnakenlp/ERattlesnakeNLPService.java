@@ -16,7 +16,7 @@ import de.dkt.eservices.erattlesnakenlp.linguistic.EntityRelationTriple;
 import de.dkt.eservices.erattlesnakenlp.linguistic.MovementActionEvent;
 import de.dkt.eservices.erattlesnakenlp.linguistic.RelationExtraction;
 import de.dkt.eservices.erattlesnakenlp.modules.LanguageIdentificator;
-import de.dkt.eservices.erattlesnakenlp.modules.MendelsohnParser;
+//import de.dkt.eservices.erattlesnakenlp.modules.MendelsohnParser;
 import de.dkt.eservices.erattlesnakenlp.modules.ParagraphDetector;
 import de.dkt.eservices.erattlesnakenlp.modules.TravelModeDetection;
 import de.dkt.eservices.erattlesnakenlp.modules.mae.MovementVerbDetection;
@@ -85,8 +85,8 @@ public class ERattlesnakeNLPService {
 	@Autowired
 	LanguageIdentificator languageIdentificator;
 	
-	@Autowired
-	MendelsohnParser mendelsohnParser;
+//	@Autowired
+//	MendelsohnParser mendelsohnParser;
 
 	@Autowired
 	TravelModeDetection travelModeDetection;
@@ -223,262 +223,262 @@ public class ERattlesnakeNLPService {
 				.setDefaultCredentialsProvider(credsProvider).build();
 	}
 
-	public Model detectSextuples(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
-		try{
-			String documentURI = NIFReader.extractDocumentWholeURI(nifModel);
-			/**
-			 * It only works for EN/DE.(If we want more languages, we should add more langiuage models.)
-			 */
-//			String detectedLanguage = languageIdentificator.getLanguageNIF(nifModel);
-//			// TODO; this initialises the language models every time, perhaps do this at initiasation instead
+//	public Model detectSextuples(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat) throws IOException{
+//		try{
+//			String documentURI = NIFReader.extractDocumentWholeURI(nifModel);
 //			/**
-//			 * TODO If not english, translate it.
+//			 * It only works for EN/DE.(If we want more languages, we should add more langiuage models.)
 //			 */
-//			System.out.println("DEBUGGING detectedlang:" + detectedLanguage);
-			String detectedLanguage = languageParam;
-			
-			Model auxModel = null;
-			String prefix = "";
-			if(detectedLanguage.equalsIgnoreCase("en")){
-				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
-						detectedLanguage, 
-						"ner", 
-						"ner-wikinerEn_PER;ner-wikinerEn_LOC;ner-wikinerEn_ORG",  
-						inFormat, 
-						"all", 
-						prefix);
-
-				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
-						detectedLanguage, 
-						"temp", 
-						"englishDates",
-						inFormat, 
-						"all", 
-						prefix);
-			}
-			else{
-				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
-						detectedLanguage, 
-						"ner", 
-						"ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainLOC",
-						inFormat, 
-						"all", 
-						prefix);
-
-				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
-						detectedLanguage, 
-						"temp", 
-						"germanDates",
-						inFormat, 
-						"all", 
-						prefix);
-			}			
-//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
-			
-			//auxModel = heideltimeService.annotateTime(auxModel, detectedLanguage); // TODO: fix this one
-//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
-
-			// get md5 hash key (this is they key of the serialzed hashmap with all metadata)
-			byte[] key = mendelsohnParser.getHashKey(NIFReader.extractIsString(nifModel)); // done on the base of (smallest) edit distance
-			//TODO: this loads the serialized metadata everytime, perhaps do this at initiation (of the broker, through spring magic)
-			
-			String letterAuthor = mendelsohnParser.getAuthor(key);
-			
-			String letterDate = mendelsohnParser.getDate(key);
-			
-			String letterLocation = mendelsohnParser.getLocation(key);
-			
-			//TODO: next step to get an actual DBPedia uri/proper date for dates, and fill slots.
-			System.out.println("DEBUGGING info:" + letterAuthor);
-			System.out.println("DEBUGGING info:" + letterDate);
-			System.out.println("DEBUGGING info:" + letterLocation);
-			
-			/**
-			 * Detect Transportation modes: directly from a dictionary and indirectly from some self-defined rules.
-			 */
-			auxModel = travelModeDetection.detectTransportationModes(auxModel, languageParam, inFormat);
-
-			auxModel = movementVerbDetection.detectMovementVerbs(auxModel, languageParam, inFormat);
-
-			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
-			/**
-			 * Assign weights to the elements of the sextuple.
-			 */
-			float personWeight = 0.3f;
-			float originWeight = 0.2f;
-			float destinationWeight = 0.2f;
-			float departureTimeWeight = 0.1f;
-			float arrivalTimeWeight = 0.1f;
-			float modeWeight = 0.1f;
-			/**
-			 * Threshold that defines if a sextuple is a real MAE
-			 */
-			float threshold = 0.5f;
-
-			/*
-			 * Split the text into sentences 
-			 */
-			try{
-				int sentenceOffset = 0;
-				String inputText = NIFReader.extractIsString(nifModel).toLowerCase();
-				Annotation document = new Annotation(inputText);
-				pipeline.annotate(document);
-				List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
-				for (CoreMap sentence : sentences) {
-					int sentenceEnd = sentenceOffset + sentence.size();
-					/**
-					 * Check in every sentence if there are alements of the sextuple (take them from the NIF)
-					 */
-					Map<String, DktAnnotation> elements = NIFReader.extractAnnotations(auxModel);
-					
-					List<DktAnnotation> iPersons = new LinkedList<DktAnnotation>();
-					List<DktAnnotation> iLocations= new LinkedList<DktAnnotation>();
-					List<DktAnnotation> iTimes= new LinkedList<DktAnnotation>();
-					List<DktAnnotation> iModes = new LinkedList<DktAnnotation>();
-					
-					Set<String> elementsKeys = elements.keySet();
-					for (String elementKey : elementsKeys) {
-						DktAnnotation object = elements.get(elementKey);
-						if( (object.getStart()>sentenceOffset && object.getStart()<sentenceEnd)
-								||
-								(object.getEnd()>sentenceOffset && object.getEnd()<sentenceEnd)){
-							if(object.getType().equalsIgnoreCase("person")){
-								iPersons.add(object);
-							}
-							else if(object.getType().equalsIgnoreCase("location")){
-								iLocations.add(object);
-							}
-							else if(object.getType().equalsIgnoreCase("time")){
-								iTimes.add(object);
-							}
-							else if(object.getType().equalsIgnoreCase("mode")){
-								iModes.add(object);
-							}
-						}
-					}
-					
-					if(iPersons.isEmpty()){
-						iPersons.add(new DktAnnotation());
-					}
-					if(iLocations.isEmpty()){
-						iLocations.add(new DktAnnotation());
-					}
-					if(iTimes.isEmpty()){
-						iTimes.add(new DktAnnotation());
-					}
-					if(iModes.isEmpty()){
-						iModes.add(new DktAnnotation());
-					}
-					/**
-					 * Generate all the possible sextuples
-					 */
-					for (DktAnnotation person: iPersons) {
-						for (DktAnnotation location1 : iLocations) {
-							for (DktAnnotation location2 : iLocations) {
-								for (DktAnnotation time1 : iTimes) {
-									for (DktAnnotation time2: iTimes) {
-										for (DktAnnotation mode: iModes) {
-											float perVal=1,loc1Val=1,loc2Val=2,tim1Val=1,tim2Val=1,modVal=1;
-											if(person.getType().equalsIgnoreCase("empty")){
-												perVal=0;
-											}
-											if(location1.getType().equalsIgnoreCase("empty")){
-												loc1Val=0;
-											}
-											if(location2.getType().equalsIgnoreCase("empty")){
-												loc2Val=0;
-											}
-											if(time1.getType().equalsIgnoreCase("empty")){
-												tim1Val=0;
-											}
-											if(time2.getType().equalsIgnoreCase("empty")){
-												tim2Val=0;
-											}
-											if(mode.getType().equalsIgnoreCase("empty")){
-												modVal=0;
-											}
-											float maeScore = perVal*personWeight + loc1Val*originWeight + loc2Val*destinationWeight + 
-													tim1Val*departureTimeWeight + tim2Val*arrivalTimeWeight + modVal*modeWeight;
-											
-											MovementActionEvent auxmae = new MovementActionEvent(sentenceOffset, sentenceEnd, 
-													person.getText(), 
-													location1.getText(), location2.getText(), 
-													new Date(time1.getText()), new Date(time2.getText()), 
-													mode.getText(),sentence.get(CoreAnnotations.TextAnnotation.class),maeScore);
-											
-											if(maeScore > threshold){
-												maes.add(auxmae);
-											}
-											
-										}
-									}
-								}
-							}
-						}
-					}
-					sentenceOffset += sentence.size();
-				}
-			}
-			catch(Exception e){
-				e.printStackTrace();
-				return nifModel;
-			}
-			
-//			/**
-//			 * Detect Transportation modes: indirectly from some self-defined rules taking information from the defined MAEs.
-//			 */
-//			auxModel = travelModeDetection.detectIndirectTransportationModes(auxModel, languageParam, inFormat);
-
-			for (MovementActionEvent mae : maes) {
-				NIFWriter.addSextupleMAEAnnotation(auxModel, documentURI, 
-						mae.getPerson(),mae.getOrigin(),mae.getDestination(),
-						mae.getDepartureTime(),mae.getArrivalTime(),mae.getTravelMode(),
-						mae.getStartIndex(),mae.getEndIndex(),
-						mae.getText(),mae.getScore()
-						);
-			}
-			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));	
-			
-//			String turtle = NIFReader.model2String(auxModel, RDFSerialization.TURTLE);
-//			String graphUri = "";
-//			String crudApiEndpoint = "https://dev.digitale-kuratierung.de/sparql-graph-crud-auth";
+////			String detectedLanguage = languageIdentificator.getLanguageNIF(nifModel);
+////			// TODO; this initialises the language models every time, perhaps do this at initiasation instead
+////			/**
+////			 * TODO If not english, translate it.
+////			 */
+////			System.out.println("DEBUGGING detectedlang:" + detectedLanguage);
+//			String detectedLanguage = languageParam;
 //			
-//			CloseableHttpClient httpclient = null;
-//			CloseableHttpResponse response = null;
-//			boolean ok = false;
-//			try {
-//				httpclient = getHttpClient();
-//				String uri = crudApiEndpoint + "?graph-uri="
-//						+ URLEncoder.encode(graphUri, "utf-8");
-//				HttpPost request = new HttpPost(uri);
+//			Model auxModel = null;
+//			String prefix = "";
+//			if(detectedLanguage.equalsIgnoreCase("en")){
+//				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+//						detectedLanguage, 
+//						"ner", 
+//						"ner-wikinerEn_PER;ner-wikinerEn_LOC;ner-wikinerEn_ORG",  
+//						inFormat, 
+//						"all", 
+//						prefix);
 //
-//				request.addHeader("Content-Type", "text/turtle; charset=utf-8");
+//				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+//						detectedLanguage, 
+//						"temp", 
+//						"englishDates",
+//						inFormat, 
+//						"all", 
+//						prefix);
+//			}
+//			else{
+//				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+//						detectedLanguage, 
+//						"ner", 
+//						"ner-de_aij-wikinerTrainPER;ner-de_aij-wikinerTrainORG;ner-de_aij-wikinerTrainLOC",
+//						inFormat, 
+//						"all", 
+//						prefix);
 //
-//				HttpEntity entity = new StringEntity(turtle, "utf-8");
-//				request.setEntity(entity);
+//				auxModel = openNLPService.analyze(NIFReader.extractIsString(nifModel), 
+//						detectedLanguage, 
+//						"temp", 
+//						"germanDates",
+//						inFormat, 
+//						"all", 
+//						prefix);
+//			}			
+////			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
+//			
+//			//auxModel = heideltimeService.annotateTime(auxModel, detectedLanguage); // TODO: fix this one
+////			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));
 //
-//				response = httpclient.execute(request);
-//				StatusLine sl = response.getStatusLine();
-//				ok = sl.getStatusCode() == 200 || sl.getStatusCode() == 201;
-//				
-//				if(!ok){
-//					logger.error("Triplestore returned status \"" + sl.getStatusCode() + "\" when trying to write data to it.");
-//				}
-//			} finally {
-//				if (response != null) {
-//					response.close();
-//				}
-//				if (httpclient != null) {
-//					httpclient.close();
+//			// get md5 hash key (this is they key of the serialzed hashmap with all metadata)
+//			byte[] key = mendelsohnParser.getHashKey(NIFReader.extractIsString(nifModel)); // done on the base of (smallest) edit distance
+//			//TODO: this loads the serialized metadata everytime, perhaps do this at initiation (of the broker, through spring magic)
+//			
+//			String letterAuthor = mendelsohnParser.getAuthor(key);
+//			
+//			String letterDate = mendelsohnParser.getDate(key);
+//			
+//			String letterLocation = mendelsohnParser.getLocation(key);
+//			
+//			//TODO: next step to get an actual DBPedia uri/proper date for dates, and fill slots.
+//			System.out.println("DEBUGGING info:" + letterAuthor);
+//			System.out.println("DEBUGGING info:" + letterDate);
+//			System.out.println("DEBUGGING info:" + letterLocation);
+//			
+//			/**
+//			 * Detect Transportation modes: directly from a dictionary and indirectly from some self-defined rules.
+//			 */
+//			auxModel = travelModeDetection.detectTransportationModes(auxModel, languageParam, inFormat);
+//
+//			auxModel = movementVerbDetection.detectMovementVerbs(auxModel, languageParam, inFormat);
+//
+//			List<MovementActionEvent> maes = new LinkedList<MovementActionEvent>();
+//			/**
+//			 * Assign weights to the elements of the sextuple.
+//			 */
+//			float personWeight = 0.3f;
+//			float originWeight = 0.2f;
+//			float destinationWeight = 0.2f;
+//			float departureTimeWeight = 0.1f;
+//			float arrivalTimeWeight = 0.1f;
+//			float modeWeight = 0.1f;
+//			/**
+//			 * Threshold that defines if a sextuple is a real MAE
+//			 */
+//			float threshold = 0.5f;
+//
+//			/*
+//			 * Split the text into sentences 
+//			 */
+//			try{
+//				int sentenceOffset = 0;
+//				String inputText = NIFReader.extractIsString(nifModel).toLowerCase();
+//				Annotation document = new Annotation(inputText);
+//				pipeline.annotate(document);
+//				List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
+//				for (CoreMap sentence : sentences) {
+//					int sentenceEnd = sentenceOffset + sentence.size();
+//					/**
+//					 * Check in every sentence if there are alements of the sextuple (take them from the NIF)
+//					 */
+//					Map<String, DktAnnotation> elements = NIFReader.extractAnnotations(auxModel);
+//					
+//					List<DktAnnotation> iPersons = new LinkedList<DktAnnotation>();
+//					List<DktAnnotation> iLocations= new LinkedList<DktAnnotation>();
+//					List<DktAnnotation> iTimes= new LinkedList<DktAnnotation>();
+//					List<DktAnnotation> iModes = new LinkedList<DktAnnotation>();
+//					
+//					Set<String> elementsKeys = elements.keySet();
+//					for (String elementKey : elementsKeys) {
+//						DktAnnotation object = elements.get(elementKey);
+//						if( (object.getStart()>sentenceOffset && object.getStart()<sentenceEnd)
+//								||
+//								(object.getEnd()>sentenceOffset && object.getEnd()<sentenceEnd)){
+//							if(object.getType().equalsIgnoreCase("person")){
+//								iPersons.add(object);
+//							}
+//							else if(object.getType().equalsIgnoreCase("location")){
+//								iLocations.add(object);
+//							}
+//							else if(object.getType().equalsIgnoreCase("time")){
+//								iTimes.add(object);
+//							}
+//							else if(object.getType().equalsIgnoreCase("mode")){
+//								iModes.add(object);
+//							}
+//						}
+//					}
+//					
+//					if(iPersons.isEmpty()){
+//						iPersons.add(new DktAnnotation());
+//					}
+//					if(iLocations.isEmpty()){
+//						iLocations.add(new DktAnnotation());
+//					}
+//					if(iTimes.isEmpty()){
+//						iTimes.add(new DktAnnotation());
+//					}
+//					if(iModes.isEmpty()){
+//						iModes.add(new DktAnnotation());
+//					}
+//					/**
+//					 * Generate all the possible sextuples
+//					 */
+//					for (DktAnnotation person: iPersons) {
+//						for (DktAnnotation location1 : iLocations) {
+//							for (DktAnnotation location2 : iLocations) {
+//								for (DktAnnotation time1 : iTimes) {
+//									for (DktAnnotation time2: iTimes) {
+//										for (DktAnnotation mode: iModes) {
+//											float perVal=1,loc1Val=1,loc2Val=2,tim1Val=1,tim2Val=1,modVal=1;
+//											if(person.getType().equalsIgnoreCase("empty")){
+//												perVal=0;
+//											}
+//											if(location1.getType().equalsIgnoreCase("empty")){
+//												loc1Val=0;
+//											}
+//											if(location2.getType().equalsIgnoreCase("empty")){
+//												loc2Val=0;
+//											}
+//											if(time1.getType().equalsIgnoreCase("empty")){
+//												tim1Val=0;
+//											}
+//											if(time2.getType().equalsIgnoreCase("empty")){
+//												tim2Val=0;
+//											}
+//											if(mode.getType().equalsIgnoreCase("empty")){
+//												modVal=0;
+//											}
+//											float maeScore = perVal*personWeight + loc1Val*originWeight + loc2Val*destinationWeight + 
+//													tim1Val*departureTimeWeight + tim2Val*arrivalTimeWeight + modVal*modeWeight;
+//											
+//											MovementActionEvent auxmae = new MovementActionEvent(sentenceOffset, sentenceEnd, 
+//													person.getText(), 
+//													location1.getText(), location2.getText(), 
+//													new Date(time1.getText()), new Date(time2.getText()), 
+//													mode.getText(),sentence.get(CoreAnnotations.TextAnnotation.class),maeScore);
+//											
+//											if(maeScore > threshold){
+//												maes.add(auxmae);
+//											}
+//											
+//										}
+//									}
+//								}
+//							}
+//						}
+//					}
+//					sentenceOffset += sentence.size();
 //				}
 //			}
-			return auxModel;
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			return nifModel;
-		}
-	}
+//			catch(Exception e){
+//				e.printStackTrace();
+//				return nifModel;
+//			}
+//			
+////			/**
+////			 * Detect Transportation modes: indirectly from some self-defined rules taking information from the defined MAEs.
+////			 */
+////			auxModel = travelModeDetection.detectIndirectTransportationModes(auxModel, languageParam, inFormat);
+//
+//			for (MovementActionEvent mae : maes) {
+//				NIFWriter.addSextupleMAEAnnotation(auxModel, documentURI, 
+//						mae.getPerson(),mae.getOrigin(),mae.getDestination(),
+//						mae.getDepartureTime(),mae.getArrivalTime(),mae.getTravelMode(),
+//						mae.getStartIndex(),mae.getEndIndex(),
+//						mae.getText(),mae.getScore()
+//						);
+//			}
+//			System.out.println(NIFReader.model2String(auxModel, RDFSerialization.TURTLE));	
+//			
+////			String turtle = NIFReader.model2String(auxModel, RDFSerialization.TURTLE);
+////			String graphUri = "";
+////			String crudApiEndpoint = "https://dev.digitale-kuratierung.de/sparql-graph-crud-auth";
+////			
+////			CloseableHttpClient httpclient = null;
+////			CloseableHttpResponse response = null;
+////			boolean ok = false;
+////			try {
+////				httpclient = getHttpClient();
+////				String uri = crudApiEndpoint + "?graph-uri="
+////						+ URLEncoder.encode(graphUri, "utf-8");
+////				HttpPost request = new HttpPost(uri);
+////
+////				request.addHeader("Content-Type", "text/turtle; charset=utf-8");
+////
+////				HttpEntity entity = new StringEntity(turtle, "utf-8");
+////				request.setEntity(entity);
+////
+////				response = httpclient.execute(request);
+////				StatusLine sl = response.getStatusLine();
+////				ok = sl.getStatusCode() == 200 || sl.getStatusCode() == 201;
+////				
+////				if(!ok){
+////					logger.error("Triplestore returned status \"" + sl.getStatusCode() + "\" when trying to write data to it.");
+////				}
+////			} finally {
+////				if (response != null) {
+////					response.close();
+////				}
+////				if (httpclient != null) {
+////					httpclient.close();
+////				}
+////			}
+//			return auxModel;
+//		}
+//		catch(Exception e){
+//			e.printStackTrace();
+//			return nifModel;
+//		}
+//	}
 	
 	public HashMap<String, String> suggestEntityCandidates(Model nifModel, String languageParam, RDFConstants.RDFSerialization inFormat, double thresholdValue, ArrayList<String> classificationModels)
 					throws ExternalServiceFailedException, BadRequestException, IOException, Exception {
