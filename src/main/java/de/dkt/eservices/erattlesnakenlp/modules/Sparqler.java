@@ -191,6 +191,43 @@ public class Sparqler {
 			exec.close();
 		}
 	}
+	
+	
+	public String getLatitudeLongitudeFromLocationURI(String dbpediaURI, String sparqlService){
+
+		ParameterizedSparqlString sQuery = new ParameterizedSparqlString( "" +
+				"select ?uri ?info where {\n" +
+				" ?uri ?infoURL ?info.\n" +
+				" FILTER (?uri = ?dbpediaURI)" +
+				"}" );
+
+		String infoURL = "http://www.georss.org/georss/point"; // hardcoded because this method is for locations only
+		String latitude = null;
+		String longitude = null;
+		String dbPediaURI = dbpediaURI;
+		sQuery.setIri("dbpediaURI", dbPediaURI);
+		sQuery.setIri("infoURL", infoURL);
+		QueryExecution exec = QueryExecutionFactory.sparqlService(sparqlService, sQuery.asQuery());
+		exec.setTimeout(3000, TimeUnit.MILLISECONDS);
+		try {
+			ResultSet res = exec.execSelect();
+			while (res.hasNext()) {
+				QuerySolution qs = res.next();
+				RDFNode n = qs.get("info");
+				String[] p = n.toString().split("\\^\\^");
+				latitude = p[0].split("\\s")[0];
+				longitude = p[0].split("\\s")[1];
+				break; // just taking the first result here, not caring about
+						// any others in case of multiple results
+
+			}
+		} catch (Exception e) {
+			logger.info("Unable to retrieve " + infoURL + " for: " + dbPediaURI + ". Skipping.");
+		}
+		exec.close();
+		return latitude + "_" + longitude;
+	}
+	
 
 
 	public void addGeoStats(Model nifModel, String textToProcess, String string) {
@@ -234,12 +271,16 @@ public class Sparqler {
 
 	public static void main(String[] args) throws Exception {
 
-		String uri = getDBPediaURI("Hollande", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+//		String uri = getDBPediaURI("Hollande", "en", "http://dbpedia.org/sparql", "http://dbpedia.org");
+//		System.out.println("uri:" + uri);
+		String uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
 		System.out.println("uri:" + uri);
-		//uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
-		//System.out.println("uri:" + uri);
+		//String sparqlService = "http://en.dbpedia.org/sparql"; //or, for German:
+		String sparqlService = "http://de.dbpedia.org/sparql";
 		//String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
 		//System.out.println(targetLabel);
+		Sparqler sq = new Sparqler();
+		System.out.println(sq.getLatitudeLongitudeFromLocationURI(uri, sparqlService));
 
 	}
 
