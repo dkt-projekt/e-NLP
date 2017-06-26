@@ -50,7 +50,7 @@ public class EHeideltimeService {
 	private static final String CONFIG_PROPS = "config.props"; 
 
 	private static final String RESOURCE_NAME = "/opt/heideltime-kit/conf/" + CONFIG_PROPS; 
-//	private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
+	//private static final String RESOURCE_NAME = "C:\\Users\\pebo01\\Desktop\\heideltime-kit\\conf\\" + CONFIG_PROPS;
 	
 	private String configPath; 
 
@@ -104,9 +104,7 @@ public class EHeideltimeService {
 		try {
 			String document = NIFReader.extractIsString(nifModel);
 			Model auxModel = annotateTimeInText(document, languageParam, NIFReader.extractDocumentURI(nifModel)); 
-			if(auxModel!=null){
-				nifModel.add(auxModel);
-			}
+			nifModel.add(auxModel);
 			return nifModel; 
     	} catch (ExternalServiceFailedException e2) {
         	logger.error(e2.getMessage());

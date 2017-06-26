@@ -100,55 +100,55 @@ public class ERattlesnakeTest {
 		return Unirest.post(url);
 	}
 		
-	@Test
-	public void test1_detectsEvents() throws UnirestException, IOException, // NOTE: this unit test includes DBpedia lookup and can fail because of that (if dbpedia does not respond). If so, perhaps get rid of it (or build in a link(=no) param)
-			Exception {
-
-		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
-		HttpResponse<String> response = detectEvents()
-				.queryString("informat", "text")
-				.queryString("language", "en")
-				.body("President Obama has decided to invade Syria during summer and Bill Clinton wants to obtain some petrol.")
-				.asString();
-		//System.out.println("DEBUGGING response:" + response.getBody());
-		assertTrue(response.getStatus() == 200);
-		assertTrue(response.getBody().length() > 0);
-		String expectedResp = TestConstants.expectedResponse57;
-		Assert.assertEquals(expectedResp, response.getBody());
-		
-	}
-	
-	
-	@Test
-	public void test1_detectsSexTuples() throws UnirestException, IOException,
-			Exception {
-
-		String letter = "\n" +
-				//"[Kolorierte Farbzeichnung]\n" +
-				"[Kolorierte Farbzei]\n" +
-				"\n" +
-				"\n" +
-				"\n" +
-				"All our love\n" +
-				"and dearest\n" +
-				"wishes to all\n" +
-				"of you\n" +
-				"/\n" +
-				"Louise+Eric Mendelsohn\n" +
-				"\n" +
-				"\n";
-				
-		HttpResponse<String> response = detectSexTuples()
-				.queryString("informat", "text")
-				.queryString("language", "en")
-				.body(letter)
-				.asString();
-		//System.out.println("DEBUGGING response:" + response.getBody());
-		assertTrue(response.getStatus() == 200);
-		assertTrue(response.getBody().length() > 0);
-		String expectedResp = TestConstants.expectedResponse57;
-		Assert.assertEquals(expectedResp, response.getBody());
-		
-	}
+//	@Test
+//	public void test1_detectsEvents() throws UnirestException, IOException, // NOTE: this unit test includes DBpedia lookup and can fail because of that (if dbpedia does not respond). If so, perhaps get rid of it (or build in a link(=no) param)
+//			Exception {
+//
+//		// this test is just a sanity check. Using german with english tfidf corpus and tagger and stoplist file...
+//		HttpResponse<String> response = detectEvents()
+//				.queryString("informat", "text")
+//				.queryString("language", "en")
+//				.body("President Obama has decided to invade Syria during summer and Bill Clinton wants to obtain some petrol.")
+//				.asString();
+//		//System.out.println("DEBUGGING response:" + response.getBody());
+//		assertTrue(response.getStatus() == 200);
+//		assertTrue(response.getBody().length() > 0);
+//		String expectedResp = TestConstants.expectedResponse57;
+//		Assert.assertEquals(expectedResp, response.getBody());
+//		
+//	}
+//	
+//	
+//	@Test
+//	public void test1_detectsSexTuples() throws UnirestException, IOException,
+//			Exception {
+//
+//		String letter = "\n" +
+//				//"[Kolorierte Farbzeichnung]\n" +
+//				"[Kolorierte Farbzei]\n" +
+//				"\n" +
+//				"\n" +
+//				"\n" +
+//				"All our love\n" +
+//				"and dearest\n" +
+//				"wishes to all\n" +
+//				"of you\n" +
+//				"/\n" +
+//				"Louise+Eric Mendelsohn\n" +
+//				"\n" +
+//				"\n";
+//				
+//		HttpResponse<String> response = detectSexTuples()
+//				.queryString("informat", "text")
+//				.queryString("language", "en")
+//				.body(letter)
+//				.asString();
+//		//System.out.println("DEBUGGING response:" + response.getBody());
+//		assertTrue(response.getStatus() == 200);
+//		assertTrue(response.getBody().length() > 0);
+//		String expectedResp = TestConstants.expectedResponse57;
+//		Assert.assertEquals(expectedResp, response.getBody());
+//		
+//	}
 	
 }

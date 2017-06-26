@@ -15,6 +15,10 @@ public class FakeNewsChallengeObject implements Comparable{
 	private String articleLemmas;
 	private ArrayList<GrammaticalStructure> gsArticle;
 	private ArrayList<GrammaticalStructure> gsHeader;
+	private String headerWithoutStopwords;
+	private String articleWithoutStopwords;
+	private String headerLemmasWS;
+	private String articleLemmasWS;
 	
 	private int orderId;
 	
@@ -47,6 +51,43 @@ public class FakeNewsChallengeObject implements Comparable{
 	public void setHeaderLemmas(String headerLemmas) {
 		this.headerLemmas = headerLemmas;
 	}
+	
+	
+	public String getHeaderWithoutStopwords() {
+		return headerWithoutStopwords;
+	}
+	public void setHeaderWithoutStopwords(String headerWithoutStopwords) {
+		this.headerWithoutStopwords = headerWithoutStopwords;
+	}
+	public String getArticleWithoutStopwords() {
+		return articleWithoutStopwords;
+	}
+	public void setArticleWithoutStopwords(String articleWithoutStopwords) {
+		this.articleWithoutStopwords = articleWithoutStopwords;
+	}
+	
+	
+	
+//	public String getHeaderLemmasWS() {
+//		return headerLemmasWS;
+//	}
+//	public void setHeaderLemmasWS(String headerLemmasWS) {
+//		this.headerLemmasWS = headerLemmasWS;
+//	}
+//	public String getArticleLemmasWS() {
+//		return articleLemmasWS;
+//	}
+//	public void setArticleLemmasWS(String articleLemmasWS) {
+//		this.articleLemmasWS = articleLemmasWS;
+//	}
+	
+	
+	
+	
+	
+	
+	
+	
 	public String getArticleLemmas() {
 		return articleLemmas;
 	}
