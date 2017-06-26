@@ -104,7 +104,9 @@ public class EHeideltimeService {
 		try {
 			String document = NIFReader.extractIsString(nifModel);
 			Model auxModel = annotateTimeInText(document, languageParam, NIFReader.extractDocumentURI(nifModel)); 
-			nifModel.add(auxModel);
+			if(auxModel!=null){
+				nifModel.add(auxModel);
+			}
 			return nifModel; 
     	} catch (ExternalServiceFailedException e2) {
         	logger.error(e2.getMessage());

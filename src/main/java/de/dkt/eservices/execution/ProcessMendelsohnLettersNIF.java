@@ -94,6 +94,7 @@ public class ProcessMendelsohnLettersNIF {
 //		String sFolder = "/Users/jumo04/Downloads/allCleanLetters2/";
 //		String sFolder = "/Users/jumo04/Downloads/newsCorpus/";
 		String sFolder = "/Users/jumo04/Downloads/enLetters/plainText3/";
+//		String sFolder = "/Users/jumo04/Downloads/endeLetters/";
 		
 		/**
 		 * Code to process the plaintext files of the mendelsohn letters.
@@ -103,16 +104,16 @@ public class ProcessMendelsohnLettersNIF {
 //		String outputFolder = "nif_MD/";
 //		pml.processInitialDocuments(sFolder, fs2, outputFolder);
 		
-		pml.evaluate(sFolder,"Events_MD_WithoutDuplicates_OnlyTriggered_ALL_Sentences",true,true,true);
-		pml.evaluate(sFolder,"Events_MD_WithoutDuplicates_ALL_Sentences",false,true,true);
+		pml.evaluate(sFolder,"Events_woGE_WithoutDuplicates_OnlyTriggered_ALL_Sentences2",true,true,true);
+//		pml.evaluate(sFolder,"Events_woGE_WithoutDuplicates_ALL_Sentences2",false,true,true);
 	}
 		
 	public void evaluate(String sFolder, String folderPart, boolean triggered, boolean includeMetadata, boolean deleteDuplicates) throws Exception{
 		float [][] weights = {
 //				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f},
 //				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f},
-				{0.55f,0.15f,0.15f,0.05f,0.05f,0.05f},
-				{0.167f,0.167f,0.167f,0.167f,0.167f,0.167f},
+//				{0.55f,0.15f,0.15f,0.05f,0.05f,0.05f},
+//				{0.167f,0.167f,0.167f,0.167f,0.167f,0.167f},
 				{0.3f,0.2f,0.2f,0.1f,0.1f,0.1f}
 				};
 		int counter = 1;
@@ -190,7 +191,7 @@ public class ProcessMendelsohnLettersNIF {
 	
 	public void processSentences(String sFolder,float[] weights,String outputFolder,
 			boolean triggered, boolean includeMetadata, boolean deleteDuplicates) throws Exception {
-		File folder = new File(sFolder+"nifs_MD2/");
+		File folder = new File(sFolder+"nifs/");
 		File[] files = folder.listFiles();
 		for (File file : files) {
 			if(!file.isDirectory() && !file.getName().startsWith(".") && file.getName().endsWith(".nif")){
@@ -199,15 +200,16 @@ public class ProcessMendelsohnLettersNIF {
 				String language = "en";
 				
 				String fileName = file.getName().substring(0, file.getName().indexOf("."))+".txt.events.json";
-				String sourceFileName = sFolder+"events/"+file.getName().substring(0, file.getName().indexOf("."))+".txt";
-				File sourceEventsFile = new File(sourceFileName);
-				String sourceEventsText = IOUtils.toString(new FileInputStream(sourceEventsFile));
+//				String fileName = file.getName().substring(0, file.getName().indexOf("."))+".txt.mendelde.events.json";
+//				String sourceFileName = sFolder+"events/"+file.getName().substring(0, file.getName().indexOf("."))+".txt";
+//				File sourceEventsFile = new File(sourceFileName);
+//				String sourceEventsText = IOUtils.toString(new FileInputStream(sourceEventsFile));
 				List<GenericEvent> events = getGenericEvents(sFolder+"events/", fileName);
-				if(events.size()>0){
+				if(events!=null && events.size()>0){
 //					System.out.println(fileName);
 //					System.out.println("\t"+events.size());
 					Model inputModel = NIFReader.extractModelFromFormatString(inputText, RDFSerialization.TURTLE);
-					
+					String sourceEventsText = "";
 					Model outputModel = detectSextuplesWithEvents(sourceEventsText, inputModel, language, RDFSerialization.TURTLE,weights,events,triggered,includeMetadata,deleteDuplicates);
 //					Model outputModel = detectSextuples(inputModel,language,RDFSerialization.TURTLE,weights);
 //					Model outputModel = addLetterInformation(inputModel,language,RDFSerialization.TURTLE,weights);
@@ -515,8 +517,8 @@ public class ProcessMendelsohnLettersNIF {
 			 */
 			try{
 				String inputText = NIFReader.extractIsString(nifModel);
-//				Annotation document = new Annotation(inputText);
-				Annotation document = new Annotation(t);
+				Annotation document = new Annotation(inputText);
+//				Annotation document = new Annotation(t);
 				pipeline.annotate(document);
 //				Annotation document2 = new Annotation(inputText);
 //				pipeline.annotate(document2);
@@ -599,34 +601,34 @@ public class ProcessMendelsohnLettersNIF {
 						}
 					}
 					
-					List<Component> components = event.components;
-					for (Component c : components) {
-						// ORG or GPE
-						if(c.type.equalsIgnoreCase("PER")){
-							iPersons.add(c.getDktAnnotation());
-						}
-						else if(c.type.equalsIgnoreCase("ORG")){
-							iPersons.add(c.getDktAnnotation());
-						}
-						else if(c.type.equalsIgnoreCase("GPE")){
-							iPersons.add(c.getDktAnnotation());
-						}
-						else if(c.type.equalsIgnoreCase("LOC")){
-							iLocations.add(c.getDktAnnotation());
-						}
-						else if(c.type.equalsIgnoreCase("TIME")){
-							iTimes.add(c.getDktAnnotation());
-						}
-//						else if(c.type.equalsIgnoreCase("mode")){
-//							iModes.add(c.getDktAnnotation());
+//					List<Component> components = event.components;
+//					for (Component c : components) {
+//						// ORG or GPE
+//						if(c.type.equalsIgnoreCase("PER")){
+//							iPersons.add(c.getDktAnnotation());
 //						}
-//						else if(c.type.equalsIgnoreCase("triggerVerb")){
-//							iTriggers.add(c.getDktAnnotation());
+////						else if(c.type.equalsIgnoreCase("ORG")){
+////							iPersons.add(c.getDktAnnotation());
+////						}
+//						else if(c.type.equalsIgnoreCase("GPE")){
+//							iPersons.add(c.getDktAnnotation());
 //						}
-//						else if(c.type.equalsIgnoreCase("triggerTerm")){
-//							iTriggers.add(c.getDktAnnotation());
+//						else if(c.type.equalsIgnoreCase("LOC")){
+//							iLocations.add(c.getDktAnnotation());
 //						}
-					}
+//						else if(c.type.equalsIgnoreCase("TIME")){
+//							iTimes.add(c.getDktAnnotation());
+//						}
+////						else if(c.type.equalsIgnoreCase("mode")){
+////							iModes.add(c.getDktAnnotation());
+////						}
+////						else if(c.type.equalsIgnoreCase("triggerVerb")){
+////							iTriggers.add(c.getDktAnnotation());
+////						}
+////						else if(c.type.equalsIgnoreCase("triggerTerm")){
+////							iTriggers.add(c.getDktAnnotation());
+////						}
+//					}
 					
 //					System.out.println(iPersons.size()+"--"+iLocations.size()+"--"+iTimes.size()+"--"+iModes.size()+"--"+iTriggers.size());
 //					System.exit(0);
