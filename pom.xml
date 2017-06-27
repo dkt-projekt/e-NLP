@@ -52,20 +52,12 @@
 		</dependency>
 		
 		<!--  ONLY USED FOR FAKE NEWS CHALLENGE EXPERIMENTS. DO NOT COMMIT!  -->
-<<<<<<< HEAD
- 		<dependency>
-=======
 <!--  	<dependency>
->>>>>>> branch 'master' of https://github.com/dkt-projekt/e-NLP
 			<groupId>de.dkt</groupId>
 			<artifactId>e-Clustering</artifactId>
 			<version>0.7-SNAPSHOT</version>
-<<<<<<< HEAD
 		</dependency>  
-=======
-		</dependency> --> 
->>>>>>> branch 'master' of https://github.com/dkt-projekt/e-NLP
-		
+		</dependency> --> 		
 <!-- 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>

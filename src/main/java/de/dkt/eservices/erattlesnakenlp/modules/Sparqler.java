@@ -275,7 +275,7 @@ public class Sparqler {
 //		System.out.println("uri:" + uri);
 		String uri = getDBPediaURI("Berlin", "de", "http://de.dbpedia.org/sparql", "http://de.dbpedia.org");
 		System.out.println("uri:" + uri);
-		//String sparqlService = "http://en.dbpedia.org/sparql"; //or, for German:
+		//String sparqlService = "http://dbpedia.org/sparql"; //or, for German:
 		String sparqlService = "http://de.dbpedia.org/sparql";
 		//String targetLabel = getDBPediaLabelForLanguage("http://dbpedia.org/resource/Antwerp", "ar");
 		//System.out.println(targetLabel);
